@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-4">Super Admin Dashboard</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white shadow-md rounded-lg p-4">
+            <h2 class="text-xl font-semibold mb-2">User Management</h2>
+            <p>Manage users and their permissions.</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-4">
+            <h2 class="text-xl font-semibold mb-2">System Settings</h2>
+            <p>Configure system settings and preferences.</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-4">
+            <h2 class="text-xl font-semibold mb-2">Reports</h2>
+            <p>Generate and view system reports.</p>
+        </div>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">Recent Activity</h2>
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">User</th>
+                    <th class="py-2 px-4 border-b">Action</th>
+                    <th class="py-2 px-4 border-b">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                <tr>
+                    <td class="py-2 px-4 border-b">{{ activity.user }}</td>
+                    <td class="py-2 px-4 border-b">{{ activity.action }}</td>
+                    <td class="py-2 px-4 border-b">{{ activity.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">System Statistics</h2>
+        <p>Total Users: {{ total_users }}</p>
+        <p>Total Activities: {{ total_activities }}</p>
+        <p>System Uptime: {{ system_uptime }}</p>
+        <p>Last Backup: {{ last_backup }}</p>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">Notifications</h2>
+        <ul>
+            {% for notification in notifications %}
+            <li class="bg-gray-100 p-2 mb-2 rounded">{{ notification }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">System Health</h2>
+        <p>CPU Usage: {{ cpu_usage }}%</p>
+        <p>Memory Usage: {{ memory_usage }}%</p>
+        <p>Disk Space: {{ disk_space }}%</p>
+        <p>Network Status: {{ network_status }}</p>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">Backup and Restore</h2>
+        <p>Last Backup: {{ last_backup }}</p>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded">Backup Now</button>
+        <button class="bg-red-500 text-white px-4 py-2 rounded">Restore Backup</button>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">System Logs</h2>
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">Timestamp</th>
+                    <th class="py-2 px-4 border-b">Log Level</th>
+                    <th class="py-2 px-4 border-b">Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="py-2 px-4 border-b">{{ log.timestamp }}</td>
+                    <td class="py-2 px-4 border-b">{{ log.level }}</td>
+                    <td class="py-2 px-4 border-b">{{ log.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">User Feedback</h2>
+        <ul>
+            {% for feedback in feedbacks %}
+            <li class="bg-gray-100 p-2 mb-2 rounded">{{ feedback }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">System Updates</h2>
+        <p>Check for system updates and patches.</p>
+        <button class="bg-green-500 text-white px-4 py-2 rounded">Check for Updates</button>
+        <button class="bg-yellow-500 text-white px-4 py-2 rounded">Install Updates</button>
+    </div>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">API Management</h2>
+        <p>Manage API keys and access tokens.</p>
+        <button class="bg-purple-500 text-white px-4 py-2 rounded">Generate API Key</button>
+        <button class="bg-orange-500 text-white px-4 py-2 rounded">Revoke API Key</button>
+    </div>
+
+{% if user.is_superuser %}
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">Super Admin Actions</h2>
+        <button class="bg-red-500 text-white px-4 py-2 rounded">Delete User</button>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded">Reset Password</button>
+    </div>
+{% endif %}
+</div>
+
+{% endblock %}
+<!-- This template extends the base.html template and provides a super admin dashboard layout with various sections for managing the system. -->
