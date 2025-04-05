@@ -1,0 +1,29 @@
+{% extends 'pages/base.html' %}
+
+{% block content %}
+<div class="container mx-auto">
+    <h1 class="text-3xl font-bold">Welcome to the Atlas Service</h1>
+    <p class="mt-4">This is a simple web application built with Flask and Tailwind CSS.</p>
+    <p class="mt-4">You can use this service to manage your data and perform various operations.</p>
+    <p class="mt-4">Explore the features and enjoy!</p>
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold">Features</h2>
+        <ul class="list-disc list-inside mt-4">
+            <li>Feature 1: Data Management</li>
+            <li>Feature 2: User Authentication</li>
+            <li>Feature 3: API Integration</li>
+            <li>Feature 4: Responsive Design</li>
+        </ul>
+    </div>
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold">Getting Started</h2>
+        <p class="mt-4">To get started, you can visit the following links:</p>
+        <ul class="list-disc list-inside mt-4">
+            <li><a href="{% url 'login' %}" class="text-blue-500 hover:underline">Login</a></li>
+            <li><a href="{% url 'register' %}" class="text-blue-500 hover:underline">Register</a></li>
+        </ul>
+    </div>
+
+{% endblock %}
+
+{# Hello World #}
