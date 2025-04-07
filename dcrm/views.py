@@ -1,5 +1,7 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import redirect, render, HttpResponse
 from django.http import HttpRequest
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 
 # Create your views here.
 
@@ -16,10 +18,27 @@ def contact(request: HttpRequest):
     return render(request, 'pages/landing/contact.html', {})
 
 def login(request: HttpRequest):
-    return render(request, 'pages/auth/login.html', {})
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request,user)
+            messages.success(request, "You have been logged in successfully.")
+            return redirect ('index')
+        else:
+            messages.success(request, "There was an error logging in")
+    else:
+        return render(request, 'pages/auth/login.html', {})
 
 def register(request: HttpRequest):
     return render(request, 'pages/auth/register.html', {})
 
 def forgot_password(request: HttpRequest):
     return render(request, 'pages/auth/resetpassword.html', {})
+
+def next(request: HttpRequest):
+    return render(request, 'pages/auth/next.html', {})
+
+def overview(request: HttpRequest):
+    return render(request, 'pages/user/overview.html', {})
