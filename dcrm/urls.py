@@ -1,19 +1,19 @@
-from . import views
 from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('', views.index, name='home'),
-    path('about/', views.about, name='about'),
-    path('services/', views.services, name='services'),
-    path('contact/', views.contact, name='contact'),
-    path('login/', views.login, name='login'),
-    path('register/', views.register, name='register'),
-    path('resetpassword/', views.forgot_password, name='resetpassword'),
-    path('next/', views.next, name='next'),
-    path('overview/', views.overview, name='overview'),
-    # path('resetpassword/<uidb64>/<token>/', views.reset_password_confirm, name='password_reset_confirm'),
-    # path('resetpassword/done/', views.reset_password_done, name='password_reset_done'),
-    # path('resetpassword/confirm/', views.reset_password_confirm, name='password_reset_confirm'),
-    # path('resetpassword/complete/', views.reset_password_complete, name='password_reset_complete'),
-    
+    path('', views.dashboard, name='dashboard'),
+    path('users/', views.users, name='users'),
+    path('roles/', views.roles, name='roles'),
+    path('orders/', views.orders, name='orders'),
+    path('delivery/', views.delivery, name='delivery'),
+    path('sourcing/', views.sourcing, name='sourcing'),
+    path('warehouses/', views.warehouses, name='warehouses'),
+    path('inventory/', views.inventory, name='inventory'),
+    path('finances/', views.finances, name='finances'),
+    path('marketplace/', views.marketplace, name='marketplace'),
+    path('affiliate/', views.affiliate, name='affiliate'),
+    path('atlasdrop/', views.atlasdrop, name='atlasdrop'),
+    path('settings/', views.settings, name='settings'),
+    path('logout/', views.logout_view, name='logout'),
 ]
