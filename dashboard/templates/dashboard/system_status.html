@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}System Status{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50">
+    <!-- Page Header -->
+    <div class="bg-yellow-500 shadow-lg">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-white">System Status</h1>
+        </div>
+    </div>
+
+    <div class="bg-gray-100 py-6">
+        <main class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- System Health Summary -->
+            <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
+                <div class="bg-gray-50 overflow-hidden shadow rounded-lg border-t-4 border-yellow-500">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 {% if status == 'healthy' %}bg-green-500{% elif status == 'warning' %}bg-yellow-500{% else %}bg-red-500{% endif %} rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">System Status</dt>
+                                    <dd class="text-lg font-medium text-gray-900">
+                                        {% if status == 'healthy' %}
+                                        Healthy
+                                        {% elif status == 'warning' %}
+                                        Warning
+                                        {% else %}
+                                        Critical
+                                        {% endif %}
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 overflow-hidden shadow rounded-lg border-t-4 border-yellow-500">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Database Response</dt>
+                                    <dd class="text-lg font-medium text-gray-900">{{ database_response }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 overflow-hidden shadow rounded-lg border-t-4 border-yellow-500">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">API Response</dt>
+                                    <dd class="text-lg font-medium text-gray-900">{{ api_response }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Details -->
+            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg mt-8 border-t-4 border-yellow-500">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">System Details</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Technical information about the system.</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <dl>
+                        <div class="bg-gray-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Django Version</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">5.2</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Python Version</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">3.13.3</dd>
+                        </div>
+                        <div class="bg-gray-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Database</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">PostgreSQL 14.5</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Last Backup</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ last_backup }}</dd>
+                        </div>
+                        <div class="bg-gray-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">System Uptime</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">7 days, 5 hours</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Active Users (Last 24h)</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">27</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Services Status -->
+            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg mt-8 border-t-4 border-yellow-500">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Services Status</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Current status of all system services.</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <ul role="list" class="divide-y divide-gray-200">
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">Web Server</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Operational</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">Database</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Operational</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">Cache Server</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Operational</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">Background Workers</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Operational</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">Email Service</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Operational</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recent System Events -->
+            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg mt-8 border-t-4 border-yellow-500">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Recent System Events</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Latest system events and notifications.</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <ul role="list" class="divide-y divide-gray-200">
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">Database backup completed successfully</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Info</p>
+                                    <p class="ml-2 text-sm text-gray-500">Today, 03:00 AM</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">System updates installed</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Info</p>
+                                    <p class="ml-2 text-sm text-gray-500">Yesterday, 11:30 PM</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">High server load detected (resolved)</p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Warning</p>
+                                    <p class="ml-2 text-sm text-gray-500">May 3, 2023, 2:15 PM</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-8 flex justify-end space-x-4">
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150 ease-in-out">
+                    Run Diagnostics
+                </button>
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150 ease-in-out">
+                    Backup Database
+                </button>
+            </div>
+        </main>
+        </div>
+</div>
+{% endblock %} 
