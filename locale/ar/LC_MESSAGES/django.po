@@ -1,0 +1,376 @@
+# Arabic translations for CRM Fulfillment.
+# Copyright (C) 2023 Atlas Fulfillment
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-01 12:00+0000\n"
+"PO-Revision-Date: 2023-05-01 12:00+0000\n"
+"Last-Translator: Atlas Team\n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: templates/base.html
+msgid "Atlas Fulfillment"
+msgstr "أطلس لوجيستيك"
+
+#: templates/base.html landing/templates/landing/base_landing.html
+msgid "Home"
+msgstr "الرئيسية"
+
+#: templates/base.html landing/templates/landing/base_landing.html
+msgid "About Us"
+msgstr "من نحن"
+
+#: templates/base.html landing/templates/landing/base_landing.html
+msgid "Services"
+msgstr "خدماتنا"
+
+#: templates/base.html landing/templates/landing/base_landing.html
+msgid "Contact Us"
+msgstr "اتصل بنا"
+
+#: templates/base.html
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#: templates/base.html
+msgid "Orders"
+msgstr "الطلبات"
+
+#: templates/base.html
+msgid "Inventory"
+msgstr "المخزون"
+
+#: templates/base.html
+msgid "Sourcing"
+msgstr "التوريد"
+
+#: templates/base.html
+msgid "Call Center"
+msgstr "مركز الاتصال"
+
+#: templates/base.html
+msgid "Packaging"
+msgstr "التغليف"
+
+#: templates/base.html
+msgid "Delivery"
+msgstr "التوصيل"
+
+#: templates/base.html
+msgid "Finance"
+msgstr "المالية"
+
+#: templates/base.html
+msgid "Sellers"
+msgstr "البائعين"
+
+#: templates/base.html
+msgid "Follow-up"
+msgstr "المتابعة"
+
+#: templates/base.html
+msgid "Admin Panel"
+msgstr "لوحة الإدارة"
+
+#: templates/base.html
+msgid "Notifications"
+msgstr "الإشعارات"
+
+#: templates/base.html
+msgid "Mark all as read"
+msgstr "تعليم الكل كمقروء"
+
+#: templates/base.html
+msgid "No notifications yet"
+msgstr "لا توجد إشعارات"
+
+#: templates/base.html
+msgid "View all notifications"
+msgstr "عرض كل الإشعارات"
+
+#: templates/base.html
+msgid "Open user menu"
+msgstr "فتح قائمة المستخدم"
+
+#: templates/base.html
+msgid "Your Profile"
+msgstr "الملف الشخصي"
+
+#: templates/base.html
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: templates/base.html
+msgid "Sign out"
+msgstr "تسجيل الخروج"
+
+#: landing/templates/landing/base_landing.html
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+#: landing/templates/landing/base_landing.html
+msgid "Register"
+msgstr "التسجيل"
+
+#: landing/templates/landing/base_landing.html
+msgid "How It Works"
+msgstr "كيف يعمل"
+
+#: landing/templates/landing/base_landing.html
+msgid "FAQ"
+msgstr "الأسئلة الشائعة"
+
+#: landing/templates/landing/base_landing.html
+msgid "Atlas Fulfillment & Delivery Services"
+msgstr "أطلس لخدمات الاستيفاء والتوصيل"
+
+#: landing/templates/landing/base_landing.html
+msgid "Your trusted partner for all your e-commerce warehousing and delivery needs."
+msgstr "شريكك الموثوق لجميع احتياجات التخزين والتوصيل للتجارة الإلكترونية."
+
+#: landing/templates/landing/base_landing.html
+msgid "Quick Links"
+msgstr "روابط سريعة"
+
+#: landing/templates/landing/base_landing.html
+msgid "Contact Information"
+msgstr "معلومات الاتصال"
+
+#: landing/templates/landing/base_landing.html
+msgid "Headquarters: Dubai, UAE"
+msgstr "المقر الرئيسي: دبي، الإمارات العربية المتحدة"
+
+#: landing/templates/landing/base_landing.html
+msgid "Branch: Riyadh, KSA"
+msgstr "فرع: الرياض، المملكة العربية السعودية"
+
+#: landing/templates/landing/base_landing.html
+msgid "Working Hours: 8AM - 6PM"
+msgstr "ساعات العمل: 8 صباحاً - 6 مساءً"
+
+#: landing/templates/landing/base_landing.html
+msgid "Saturday - Thursday"
+msgstr "السبت - الخميس"
+
+#: landing/templates/landing/base_landing.html
+msgid "Newsletter"
+msgstr "النشرة الإخبارية"
+
+#: landing/templates/landing/base_landing.html
+msgid "Subscribe to our newsletter for updates and news."
+msgstr "اشترك في نشرتنا الإخبارية للحصول على التحديثات والأخبار."
+
+#: landing/templates/landing/base_landing.html
+msgid "Your email"
+msgstr "بريدك الإلكتروني"
+
+#: landing/templates/landing/base_landing.html
+msgid "We respect your privacy. Your information is safe and will never be shared."
+msgstr "نحن نحترم خصوصيتك. معلوماتك آمنة ولن يتم مشاركتها أبداً."
+
+#: landing/templates/landing/base_landing.html
+msgid "All rights reserved."
+msgstr "جميع الحقوق محفوظة."
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Packaging Dashboard"
+msgstr "لوحة تحكم التغليف"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Pending Orders"
+msgstr "الطلبات المعلقة"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "orders waiting"
+msgstr "طلبات في الانتظار"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "View Orders"
+msgstr "عرض الطلبات"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Completed Today"
+msgstr "مكتمل اليوم"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "packages processed"
+msgstr "الطرود المعالجة"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "View Report"
+msgstr "عرض التقرير"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Packaging Materials"
+msgstr "مواد التغليف"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Manage materials inventory"
+msgstr "إدارة مخزون المواد"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Manage Materials"
+msgstr "إدارة المواد"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Recent Orders"
+msgstr "الطلبات الأخيرة"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "View All"
+msgstr "عرض الكل"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Order ID"
+msgstr "رقم الطلب"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Customer"
+msgstr "العميل"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Items"
+msgstr "العناصر"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Status"
+msgstr "الحالة"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Pending"
+msgstr "معلق"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Completed"
+msgstr "مكتمل"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Fulfillment Process"
+msgstr "عملية الاستيفاء"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Logistics Illustration"
+msgstr "رسم توضيحي للخدمات اللوجستية"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Streamlined Packaging Process"
+msgstr "عملية تغليف مبسطة"
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Our system helps you efficiently process and track all packaging operations."
+msgstr "يساعدك نظامنا على معالجة وتتبع جميع عمليات التغليف بكفاءة."
+
+#: packaging/templates/packaging/dashboard.html
+msgid "Learn More"
+msgstr "اعرف المزيد"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Packaging Orders"
+msgstr "طلبات التغليف"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Orders for Packaging"
+msgstr "طلبات للتغليف"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Orders List"
+msgstr "قائمة الطلبات"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Back to Dashboard"
+msgstr "العودة إلى لوحة التحكم"
+
+#: packaging/templates/packaging/order_list.html
+msgid "All Statuses"
+msgstr "جميع الحالات"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Processing"
+msgstr "قيد المعالجة"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Today"
+msgstr "اليوم"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Last 7 Days"
+msgstr "آخر 7 أيام"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Last 30 Days"
+msgstr "آخر 30 يوم"
+
+#: packaging/templates/packaging/order_list.html
+msgid "All Time"
+msgstr "كل الوقت"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Search by ID or Customer"
+msgstr "البحث بالرقم أو العميل"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Date"
+msgstr "التاريخ"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Actions"
+msgstr "الإجراءات"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Showing"
+msgstr "عرض"
+
+#: packaging/templates/packaging/order_list.html
+msgid "to"
+msgstr "إلى"
+
+#: packaging/templates/packaging/order_list.html
+msgid "of"
+msgstr "من"
+
+#: packaging/templates/packaging/order_list.html
+msgid "results"
+msgstr "النتائج"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Previous"
+msgstr "السابق"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Next"
+msgstr "التالي"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Packaging Guide"
+msgstr "دليل التغليف"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Shipping Illustration"
+msgstr "رسم توضيحي للشحن"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Packaging Process"
+msgstr "عملية التغليف"
+
+#: packaging/templates/packaging/order_list.html
+msgid "Click on the box icon to start processing an order. Make sure to verify all items before confirming."
+msgstr "انقر على أيقونة الصندوق لبدء معالجة طلب. تأكد من التحقق من جميع العناصر قبل التأكيد."
+
+#: packaging/templates/packaging/order_list.html
+msgid "Need Help?"
+msgstr "تحتاج مساعدة؟"
+
+#: packaging/templates/packaging/order_list.html
+msgid "For assistance with the packaging process, contact the support team or check the documentation."
+msgstr "للمساعدة في عملية التغليف، اتصل بفريق الدعم أو راجع الوثائق."
+
+#: packaging/templates/packaging/order_list.html
+msgid "View Documentation"
+msgstr "عرض الوثائق"

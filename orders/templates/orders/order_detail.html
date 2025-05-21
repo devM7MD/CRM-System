@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{% trans "Order Details" %}</h1>
+        <div class="flex space-x-4">
+            <a href="{% url 'orders:list' %}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                {% trans "Back to Orders" %}
+            </a>
+            <a href="{% url 'orders:update' order.pk %}" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
+                {% trans "Edit Order" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Order Information -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Order Details -->
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Order Information" %}</h2>
+                <dl class="grid grid-cols-2 gap-4">
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Order Code" %}</dt>
+                    <dd class="text-sm text-gray-900">{{ order.order_code }}</dd>
+
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Date" %}</dt>
+                    <dd class="text-sm text-gray-900">{{ order.date|date:"Y-m-d H:i" }}</dd>
+
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Status" %}</dt>
+                    <dd class="text-sm">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                            {% elif order.status == 'shipped' %}bg-purple-100 text-purple-800
+                            {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </dd>
+
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Total Price" %}</dt>
+                    <dd class="text-sm text-gray-900">{{ order.total_price }}</dd>
+                </dl>
+            </div>
+
+            <!-- Product Details -->
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Product Information" %}</h2>
+                <dl class="grid grid-cols-2 gap-4">
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Product" %}</dt>
+                    <dd class="text-sm text-gray-900">{{ order.product.name }}</dd>
+
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Quantity" %}</dt>
+                    <dd class="text-sm text-gray-900">{{ order.quantity }}</dd>
+
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Price Per Unit" %}</dt>
+                    <dd class="text-sm text-gray-900">{{ order.price_per_unit }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer and Seller Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Customer Details -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Customer Details" %}</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <dt class="text-sm font-medium text-gray-500">{% trans "Name" %}</dt>
+                <dd class="text-sm text-gray-900">{{ order.customer.get_full_name }}</dd>
+
+                <dt class="text-sm font-medium text-gray-500">{% trans "Phone" %}</dt>
+                <dd class="text-sm text-gray-900">{{ order.customer_phone }}</dd>
+            </dl>
+        </div>
+
+        <!-- Seller Details -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Seller Details" %}</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <dt class="text-sm font-medium text-gray-500">{% trans "Name" %}</dt>
+                <dd class="text-sm text-gray-900">{{ order.seller.name }}</dd>
+
+                <dt class="text-sm font-medium text-gray-500">{% trans "Phone" %}</dt>
+                <dd class="text-sm text-gray-900">{{ order.seller_phone }}</dd>
+
+                <dt class="text-sm font-medium text-gray-500">{% trans "Email" %}</dt>
+                <dd class="text-sm text-gray-900">{{ order.seller_email }}</dd>
+
+                {% if order.store_link %}
+                <dt class="text-sm font-medium text-gray-500">{% trans "Store Link" %}</dt>
+                <dd class="text-sm text-gray-900">
+                    <a href="{{ order.store_link }}" target="_blank" class="text-yellow-600 hover:text-yellow-800">
+                        {% trans "Visit Store" %}
+                    </a>
+                </dd>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %} 
