@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Sourcing Request{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-900">
+    <!-- Page Header -->
+    <div class="bg-yellow-400 dark:bg-yellow-600 shadow-lg">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Create Sourcing Request</h1>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <form method="post">
+                {% csrf_token %}
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <!-- Request Type -->
+                        <div class="sm:col-span-3">
+                            <label for="request_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Request Type</label>
+                            <div class="mt-1">
+                                <select id="request_type" name="request_type" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                                    <option value="">Select a request type</option>
+                                    <option value="new_supplier">New Supplier</option>
+                                    <option value="replenishment">Inventory Replenishment</option>
+                                    <option value="new_product">New Product Sourcing</option>
+                                    <option value="sample">Sample Request</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Priority -->
+                        <div class="sm:col-span-3">
+                            <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
+                            <div class="mt-1">
+                                <select id="priority" name="priority" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Product Selection -->
+                        <div class="sm:col-span-6" id="product_selection_container">
+                            <label for="product" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Product</label>
+                            <div class="mt-1">
+                                <select id="product" name="product" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    <option value="">Select a product</option>
+                                    {% for product in products %}
+                                    <option value="{{ product.id }}">{{ product.name }} ({{ product.code }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">For inventory replenishment or sample requests.</p>
+                        </div>
+
+                        <!-- New Product Info (initially hidden) -->
+                        <div class="sm:col-span-6 hidden" id="new_product_container">
+                            <div class="pt-4 pb-2">
+                                <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white">New Product Details</h3>
+                                <p class="mt-1 text-sm text-gray-500">Provide details of the new product you want to source.</p>
+                            </div>
+                        </div>
+
+                        <!-- New Product Name -->
+                        <div class="sm:col-span-3 hidden" id="new_product_name_container">
+                            <label for="new_product_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Name</label>
+                            <div class="mt-1">
+                                <input type="text" name="new_product_name" id="new_product_name" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <!-- New Product Category -->
+                        <div class="sm:col-span-3 hidden" id="new_product_category_container">
+                            <label for="new_product_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                            <div class="mt-1">
+                                <select id="new_product_category" name="new_product_category" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    <option value="">Select a category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="sm:col-span-2">
+                            <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
+                            <div class="mt-1">
+                                <input type="number" name="quantity" id="quantity" min="1" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                            </div>
+                        </div>
+
+                        <!-- Target Date -->
+                        <div class="sm:col-span-2">
+                            <label for="target_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Date</label>
+                            <div class="mt-1">
+                                <input type="date" name="target_date" id="target_date" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                            </div>
+                        </div>
+
+                        <!-- Budget -->
+                        <div class="sm:col-span-2">
+                            <label for="budget" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Budget (AED)</label>
+                            <div class="mt-1">
+                                <input type="number" name="budget" id="budget" min="0" step="0.01" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="sm:col-span-6">
+                            <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+                            <div class="mt-1">
+                                <textarea id="notes" name="notes" rows="4" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Add any additional specifications, requirements, or notes..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Upload References -->
+                        <div class="sm:col-span-6">
+                            <label for="references" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reference Images or Documents</label>
+                            <div class="mt-1">
+                                <input type="file" name="references" id="references" multiple class="sr-only">
+                                <label for="references" class="cursor-pointer block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium leading-4 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        <span class="ml-2">Attach files</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Upload any reference images or documents (Optional).</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-right sm:px-6">
+                    <button type="button" onclick="window.location.href='{% url 'sourcing:requests' %}'" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 mr-3">
+                        Cancel
+                    </button>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set default target date to 14 days from now
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + 14);
+        
+        const formattedDate = targetDate.toISOString().substring(0, 10);
+        document.getElementById('target_date').value = formattedDate;
+    });
+
+    // Show/hide fields based on request type
+    document.getElementById('request_type').addEventListener('change', function() {
+        const requestType = this.value;
+        const productSelection = document.getElementById('product_selection_container');
+        const newProductContainer = document.getElementById('new_product_container');
+        const newProductNameContainer = document.getElementById('new_product_name_container');
+        const newProductCategoryContainer = document.getElementById('new_product_category_container');
+        
+        if (requestType === 'new_product') {
+            productSelection.classList.add('hidden');
+            newProductContainer.classList.remove('hidden');
+            newProductNameContainer.classList.remove('hidden');
+            newProductCategoryContainer.classList.remove('hidden');
+            document.getElementById('product').removeAttribute('required');
+            document.getElementById('new_product_name').setAttribute('required', 'required');
+            document.getElementById('new_product_category').setAttribute('required', 'required');
+        } else {
+            productSelection.classList.remove('hidden');
+            newProductContainer.classList.add('hidden');
+            newProductNameContainer.classList.add('hidden');
+            newProductCategoryContainer.classList.add('hidden');
+            document.getElementById('product').setAttribute('required', 'required');
+            document.getElementById('new_product_name').removeAttribute('required');
+            document.getElementById('new_product_category').removeAttribute('required');
+        }
+    });
+</script>
+{% endblock %} 
