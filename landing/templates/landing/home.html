@@ -1,0 +1,522 @@
+{% extends 'landing/base_landing.html' %}
+{% load static %}
+
+{% block title %}Atlas Fulfillment & Delivery Services{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom animations that extend Tailwind */
+    .bg-gradient-yellow {
+        background-image: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    }
+    
+    .step-line {
+        position: absolute;
+        height: 2px;
+        background-color: #eab308;
+        top: 25px;
+        left: 0;
+        right: 0;
+        z-index: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .step-line {
+            display: none;
+        }
+    }
+    
+    /* Modern background pattern */
+    .bg-pattern {
+        background-color: #eab308;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    /* Truck silhouette */
+    .truck-container {
+        position: absolute;
+        right: 5%;
+        top: 25%;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    .truck-silhouette {
+        width: 100%;
+        height: auto;
+    }
+    
+    @media (max-width: 768px) {
+        .truck-container {
+            display: none;
+        }
+    }
+    
+    /* Hero image */
+    .hero-image {
+        max-width: 450px;
+        height: auto;
+        filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.1));
+    }
+    
+    /* Step indicators */
+    .step-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #eab308;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 1rem;
+    }
+    
+    /* RTL Support */
+    [dir="rtl"] .hero-image {
+        transform: scaleX(-1);
+    }
+    
+    /* Service icons */
+    .service-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        background-color: #fff9e5;
+    }
+    
+    .yellow-circle {
+        background-color: #eab308;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    /* Custom hero icons */
+    .hero-icons-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .hero-icon-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1rem 0;
+    }
+    
+    .service-card {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .button-primary {
+        background-color: #eab308;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        display: inline-block;
+        transition: background-color 0.3s;
+    }
+    
+    .button-primary:hover {
+        background-color: #ca8a04;
+    }
+    
+    .wave-container {
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        padding-bottom: 60px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-pattern text-white relative overflow-hidden py-16 lg:py-24">
+    <div class="container mx-auto px-4 relative">
+        <div class="hero-content">
+            <div class="flex flex-col lg:flex-row items-center justify-between">
+                <div class="w-full text-center lg:text-left mb-8 lg:mb-0 z-10" data-aos="fade-right">
+                    <h1 class="text-4xl lg:text-5xl font-bold mb-6">Atlas Fulfillment & Delivery Services</h1>
+                    <p class="text-xl mb-8">Your trusted partner from sourcing to perfect delivery</p>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="{% url 'landing:services' %}" class="px-8 py-4 bg-white text-primary-500 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition-colors text-center">Explore Services</a>
+                        <a href="{% url 'users:register' %}" class="px-8 py-4 bg-primary-500 text-white font-semibold rounded-lg shadow-lg hover:bg-primary-600 transition-colors text-center">Get Started</a>
+                    </div>
+        </div>
+                <!-- Truck Container removed -->
+        </div>
+        </div>
+    </div>
+    
+    <!-- Wave SVG -->
+    <div class="wave-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#ffffff" fill-opacity="1" d="M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,202.7C672,213,768,203,864,170.7C960,139,1056,85,1152,80C1248,75,1344,117,1392,138.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- Welcome Section -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-primary-500 mb-4">Welcome to Atlas Fulfillment</h2>
+            <div class="max-w-3xl mx-auto">
+                <p class="text-gray-600 text-lg">
+                    We understand that today's business world requires both innovation and flexibility, so we've designed our services to meet all your needs from importing to profit transfers.
+            </p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="group" data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-white rounded-lg shadow-lg p-6 h-full">
+                    <div class="h-16 w-16 bg-gradient-yellow text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                    <i class="fas fa-globe"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-center mb-4">Extensive Experience</h4>
+                    <p class="text-gray-600 text-center">
+                        We rely on a specialized team with years of experience in logistics and supply chains.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="group" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-lg shadow-lg p-6 h-full">
+                    <div class="h-16 w-16 bg-gradient-yellow text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                    <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-center mb-4">Integrated Solutions</h4>
+                    <p class="text-gray-600 text-center">
+                        We provide integrated services from import to delivery, supported by advanced technology solutions.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="group" data-aos="fade-up" data-aos-delay="300">
+                <div class="bg-white rounded-lg shadow-lg p-6 h-full">
+                    <div class="h-16 w-16 bg-gradient-yellow text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                    <i class="fas fa-clock"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-center mb-4">Time Commitment</h4>
+                    <p class="text-gray-600 text-center">
+                        We place great importance on time and quality in service delivery, which contributes to building customer trust.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Preview -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-primary-500 mb-4">Our Premium Services</h2>
+            <div class="max-w-3xl mx-auto">
+                <p class="text-gray-600 text-lg">
+                    We offer a comprehensive range of logistics services specifically designed to meet your business needs
+            </p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+                <div class="service-card">
+                    <div class="mb-6">
+                        <div class="service-icon">
+                            <i class="fas fa-ship text-primary-500 text-3xl"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Global Market Imports</h4>
+                    <p class="text-gray-600 mb-6 flex-grow">
+                        We help you import goods from major markets, ensuring safe and efficient handling.
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{% url 'landing:services' %}" class="button-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="service-card">
+                    <div class="mb-6">
+                <div class="service-icon">
+                            <i class="fas fa-warehouse text-primary-500 text-3xl"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Advanced Storage Services</h4>
+                    <p class="text-gray-600 mb-6 flex-grow">
+                        We provide modern warehouses equipped with the latest technologies to store your goods safely and efficiently.
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{% url 'landing:services' %}" class="button-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center" data-aos="fade-up" data-aos-delay="300">
+                <div class="service-card">
+                    <div class="mb-6">
+                <div class="service-icon">
+                            <i class="fas fa-clipboard-check text-primary-500 text-3xl"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Professional Order Confirmation</h4>
+                    <p class="text-gray-600 mb-6 flex-grow">
+                        We have a specialized and professional team that works on confirming orders with high accuracy.
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{% url 'landing:services' %}" class="button-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center" data-aos="fade-up" data-aos-delay="400">
+                <div class="service-card">
+                    <div class="mb-6">
+                <div class="service-icon">
+                            <i class="fas fa-shopping-cart text-primary-500 text-3xl"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">E-commerce Solutions</h4>
+                    <p class="text-gray-600 mb-6 flex-grow">
+                        We offer integrated solutions to help you build and scale your online store with ease.
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{% url 'landing:services' %}" class="button-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12" data-aos="fade-up">
+            <a href="{% url 'landing:services' %}" class="inline-block px-8 py-3 bg-primary-500 text-white text-lg font-semibold rounded-md hover:bg-primary-600 transition-colors">View All Services</a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Preview -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-primary-500 mb-4">How to Work With Us?</h2>
+            <div class="max-w-3xl mx-auto">
+                <p class="text-gray-600 text-lg">
+                    It's very simple! Follow these easy steps to get started
+            </p>
+            </div>
+        </div>
+        
+        <div class="relative">
+            <div class="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-primary-300" style="transform: translateY(-50%);"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="relative" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300 text-center">
+                        <div class="step-circle">1</div>
+                        <h4 class="text-xl font-bold mb-4">Registration & Product Selection</h4>
+                        <p class="text-gray-600">
+                            After registering on our site, you can start selecting products.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="relative" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300 text-center">
+                        <div class="step-circle">2</div>
+                        <h4 class="text-xl font-bold mb-4">Adding Orders</h4>
+                        <p class="text-gray-600">
+                            Use our dedicated platform to add orders easily.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="relative" data-aos="fade-up" data-aos-delay="300">
+                    <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300 text-center">
+                        <div class="step-circle">3</div>
+                        <h4 class="text-xl font-bold mb-4">Order Confirmation & Delivery</h4>
+                        <p class="text-gray-600">
+                            Let our professional team handle order confirmation and delivery.
+                        </p>
+                    </div>
+            </div>
+                
+                <div class="relative" data-aos="fade-up" data-aos-delay="400">
+                    <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300 text-center">
+                        <div class="step-circle">4</div>
+                        <h4 class="text-xl font-bold mb-4">Receive Your Money</h4>
+                        <p class="text-gray-600">
+                            After successful delivery of orders, you'll receive your payments quickly and transparently.
+                        </p>
+            </div>
+            </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12" data-aos="fade-up">
+            <a href="{% url 'landing:how_it_works' %}" class="inline-block px-8 py-3 bg-primary-500 text-white text-lg font-semibold rounded-md hover:bg-primary-600 transition-colors">Learn More</a>
+        </div>
+    </div>
+</section>
+
+<!-- Affiliate & Seller Section -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-primary-500 mb-4">Multiple Options to Suit Your Needs</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-primary-500 text-white rounded-lg shadow-lg p-8 h-full">
+                <div class="text-center">
+                        <h3 class="text-2xl font-bold mb-4">Affiliate Marketer</h3>
+                        <div class="mb-6">
+                            <div class="service-icon" style="background-color: rgba(255, 255, 255, 0.2); margin: 0 auto;">
+                                <i class="fas fa-handshake text-white text-3xl"></i>
+                            </div>
+                        </div>
+                        <p class="mb-6">
+                            Join us as an affiliate marketer and earn profits from every successful sale made through your referral link.
+                        </p>
+                    </div>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-white mt-1 mr-3"></i>
+                            <span>Generous commissions on each sale</span>
+                        </li>
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-white mt-1 mr-3"></i>
+                            <span>Easy-to-use dashboard</span>
+                        </li>
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-white mt-1 mr-3"></i>
+                            <span>Continuous technical support</span>
+                        </li>
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-white mt-1 mr-3"></i>
+                            <span>Regular and transparent payments</span>
+                        </li>
+                    </ul>
+                    <div class="text-center">
+                        <a href="{% url 'users:register' %}" class="inline-block px-6 py-3 bg-white text-primary-600 font-semibold rounded-md shadow hover:bg-gray-100 transition-colors">Join as Marketer</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-lg shadow-lg p-8 h-full">
+                <div class="text-center">
+                        <h3 class="text-2xl font-bold text-primary-500 mb-4">E-commerce Seller</h3>
+                        <div class="mb-6">
+                            <div class="service-icon" style="margin: 0 auto;">
+                                <i class="fas fa-store text-primary-500 text-3xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-6">
+                            Be an e-commerce seller and benefit from our integrated storage, packaging, shipping, and customer service.
+                        </p>
+                    </div>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-primary-500 mt-1 mr-3"></i>
+                            <span class="text-gray-600">Complete inventory management</span>
+                        </li>
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-primary-500 mt-1 mr-3"></i>
+                            <span class="text-gray-600">Professional product packaging</span>
+                        </li>
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-primary-500 mt-1 mr-3"></i>
+                            <span class="text-gray-600">Fast delivery service</span>
+                        </li>
+                        <li class="flex items-start text-left">
+                            <i class="fas fa-check-circle text-primary-500 mt-1 mr-3"></i>
+                            <span class="text-gray-600">Detailed reports and advanced dashboard</span>
+                        </li>
+                    </ul>
+                    <div class="text-center">
+                        <a href="{% url 'users:register' %}" class="inline-block px-6 py-3 bg-primary-500 text-white font-semibold rounded-md shadow-md hover:bg-primary-600 transition-colors">Register as Seller</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-primary-500 text-white relative overflow-hidden">
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold mb-6" data-aos="fade-up">Ready to Get Started?</h2>
+            <p class="text-xl mb-8 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+                Let us help you transform logistics challenges into sustainable success opportunities. Together we will build a brighter future for your business.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6" data-aos="fade-up" data-aos-delay="200">
+                <a href="{% url 'landing:contact' %}" class="px-8 py-3 bg-white text-primary-600 font-semibold rounded-md shadow-md hover:bg-gray-100 transition-colors">Contact Us</a>
+                <a href="{% url 'users:register' %}" class="px-8 py-3 border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-primary-600 transition-colors">Open Account Now</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <defs>
+                <pattern id="pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M0 20 L40 20 M20 0 L20 40" stroke="white" stroke-width="1" />
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#pattern)" />
+        </svg>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Initialize AOS with additional settings
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+{% load static %}
+{% load i18n %}
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Atlas Fulfillment & Delivery Services{% endblock %}</title>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fef9e7',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Animations */
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .animate-bounce-slow {
+            animation: bounce 3s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .wave-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+        
+        /* Logo styling */
+        .logo-container {
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-container img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        /* Footer logo */
+        .footer-logo {
+            height: 45px;
+            width: auto;
+            filter: brightness(0) invert(1); /* Make logo white in footer */
+        }
+
+        /* RTL Support */
+        [dir="rtl"] .logo-container img {
+            transform: scaleX(-1);
+        }
+        
+        [dir="rtl"] .ml-3 {
+            margin-right: 0.75rem;
+            margin-left: 0;
+        }
+
+        [dir="rtl"] .ml-4 {
+            margin-right: 1rem;
+            margin-left: 0;
+        }
+
+        [dir="rtl"] .mr-3 {
+            margin-left: 0.75rem;
+            margin-right: 0;
+        }
+
+        [dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+
+        [dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+
+        [dir="rtl"] .lg\:space-x-1 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+
+        [dir="rtl"] .lg\:space-x-2 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="font-sans min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-primary-500 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'landing:home' %}" class="flex items-center logo-container">
+                    <picture>
+                        {% comment %} <source srcset="{% static 'img/atlas_logo.svg' %}" type="image/svg+xml"> {% endcomment %}
+                        <img src="" alt="Atlas Fulfillment & Delivery Services" class="h-full">
+                    </picture>
+                </a>
+                
+                <div class="lg:hidden">
+                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <div id="navbar-content" class="hidden lg:flex flex-col lg:flex-row justify-between items-center w-full lg:w-auto">
+                    <ul class="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-1 mt-4 lg:mt-0">
+                        <li>
+                            <a href="{% url 'landing:home' %}" class="block px-4 py-2 rounded hover:bg-primary-600 transition-colors">{% trans "Home" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'landing:about' %}" class="block px-4 py-2 rounded hover:bg-primary-600 transition-colors">{% trans "About Us" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'landing:services' %}" class="block px-4 py-2 rounded hover:bg-primary-600 transition-colors">{% trans "Services" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'landing:how_it_works' %}" class="block px-4 py-2 rounded hover:bg-primary-600 transition-colors">{% trans "How It Works" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'landing:faq' %}" class="block px-4 py-2 rounded hover:bg-primary-600 transition-colors">{% trans "FAQ" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'landing:contact' %}" class="block px-4 py-2 rounded hover:bg-primary-600 transition-colors">{% trans "Contact Us" %}</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2 mt-4 lg:mt-0 lg:ml-4">
+                        <a href="{% url 'users:login' %}" class="block px-3 py-1.5 border border-white rounded text-sm hover:bg-primary-600 transition-colors text-center">{% trans "Login" %}</a>
+                        <a href="{% url 'users:register' %}" class="block px-3 py-1.5 bg-white text-primary-500 rounded text-sm hover:bg-gray-100 transition-colors text-center">{% trans "Register" %}</a>
+                        
+                        <!-- Language Switcher -->
+                        <form action="{% url 'set_language' %}" method="post" class="inline-block">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.path }}"/>
+                            <select name="language" onchange="this.form.submit()" class="block px-3 py-1.5 bg-white text-primary-500 rounded text-sm hover:bg-gray-100 transition-colors text-center appearance-none">
+                                {% get_current_language as CURRENT_LANGUAGE %}
+                                {% get_available_languages as LANGUAGES %}
+                                {% for lang_code, lang_name in LANGUAGES %}
+                                    <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                                        {{ lang_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <h5 class="font-bold text-lg mb-4">{% trans "Atlas Fulfillment & Delivery Services" %}</h5>
+                    <div class="mb-4">
+                        <picture>
+                            <source srcset="{% static 'img/atlas_logo1231.svg' %}" type="image/svg+xml">
+                            <img src="{% static 'img/atlas_logo1123.png' %}" alt="Atlas Fulfillment & Delivery Services" class="footer-logo">
+                        </picture>
+                    </div>
+                    <p class="text-gray-400 mb-3">{% trans "Your trusted partner for all your e-commerce warehousing and delivery needs." %}</p>
+                    <div class="footer-social flex space-x-3">
+                        <a href="https://facebook.com/atlasfulfillment" target="_blank" title="Facebook" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://twitter.com/atlasfulfillment" target="_blank" title="Twitter" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+                        <a href="https://instagram.com/atlasfulfillment" target="_blank" title="Instagram" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                        <a href="https://linkedin.com/company/atlasfulfillment" target="_blank" title="LinkedIn" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="font-bold text-lg mb-4">{% trans "Quick Links" %}</h5>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'landing:home' %}" class="text-gray-400 hover:text-white transition-colors">{% trans "Home" %}</a></li>
+                        <li><a href="{% url 'landing:about' %}" class="text-gray-400 hover:text-white transition-colors">{% trans "About Us" %}</a></li>
+                        <li><a href="{% url 'landing:services' %}" class="text-gray-400 hover:text-white transition-colors">{% trans "Services" %}</a></li>
+                        <li><a href="{% url 'landing:how_it_works' %}" class="text-gray-400 hover:text-white transition-colors">{% trans "How It Works" %}</a></li>
+                        <li><a href="{% url 'landing:faq' %}" class="text-gray-400 hover:text-white transition-colors">{% trans "FAQ" %}</a></li>
+                        <li><a href="{% url 'landing:contact' %}" class="text-gray-400 hover:text-white transition-colors">{% trans "Contact Us" %}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold text-lg mb-4">{% trans "Contact Information" %}</h5>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3"></i>
+                            <div>
+                                <p>{% trans "Headquarters: Dubai, UAE" %}</p>
+                                <p>{% trans "Branch: Riyadh, KSA" %}</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <i class="fas fa-phone-alt mt-1 mr-3"></i>
+                            <div>
+                                <p>+966 53 770 2332</p>
+                                <p>+971 50 123 4567</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <i class="fas fa-envelope mt-1 mr-3"></i>
+                            <div>
+                                <p>info@asfulfillment.com</p>
+                                <p>support@asfulfillment.com</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <i class="fas fa-clock mt-1 mr-3"></i>
+                            <div>
+                                <p>{% trans "Working Hours: 8AM - 6PM" %}</p>
+                                <p>{% trans "Saturday - Thursday" %}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="font-bold text-lg mb-4">{% trans "Newsletter" %}</h5>
+                    <p class="text-gray-400 mb-4">{% trans "Subscribe to our newsletter for updates and news." %}</p>
+                    <form action="#" method="post" class="mb-4">
+                        <div class="flex">
+                            <input type="email" placeholder="{% trans 'Your email' %}" class="flex-grow px-3 py-2 text-gray-800 rounded-l focus:outline-none">
+                            <button type="submit" class="bg-primary-500 text-white px-4 py-2 rounded-r hover:bg-primary-600 transition-colors">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <p class="text-xs text-gray-500">
+                        {% trans "We respect your privacy. Your information is safe and will never be shared." %}
+                    </p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>&copy; 2023 Atlas Fulfillment. {% trans "All rights reserved." %}</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            var navbarContent = document.getElementById('navbar-content');
+            navbarContent.classList.toggle('hidden');
+        });
+        
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease',
+            once: true
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 
