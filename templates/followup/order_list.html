@@ -21,14 +21,14 @@
                 
                 <div class="p-4">
                     <!-- Filters -->
-                    <div class="mb-4 flex flex-wrap gap-2">
+                    <form method="get" action="{% url 'followup:orders' %}" class="mb-4 flex flex-wrap gap-2">
                         <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "All Statuses" %}</option>
-                                <option>{% trans "Pending" %}</option>
-                                <option>{% trans "In Progress" %}</option>
-                                <option>{% trans "Completed" %}</option>
-                                <option>{% trans "Cancelled" %}</option>
+                            <select name="status" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                <option value="">{% trans "All Statuses" %}</option>
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>{% trans "Pending" %}</option>
+                                <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>{% trans "In Progress" %}</option>
+                                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>{% trans "Completed" %}</option>
+                                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>{% trans "Cancelled" %}</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <i class="fas fa-chevron-down text-xs"></i>
@@ -36,12 +36,11 @@
                         </div>
                         
                         <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "Today" %}</option>
-                                <option>{% trans "Tomorrow" %}</option>
-                                <option>{% trans "This Week" %}</option>
-                                <option>{% trans "Next Week" %}</option>
-                                <option>{% trans "All Time" %}</option>
+                            <select name="date" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                <option value="">{% trans "All Time" %}</option>
+                                <option value="today" {% if date_filter == 'today' %}selected{% endif %}>{% trans "Today" %}</option>
+                                <option value="tomorrow" {% if date_filter == 'tomorrow' %}selected{% endif %}>{% trans "Tomorrow" %}</option>
+                                <option value="this_week" {% if date_filter == 'this_week' %}selected{% endif %}>{% trans "This Week" %}</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <i class="fas fa-chevron-down text-xs"></i>
@@ -49,9 +48,13 @@
                         </div>
                         
                         <div class="relative flex-grow">
-                            <input type="text" placeholder="{% trans 'Search by Order ID or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                            <input type="text" name="search" value="{{ search_query }}" placeholder="{% trans 'Search by Order ID or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
                         </div>
-                    </div>
+                        
+                        <button type="submit" class="px-3 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 text-sm">
+                            <i class="fas fa-search mr-1"></i> {% trans "Search" %}
+                        </button>
+                    </form>
                     
                     <!-- Orders Table -->
                     <div class="overflow-x-auto">
@@ -67,88 +70,87 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <!-- This is just sample data - would be populated from the view -->
+                                {% for followup in page_obj %}
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-001</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Customer Name</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">May 15, 2023</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">May 10, 2023</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ followup.order.order_code }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ followup.order.customer.full_name|default:"Unknown" }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ followup.scheduled_for|date:"M d, Y" }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ followup.order.date|date:"M d, Y" }}</td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {% trans "Pending" %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if followup.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif followup.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% elif followup.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {{ followup.get_status_display }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm">
                                         <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
+                                            <a href="{% url 'followup:detail' followup.id %}" class="text-primary-600 hover:text-primary-900" title="{% trans 'View Details' %}">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-phone"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-002</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Another Customer</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">May 16, 2023</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">May 9, 2023</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {% trans "Pending" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-phone"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-003</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">New Customer</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">May 14, 2023</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">May 8, 2023</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            {% trans "Completed" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-blue-600 hover:text-blue-900">
+                                            {% if followup.status != 'completed' and followup.status != 'cancelled' %}
+                                            <a href="{% url 'followup:record_feedback' followup.order.id %}" class="text-green-600 hover:text-green-900" title="{% trans 'Record Feedback' %}">
                                                 <i class="fas fa-clipboard-check"></i>
                                             </a>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="px-4 py-4 text-center text-gray-500">
+                                        {% trans "No follow-ups found." %}
+                                        <a href="{% url 'followup:create' %}" class="text-primary-600 hover:text-primary-700 font-medium">
+                                            {% trans "Create one now" %}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                     
                     <!-- Pagination -->
+                    {% if page_obj.paginator.num_pages > 1 %}
                     <div class="mt-4 flex items-center justify-between">
                         <div class="text-sm text-gray-500">
-                            {% trans "Showing" %} <span class="font-medium">1</span> {% trans "to" %} <span class="font-medium">3</span> {% trans "of" %} <span class="font-medium">3</span> {% trans "results" %}
+                            {% trans "Showing" %} <span class="font-medium">{{ page_obj.start_index }}</span> {% trans "to" %} <span class="font-medium">{{ page_obj.end_index }}</span> {% trans "of" %} <span class="font-medium">{{ page_obj.paginator.count }}</span> {% trans "results" %}
                         </div>
                         <div class="flex space-x-1">
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {% if page_obj.has_previous %}
+                            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
                                 {% trans "Previous" %}
                             </a>
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {% else %}
+                            <span class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 opacity-50 cursor-not-allowed">
+                                {% trans "Previous" %}
+                            </span>
+                            {% endif %}
+                            
+                            {% if page_obj.has_next %}
+                            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
                                 {% trans "Next" %}
                             </a>
+                            {% else %}
+                            <span class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 opacity-50 cursor-not-allowed">
+                                {% trans "Next" %}
+                            </span>
+                            {% endif %}
                         </div>
                     </div>
+                    {% else %}
+                    <div class="mt-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            {% if page_obj.paginator.count %}
+                            {% trans "Showing" %} <span class="font-medium">{{ page_obj.start_index }}</span> {% trans "to" %} <span class="font-medium">{{ page_obj.end_index }}</span> {% trans "of" %} <span class="font-medium">{{ page_obj.paginator.count }}</span> {% trans "results" %}
+                            {% else %}
+                            {% trans "No results found" %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -186,8 +188,8 @@
                             </div>
                             
                             <div class="mt-4">
-                                <a href="#" class="block text-center w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
-                                    {% trans "View Documentation" %}
+                                <a href="{% url 'followup:create' %}" class="block text-center w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                                    {% trans "Create New Follow-up" %}
                                 </a>
                             </div>
                         </div>
