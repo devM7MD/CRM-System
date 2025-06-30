@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Fees Management" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{% trans "Fees Management" %}</h1>
+        <a href="{% url 'settings:dashboard' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded inline-flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            {% trans "Back to Settings" %}
+        </a>
+    </div>
+    
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="p-4 {% if message.tags == 'success' %}bg-green-100 border-l-4 border-green-500 text-green-700{% elif message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-blue-100 border-l-4 border-blue-500 text-blue-700{% endif %} rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Fee Form -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-800">{% trans "System Fee Configuration" %}</h2>
+            </div>
+            <div class="p-6">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+                            <p class="font-bold">{% trans "Please correct the errors below:" %}</p>
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Upsell Fees -->
+                        <div>
+                            <label for="{{ form.upsell_fees.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.upsell_fees.label }}
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.upsell_fees }}
+                            </div>
+                            {% if form.upsell_fees.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.upsell_fees.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Confirmation Fees -->
+                        <div>
+                            <label for="{{ form.confirmation_fees.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.confirmation_fees.label }}
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.confirmation_fees }}
+                            </div>
+                            {% if form.confirmation_fees.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.confirmation_fees.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Cancellation Fees -->
+                        <div>
+                            <label for="{{ form.cancellation_fees.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.cancellation_fees.label }}
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.cancellation_fees }}
+                            </div>
+                            {% if form.cancellation_fees.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.cancellation_fees.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Fulfillment Fees -->
+                        <div>
+                            <label for="{{ form.fulfillment_fees.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.fulfillment_fees.label }}
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.fulfillment_fees }}
+                            </div>
+                            {% if form.fulfillment_fees.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.fulfillment_fees.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Shipping Fees -->
+                        <div>
+                            <label for="{{ form.shipping_fees.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.shipping_fees.label }}
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.shipping_fees }}
+                            </div>
+                            {% if form.shipping_fees.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.shipping_fees.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Return Fees -->
+                        <div>
+                            <label for="{{ form.return_fees.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.return_fees.label }}
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.return_fees }}
+                            </div>
+                            {% if form.return_fees.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.return_fees.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Warehouse Fees -->
+                        <div>
+                            <label for="{{ form.warehouse_fees.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.warehouse_fees.label }}
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.warehouse_fees }}
+                            </div>
+                            {% if form.warehouse_fees.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.warehouse_fees.help_text }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <a href="{% url 'settings:dashboard' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            {% trans "Cancel" %}
+                        </a>
+                        <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            {% trans "Save Changes" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Fee Information Sidebar -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-800">{% trans "Fee Information" %}</h2>
+            </div>
+            <div class="p-4">
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">{% trans "Upsell Fees" %}</h3>
+                        <p class="mt-1 text-sm text-gray-500">{% trans "Additional charges for product or service recommendations made during the sales process." %}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">{% trans "Confirmation Fees" %}</h3>
+                        <p class="mt-1 text-sm text-gray-500">{% trans "Charges applied during the order confirmation process." %}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">{% trans "Cancellation Fees" %}</h3>
+                        <p class="mt-1 text-sm text-gray-500">{% trans "Penalties applied when an order is cancelled after processing has begun." %}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">{% trans "Fulfillment Fees" %}</h3>
+                        <p class="mt-1 text-sm text-gray-500">{% trans "Charges for processing and preparing orders for shipment." %}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">{% trans "Shipping Fees" %}</h3>
+                        <p class="mt-1 text-sm text-gray-500">{% trans "Base shipping costs for order delivery." %}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">{% trans "Return Fees" %}</h3>
+                        <p class="mt-1 text-sm text-gray-500">{% trans "Charges for processing returned items." %}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">{% trans "Warehouse Fees" %}</h3>
+                        <p class="mt-1 text-sm text-gray-500">{% trans "Costs for storage and handling of inventory in warehouses." %}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        <p class="text-sm text-gray-500">{% trans "These fees serve as system-wide defaults but can be overridden on a per-order basis if needed." %}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="text-sm text-gray-500">
+                        <p>{% trans "Last updated:" %} 
+                            {% if system_fees.last_updated %}
+                                {{ system_fees.last_updated|date:"M d, Y H:i" }}
+                            {% else %}
+                                {% trans "Never" %}
+                            {% endif %}
+                        </p>
+                        {% if system_fees.updated_by %}
+                            <p>{% trans "Updated by:" %} {{ system_fees.updated_by.get_full_name|default:system_fees.updated_by.username }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

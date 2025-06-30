@@ -1,0 +1,335 @@
+{% extends 'seller_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Edit Product" %} - {{ product.name_en }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-gradient-to-r from-yellow-400 to-yellow-500 w-full px-6 py-6 flex justify-between items-center mb-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-gray-900">{% trans "Edit Product" %}: {{ product.name_en }}</h1>
+    <div>
+        <a href="{% url 'sellers:inventory' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+            </svg>
+            {% trans "Back to Inventory" %}
+        </a>
+    </div>
+</div>
+
+<!-- Product Form -->
+<div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Basic Information Section -->
+        <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">{% trans "Basic Information" %}</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <!-- Product Name -->
+            <div class="sm:col-span-3">
+                <label for="name" class="block text-sm font-medium text-gray-700">{% trans "Product Name (English)" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="text" name="name" id="name" value="{{ product.name_en }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200" required>
+                </div>
+            </div>
+
+            <!-- Product Name (Arabic) -->
+            <div class="sm:col-span-3">
+                <label for="name_ar" class="block text-sm font-medium text-gray-700">{% trans "Product Name (Arabic)" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="text" name="name_ar" id="name_ar" value="{{ product.name_ar }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
+                </div>
+            </div>
+
+            <!-- SKU -->
+            <div class="sm:col-span-2">
+                <label for="code" class="block text-sm font-medium text-gray-700">{% trans "SKU/Product Code" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="text" name="code" id="code" value="{{ product.code }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200" required>
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="sm:col-span-2">
+                <label for="category" class="block text-sm font-medium text-gray-700">{% trans "Category" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <select id="category" name="category" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
+                        <option value="">{% trans "Select a category" %}</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if product.category == category %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Brand -->
+            <div class="sm:col-span-2">
+                <label for="brand" class="block text-sm font-medium text-gray-700">{% trans "Brand" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <select id="brand" name="brand" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
+                        <option value="">{% trans "Select a brand" %}</option>
+                        {% for brand in brands %}
+                        <option value="{{ brand.id }}" {% if product.brand == brand %}selected{% endif %}>{{ brand.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="sm:col-span-6">
+                <label for="description" class="block text-sm font-medium text-gray-700">{% trans "Description (English)" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <textarea id="description" name="description" rows="3" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">{{ product.description }}</textarea>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">{% trans "Brief description of the product." %}</p>
+            </div>
+
+            <!-- Description (Arabic) -->
+            <div class="sm:col-span-6">
+                <label for="description_ar" class="block text-sm font-medium text-gray-700">{% trans "Description (Arabic)" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <textarea id="description_ar" name="description_ar" rows="3" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">{{ product.description_ar }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Section -->
+        <div class="px-6 py-5 border-t border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">{% trans "Pricing Information" %}</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <!-- Cost Price -->
+            <div class="sm:col-span-2">
+                <label for="cost_price" class="block text-sm font-medium text-gray-700">{% trans "Cost Price (AED)" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                        <span class="text-gray-500 sm:text-sm">AED</span>
+                    </span>
+                    <input type="number" name="cost_price" id="cost_price" min="0" step="0.01" value="{{ product.purchase_price }}" class="pl-14 shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200" required>
+                </div>
+            </div>
+
+            <!-- Selling Price -->
+            <div class="sm:col-span-2">
+                <label for="selling_price" class="block text-sm font-medium text-gray-700">{% trans "Selling Price (AED)" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                        <span class="text-gray-500 sm:text-sm">AED</span>
+                    </span>
+                    <input type="number" name="selling_price" id="selling_price" min="0" step="0.01" value="{{ product.selling_price }}" class="pl-14 shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200" required>
+                </div>
+            </div>
+
+            <!-- Discount -->
+            <div class="sm:col-span-2">
+                <label for="discount" class="block text-sm font-medium text-gray-700">{% trans "Discount (%)" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="number" name="discount" id="discount" min="0" max="100" step="0.1" value="{{ product.discount }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <span class="text-gray-500 sm:text-sm">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Section -->
+        <div class="px-6 py-5 border-t border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">{% trans "Inventory Information" %}</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <!-- Total Quantity -->
+            <div class="sm:col-span-2">
+                <label for="total_quantity" class="block text-sm font-medium text-gray-700">{% trans "Total Quantity" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="number" name="total_quantity" id="total_quantity" min="0" step="1" value="{{ product.total_quantity }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200" required>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Quantity -->
+            <div class="sm:col-span-2">
+                <label for="available_quantity" class="block text-sm font-medium text-gray-700">{% trans "Available Quantity" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="number" name="available_quantity" id="available_quantity" min="0" step="1" value="{{ product.available_quantity }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200" required>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Stock Threshold -->
+            <div class="sm:col-span-2">
+                <label for="low_stock_threshold" class="block text-sm font-medium text-gray-700">{% trans "Low Stock Threshold" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="number" name="low_stock_threshold" id="low_stock_threshold" min="0" step="1" value="{{ product.low_stock_threshold }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Link -->
+            <div class="sm:col-span-6">
+                <label for="product_link" class="block text-sm font-medium text-gray-700">{% trans "Product Link" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                    </div>
+                    <input type="url" name="product_link" id="product_link" value="{{ product.product_link }}" class="pl-10 shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
+                </div>
+            </div>
+        </div>
+
+        <!-- Images Section -->
+        <div class="px-6 py-5 border-t border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">{% trans "Product Images" %}</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <!-- Current Image -->
+            {% if product.image %}
+            <div class="sm:col-span-6">
+                <label class="block text-sm font-medium text-gray-700">{% trans "Current Image" %}</label>
+                <div class="mt-2 flex items-center">
+                    <img src="{{ product.image.url }}" alt="{{ product.name_en }}" class="h-32 w-32 object-contain bg-gray-100 rounded-md">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Main Image -->
+            <div class="sm:col-span-6">
+                <label for="image" class="block text-sm font-medium text-gray-700">{% trans "Change Main Product Image" %}</label>
+                <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-yellow-400 transition-colors duration-200">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="image" class="relative cursor-pointer bg-white rounded-md font-medium text-yellow-600 hover:text-yellow-500 focus-within:outline-none">
+                                <span>{% trans "Upload a file" %}</span>
+                                <input id="image" name="image" type="file" class="sr-only">
+                            </label>
+                            <p class="pl-1">{% trans "or drag and drop" %}</p>
+                        </div>
+                        <p class="text-xs text-gray-500">
+                            {% trans "PNG, JPG, GIF up to 5MB" %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+            <a href="{% url 'sellers:inventory' %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {% trans "Save Changes" %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calculate selling price based on cost price and markup when cost price changes
+        document.getElementById('cost_price').addEventListener('input', function() {
+            const costPrice = parseFloat(this.value) || 0;
+            const markup = 0.3; // 30% markup by default
+            
+            // Only auto-update selling price if user hasn't manually edited it yet
+            if (!document.getElementById('selling_price').dataset.userEdited) {
+                const sellingPrice = costPrice * (1 + markup);
+                document.getElementById('selling_price').value = sellingPrice.toFixed(2);
+            }
+        });
+        
+        // Mark selling price as user-edited when changed manually
+        document.getElementById('selling_price').addEventListener('input', function() {
+            this.dataset.userEdited = true;
+        });
+        
+        // Add input animations
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="url"], textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('ring-2', 'ring-yellow-200', 'ring-opacity-50');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('ring-2', 'ring-yellow-200', 'ring-opacity-50');
+            });
+        });
+        
+        // File input preview
+        const fileInput = document.getElementById('image');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const container = fileInput.closest('.sm\\:col-span-6');
+                        let preview = container.querySelector('.file-preview');
+                        
+                        if (!preview) {
+                            preview = document.createElement('div');
+                            preview.className = 'file-preview mt-4 flex items-center';
+                            preview.innerHTML = `
+                                <div class="h-16 w-16 bg-gray-100 rounded-md overflow-hidden mr-4">
+                                    <img src="${e.target.result}" alt="Preview" class="h-full w-full object-contain">
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">${file.name}</p>
+                                    <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                                </div>
+                            `;
+                            container.appendChild(preview);
+                        } else {
+                            const img = preview.querySelector('img');
+                            const name = preview.querySelector('.text-gray-900');
+                            const size = preview.querySelector('.text-gray-500');
+                            
+                            img.src = e.target.result;
+                            name.textContent = file.name;
+                            size.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Validate quantities
+        function validateQuantities() {
+            const total = parseInt(document.getElementById('total_quantity').value) || 0;
+            const available = parseInt(document.getElementById('available_quantity').value) || 0;
+            
+            if (available > total) {
+                document.getElementById('available_quantity').value = total;
+            }
+        }
+        
+        document.getElementById('total_quantity').addEventListener('change', validateQuantities);
+        document.getElementById('available_quantity').addEventListener('change', validateQuantities);
+    });
+</script>
+{% endblock %} 

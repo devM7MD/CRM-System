@@ -1,0 +1,108 @@
+{% extends 'seller_base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Security Settings" %}{% endblock %}
+
+{% block header %}{% trans "Security Settings" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">{% trans "Security Settings" %}</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">{% trans "Manage your account security." %}</p>
+    </div>
+    <div class="border-t border-gray-200">
+        <form method="post" class="p-6 space-y-8" action="{% url 'sellers:security_settings' %}">
+            {% csrf_token %}
+            
+            <!-- Password Change -->
+            <div>
+                <h4 class="text-base font-medium text-gray-900 mb-4">{% trans "Change Password" %}</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label for="current_password" class="block text-sm font-medium text-gray-700">{% trans "Current Password" %}</label>
+                        <div class="mt-1">
+                            <input type="password" name="current_password" id="current_password" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="new_password" class="block text-sm font-medium text-gray-700">{% trans "New Password" %}</label>
+                        <div class="mt-1">
+                            <input type="password" name="new_password" id="new_password" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">
+                            {% trans "Minimum 8 characters with at least one uppercase letter, one lowercase letter, one number, and one special character." %}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700">{% trans "Confirm New Password" %}</label>
+                        <div class="mt-1">
+                            <input type="password" name="confirm_password" id="confirm_password" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    
+                    <div class="pt-5">
+                        <button type="submit" name="action" value="change_password" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none">
+                            {% trans "Update Password" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Two-Factor Authentication -->
+            <div class="pt-6 border-t border-gray-200">
+                <h4 class="text-base font-medium text-gray-900 mb-4">{% trans "Two-Factor Authentication" %}</h4>
+                <div class="relative flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="enable_2fa" name="enable_2fa" type="checkbox" class="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="enable_2fa" class="font-medium text-gray-700">{% trans "Enable Two-Factor Authentication" %}</label>
+                        <p class="text-gray-500">{% trans "Add an extra layer of security to your account by requiring a verification code in addition to your password." %}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" name="action" value="setup_2fa" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                        {% trans "Set Up Two-Factor Authentication" %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Session Management -->
+            <div class="pt-6 border-t border-gray-200">
+                <h4 class="text-base font-medium text-gray-900 mb-4">{% trans "Active Sessions" %}</h4>
+                <p class="text-sm text-gray-500 mb-4">{% trans "Sessions where you're currently logged in. You can log out from other devices if you notice any suspicious activity." %}</p>
+                
+                <div class="overflow-hidden bg-gray-50 border border-gray-200 rounded-md">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="px-4 py-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{% trans "Current Session" %}</p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {% trans "Device" %}: {% trans "Chrome on Windows" %} • 
+                                        {% trans "IP" %}: 192.168.1.1 • 
+                                        {% trans "Last active" %}: {% trans "Just now" %}
+                                    </p>
+                                </div>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    {% trans "Current" %}
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" name="action" value="logout_all" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-gray-50 focus:outline-none">
+                        {% trans "Log out from all other devices" %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

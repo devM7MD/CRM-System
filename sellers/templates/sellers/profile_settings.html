@@ -1,0 +1,112 @@
+{% extends 'seller_base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Profile Settings" %}{% endblock %}
+
+{% block header %}{% trans "Profile Settings" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">{% trans "Profile Information" %}</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">{% trans "Update your profile information." %}</p>
+    </div>
+    <div class="border-t border-gray-200">
+        <form method="post" class="p-6 space-y-6" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Personal Information -->
+            <div>
+                <h4 class="text-base font-medium text-gray-900 mb-4">{% trans "Personal Information" %}</h4>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">{% trans "First Name" %}</label>
+                        <div class="mt-1">
+                            <input type="text" name="first_name" id="first_name" value="{{ request.user.first_name }}" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">{% trans "Last Name" %}</label>
+                        <div class="mt-1">
+                            <input type="text" name="last_name" id="last_name" value="{{ request.user.last_name }}" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700">{% trans "Email Address" %}</label>
+                        <div class="mt-1">
+                            <input type="email" name="email" id="email" value="{{ request.user.email }}" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="phone" class="block text-sm font-medium text-gray-700">{% trans "Phone Number" %}</label>
+                        <div class="mt-1">
+                            <input type="tel" name="phone" id="phone" value="{{ seller.phone }}" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Business Information -->
+            <div>
+                <h4 class="text-base font-medium text-gray-900 mb-4">{% trans "Business Information" %}</h4>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-4">
+                        <label for="store_name" class="block text-sm font-medium text-gray-700">{% trans "Store/Business Name" %}</label>
+                        <div class="mt-1">
+                            <input type="text" name="store_name" id="store_name" value="{{ seller.name }}" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-4">
+                        <label for="store_link" class="block text-sm font-medium text-gray-700">{% trans "Store Website/Link" %}</label>
+                        <div class="mt-1">
+                            <input type="url" name="store_link" id="store_link" value="{{ seller.store_link }}" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Profile Picture -->
+            <div>
+                <h4 class="text-base font-medium text-gray-900 mb-4">{% trans "Profile Picture" %}</h4>
+                <div class="flex items-center">
+                    <div class="h-16 w-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                        {% if request.user.profile_picture %}
+                            <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.full_name }}" class="h-full w-full object-cover">
+                        {% else %}
+                            <span class="text-2xl font-medium text-gray-500">{{ request.user.get_initials }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="ml-5">
+                        <div class="relative">
+                            <input type="file" name="profile_picture" id="profile_picture" class="sr-only">
+                            <label for="profile_picture" class="cursor-pointer py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                                {% trans "Change" %}
+                            </label>
+                            {% if request.user.profile_picture %}
+                                <button type="button" class="ml-3 py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-gray-50 focus:outline-none">
+                                    {% trans "Remove" %}
+                                </button>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">
+                            {% trans "JPG, GIF or PNG. 1MB max." %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="pt-5 flex justify-end">
+                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none">
+                    {% trans "Save Changes" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
