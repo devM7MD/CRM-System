@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "User Details" %} - {{ user_obj.full_name }}{% endblock %}
+
+{% block header %}{% trans "User Details" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-6">
+    <div class="mb-4">
+        <a href="{% url 'users:user_list' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Users List" %}
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- User Information Card -->
+        <div class="md:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">{% trans "User Information" %}</h2>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'users:edit_user' user_obj.id %}" class="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm">
+                            <i class="fas fa-edit mr-1"></i> {% trans "Edit" %}
+                        </a>
+                        {% if user_obj.is_active %}
+                        <a href="{% url 'users:deactivate_user' user_obj.id %}" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
+                            <i class="fas fa-ban mr-1"></i> {% trans "Deactivate" %}
+                        </a>
+                        {% else %}
+                        <a href="{% url 'users:activate_user' user_obj.id %}" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
+                            <i class="fas fa-check mr-1"></i> {% trans "Activate" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="flex-shrink-0 h-24 w-24 bg-gray-200 rounded-full overflow-hidden">
+                            {% if user_obj.profile_image %}
+                            <img src="{{ user_obj.profile_image.url }}" alt="{{ user_obj.get_full_name }}" class="h-24 w-24 object-cover">
+                            {% else %}
+                            <div class="h-24 w-24 flex items-center justify-center bg-primary-100 text-primary-800 font-semibold text-3xl">
+                                {{ user_obj.get_full_name|slice:":1" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-6">
+                            <h3 class="text-xl font-bold text-gray-900">{{ user_obj.full_name }}</h3>
+                            <p class="text-gray-600">{{ user_obj.get_role_display }}</p>
+                            <div class="mt-1">
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {% if user_obj.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if user_obj.is_active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500">{% trans "Contact Information" %}</h4>
+                            <dl class="mt-2 space-y-3">
+                                <div>
+                                    <dt class="text-xs text-gray-500">{% trans "Email" %}</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ user_obj.email }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">{% trans "Phone" %}</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ user_obj.phone_number }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">{% trans "Country" %}</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ user_obj.country|default:"-" }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500">{% trans "Business Information" %}</h4>
+                            <dl class="mt-2 space-y-3">
+                                <div>
+                                    <dt class="text-xs text-gray-500">{% trans "Company" %}</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ user_obj.company_name|default:"-" }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">{% trans "Expected Daily Orders" %}</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ user_obj.expected_daily_orders }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">{% trans "Joined" %}</dt>
+                                    <dd class="text-sm font-medium text-gray-900">{{ user_obj.date_joined|date:"F j, Y" }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Activity Card -->
+        <div>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 bg-gray-50 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">{% trans "Recent Activity" %}</h2>
+                </div>
+                
+                <div class="p-4">
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-sign-in-alt text-blue-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">{% trans "Last Login" %}</p>
+                                <p class="text-sm text-gray-500">
+                                    {% if user_obj.last_login %}
+                                    {{ user_obj.last_login|date:"F j, Y H:i" }}
+                                    {% else %}
+                                    {% trans "Never logged in" %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-user-plus text-green-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">{% trans "Account Created" %}</p>
+                                <p class="text-sm text-gray-500">{{ user_obj.date_joined|date:"F j, Y H:i" }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- More activity items can be added here based on audit logs -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

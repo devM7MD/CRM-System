@@ -1,169 +1,47 @@
-{% extends 'base.html' %}
+{% extends 'auth_base.html' %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}Register{% endblock %}
+{% block title %}{% trans "Register" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags.png");}
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags@2x.png");}
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Create your account
-      </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        Join CRM Fulfillment System
-      </p>
-    </div>
-
-    {% if messages %}
-    <div class="rounded-md bg-yellow-50 p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">
-            Attention needed
-          </h3>
-          <div class="mt-2 text-sm text-yellow-700">
-            <ul class="list-disc pl-5 space-y-1">
-              {% for message in messages %}
-              <li>{{ message }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    
-    <form class="mt-8 space-y-6" method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
-      
-      <div class="space-y-4">
-        <!-- Full Name -->
-        <div>
-          <label for="id_full_name" class="block text-sm font-medium text-gray-700">Full Name</label>
-          <div class="mt-1">
-            <input id="id_full_name" name="full_name" type="text" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.full_name.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Email -->
-        <div>
-          <label for="id_email" class="block text-sm font-medium text-gray-700">Email address</label>
-          <div class="mt-1">
-            <input id="id_email" name="email" type="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.email.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Phone -->
-        <div>
-          <label for="id_phone_number" class="block text-sm font-medium text-gray-700">Phone</label>
-          <div class="mt-1">
-            <input id="id_phone_number" name="phone_number" type="tel" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="+971501234567">
-          </div>
-          {% if form.phone_number.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Company Name -->
-        <div>
-          <label for="id_company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
-          <div class="mt-1">
-            <input id="id_company_name" name="company_name" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.company_name.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.company_name.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Country -->
-        <div>
-          <label for="id_country" class="block text-sm font-medium text-gray-700">Country</label>
-          <div class="mt-1">
-            <input id="id_country" name="country" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.country.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.country.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Expected Daily Orders -->
-        <div>
-          <label for="id_expected_daily_orders" class="block text-sm font-medium text-gray-700">Expected Daily Orders</label>
-          <div class="mt-1">
-            <input id="id_expected_daily_orders" name="expected_daily_orders" type="number" min="0" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" value="0">
-          </div>
-          {% if form.expected_daily_orders.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.expected_daily_orders.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Profile Image -->
-        <div>
-          <label for="id_profile_image" class="block text-sm font-medium text-gray-700">Profile Image (Optional)</label>
-          <div class="mt-1">
-            <input id="id_profile_image" name="profile_image" type="file" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.profile_image.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.profile_image.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Password -->
-        <div>
-          <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
-          <div class="mt-1">
-            <input id="id_password1" name="password1" type="password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.password1.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Confirm Password -->
-        <div>
-          <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <div class="mt-1">
-            <input id="id_password2" name="password2" type="password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.password2.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
-          {% endif %}
-        </div>
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-lg w-full space-y-8">
+    <div class="form-card p-8">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">
+          <i class="fas fa-user-plus text-yellow-500 mr-2"></i>{% trans "Create Account" %}
+        </h2>
+        <p class="text-sm text-gray-500">
+          {% trans "Join our platform and start managing your fulfillment" %}
+        </p>
       </div>
 
-      <div>
-        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-          Register
-        </button>
-      </div>
-      
-      {% if form.non_field_errors %}
-      <div class="rounded-md bg-red-50 p-4">
+      {% if messages %}
+      <div class="rounded-md bg-yellow-50 p-4 mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
           </div>
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">
-              There were errors with your submission
+            <h3 class="text-sm font-medium text-yellow-800">
+              {% trans "Attention needed" %}
             </h3>
-            <div class="mt-2 text-sm text-red-700">
+            <div class="mt-2 text-sm text-yellow-700">
               <ul class="list-disc pl-5 space-y-1">
-                {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
+                {% for message in messages %}
+                <li>{{ message }}</li>
                 {% endfor %}
               </ul>
             </div>
@@ -171,16 +49,254 @@
         </div>
       </div>
       {% endif %}
-    </form>
-    
-    <div class="text-center mt-4">
-      <p class="text-sm text-gray-600">
-        Already have an account? 
-        <a href="{% url 'users:login' %}" class="font-medium text-yellow-600 hover:text-yellow-500">
-          Sign in here
-        </a>
-      </p>
+      
+      <form class="space-y-6" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="space-y-4">
+          <!-- Basic Information -->
+          <div class="pb-3 mb-3 border-b border-gray-200">
+            <h3 class="text-md font-medium text-gray-700">{% trans "Personal Information" %}</h3>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Full Name -->
+            <div>
+              <label for="id_full_name" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Full Name" %}</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-user text-gray-400"></i>
+                </div>
+                <input id="id_full_name" name="full_name" type="text" required class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Your full name' %}">
+              </div>
+              {% if form.full_name.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
+              {% endif %}
+            </div>
+            
+            <!-- Email -->
+            <div>
+              <label for="id_email" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Email address" %}</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-envelope text-gray-400"></i>
+                </div>
+                <input id="id_email" name="email" type="email" required class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Your email address' %}">
+              </div>
+              {% if form.email.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Phone -->
+          <div>
+            <label for="id_phone_number" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Phone" %}</label>
+            <div class="relative">
+              <input id="id_phone_number" name="phone_number" type="tel" required class="input-field block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Enter your phone number' %}">
+              <input type="hidden" id="phone_country_code" name="phone_country_code">
+            </div>
+            {% if form.phone_number.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
+            {% endif %}
+          </div>
+          
+          <!-- Business Information -->
+          <div class="pt-2 pb-3 mb-3 border-b border-gray-200">
+            <h3 class="text-md font-medium text-gray-700">{% trans "Business Information" %}</h3>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Company Name -->
+            <div>
+              <label for="id_company_name" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Company Name" %}</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-building text-gray-400"></i>
+                </div>
+                <input id="id_company_name" name="company_name" type="text" class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Your company name' %}">
+              </div>
+              {% if form.company_name.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.company_name.errors.0 }}</p>
+              {% endif %}
+            </div>
+            
+            <!-- Country -->
+            <div>
+              <label for="id_country" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Country" %}</label>
+              <div class="relative">
+                <select id="id_country" name="country" class="country-select input-field appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+                  <option value="">{% trans "Select your country" %}</option>
+                </select>
+              </div>
+              {% if form.country.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.country.errors.0 }}</p>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Expected Daily Orders -->
+          <div>
+            <label for="id_expected_daily_orders" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Expected Daily Orders" %}</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-shopping-cart text-gray-400"></i>
+              </div>
+              <input id="id_expected_daily_orders" name="expected_daily_orders" type="number" min="0" class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" value="0" placeholder="{% trans 'Number of expected daily orders' %}">
+            </div>
+            {% if form.expected_daily_orders.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.expected_daily_orders.errors.0 }}</p>
+            {% endif %}
+          </div>
+          
+          <!-- Profile Image -->
+          <div>
+            <label for="id_profile_image" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Profile Image (Optional)" %}</label>
+            <div class="mt-1 flex items-center">
+              <div class="relative">
+                <input id="id_profile_image" name="profile_image" type="file" class="sr-only">
+                <label for="id_profile_image" class="cursor-pointer py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                  <i class="fas fa-upload mr-1"></i> {% trans "Choose file" %}
+                </label>
+              </div>
+              <p class="ml-3 text-xs text-gray-500" id="file-name">{% trans "No file selected" %}</p>
+            </div>
+            {% if form.profile_image.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.profile_image.errors.0 }}</p>
+            {% endif %}
+          </div>
+          
+          <!-- Account Security -->
+          <div class="pt-2 pb-3 mb-3 border-b border-gray-200">
+            <h3 class="text-md font-medium text-gray-700">{% trans "Account Security" %}</h3>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Password -->
+            <div>
+              <label for="id_password1" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Password" %}</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-lock text-gray-400"></i>
+                </div>
+                <input id="id_password1" name="password1" type="password" required class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Create a password' %}">
+              </div>
+              {% if form.password1.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+              {% endif %}
+            </div>
+            
+            <!-- Confirm Password -->
+            <div>
+              <label for="id_password2" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Confirm Password" %}</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-lock text-gray-400"></i>
+                </div>
+                <input id="id_password2" name="password2" type="password" required class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Confirm your password' %}">
+              </div>
+              {% if form.password2.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <button type="submit" class="btn-primary group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 ease-in-out">
+            {% trans "Create Account" %}
+          </button>
+        </div>
+        
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-red-50 p-4 mt-6">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                {% trans "Registration failed" %}
+              </h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul class="list-disc pl-5 space-y-1">
+                  {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </form>
+      
+      <div class="mt-6 flex items-center justify-center">
+        <div class="text-sm">
+          <span class="text-gray-500">{% trans "Already have an account?" %}</span>
+          <a href="{% url 'users:login' %}" class="font-medium text-yellow-600 hover:text-yellow-500 ml-1 transition-colors">
+            {% trans "Sign in" %}
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+{% block extra_js %}
+<script src="{% static 'js/countries.js' %}"></script>
+<script src="{% static 'js/test-phone.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize intlTelInput for phone number
+    const phoneInput = window.intlTelInput(document.querySelector("#id_phone_number"), {
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js",
+      preferredCountries: ['ae', 'sa', 'us', 'gb'],
+      separateDialCode: true,
+      initialCountry: "auto",
+      geoIpLookup: function(callback) {
+        fetch("https://ipapi.co/json")
+          .then(function(res) { return res.json(); })
+          .then(function(data) { callback(data.country_code); })
+          .catch(function() { callback("ae"); }); // Default to UAE
+      },
+    });
+    
+    // Save the instance to window for testing
+    window.iti = phoneInput;
+    
+    // Populate the country dropdown
+    const countrySelect = document.querySelector("#id_country");
+    
+    // Initialize Select2 for country dropdown
+    $(document).ready(function() {
+      // Populate countries dropdown
+      countries.forEach(function(country) {
+        const option = new Option(country.name, country.name);
+        countrySelect.add(option);
+      });
+      
+      // Initialize Select2
+      $('#id_country').select2({
+        placeholder: "{% trans 'Select your country' %}",
+        allowClear: true,
+        theme: "classic"
+      });
+      
+      // Store country code on form submit
+      $('form').on('submit', function() {
+        document.getElementById('phone_country_code').value = phoneInput.getSelectedCountryData().dialCode;
+      });
+    });
+    
+    // Display selected filename
+    document.getElementById('id_profile_image').addEventListener('change', function(e) {
+      var fileName = e.target.files[0]?.name || '{% trans "No file selected" %}';
+      document.getElementById('file-name').textContent = fileName;
+    });
+  });
+</script>
+{% endblock %}
 {% endblock %} 

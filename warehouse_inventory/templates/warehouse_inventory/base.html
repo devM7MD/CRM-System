@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% block page_title %}{% trans "Warehouse Management" %}{% endblock %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'warehouse_inventory/css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800">{% block page_title_content %}{% trans "Warehouse Management" %}{% endblock %}</h1>
+        
+        <div>
+            {% block page_actions %}{% endblock %}
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-6">
+            {% block inventory_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block inventory_js %}{% endblock %}
+{% endblock %}
