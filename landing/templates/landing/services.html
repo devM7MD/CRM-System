@@ -1,4 +1,5 @@
 {% extends 'landing/base_landing.html' %}
+{% load i18n %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -8,7 +9,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">{{ title }}</h1>
         <p class="text-xl md:text-2xl mb-4">
-            في أطلس فولفيلمنت، نقدم حلولاً لوجستية متكاملة تلبي احتياجات عملائنا بأسلوب سلس واحترافي
+            {% trans "At Atlas Fulfillment, we provide integrated logistics solutions that meet our clients' needs in a seamless and professional manner." %}
         </p>
     </div>
 </section>
@@ -17,10 +18,10 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">خدماتنا المتميزة</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">{% trans "Our المميزة Services" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                إليك أبرز خدماتنا التي نفخر بتقديمها لعملائنا الكرام
+                {% trans "Here are the most prominent services that we are proud to offer to our valued clients." %}
             </p>
         </div>
         
@@ -34,76 +35,76 @@
                 </div>
                 <div>
                     {% if forloop.counter == 1 %}
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">استيراد من أكبر الأسواق العالمية</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Import from the largest global markets" %}</h3>
                     <p class="text-lg text-gray-600 mb-6">
-                        نوفر لك خدمات استيراد متكاملة من أكبر الأسواق العالمية مثل الصين ودبي وأوروبا وغيرها. يتولى فريقنا المتخصص:
+                        {% trans "We provide you with integrated import services from the largest global markets such as China, Dubai, Europe, and others. Our specialized team handles:" %}
                     </p>
                     <ul class="list-disc list-inside space-y-2 text-gray-600">
-                        <li>البحث عن أفضل الموردين والمنتجات بأسعار تنافسية</li>
-                        <li>التفاوض مع الموردين لضمان أفضل الأسعار والشروط</li>
-                        <li>متابعة عمليات الشحن والتخليص الجمركي</li>
-                        <li>ضمان وصول البضائع بحالة ممتازة وفي الوقت المحدد</li>
-                        <li>توفير حلول متكاملة للتعامل مع التحديات اللوجستية</li>
+                        <li>{% trans "Searching for the best suppliers and products at competitive prices" %}</li>
+                        <li>{% trans "Negotiating with suppliers to ensure the best prices and terms" %}</li>
+                        <li>{% trans "Following up on shipping and customs clearance operations" %}</li>
+                        <li>{% trans "Ensuring the arrival of goods in excellent condition and on time" %}</li>
+                        <li>{% trans "Providing integrated solutions to deal with logistical challenges" %}</li>
                     </ul>
                     {% elif forloop.counter == 2 %}
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">مستودعات حديثة ومجهزة بأحدث التقنيات</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Modern warehouses equipped with the latest technologies" %}</h3>
                     <p class="text-lg text-gray-600 mb-6">
-                        نوفر مستودعات حديثة ومجهزة بأحدث التقنيات لتخزين بضائعك بأمان وكفاءة. تتميز مستودعاتنا بـ:
+                        {% trans "We provide modern warehouses equipped with the latest technologies to store your goods safely and efficiently. Our warehouses are characterized by:" %}
                     </p>
                     <ul class="list-disc list-inside space-y-2 text-gray-600">
-                        <li>أنظمة أمان متطورة على مدار الساعة</li>
-                        <li>أنظمة تحكم في درجات الحرارة والرطوبة</li>
-                        <li>نظام إدارة مخزون متطور يتيح لك متابعة بضائعك في أي وقت</li>
-                        <li>مساحات تخزين مرنة تناسب مختلف أنواع وأحجام المنتجات</li>
-                        <li>فريق متخصص في إدارة المخازن وتنظيمها بكفاءة عالية</li>
+                        <li>{% trans "Advanced security systems around the clock" %}</li>
+                        <li>{% trans "Temperature and humidity control systems" %}</li>
+                        <li>{% trans "An advanced inventory management system that allows you to track your goods at any time" %}</li>
+                        <li>{% trans "Flexible storage spaces suitable for different types and sizes of products" %}</li>
+                        <li>{% trans "A specialized team in managing and organizing warehouses with high efficiency" %}</li>
                     </ul>
                     {% elif forloop.counter == 3 %}
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">فريق متخصص لتأكيد الطلبيات</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Specialized team for order confirmation" %}</h3>
                     <p class="text-lg text-gray-600 mb-6">
-                        يعمل فريقنا المتخصص على تأكيد الطلبيات مع العملاء بدقة عالية، مما يضمن:
+                        {% trans "Our specialized team works on confirming orders with customers with high accuracy, which ensures:" %}
                     </p>
                     <ul class="list-disc list-inside space-y-2 text-gray-600">
-                        <li>تحقيق أعلى نسبة تأكيد للطلبيات</li>
-                        <li>التواصل مع العملاء باحترافية ولباقة</li>
-                        <li>التأكد من تفاصيل الطلب والعنوان ووقت التسليم المناسب</li>
-                        <li>تقديم معلومات دقيقة عن المنتجات والخدمات</li>
-                        <li>التعامل الفوري مع استفسارات وملاحظات العملاء</li>
+                        <li>{% trans "Achieving the highest order confirmation rate" %}</li>
+                        <li>{% trans "Communicating with customers professionally and politely" %}</li>
+                        <li>{% trans "Verifying order details, address, and suitable delivery time" %}</li>
+                        <li>{% trans "Providing accurate information about products and services" %}</li>
+                        <li>{% trans "Immediate handling of customer inquiries and comments" %}</li>
                     </ul>
                     {% elif forloop.counter == 4 %}
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">خدمات تغليف مبتكرة وعالية الجودة</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Innovative and high-quality packaging services" %}</h3>
                     <p class="text-lg text-gray-600 mb-6">
-                        نقدم خدمات تغليف احترافية تضمن وصول منتجاتك إلى العملاء بشكل آمن وجذاب:
+                        {% trans "We offer professional packaging services that ensure your products reach customers safely and attractively:" %}
                     </p>
                     <ul class="list-disc list-inside space-y-2 text-gray-600">
-                        <li>استخدام مواد تغليف عالية الجودة تناسب طبيعة كل منتج</li>
-                        <li>تصميم عبوات مخصصة تعزز هوية علامتك التجارية</li>
-                        <li>خيارات متنوعة للتغليف تناسب مختلف الميزانيات</li>
-                        <li>تغليف صديق للبيئة للعملاء المهتمين بالاستدامة</li>
-                        <li>إضافة لمسات خاصة مثل بطاقات الشكر والهدايا المجانية</li>
+                        <li>{% trans "Using high-quality packaging materials suitable for the nature of each product" %}</li>
+                        <li>{% trans "Designing custom packages that enhance your brand identity" %}</li>
+                        <li>{% trans "Various packaging options to suit different budgets" %}</li>
+                        <li>{% trans "Eco-friendly packaging for customers interested in sustainability" %}</li>
+                        <li>{% trans "Adding special touches such as thank you cards and free gifts" %}</li>
                     </ul>
                     {% elif forloop.counter == 5 %}
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">توصيل سريع وآمن</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Fast and secure delivery" %}</h3>
                     <p class="text-lg text-gray-600 mb-6">
-                        نضمن تسليم البضائع إلى العملاء النهائيين في الوقت المحدد وبأعلى معايير الأمان:
+                        {% trans "We guarantee the delivery of goods to end customers on time and with the highest safety standards:" %}
                     </p>
                     <ul class="list-disc list-inside space-y-2 text-gray-600">
-                        <li>شبكة توصيل واسعة تغطي مناطق مختلفة</li>
-                        <li>خيارات متعددة للتوصيل (قياسي، سريع، في نفس اليوم)</li>
-                        <li>تتبع الشحنات في الوقت الفعلي</li>
-                        <li>إشعارات آلية للعملاء بحالة الطلب ووقت التسليم المتوقع</li>
-                        <li>خدمة عملاء متاحة للرد على الاستفسارات المتعلقة بالتوصيل</li>
+                        <li>{% trans "A wide delivery network covering different areas" %}</li>
+                        <li>{% trans "Multiple delivery options (standard, express, same-day)" %}</li>
+                        <li>{% trans "Real-time shipment tracking" %}</li>
+                        <li>{% trans "Automatic notifications to customers about order status and expected delivery time" %}</li>
+                        <li>{% trans "Customer service available to answer delivery-related inquiries" %}</li>
                     </ul>
                     {% elif forloop.counter == 6 %}
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">تصوير المنتجات بجودة احترافية (قريباً)</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Professional quality product photography (soon)" %}</h3>
                     <p class="text-lg text-gray-600 mb-6">
-                        نعمل على توفير خدمة تصوير احترافية للمنتجات، لتتمكن من عرضها بشكل جذاب على منصات البيع الخاصة بك:
+                        {% trans "We are working on providing a professional photography service for products, so you can display them attractively on your sales platforms:" %}
                     </p>
                     <ul class="list-disc list-inside space-y-2 text-gray-600">
-                        <li>استوديو مجهز بأحدث معدات التصوير</li>
-                        <li>مصورون محترفون ذوو خبرة في تصوير المنتجات</li>
-                        <li>خيارات متعددة لخلفيات وزوايا التصوير</li>
-                        <li>تحرير الصور وتعديلها لإظهار المنتج بأفضل شكل</li>
-                        <li>تسليم الصور بصيغ وأحجام مختلفة تناسب مختلف منصات البيع</li>
+                        <li>{% trans "A studio equipped with the latest photography equipment" %}</li>
+                        <li>{% trans "Professional photographers with experience in product photography" %}</li>
+                        <li>{% trans "Multiple options for backgrounds and shooting angles" %}</li>
+                        <li>{% trans "Editing and modifying images to show the product in the best way" %}</li>
+                        <li>{% trans "Delivering images in different formats and sizes suitable for various sales platforms" %}</li>
                     </ul>
                     {% endif %}
                 </div>
@@ -117,10 +118,10 @@
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">حلول متكاملة لنجاح أعمالك</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">{% trans "Integrated solutions for the success of your business" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                نقدم حزمة متكاملة من الخدمات اللوجستية التي تغطي جميع مراحل سلسلة التوريد
+                {% trans "We offer an integrated package of logistics services that cover all stages of the supply chain" %}
             </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -128,27 +129,27 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">إدارة المخزون</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Inventory Management" %}</h3>
                 <p class="text-gray-600">
-                    نظام متكامل لإدارة المخزون يتيح لك متابعة مستويات المخزون والمبيعات والطلبيات في الوقت الفعلي.
+                    {% trans "An integrated inventory management system that allows you to track inventory levels, sales, and orders in real time." %}
                 </p>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">إدارة المدفوعات</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Payment Management" %}</h3>
                 <p class="text-gray-600">
-                    نظام آمن وشفاف لإدارة المدفوعات وتحصيل الأموال من العملاء وتحويلها إليك بسرعة وأمان.
+                    {% trans "A secure and transparent system for managing payments, collecting money from customers, and transferring it to you quickly and safely." %}
                 </p>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">تقارير وتحليلات</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Reports and Analytics" %}</h3>
                 <p class="text-gray-600">
-                    تقارير تحليلية مفصلة تساعدك على فهم أداء مبيعاتك واتخاذ قرارات مستنيرة لتنمية أعمالك.
+                    {% trans "Detailed analytical reports that help you understand your sales performance and make informed decisions to grow your business." %}
                 </p>
             </div>
         </div>
@@ -158,13 +159,13 @@
 <!-- CTA Section -->
 <section class="py-16 bg-yellow-500 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl font-bold mb-6">جاهز للاستفادة من خدماتنا؟</h2>
+        <h2 class="text-3xl font-bold mb-6">{% trans "Ready to take advantage of our services?" %}</h2>
         <p class="text-xl mb-8 max-w-3xl mx-auto">
-            سجل الآن واستفد من خدماتنا اللوجستية المتكاملة لتنمية أعمالك وتحقيق أهدافك التجارية.
+            {% trans "Register now and take advantage of our integrated logistics services to grow your business and achieve your commercial goals." %}
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="{% url 'users:register' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg">سجل الآن</a>
-            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg">تواصل معنا</a>
+            <a href="{% url 'users:register' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg">{% trans "Register Now" %}</a>
+            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg">{% trans "Contact Us" %}</a>
         </div>
     </div>
 </section>

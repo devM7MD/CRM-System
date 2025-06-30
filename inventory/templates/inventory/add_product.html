@@ -2,111 +2,610 @@
 {% load static %}
 {% block title %}Add Product{% endblock %}
 
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .input-icon {
+            transition: all 0.2s ease;
+        }
+        .form-input:focus + .input-icon {
+            color: #3b82f6;
+        }
+        .upload-area {
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        .submit-btn {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -4px rgba(59, 130, 246, 0.3);
+        }
+        .step-indicator {
+            position: relative;
+        }
+        .step-indicator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background-color: #e5e7eb;
+            z-index: 0;
+        }
+        .step-indicator:last-child::after {
+            display: none;
+        }
+        .step-number {
+            z-index: 1;
+            position: relative;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-10">
-    <div class="max-w-3xl mx-auto">
-        <div class="bg-white shadow-xl rounded-lg p-8 border border-gray-100">
-            <h1 class="text-3xl font-extrabold text-yellow-700 mb-2 flex items-center gap-2">
-                <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Add New Product
-            </h1>
-            <p class="text-gray-500 mb-8">Fill in the details below to add a new product to your inventory.</p>
-            <form method="post" enctype="multipart/form-data" class="space-y-8" autocomplete="off">
-        {% csrf_token %}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-6">
-            <div>
-                            <label for="id_name_en" class="block text-sm font-semibold text-gray-700 mb-1">Product Name (EN)</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-gray-400"><i class="fas fa-font"></i></span>
-                {{ form.name_en }}
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 leading-tight flex items-center">
+                        <span class="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3">
+                            <i class="fas fa-box-open"></i>
+                        </span>
+                        Create New Product
+                    </h1>
+                    <p class="mt-2 text-gray-600 max-w-3xl">Add all the details about your product including images, pricing, and inventory information</p>
+                </div>
+                <nav class="flex mt-4 md:mt-0" aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-2 text-sm text-gray-500">
+                        <li><a href="{% url 'dashboard:index' %}" class="hover:text-blue-600">Dashboard</a></li>
+                        <li class="flex items-center">
+                            <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <a href="{% url 'inventory:products' %}" class="ml-2 hover:text-blue-600">Products</a>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="ml-2 font-medium text-blue-600">Create</span>
+                        </li>
+                    </ol>
+                </nav>
             </div>
-                            {% if form.name_en.errors %}<p class="text-red-600 text-xs mt-1">{{ form.name_en.errors.0 }}</p>{% endif %}
-            </div>
-            <div>
-                            <label for="id_code" class="block text-sm font-semibold text-gray-700 mb-1">Product Code</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-gray-400"><i class="fas fa-barcode"></i></span>
-                {{ form.code }}
-                            </div>
-                            {% if form.code.errors %}<p class="text-red-600 text-xs mt-1">{{ form.code.errors.0 }}</p>{% endif %}
-            </div>
-            <div>
-                            <label for="id_selling_price" class="block text-sm font-semibold text-gray-700 mb-1">Selling Price</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-gray-400"><i class="fas fa-dollar-sign"></i></span>
-                {{ form.selling_price }}
-                            </div>
-                            {% if form.selling_price.errors %}<p class="text-red-600 text-xs mt-1">{{ form.selling_price.errors.0 }}</p>{% endif %}
-            </div>
-            <div>
-                            <label for="id_purchase_price" class="block text-sm font-semibold text-gray-700 mb-1">Purchase Price</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-gray-400"><i class="fas fa-money-bill-wave"></i></span>
-                {{ form.purchase_price }}
-                            </div>
-                            {% if form.purchase_price.errors %}<p class="text-red-600 text-xs mt-1">{{ form.purchase_price.errors.0 }}</p>{% endif %}
+            
+            <!-- Process Steps -->
+            <div class="mt-8 flex justify-between">
+                <div class="flex space-x-12 mx-auto">
+                    <div class="flex flex-col items-center step-indicator">
+                        <div class="step-number flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-lg shadow-md">
+                            1
                         </div>
+                        <span class="mt-2 text-sm font-medium text-blue-600">Information</span>
                     </div>
-                    <div class="space-y-6">
-                        <div>
-                            <label for="id_name_ar" class="block text-sm font-semibold text-gray-700 mb-1">Product Name (AR)</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-gray-400"><i class="fas fa-font"></i></span>
-                                {{ form.name_ar }}
-                            </div>
-                            {% if form.name_ar.errors %}<p class="text-red-600 text-xs mt-1">{{ form.name_ar.errors.0 }}</p>{% endif %}
-            </div>
-            <div>
-                            <label for="id_image" class="block text-sm font-semibold text-gray-700 mb-1">Product Image</label>
-                            <div class="flex items-center gap-4">
-                                <div class="w-full">
-                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
-                                        <span class="block text-gray-400 mb-2"><i class="fas fa-cloud-upload-alt fa-2x"></i></span>
-                                        <span class="block text-gray-500 text-sm">Drag & drop or click to upload</span>
-                {{ form.image }}
-                                    </div>
-                                </div>
-                            </div>
-                            {% if form.image.errors %}<p class="text-red-600 text-xs mt-1">{{ form.image.errors.0 }}</p>{% endif %}
+                    <div class="flex flex-col items-center step-indicator">
+                        <div class="step-number flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-500 font-bold text-lg">
+                            2
                         </div>
+                        <span class="mt-2 text-sm font-medium text-gray-500">Images</span>
                     </div>
-            </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-6">
-                        <div>
-                            <label for="id_description" class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
-                {{ form.description }}
-                            {% if form.description.errors %}<p class="text-red-600 text-xs mt-1">{{ form.description.errors.0 }}</p>{% endif %}
-            </div>
-                        <div>
-                            <label for="id_product_link" class="block text-sm font-semibold text-gray-700 mb-1">Product Link</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-gray-400"><i class="fas fa-link"></i></span>
-                {{ form.product_link }}
-                            </div>
-                            {% if form.product_link.errors %}<p class="text-red-600 text-xs mt-1">{{ form.product_link.errors.0 }}</p>{% endif %}
+                    <div class="flex flex-col items-center step-indicator">
+                        <div class="step-number flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-500 font-bold text-lg">
+                            3
                         </div>
-            </div>
-                    <div class="space-y-6">
-                        <div>
-                            <label for="id_seller" class="block text-sm font-semibold text-gray-700 mb-1">Seller</label>
-                {{ form.seller }}
-                            {% if form.seller.errors %}<p class="text-red-600 text-xs mt-1">{{ form.seller.errors.0 }}</p>{% endif %}
-                        </div>
+                        <span class="mt-2 text-sm font-medium text-gray-500">Review</span>
+                    </div>
+                </div>
             </div>
         </div>
-                <div class="flex justify-end mt-8">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-lg transition">
-                        <i class="fas fa-plus"></i> Add Product
-                    </button>
+        
+        <!-- Form Card -->
+        <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
+                <div class="flex items-center space-x-2 text-white">
+                    <i class="fas fa-clipboard-list text-xl"></i>
+                    <h2 class="text-xl font-semibold">Product Details</h2>
                 </div>
-            </form>
+            </div>
+            
+            <!-- Form Content -->
+            <div class="p-6">
+                <form method="post" enctype="multipart/form-data" class="space-y-8" autocomplete="off">
+                    {% csrf_token %}
+                    
+                    <!-- Form Sections -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left Column - Basic Information -->
+                        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
+                            <div class="flex items-center mb-4 pb-2 border-b border-gray-100">
+                                <div class="bg-blue-100 p-2 rounded-md mr-3">
+                                    <i class="fas fa-info-circle text-blue-600"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-800">Basic Details</h3>
+                            </div>
+                            
+                            <!-- Product Name (EN) -->
+                            <div class="space-y-2 mb-5">
+                                <label for="id_name_en" class="flex items-center text-sm font-medium text-gray-700">
+                                    <span>Product Name (English)</span>
+                                    <span class="ml-1 text-red-500">*</span>
+                                    <div class="ml-1 group relative">
+                                        <i class="fas fa-question-circle text-gray-400 text-xs cursor-help"></i>
+                                        <div class="hidden group-hover:block absolute z-10 w-48 p-2 text-xs bg-gray-800 text-white rounded shadow-lg -left-24 top-full">
+                                            The primary name of the product in English
+                                        </div>
+                                    </div>
+                                </label>
+                                <div class="relative rounded-md">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-tag text-gray-400 input-icon"></i>
+                                    </div>
+                                    {{ form.name_en|safe }}
+                                    <script>
+                                        document.getElementById('id_name_en').classList.add(
+                                            'pl-10', 'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                            'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                            'form-input', 'transition-all', 'duration-200'
+                                        );
+                                    </script>
+                                </div>
+                                {% if form.name_en.errors %}
+                                    <p class="text-red-600 text-xs mt-1">{{ form.name_en.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Name (AR) -->
+                            <div class="space-y-2 mb-5">
+                                <label for="id_name_ar" class="flex items-center text-sm font-medium text-gray-700">
+                                    <span>Product Name (Arabic)</span>
+                                    <div class="ml-1 group relative">
+                                        <i class="fas fa-question-circle text-gray-400 text-xs cursor-help"></i>
+                                        <div class="hidden group-hover:block absolute z-10 w-48 p-2 text-xs bg-gray-800 text-white rounded shadow-lg -left-24 top-full">
+                                            Alternative name in Arabic if applicable
+                                        </div>
+                                    </div>
+                                </label>
+                                <div class="relative rounded-md">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-language text-gray-400 input-icon"></i>
+                                    </div>
+                                    {{ form.name_ar|safe }}
+                                    <script>
+                                        document.getElementById('id_name_ar').classList.add(
+                                            'pl-10', 'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                            'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                            'form-input', 'transition-all', 'duration-200'
+                                        );
+                                    </script>
+                                </div>
+                                {% if form.name_ar.errors %}
+                                    <p class="text-red-600 text-xs mt-1">{{ form.name_ar.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Code -->
+                            <div class="space-y-2 mb-5">
+                                <label for="id_code" class="flex items-center text-sm font-medium text-gray-700">
+                                    <span>Product Code</span>
+                                    <span class="ml-1 text-red-500">*</span>
+                                    <div class="ml-1 group relative">
+                                        <i class="fas fa-question-circle text-gray-400 text-xs cursor-help"></i>
+                                        <div class="hidden group-hover:block absolute z-10 w-48 p-2 text-xs bg-gray-800 text-white rounded shadow-lg -left-24 top-full">
+                                            Unique identifier for the product
+                                        </div>
+                                    </div>
+                                </label>
+                                <div class="relative rounded-md">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-barcode text-gray-400 input-icon"></i>
+                                    </div>
+                                    {{ form.code|safe }}
+                                    <script>
+                                        document.getElementById('id_code').classList.add(
+                                            'pl-10', 'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                            'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                            'form-input', 'transition-all', 'duration-200'
+                                        );
+                                    </script>
+                                </div>
+                                {% if form.code.errors %}
+                                    <p class="text-red-600 text-xs mt-1">{{ form.code.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Seller -->
+                            <div class="space-y-2 mb-5">
+                                <label for="id_seller" class="flex items-center text-sm font-medium text-gray-700">
+                                    <span>Seller</span>
+                                    <div class="ml-1 group relative">
+                                        <i class="fas fa-question-circle text-gray-400 text-xs cursor-help"></i>
+                                        <div class="hidden group-hover:block absolute z-10 w-48 p-2 text-xs bg-gray-800 text-white rounded shadow-lg -left-24 top-full">
+                                            The owner/vendor of this product
+                                        </div>
+                                    </div>
+                                </label>
+                                <div class="relative rounded-md">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-store text-gray-400 input-icon"></i>
+                                    </div>
+                                    {{ form.seller|safe }}
+                                    <script>
+                                        document.getElementById('id_seller').classList.add(
+                                            'pl-10', 'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                            'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                            'form-input', 'transition-all', 'duration-200'
+                                        );
+                                    </script>
+                                </div>
+                                {% if form.seller.errors %}
+                                    <p class="text-red-600 text-xs mt-1">{{ form.seller.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Pricing & Media -->
+                        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
+                            <div class="flex items-center mb-4 pb-2 border-b border-gray-100">
+                                <div class="bg-green-100 p-2 rounded-md mr-3">
+                                    <i class="fas fa-dollar-sign text-green-600"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-800">Pricing & Media</h3>
+                            </div>
+                            
+                            <!-- Product Image -->
+                            <div class="space-y-2 mb-5">
+                                <label for="id_image" class="flex items-center text-sm font-medium text-gray-700">
+                                    <span>Product Image</span>
+                                    <div class="ml-1 group relative">
+                                        <i class="fas fa-question-circle text-gray-400 text-xs cursor-help"></i>
+                                        <div class="hidden group-hover:block absolute z-10 w-48 p-2 text-xs bg-gray-800 text-white rounded shadow-lg -left-24 top-full">
+                                            Upload a high-quality image of the product
+                                        </div>
+                                    </div>
+                                </label>
+                                <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50 cursor-pointer">
+                                    <div class="space-y-2">
+                                        <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-blue-50">
+                                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-blue-500"></i>
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            <span class="font-medium text-blue-600 hover:text-blue-500">
+                                                Click to upload
+                                            </span>
+                                            <span> or drag and drop</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">
+                                            PNG, JPG, GIF up to 5MB
+                                        </p>
+                                    </div>
+                                    <div class="mt-1">
+                                        {{ form.image|safe }}
+                                        <script>
+                                            const imageInput = document.getElementById('id_image');
+                                            imageInput.classList.add('sr-only');
+                                            
+                                            // Make the entire area clickable
+                                            const uploadArea = imageInput.closest('.upload-area');
+                                            uploadArea.addEventListener('click', () => {
+                                                imageInput.click();
+                                            });
+                                            
+                                            // Show preview when image is selected
+                                            imageInput.addEventListener('change', () => {
+                                                const file = imageInput.files[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = (e) => {
+                                                        uploadArea.innerHTML = `
+                                                            <div class="relative h-40 w-40 mx-auto overflow-hidden rounded-lg shadow">
+                                                                <img src="${e.target.result}" alt="Preview" class="h-full w-full object-cover">
+                                                                <button type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 remove-image">
+                                                                    <i class="fa-solid fa-times"></i>
+                                                                </button>
+                                                            </div>
+                                                        `;
+                                                        uploadArea.appendChild(imageInput);
+                                                        
+                                                        // Add click handler for remove button
+                                                        const removeBtn = uploadArea.querySelector('.remove-image');
+                                                        removeBtn.addEventListener('click', (e) => {
+                                                            e.stopPropagation();
+                                                            imageInput.value = '';
+                                                            // Reset the upload area
+                                                            uploadArea.click();
+                                                        });
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                                {% if form.image.errors %}
+                                    <p class="text-red-600 text-xs mt-1">{{ form.image.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Prices - Side by Side -->
+                            <div class="grid grid-cols-2 gap-4 mb-5">
+                                <!-- Selling Price -->
+                                <div class="space-y-2">
+                                    <label for="id_selling_price" class="flex items-center text-sm font-medium text-gray-700">
+                                        <span>Selling Price</span>
+                                        <span class="ml-1 text-red-500">*</span>
+                                    </label>
+                                    <div class="relative rounded-md">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fa-solid fa-dollar-sign text-gray-400 input-icon"></i>
+                                        </div>
+                                        {{ form.selling_price|safe }}
+                                        <script>
+                                            document.getElementById('id_selling_price').classList.add(
+                                                'pl-10', 'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                                'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                                'form-input', 'transition-all', 'duration-200'
+                                            );
+                                        </script>
+                                    </div>
+                                    {% if form.selling_price.errors %}
+                                        <p class="text-red-600 text-xs mt-1">{{ form.selling_price.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Purchase Price -->
+                                <div class="space-y-2">
+                                    <label for="id_purchase_price" class="flex items-center text-sm font-medium text-gray-700">
+                                        <span>Purchase Price</span>
+                                    </label>
+                                    <div class="relative rounded-md">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fa-solid fa-money-bill-wave text-gray-400 input-icon"></i>
+                                        </div>
+                                        {{ form.purchase_price|safe }}
+                                        <script>
+                                            document.getElementById('id_purchase_price').classList.add(
+                                                'pl-10', 'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                                'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                                'form-input', 'transition-all', 'duration-200'
+                                            );
+                                        </script>
+                                    </div>
+                                    {% if form.purchase_price.errors %}
+                                        <p class="text-red-600 text-xs mt-1">{{ form.purchase_price.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Product Link -->
+                            <div class="space-y-2">
+                                <label for="id_product_link" class="flex items-center text-sm font-medium text-gray-700">
+                                    <span>Product Link</span>
+                                    <div class="ml-1 group relative">
+                                        <i class="fas fa-question-circle text-gray-400 text-xs cursor-help"></i>
+                                        <div class="hidden group-hover:block absolute z-10 w-48 p-2 text-xs bg-gray-800 text-white rounded shadow-lg -left-24 top-full">
+                                            External URL for the product (optional)
+                                        </div>
+                                    </div>
+                                </label>
+                                <div class="relative rounded-md">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-link text-gray-400 input-icon"></i>
+                                    </div>
+                                    {{ form.product_link|safe }}
+                                    <script>
+                                        document.getElementById('id_product_link').classList.add(
+                                            'pl-10', 'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                            'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                            'form-input', 'transition-all', 'duration-200'
+                                        );
+                                    </script>
+                                </div>
+                                {% if form.product_link.errors %}
+                                    <p class="text-red-600 text-xs mt-1">{{ form.product_link.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description - Full Width -->
+                    <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm space-y-3">
+                        <div class="flex items-center mb-2 pb-2 border-b border-gray-100">
+                            <div class="bg-purple-100 p-2 rounded-md mr-3">
+                                <i class="fas fa-align-left text-purple-600"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-800">Product Description</h3>
+                        </div>
+                        
+                        <label for="id_description" class="block text-sm font-medium text-gray-700">
+                            Detailed description of the product features and specifications
+                        </label>
+                        {{ form.description|safe }}
+                        <script>
+                            document.getElementById('id_description').classList.add(
+                                'block', 'w-full', 'rounded-lg', 'border-gray-300',
+                                'shadow-sm', 'focus:border-blue-500', 'focus:ring-0',
+                                'form-input', 'transition-all', 'duration-200', 'min-h-[150px]'
+                            );
+                        </script>
+                        {% if form.description.errors %}
+                            <p class="text-red-600 text-xs mt-1">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="pt-6 flex items-center justify-between">
+                        <div class="flex-shrink-0">
+                            <button type="button" onclick="history.back()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                <i class="fa-solid fa-arrow-left mr-2"></i>
+                                Back to Products
+                            </button>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button type="button" id="save-draft-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                <i class="fa-solid fa-save mr-2"></i>
+                                Save Draft
+                            </button>
+                            
+                            <button type="reset" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                <i class="fa-solid fa-undo mr-2"></i>
+                                Reset
+                            </button>
+                            
+                            <button type="submit" class="submit-btn inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-lg text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fa-solid fa-plus mr-2"></i>
+                                Create Product
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Helper Tips -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-5">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <div class="bg-blue-100 p-2 rounded-full">
+                        <i class="fa-solid fa-lightbulb text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-blue-800">Tips for adding products</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li>Use clear, descriptive names to make products easy to find</li>
+                            <li>High-quality images improve customer experience and conversion rates</li>
+                            <li>Include accurate prices to ensure proper accounting</li>
+                            <li>Add detailed descriptions to help customers understand your product</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extrahead %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+<!-- Form Validation Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        
+        // Flash effect for fields with errors
+        const errorFields = document.querySelectorAll('.text-red-600');
+        errorFields.forEach(errorField => {
+            const inputField = errorField.closest('div').querySelector('input, textarea, select');
+            if (inputField) {
+                inputField.classList.add('border-red-300');
+                setTimeout(() => {
+                    inputField.classList.add('border-red-500');
+                    setTimeout(() => {
+                        inputField.classList.remove('border-red-500');
+                        inputField.classList.add('border-red-300');
+                    }, 200);
+                }, 200);
+            }
+        });
+        
+        // Save draft functionality
+        const saveDraftBtn = document.getElementById('save-draft-btn');
+        if (saveDraftBtn) {
+            saveDraftBtn.addEventListener('click', function() {
+                // Add a hidden input to indicate this is a draft save
+                const draftInput = document.createElement('input');
+                draftInput.type = 'hidden';
+                draftInput.name = 'save_as_draft';
+                draftInput.value = 'true';
+                form.appendChild(draftInput);
+                
+                // Submit the form
+                form.submit();
+            });
+        }
+        
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Basic validation for required fields
+            const requiredFields = [
+                { id: 'id_name_en', name: 'Product Name (English)' },
+                { id: 'id_code', name: 'Product Code' },
+                { id: 'id_selling_price', name: 'Selling Price' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (!input.value.trim()) {
+                    isValid = false;
+                    
+                    // Show error
+                    let errorEl = input.parentNode.parentNode.querySelector('.text-red-600');
+                    if (!errorEl) {
+                        errorEl = document.createElement('p');
+                        errorEl.classList.add('text-red-600', 'text-xs', 'mt-1');
+                        input.parentNode.parentNode.appendChild(errorEl);
+                    }
+                    errorEl.textContent = `${field.name} is required`;
+                    
+                    // Highlight field with animation
+                    input.classList.add('border-red-500');
+                    input.classList.add('animate-pulse');
+                    
+                    setTimeout(() => {
+                        input.classList.remove('animate-pulse');
+                    }, 1000);
+                    
+                    input.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.classList.remove('border-red-500');
+                            errorEl.textContent = '';
+                        }
+                    });
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to first error with smooth animation
+                const firstError = document.querySelector('.text-red-600');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                // Show toast notification
+                const toast = document.createElement('div');
+                toast.classList.add('fixed', 'bottom-4', 'right-4', 'bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'p-4', 'shadow-lg', 'rounded', 'z-50');
+                toast.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="py-1"><i class="fas fa-exclamation-circle text-red-500"></i></div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">Please fix the highlighted errors</p>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 500);
+                }, 3000);
+            }
+        });
+    });
+</script>
 {% endblock %} 

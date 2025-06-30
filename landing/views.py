@@ -1,12 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.utils.translation import activate, get_language, gettext_lazy as _
+from django.urls import resolve, reverse
+from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 def home(request):
     """
     الصفحة الرئيسية للموقع
     """
     context = {
-        'title': 'AS Fulfillment & Delivery Services',
-        'subtitle': 'الشريك الموثوق 🌍 | بدءًا من التوريد وصولاً للتسليم المُتقن 📦',
+        'title': _('AS Fulfillment & Delivery Services'),
+        'subtitle': _('Your trusted partner 🌍 | From sourcing to perfect delivery 📦'),
     }
     return render(request, 'landing/home.html', context)
 
@@ -15,8 +19,8 @@ def about(request):
     صفحة من نحن
     """
     context = {
-        'title': 'من نحن',
-        'subtitle': 'لماذا تختار أطلس فولفيمنت؟',
+        'title': _('About Us'),
+        'subtitle': _('Why Choose Atlas Fulfillment?'),
     }
     return render(request, 'landing/about.html', context)
 
@@ -27,38 +31,38 @@ def services(request):
     services_list = [
         {
             'icon': '🌍',
-            'title': 'الاستيراد من الأسواق العالمية',
-            'description': 'نساعدك في استيراد البضائع من أكبر الأسواق، مع ضمان التعامل الآمن والفعّال.'
+            'title': _('Import from Global Markets'),
+            'description': _('We help you import goods from the largest markets, ensuring safe and efficient handling.')
         },
         {
             'icon': '🏭',
-            'title': 'خدمات التخزين المتقدمة',
-            'description': 'نوفر مستودعات حديثة ومجهزة بأحدث التقنيات لتخزين بضائعك بأمان وكفاءة.'
+            'title': _('Advanced Storage Services'),
+            'description': _('We provide modern warehouses equipped with the latest technologies to store your goods safely and efficiently.')
         },
         {
             'icon': '📞',
-            'title': 'تأكيد الطلبيات الاحترافي',
-            'description': 'لدينا فريق متخصص ومحترف يعمل على تأكيد الطلبيات بدقة عالية، مما يضمن تحقيق أفضل نسبة تأكيد ورفع مستوى رضا العملاء.'
+            'title': _('Professional Order Confirmation'),
+            'description': _('Our specialized team works with high precision to confirm orders, ensuring the best confirmation rate and increasing customer satisfaction.')
         },
         {
             'icon': '🎁',
-            'title': 'التغليف المتقن',
-            'description': 'نقدم خدمات تغليف مبتكرة وعالية الجودة لتلبية متطلبات السوق وتعزيز قيمة منتجاتك.'
+            'title': _('Perfect Packaging'),
+            'description': _('We offer innovative and high-quality packaging services to meet market demands and enhance the value of your products.')
         },
         {
             'icon': '🚚',
-            'title': 'التوصيل السريع والامن',
-            'description': 'نضمن تسليم البضائع إلى العملاء النهائيين في الوقت المحدد وبأعلى معايير الأمان.'
+            'title': _('Fast and Secure Delivery'),
+            'description': _('We guarantee the delivery of goods to end customers on time and with the highest safety standards.')
         },
         {
             'icon': '📸',
-            'title': 'تصوير المنتجات (قريباً)',
-            'description': 'نعمل على توفير خدمة تصوير احترافية للمنتجات، لتتمكن من عرضها بشكل جذاب واحترافي على منصات البيع الخاصة بك.'
+            'title': _('Product Photography (Soon)'),
+            'description': _('We are working on providing a professional product photography service, so you can display your products attractively and professionally on your sales platforms.')
         }
     ]
     
     context = {
-        'title': 'خدماتنا',
+        'title': _('Our Services'),
         'services': services_list
     }
     return render(request, 'landing/services.html', context)
@@ -70,28 +74,28 @@ def how_it_works(request):
     steps = [
         {
             'number': '1️⃣',
-            'title': 'التسجيل واختيار المنتج',
-            'description': 'بعد التسجيل في موقعنا بخطوات بسيطة، يمكنك البدء باختيار المنتجات التي ترغب في استيرادها أو تخزينها.'
+            'title': _('Register and Choose a Product'),
+            'description': _('After registering on our site in a few simple steps, you can start choosing the products you want to import or store.')
         },
         {
             'number': '2️⃣',
-            'title': 'إضافة الطلبيات عبر منصة مخصصة',
-            'description': 'استخدم منصتنا المخصصة لإضافة الطلبيات بكل سهولة ويسر. تم تصميم المنصة لتكون بسيطة وفعّالة، مما يتيح لك إدارة طلبياتك بشفافية ومرونة.'
+            'title': _('Add Orders via a Dedicated Platform'),
+            'description': _('Use our dedicated platform to add orders with ease. The platform is designed to be simple and effective, allowing you to manage your orders with transparency and flexibility.')
         },
         {
             'number': '3️⃣',
-            'title': 'تابع تأكيد الطلبيات وتسليمها',
-            'description': 'دع فريقنا المحترف يتولى تأكيد الطلبيات مع العملاء والتأكد من تسليمها بشكل سريع وأمين.'
+            'title': _('Track Order Confirmation and Delivery'),
+            'description': _('Let our professional team handle order confirmations with customers and ensure they are delivered quickly and safely.')
         },
         {
             'number': '4️⃣',
-            'title': 'استلم أموالك بكل شفافية',
-            'description': 'بعد تسليم الطلبيات بنجاح، ستتلقى مستحقاتك بسرعة وشفافية. نحن نحرص على توفير تجربة خالية من التعقيدات.'
+            'title': _('Receive Your Money with Full Transparency'),
+            'description': _('After the successful delivery of orders, you will receive your dues quickly and transparently. We are keen to provide a hassle-free experience.')
         }
     ]
     
     context = {
-        'title': 'كيفية التعاون معنا؟ الأمر بسيط للغاية!',
+        'title': _('How to work with us? It\'s very simple!'),
         'steps': steps
     }
     return render(request, 'landing/how_it_works.html', context)
@@ -102,58 +106,58 @@ def faq(request):
     """
     faqs = [
         {
-            'question': 'هل يمكنني البدء بالعمل مع أطلس فولفيلمنت؟',
-            'answer': 'يمكنك البدء بسهولة من خلال التسجيل على موقعنا الإلكتروني، وبعد ذلك يمكنك اختيار المنتجات التي ترغب في استيرادها أو تخزينها. سيتم تقديم الدعم الكامل من فريقنا طوال العملية.'
+            'question': _('Can I start working with Atlas Fulfillment?'),
+            'answer': _('You can start easily by registering on our website, after which you can choose the products you want to import or store. Our team will provide full support throughout the process.')
         },
         {
-            'question': 'هل يمكنني الاستيراد من أي بلد؟',
-            'answer': 'نعم، نحن نساعدك على استيراد المنتجات من الأسواق العالمية مثل الصين، دبي، وأوروبا وغيرها. لدينا فريق متخصص يدير عمليات التوريد بشكل احترافي لضمان وصول البضائع بأمان وفي الوقت المحدد.'
+            'question': _('Can I import from any country?'),
+            'answer': _('Yes, we help you import products from global markets such as China, Dubai, Europe, and others. We have a specialized team that professionally manages sourcing operations to ensure goods arrive safely and on time.')
         },
         {
-            'question': 'هل توفر الشركة خدمات التخزين فقط أم هناك خدمات أخرى؟',
-            'answer': 'نحن نقدم حلولاً لوجستية متكاملة تشمل: التخزين الآمن، التغليف الاحترافي، خدمة تأكيد الطلبيات، التوصيل السريع، وأكثر من ذلك. كما نعمل على توفير خدمة تصوير المنتجات قريبًا.'
+            'question': _('Does the company only provide storage services, or are there other services?'),
+            'answer': _('We offer integrated logistics solutions including: secure storage, professional packaging, order confirmation service, fast delivery, and more. We are also working on providing a product photography service soon.')
         },
         {
-            'question': 'كم من الوقت يستغرق تسليم الطلبيات للعملاء؟',
-            'answer': 'نحرص دائمًا على تسليم الطلبيات في الوقت المحدد بناءً على الموقع الجغرافي وطبيعة المنتج. فريقنا يعمل على تنسيق جميع الخطوات لضمان تسليم سريع وأمين.'
+            'question': _('How long does it take to deliver orders to customers?'),
+            'answer': _('We always strive to deliver orders on time based on the geographical location and the nature of the product. Our team coordinates all steps to ensure fast and secure delivery.')
         },
         {
-            'question': 'كيف يمكنني تتبع حالة طلبياتي؟',
-            'answer': 'نوفر منصة مخصصة لإدارة الطلبيات، حيث يمكنك تتبع حالة كل طلب بشفافية ومرونة. ستحصل أيضًا على تحديثات دورية حول حالة الطلبيات حتى يتم تسليمها للعملاء النهائيين.'
+            'question': _('How can I track the status of my orders?'),
+            'answer': _('We provide a dedicated platform for order management, where you can track the status of each order with transparency and flexibility. You will also receive regular updates on the order status until it is delivered to the final customers.')
         },
         {
-            'question': 'كيف يتم تحويل الأرباح لي؟',
-            'answer': 'بعد تسليم الطلبيات بنجاح، يتم تحويل مستحقاتك بسرعة وشفافية. نحن نتبع أعلى معايير الأمان والوضوح في التعامل المالي.'
+            'question': _('How are my profits transferred to me?'),
+            'answer': _('After the successful delivery of orders, your dues are transferred quickly and transparently. We adhere to the highest standards of security and clarity in financial dealings.')
         },
         {
-            'question': 'هل يمكنني الوثوق بخدمات التخزين الخاصة بكم؟',
-            'answer': 'بالطبع! نوفر مستودعات حديثة ومجهزة بأحدث التقنيات لضمان تخزين بضائعك بأمان وكفاءة. نحن نلتزم بأعلى معايير الجودة والأمان لحماية منتجاتك.'
+            'question': _('Can I trust your storage services?'),
+            'answer': _('Of course! We provide modern warehouses equipped with the latest technologies to ensure your goods are stored safely and efficiently. We adhere to the highest standards of quality and security to protect your products.')
         },
         {
-            'question': 'ماذا يحدث إذا كان هناك تلف في المنتجات أثناء التوصيل؟',
-            'answer': 'نحن نتحمل المسؤولية الكاملة عن سلامة المنتجات أثناء التخزين والتوصيل. في حال حدوث أي ضرر غير متوقع، سنقوم بتعويضك وفقًا لسياسة الشركة.'
+            'question': _('What happens if there is damage to the products during delivery?'),
+            'answer': _('We take full responsibility for the safety of products during storage and delivery. In the event of any unexpected damage, we will compensate you according to the company\'s policy.')
         },
         {
-            'question': 'ماذا لو بقي جزء من البضاعة في المخزن ولم يُباع في نفس البلد؟ هل يمكنني نقلها إلى بلد آخر؟',
-            'answer': 'نعم، إذا بقيت لديك بضاعة في المخزن ولم تُباع في نفس البلد، يمكنك بسهولة نقلها إلى بلد آخر أو حتى إلى إفريقيا. نحن نوفر حلولًا مرنة لإعادة توزيع بضائعك بما يتناسب مع احتياجات السوق وخططك التجارية.'
+            'question': _('What if a part of the goods remains in the warehouse and is not sold in the same country? Can I move it to another country?'),
+            'answer': _('Yes, if you have goods left in the warehouse that were not sold in the same country, you can easily move them to another country or even to Africa. We provide flexible solutions for redistributing your goods according to market needs and your business plans.')
         }
     ]
     
     context = {
-        'title': 'الأسئلة الشائعة',
+        'title': _('Frequently Asked Questions'),
         'faqs': faqs
     }
     return render(request, 'landing/faq.html', context)
 
 def contact(request):
     """
-    صفحة اتصل بنا
+    Contact page with form handling
     """
     context = {
-        'title': 'اتصل بنا',
+        'title': _('Contact Us'),
         'email': 'info@asfulfillment.com',
         'phone': '+971 50 123 4567',
-        'address': 'دبي، الإمارات العربية المتحدة',
+        'address': _('Dubai, United Arab Emirates'),
         'social_links': {
             'facebook': 'https://facebook.com/asfulfillment',
             'instagram': 'https://instagram.com/asfulfillment',
@@ -161,14 +165,35 @@ def contact(request):
             'linkedin': 'https://linkedin.com/company/asfulfillment',
         }
     }
-    return render(request, 'landing/contact.html', context) 
+    
+    # Handle form submission
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        # Here you would typically save the contact form data to the database
+        # or send an email to the administrator
+        
+        # For now, just show a success message
+        messages.success(request, _('Thank you for contacting us! We will get back to you soon.'))
+        
+        # Redirect to avoid form resubmission on refresh
+        if request.path == reverse('landing:contact'):
+            return redirect('landing:contact')
+        else:
+            return redirect('landing:home')
+    
+    return render(request, 'landing/contact.html', context)
 
 def privacy(request):
     """
     صفحة سياسة الخصوصية
     """
     context = {
-        'title': 'سياسة الخصوصية',
+        'title': _('Privacy Policy'),
     }
     return render(request, 'landing/privacy.html', context)
 
@@ -177,6 +202,41 @@ def terms(request):
     صفحة شروط الخدمة
     """
     context = {
-        'title': 'شروط الخدمة',
+        'title': _('Terms of Service'),
     }
     return render(request, 'landing/terms.html', context) 
+
+def switch_language(request, language_code):
+    """
+    Custom language switcher for landing pages only.
+    This doesn't affect the dashboard language settings.
+    """
+    next_url = request.GET.get('next', '/')
+    
+    # Get the current URL name and arguments
+    try:
+        resolver = resolve(next_url)
+        view_name = resolver.view_name
+        args = resolver.args
+        kwargs = resolver.kwargs
+        
+        # Only process language switch for landing pages
+        if view_name.startswith('landing:'):
+            # Activate the requested language
+            activate(language_code)
+            
+            # Set the language cookie for landing pages only
+            response = HttpResponseRedirect(next_url)
+            response.set_cookie(
+                'landing_language', 
+                language_code,
+                max_age=60*60*24*365,  # 1 year
+                path='/',  # Only set for landing pages
+                samesite='Lax'
+            )
+            return response
+    except:
+        pass
+    
+    # Default fallback
+    return HttpResponseRedirect(next_url) 

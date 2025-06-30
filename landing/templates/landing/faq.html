@@ -1,4 +1,5 @@
 {% extends 'landing/base_landing.html' %}
+{% load i18n %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -8,7 +9,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">{{ title }}</h1>
         <p class="text-xl md:text-2xl mb-4">
-            إجابات على الأسئلة الأكثر شيوعاً حول خدماتنا
+            {% trans "Answers to the most frequently asked questions about our services" %}
         </p>
     </div>
 </section>
@@ -17,10 +18,10 @@
 <section class="py-16 bg-white">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">الأسئلة الشائعة</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">{% trans "Frequently Asked Questions" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600">
-                لتسهيل تجربتك مع أطلس فولفيلمنت، قمنا بتجميع مجموعة من الأسئلة الشائعة التي قد تكون لديك حول خدماتنا وكيفية التعاون معنا
+                {% trans "To facilitate your experience with Atlas Fulfillment, we have compiled a set of frequently asked questions you may have about our services and how to partner with us." %}
             </p>
         </div>
         
@@ -42,9 +43,9 @@
         
         <div class="mt-12 text-center">
             <p class="text-lg text-gray-600 mb-6">
-                لم تجد إجابة لسؤالك؟ لا تتردد في التواصل معنا مباشرة
+                {% trans "Didn't find an answer to your question? Do not hesitate to contact us directly" %}
             </p>
-            <a href="{% url 'landing:contact' %}" class="inline-block bg-yellow-500 text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium">تواصل معنا</a>
+            <a href="{% url 'landing:contact' %}" class="inline-block bg-yellow-500 text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium">{% trans "Contact Us" %}</a>
         </div>
     </div>
 </section>
@@ -53,10 +54,10 @@
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">موارد إضافية</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">{% trans "Additional Resources" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                استكشف المزيد من المعلومات حول خدماتنا وكيفية الاستفادة منها
+                {% trans "Explore more information about our services and how to benefit from them" %}
             </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -64,31 +65,31 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">دليل المستخدم</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "User Guide" %}</h3>
                 <p class="text-gray-600 mb-4">
-                    دليل شامل يوضح كيفية استخدام منصتنا والاستفادة من جميع الميزات المتاحة.
+                    {% trans "A comprehensive guide on how to use our platform and take advantage of all available features." %}
                 </p>
-                <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">تحميل الدليل</a>
+                <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">{% trans "Download Guide" %}</a>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">فيديوهات توضيحية</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Video Tutorials" %}</h3>
                 <p class="text-gray-600 mb-4">
-                    مجموعة من الفيديوهات التوضيحية التي تشرح خدماتنا وكيفية الاستفادة منها.
+                    {% trans "A collection of video tutorials explaining our services and how to benefit from them." %}
                 </p>
-                <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">مشاهدة الفيديوهات</a>
+                <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">{% trans "Watch Videos" %}</a>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">ندوات عبر الإنترنت</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Webinars" %}</h3>
                 <p class="text-gray-600 mb-4">
-                    ندوات دورية عبر الإنترنت تقدم نصائح وإرشادات حول كيفية تحقيق أقصى استفادة من خدماتنا.
+                    {% trans "Regular online seminars that provide tips and guidance on how to make the most of our services." %}
                 </p>
-                <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">جدول الندوات</a>
+                <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">{% trans "Webinar Schedule" %}</a>
             </div>
         </div>
     </div>
@@ -97,13 +98,13 @@
 <!-- CTA Section -->
 <section class="py-16 bg-yellow-500 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl font-bold mb-6">هل أنت مستعد للبدء؟</h2>
+        <h2 class="text-3xl font-bold mb-6">{% trans "Are you ready to get started?" %}</h2>
         <p class="text-xl mb-8 max-w-3xl mx-auto">
-            انضم إلينا اليوم واستفد من خدماتنا المتكاملة لتنمية أعمالك وتحقيق أهدافك التجارية.
+            {% trans "Join us today and take advantage of our integrated services to grow your business and achieve your business goals." %}
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="{% url 'users:register' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg">سجل الآن</a>
-            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg">تواصل معنا</a>
+            <a href="{% url 'users:register' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg">{% trans "Register Now" %}</a>
+            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg">{% trans "Contact Us" %}</a>
         </div>
     </div>
 </section>

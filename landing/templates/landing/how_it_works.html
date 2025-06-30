@@ -1,4 +1,5 @@
 {% extends 'landing/base_landing.html' %}
+{% load i18n %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -8,7 +9,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">{{ title }}</h1>
         <p class="text-xl md:text-2xl mb-4">
-            في أطلس فولفيلمنت، نجعل العملية سهلة ومريحة لضمان تحقيق أهدافك بأقل جهد ممكن
+            {% trans "At Atlas Fulfillment, we make the process easy and convenient to ensure you achieve your goals with minimal effort." %}
         </p>
     </div>
 </section>
@@ -17,10 +18,10 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">خطوات العمل معنا</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">{% trans "Steps to work with us" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                إليك الخطوات البسيطة للبدء في العمل معنا وتحقيق أقصى استفادة من خدماتنا
+                {% trans "Here are the simple steps to start working with us and make the most of our services." %}
             </p>
         </div>
         
@@ -47,58 +48,58 @@
                         <div class="flex items-center">
                             {% if forloop.counter == 1 %}
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-4">تسجيل سهل وسريع</h3>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Easy and fast registration" %}</h3>
                                 <p class="text-lg text-gray-600 mb-6">
-                                    عملية التسجيل لدينا بسيطة وسريعة، تتضمن الخطوات التالية:
+                                    {% trans "Our registration process is simple and fast, and includes the following steps:" %}
                                 </p>
                                 <ol class="list-decimal list-inside space-y-2 text-gray-600">
-                                    <li>إنشاء حساب على منصتنا باستخدام بريدك الإلكتروني</li>
-                                    <li>تعبئة المعلومات الأساسية عن نشاطك التجاري</li>
-                                    <li>اختيار الخدمات التي ترغب بالاستفادة منها</li>
-                                    <li>تحديد المنتجات التي ترغب في استيرادها أو تخزينها</li>
-                                    <li>سيتواصل معك أحد مستشارينا لمساعدتك في بدء العمل</li>
+                                    <li>{% trans "Create an account on our platform using your email" %}</li>
+                                    <li>{% trans "Fill in the basic information about your business" %}</li>
+                                    <li>{% trans "Choose the services you want to benefit from" %}</li>
+                                    <li>{% trans "Specify the products you want to import or store" %}</li>
+                                    <li>{% trans "One of our consultants will contact you to help you get started" %}</li>
                                 </ol>
                             </div>
                             {% elif forloop.counter == 2 %}
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-4">منصة سهلة الاستخدام</h3>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Easy-to-use platform" %}</h3>
                                 <p class="text-lg text-gray-600 mb-6">
-                                    منصتنا مصممة لتكون سهلة الاستخدام وتوفر لك:
+                                    {% trans "Our platform is designed to be easy to use and provides you with:" %}
                                 </p>
                                 <ul class="list-disc list-inside space-y-2 text-gray-600">
-                                    <li>واجهة بسيطة وسهلة الاستخدام</li>
-                                    <li>إمكانية إضافة الطلبيات بكل سهولة ويسر</li>
-                                    <li>متابعة حالة الطلبيات في الوقت الفعلي</li>
-                                    <li>إدارة المخزون بكفاءة</li>
-                                    <li>تقارير مفصلة عن أداء مبيعاتك</li>
+                                    <li>{% trans "A simple and easy-to-use interface" %}</li>
+                                    <li>{% trans "The ability to add orders with ease" %}</li>
+                                    <li>{% trans "Real-time order status tracking" %}</li>
+                                    <li>{% trans "Efficient inventory management" %}</li>
+                                    <li>{% trans "Detailed reports on your sales performance" %}</li>
                                 </ul>
                             </div>
                             {% elif forloop.counter == 3 %}
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-4">فريق متخصص لخدمتك</h3>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "A dedicated team to serve you" %}</h3>
                                 <p class="text-lg text-gray-600 mb-6">
-                                    يتولى فريقنا المحترف:
+                                    {% trans "Our professional team will:" %}
                                 </p>
                                 <ul class="list-disc list-inside space-y-2 text-gray-600">
-                                    <li>الاتصال بالعملاء لتأكيد الطلبيات</li>
-                                    <li>التحقق من تفاصيل العنوان ووقت التسليم المناسب</li>
-                                    <li>الإجابة على استفسارات العملاء حول المنتجات</li>
-                                    <li>متابعة عملية التسليم وحل أي مشكلات قد تطرأ</li>
-                                    <li>تقديم تقارير دورية عن حالة الطلبيات</li>
+                                    <li>{% trans "Contact customers to confirm orders" %}</li>
+                                    <li>{% trans "Verify address details and suitable delivery time" %}</li>
+                                    <li>{% trans "Answer customer inquiries about products" %}</li>
+                                    <li>{% trans "Follow up on the delivery process and resolve any issues that may arise" %}</li>
+                                    <li>{% trans "Provide periodic reports on the status of orders" %}</li>
                                 </ul>
                             </div>
                             {% elif forloop.counter == 4 %}
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-4">عملية تحويل الأموال</h3>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Money transfer process" %}</h3>
                                 <p class="text-lg text-gray-600 mb-6">
-                                    نضمن لك استلام مستحقاتك بسرعة وشفافية من خلال:
+                                    {% trans "We guarantee that you will receive your payments quickly and transparently through:" %}
                                 </p>
                                 <ul class="list-disc list-inside space-y-2 text-gray-600">
-                                    <li>تحويل الأموال بعد تسليم الطلبيات بنجاح</li>
-                                    <li>خيارات متعددة للتحويل (تحويل بنكي، محافظ إلكترونية، إلخ)</li>
-                                    <li>تقارير مالية مفصلة لكل عملية بيع</li>
-                                    <li>الشفافية الكاملة في جميع المعاملات المالية</li>
-                                    <li>دعم فني متاح للإجابة على أي استفسارات متعلقة بالمدفوعات</li>
+                                    <li>{% trans "Transferring funds after successful delivery of orders" %}</li>
+                                    <li>{% trans "Multiple transfer options (bank transfer, e-wallets, etc.)" %}</li>
+                                    <li>{% trans "Detailed financial reports for each sale" %}</li>
+                                    <li>{% trans "Full transparency in all financial transactions" %}</li>
+                                    <li>{% trans "Technical support available to answer any payment-related inquiries" %}</li>
                                 </ul>
                             </div>
                             {% endif %}
@@ -115,10 +116,10 @@
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">مميزات العمل معنا</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">{% trans "Benefits of working with us" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                عند اختيارك للعمل مع أطلس فولفيلمنت، ستحصل على العديد من المميزات التي تساعدك على تنمية أعمالك
+                {% trans "When you choose to work with Atlas Fulfillment, you will get many benefits that will help you grow your business." %}
             </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -126,27 +127,27 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">توفير الوقت</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Save time" %}</h3>
                 <p class="text-gray-600">
-                    نتولى جميع العمليات اللوجستية، مما يتيح لك التركيز على تنمية أعمالك وزيادة مبيعاتك.
+                    {% trans "We handle all logistics operations, allowing you to focus on growing your business and increasing your sales." %}
                 </p>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">خفض التكاليف</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Cost reduction" %}</h3>
                 <p class="text-gray-600">
-                    تقليل تكاليف التشغيل من خلال الاستفادة من خدماتنا المتكاملة بدلاً من إنشاء بنية تحتية خاصة بك.
+                    {% trans "Reduce operating costs by taking advantage of our integrated services instead of building your own infrastructure." %}
                 </p>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
-                <h3 class="text-xl font-semibold mb-3">زيادة المبيعات</h3>
+                <h3 class="text-xl font-semibold mb-3">{% trans "Increase sales" %}</h3>
                 <p class="text-gray-600">
-                    تحسين تجربة العملاء من خلال خدمة احترافية وتسليم سريع، مما يؤدي إلى زيادة رضا العملاء والمبيعات.
+                    {% trans "Improve the customer experience through professional service and fast delivery, leading to increased customer satisfaction and sales." %}
                 </p>
             </div>
         </div>
@@ -158,10 +159,10 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">ما يقوله عملاؤنا</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">{% trans "What our customers say" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                استمع إلى تجارب بعض عملائنا الذين استفادوا من خدماتنا
+                {% trans "Listen to the experiences of some of our clients who have benefited from our services" %}
             </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -172,15 +173,15 @@
                     </div>
                 </div>
                 <p class="text-gray-600 mb-6">
-                    "منذ أن بدأت العمل مع أطلس فولفيلمنت، تمكنت من التركيز على تنمية علامتي التجارية وزيادة مبيعاتي بنسبة 150%. أنصح بشدة بخدماتهم لكل من يرغب في تطوير أعماله."
+                    {% trans '"Since I started working with Atlas Fulfillment, I have been able to focus on growing my brand and increasing my sales by 150%. I highly recommend their services to anyone who wants to grow their business."' %}
                 </p>
                 <div class="flex items-center">
                     <div class="bg-yellow-200 rounded-full w-12 h-12 flex items-center justify-center text-yellow-800 font-bold text-xl">
-                        م
+                        M
                     </div>
                     <div class="mr-4">
-                        <p class="font-semibold">محمد الأحمد</p>
-                        <p class="text-sm text-gray-500">صاحب متجر إلكتروني</p>
+                        <p class="font-semibold">{% trans "Mohammed Al-Ahmed" %}</p>
+                        <p class="text-sm text-gray-500">{% trans "E-commerce store owner" %}</p>
                     </div>
                 </div>
             </div>
@@ -191,15 +192,15 @@
                     </div>
                 </div>
                 <p class="text-gray-600 mb-6">
-                    "خدمة العملاء الاحترافية ودقة التسليم كانت من أهم العوامل التي جعلتني أستمر في العمل مع أطلس. لقد ساعدوني في بناء سمعة طيبة لعلامتي التجارية."
+                    {% trans '"Professional customer service and delivery accuracy were among the most important factors that made me continue to work with Atlas. They helped me build a good reputation for my brand."' %}
                 </p>
                 <div class="flex items-center">
                     <div class="bg-yellow-200 rounded-full w-12 h-12 flex items-center justify-center text-yellow-800 font-bold text-xl">
-                        س
+                        S
                     </div>
                     <div class="mr-4">
-                        <p class="font-semibold">سارة العلي</p>
-                        <p class="text-sm text-gray-500">صاحبة علامة تجارية للأزياء</p>
+                        <p class="font-semibold">{% trans "Sarah Al-Ali" %}</p>
+                        <p class="text-sm text-gray-500">{% trans "Fashion brand owner" %}</p>
                     </div>
                 </div>
             </div>
@@ -210,15 +211,15 @@
                     </div>
                 </div>
                 <p class="text-gray-600 mb-6">
-                    "أكثر ما أعجبني في أطلس فولفيلمنت هو الشفافية في التعامل والمرونة في تلبية احتياجاتي الخاصة. لقد وفروا علي الكثير من الوقت والجهد."
+                    {% trans '"What I liked most about Atlas Fulfillment is the transparency in dealing and the flexibility in meeting my special needs. They saved me a lot of time and effort."' %}
                 </p>
                 <div class="flex items-center">
                     <div class="bg-yellow-200 rounded-full w-12 h-12 flex items-center justify-center text-yellow-800 font-bold text-xl">
-                        ع
+                        A
                     </div>
                     <div class="mr-4">
-                        <p class="font-semibold">عبدالله الخالدي</p>
-                        <p class="text-sm text-gray-500">مدير شركة استيراد وتصدير</p>
+                        <p class="font-semibold">{% trans "Abdullah Al-Khaldi" %}</p>
+                        <p class="text-sm text-gray-500">{% trans "Import and export company manager" %}</p>
                     </div>
                 </div>
             </div>
@@ -229,13 +230,13 @@
 <!-- CTA Section -->
 <section class="py-16 bg-yellow-500 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl font-bold mb-6">جاهز للبدء؟</h2>
+        <h2 class="text-3xl font-bold mb-6">{% trans "Ready to get started?" %}</h2>
         <p class="text-xl mb-8 max-w-3xl mx-auto">
-            انضم إلينا اليوم واستفد من خدماتنا المتكاملة لتنمية أعمالك وتحقيق أهدافك التجارية.
+            {% trans "Join us today and take advantage of our integrated services to grow your business and achieve your business goals." %}
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="{% url 'users:register' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg">سجل الآن</a>
-            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg">تواصل معنا</a>
+            <a href="{% url 'users:register' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg">{% trans "Register Now" %}</a>
+            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg">{% trans "Contact Us" %}</a>
         </div>
     </div>
 </section>
