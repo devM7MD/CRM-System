@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Role Details" %}{% endblock %}
+
+{% block header %}{% trans "Role Details" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Header with back button -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-user-tag text-blue-500 mr-3"></i>
+            {{ role.name }}
+        </h1>
+        <div>
+            <a href="{% url 'roles:role_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors mr-2">
+                <i class="fas fa-arrow-left mr-2"></i>
+                {% trans "Back to Roles" %}
+            </a>
+            <a href="{% url 'roles:edit_role' role.slug %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-edit mr-2"></i>
+                {% trans "Edit Role" %}
+            </a>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Role Information -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    {% if messages %}
+                    <div class="mb-6">
+                        {% for message in messages %}
+                        <div class="p-4 mb-2 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% elif message.tags == 'info' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            <p>{{ message }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Role Information" %}</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500">{% trans "Name" %}</p>
+                                <p class="text-lg font-medium">{{ role.name }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">{% trans "Slug" %}</p>
+                                <p class="text-lg font-medium">{{ role.slug }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">{% trans "System Role" %}</p>
+                                <p class="text-lg font-medium">
+                                    {% if role.is_system_role %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        {% trans "Yes" %}
+                                    </span>
+                                    {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        {% trans "No" %}
+                                    </span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">{% trans "Created At" %}</p>
+                                <p class="text-lg font-medium">{{ role.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Description" %}</h2>
+                        <p class="text-gray-700">{{ role.description|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Required Fields" %}</h2>
+                        {% if role.required_fields %}
+                        <div class="flex flex-wrap gap-2">
+                            {% for field_name, required in role.required_fields.items %}
+                                {% if required %}
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                    {% if field_name == 'company_name' %}{% trans "Company Name" %}
+                                    {% elif field_name == 'country' %}{% trans "Country" %}
+                                    {% elif field_name == 'expected_daily_orders' %}{% trans "Expected Daily Orders" %}
+                                    {% elif field_name == 'warehouse' %}{% trans "Warehouse" %}
+                                    {% elif field_name == 'delivery_company' %}{% trans "Delivery Company" %}
+                                    {% elif field_name == 'call_center_team' %}{% trans "Call Center Team" %}
+                                    {% elif field_name == 'accounting_department' %}{% trans "Accounting Department" %}
+                                    {% else %}{{ field_name }}{% endif %}
+                                </span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500">{% trans "No required fields" %}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Permissions" %}</h2>
+                        {% if role.permissions.exists %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {% regroup role.permissions.all|dictsort:"category" by category as category_list %}
+                            {% for category in category_list %}
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-gray-700 mb-2">
+                                    {% if category.grouper == 'dashboard' %}{% trans "Dashboard" %}
+                                    {% elif category.grouper == 'users' %}{% trans "Users" %}
+                                    {% elif category.grouper == 'sellers' %}{% trans "Sellers" %}
+                                    {% elif category.grouper == 'inventory' %}{% trans "Inventory" %}
+                                    {% elif category.grouper == 'orders' %}{% trans "Orders" %}
+                                    {% elif category.grouper == 'callcenter' %}{% trans "Call Center" %}
+                                    {% elif category.grouper == 'packaging' %}{% trans "Packaging" %}
+                                    {% elif category.grouper == 'delivery' %}{% trans "Delivery" %}
+                                    {% elif category.grouper == 'finance' %}{% trans "Finance" %}
+                                    {% elif category.grouper == 'warehouse' %}{% trans "Warehouse" %}
+                                    {% elif category.grouper == 'settings' %}{% trans "Settings" %}
+                                    {% elif category.grouper == 'notifications' %}{% trans "Notifications" %}
+                                    {% elif category.grouper == 'roles' %}{% trans "Roles" %}
+                                    {% else %}{{ category.grouper|title }}{% endif %}
+                                </h3>
+                                <ul class="list-disc list-inside">
+                                    {% for permission in category.list %}
+                                    <li class="text-sm text-gray-600">{{ permission.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500">{% trans "No permissions assigned" %}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Users with this role -->
+        <div>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Users with this Role" %}</h2>
+                    <p class="text-sm text-gray-500 mb-4">{% trans "Total users" %}: {{ user_count }}</p>
+                    
+                    {% if users %}
+                    <ul class="divide-y divide-gray-200">
+                        {% for user in users %}
+                        <li class="py-3">
+                            <div class="flex items-center">
+                                {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="{{ user.full_name }}" class="w-8 h-8 rounded-full mr-3">
+                                {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                                    <i class="fas fa-user text-gray-500"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ user.full_name }}</p>
+                                    <p class="text-xs text-gray-500">{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if user_count > 10 %}
+                    <div class="mt-4 text-center">
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">
+                            {% trans "View all users" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% else %}
+                    <p class="text-gray-500">{% trans "No users with this role" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
