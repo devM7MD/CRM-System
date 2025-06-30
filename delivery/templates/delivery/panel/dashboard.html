@@ -1,0 +1,164 @@
+{% extends "delivery_panel_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Dashboard" %}{% endblock %}
+
+{% block header_title %}{% trans "Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="panel-card">
+    <div class="panel-card-header">
+        <h2 class="panel-card-title">{% trans "TODAY'S SUMMARY" %}</h2>
+        <span class="text-muted">{{ today|date:"H:i, M d" }}</span>
+    </div>
+    
+    <div class="stats-summary">
+        <div class="stat-item">
+            <div class="stat-value text-warning">{{ assigned_count }}</div>
+            <div class="stat-label">{% trans "Assigned" %}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value text-orange">{{ picked_up_count }}</div>
+            <div class="stat-label">{% trans "Picked Up" %}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value text-primary">{{ in_transit_count }}</div>
+            <div class="stat-label">{% trans "In Transit" %}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value text-success">{{ delivered_count }}</div>
+            <div class="stat-label">{% trans "Delivered" %}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value text-danger">{{ failed_count }}</div>
+            <div class="stat-label">{% trans "Failed" %}</div>
+        </div>
+    </div>
+</div>
+
+{% if current_task %}
+<div class="panel-card">
+    <div class="panel-card-header">
+        <h2 class="panel-card-title">{% trans "CURRENT TASK" %}</h2>
+    </div>
+    
+    <div class="current-task p-3">
+        <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-box-seam fs-5 me-2"></i>
+            <span class="fw-bold">{{ current_task.order.order_code }}</span>
+            <span class="ms-auto">
+                <span class="status-badge status-{{ current_task.status }}">
+                    {{ current_task.get_status_display }}
+                </span>
+            </span>
+        </div>
+        
+        <div class="mb-2">
+            <i class="bi bi-person me-2"></i>
+            <span class="fw-medium">{{ current_task.order.customer_name }}</span>
+            {% if current_task.order.customer_phone %}
+                <a href="tel:{{ current_task.order.customer_phone }}" class="btn btn-sm btn-light ms-2">
+                    <i class="bi bi-telephone"></i>
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="mb-2">
+            <i class="bi bi-geo-alt me-2"></i>
+            <span>{{ current_task.order.shipping_address }}</span>
+        </div>
+        
+        {% if current_task.delivery_cost > 0 %}
+        <div class="mb-3">
+            <i class="bi bi-cash me-2"></i>
+            <span class="fw-medium">{% trans "COD" %}: {{ current_task.delivery_cost }} AED</span>
+            <i class="bi bi-clock ms-3 me-1"></i>
+            <span>{% trans "Expected" %}: 
+                {% if current_task.assigned_at %}
+                    {{ current_task.assigned_at|time:"H:i" }}
+                {% else %}
+                    {% trans "Today" %}
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+        
+        <div class="d-flex gap-2 mt-3">
+            <a href="https://maps.google.com/?q={{ current_task.order.shipping_address|urlencode }}" target="_blank" class="btn btn-sm btn-light flex-grow-1">
+                <i class="bi bi-geo"></i> {% trans "GET DIRECTIONS" %}
+            </a>
+            {% if current_task.order.customer_phone %}
+                <a href="tel:{{ current_task.order.customer_phone }}" class="btn btn-sm btn-light flex-grow-1">
+                    <i class="bi bi-telephone"></i> {% trans "CALL" %}
+                </a>
+            {% endif %}
+            <a href="{% url 'delivery:panel_complete_delivery' order_id=current_task.order.id %}" class="btn btn-sm btn-success flex-grow-1">
+                <i class="bi bi-check-lg"></i> {% trans "DELIVERED" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if upcoming_deliveries %}
+<div class="panel-card">
+    <div class="panel-card-header">
+        <h2 class="panel-card-title">{% trans "NEXT DELIVERIES" %} ({{ upcoming_deliveries|length }} {% trans "remaining" %})</h2>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>{% trans "Order" %}</th>
+                    <th>{% trans "Customer" %}</th>
+                    <th>{% trans "Location" %}</th>
+                    <th>{% trans "Time" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for delivery in upcoming_deliveries %}
+                <tr>
+                    <td>{{ delivery.order.order_code }}</td>
+                    <td>{{ delivery.order.customer_name|truncatechars:15 }}</td>
+                    <td>{{ delivery.order.shipping_address|truncatechars:15 }}</td>
+                    <td>
+                        {% if delivery.assigned_at %}
+                            {{ delivery.assigned_at|time:"H:i" }}
+                        {% else %}
+                            --:--
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'delivery:panel_order_detail' order_id=delivery.order.id %}" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="d-flex gap-3 mt-4 mb-5">
+    <a href="{% url 'delivery:panel_orders' %}" class="btn btn-outline-primary flex-grow-1">
+        <i class="bi bi-box-seam"></i> {% trans "MY ORDERS" %}
+    </a>
+    <a href="{% url 'delivery:panel_performance' %}" class="btn btn-outline-primary flex-grow-1">
+        <i class="bi bi-bar-chart"></i> {% trans "PERFORMANCE" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh dashboard every 5 minutes
+    setTimeout(function() {
+        window.location.reload();
+    }, 5 * 60 * 1000);
+</script>
+{% endblock %} 

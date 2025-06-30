@@ -1,104 +1,66 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}Notifications{% endblock %}
+{% block title %}{% trans "System Alerts" %}{% endblock %}
+
+{% block header %}{% trans "System Alerts" %}{% endblock %}
 
 {% block content %}
-<div class="bg-gray-50">
-    <!-- Page Header -->
-    <div class="bg-yellow-500 shadow-lg">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-white">Notifications</h1>
-        </div>
+<div class="container mx-auto py-6">
+    <div class="mb-4">
+        <a href="{% url 'dashboard:index' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+        </a>
     </div>
     
-    <div class="bg-gray-100 py-6">
-        <main class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Notifications List -->
-            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg border-t-4 border-yellow-500">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Your Notifications</h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Stay updated with what's happening in the system.</p>
-                </div>
-                <div class="border-t border-gray-200">
-                    <ul role="list" class="divide-y divide-gray-200">
-                        {% for alert in alerts %}
-                        <li class="px-4 py-4 sm:px-6 hover:bg-gray-100 transition duration-150 ease-in-out">
-                            <div class="flex items-center justify-between">
-                                <a href="{{ alert.link }}" class="block flex-1 {% if not alert.is_read %}font-semibold{% endif %}">
-                                    <p class="text-sm text-gray-900 {% if not alert.is_read %}font-medium{% endif %}">{{ alert.message }}</p>
-                                    <p class="text-xs text-gray-500 mt-1">{{ alert.timestamp|date:"F d, Y g:i A" }}</p>
-                                </a>
-                                <div class="ml-4 flex-shrink-0">
-                                    {% if not alert.is_read %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        New
-                                    </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </li>
-                        {% empty %}
-                        <li class="px-4 py-5 sm:px-6 text-center text-sm text-gray-500">
-                            You have no notifications at this time.
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Notification Settings -->
-            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg mt-8 border-t-4 border-yellow-500">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Notification Settings</h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Manage what notifications you receive.</p>
-                </div>
-                <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="email_notifications" name="email_notifications" type="checkbox" checked class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="email_notifications" class="font-medium text-gray-700">Email Notifications</label>
-                                <p class="text-gray-500">Receive notifications via email.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="system_notifications" name="system_notifications" type="checkbox" checked class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="system_notifications" class="font-medium text-gray-700">System Notifications</label>
-                                <p class="text-gray-500">Receive notifications in the system.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="order_updates" name="order_updates" type="checkbox" checked class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="order_updates" class="font-medium text-gray-700">Order Updates</label>
-                                <p class="text-gray-500">Get notified about order status changes.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="inventory_alerts" name="inventory_alerts" type="checkbox" checked class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="inventory_alerts" class="font-medium text-gray-700">Inventory Alerts</label>
-                                <p class="text-gray-500">Get notified about low stock and inventory changes.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-6">
-                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150 ease-in-out">
-                            Save Settings
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </main>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">{% trans "System Alerts" %}</h2>
+            <p class="text-sm text-gray-500">{% trans "All recent system alerts and notifications." %}</p>
         </div>
+        
+        <div class="p-4">
+            {% if alerts %}
+            <div class="space-y-4">
+                {% for alert in alerts %}
+                <div class="p-4 rounded-md border-l-4 
+                    {% if alert.type == 'error' %}bg-red-50 border-red-500 text-red-700
+                    {% elif alert.type == 'warning' %}bg-yellow-50 border-yellow-500 text-yellow-700
+                    {% elif alert.type == 'success' %}bg-green-50 border-green-500 text-green-700
+                    {% else %}bg-blue-50 border-blue-500 text-blue-700{% endif %}">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            {% if alert.type == 'error' %}
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                            {% elif alert.type == 'warning' %}
+                            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                            {% elif alert.type == 'success' %}
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            {% else %}
+                            <i class="fas fa-info-circle text-blue-500"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">{{ alert.message }}</p>
+                            {% if alert.date %}
+                            <p class="mt-1 text-xs opacity-75">{{ alert.date|date:"F j, Y H:i" }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-6">
+                <div class="mx-auto h-12 w-12 text-gray-400">
+                    <i class="fas fa-bell-slash text-2xl"></i>
+                </div>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">{% trans "No Alerts" %}</h3>
+                <p class="mt-1 text-sm text-gray-500">{% trans "There are no system alerts at this time." %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %} 

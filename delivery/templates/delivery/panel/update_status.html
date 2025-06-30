@@ -1,0 +1,188 @@
+{% extends "delivery_panel_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Update Status" %}{% endblock %}
+
+{% block header_title %}{% trans "Update Status" %}{% endblock %}
+
+{% block content %}
+<div class="panel-card">
+    <div class="panel-card-header">
+        <h2 class="panel-card-title">
+            {% trans "Update Order Status" %} - {{ delivery.order.order_code }}
+        </h2>
+    </div>
+    
+    <div class="current-status mb-4">
+        <p class="mb-2">{% trans "Current Status" %}:</p>
+        <div class="status-badge status-{{ delivery.status }} mb-3">
+            {{ delivery.get_status_display }}
+        </div>
+    </div>
+    
+    <form method="post" action="{% url 'delivery:panel_update_status' order_id=delivery.order.id %}">
+        {% csrf_token %}
+        
+        <div class="form-group mb-4">
+            <label class="form-label">{% trans "New Status" %}:</label>
+            
+            <div class="status-options">
+                {% if delivery.status == 'assigned' %}
+                <div class="form-check status-option mb-3">
+                    <input class="form-check-input" type="radio" name="status" id="status_picked_up" value="picked_up" required>
+                    <label class="form-check-label" for="status_picked_up">
+                        <i class="bi bi-box-seam text-primary"></i> {% trans "Picked Up" %}
+                    </label>
+                </div>
+                {% endif %}
+                
+                {% if delivery.status == 'assigned' or delivery.status == 'picked_up' %}
+                <div class="form-check status-option mb-3">
+                    <input class="form-check-input" type="radio" name="status" id="status_in_transit" value="in_transit" required>
+                    <label class="form-check-label" for="status_in_transit">
+                        <i class="bi bi-truck text-info"></i> {% trans "In Transit" %}
+                    </label>
+                </div>
+                {% endif %}
+                
+                {% if delivery.status == 'assigned' or delivery.status == 'picked_up' or delivery.status == 'in_transit' %}
+                <div class="form-check status-option mb-3">
+                    <input class="form-check-input" type="radio" name="status" id="status_out_for_delivery" value="out_for_delivery" required>
+                    <label class="form-check-label" for="status_out_for_delivery">
+                        <i class="bi bi-house-door text-warning"></i> {% trans "Out for Delivery" %}
+                    </label>
+                </div>
+                <div class="form-check status-option mb-3">
+                    <input class="form-check-input" type="radio" name="status" id="status_delivered" value="delivered" required>
+                    <label class="form-check-label" for="status_delivered">
+                        <i class="bi bi-check-circle text-success"></i> {% trans "Delivered Successfully" %}
+                    </label>
+                </div>
+                <div class="form-check status-option mb-3">
+                    <input class="form-check-input" type="radio" name="status" id="status_failed" value="failed" required>
+                    <label class="form-check-label" for="status_failed">
+                        <i class="bi bi-x-circle text-danger"></i> {% trans "Delivery Failed" %}
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group mb-4">
+            <label for="notes" class="form-label">{% trans "Notes" %} ({% trans "optional" %}):</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="{% trans 'Add any additional information about this status update' %}"></textarea>
+        </div>
+        
+        <div class="form-group mb-4">
+            <label for="location" class="form-label">{% trans "Current Location" %}:</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                <input type="text" class="form-control" id="location" name="location" placeholder="{% trans 'Auto-detected or enter manually' %}">
+                <button type="button" class="btn btn-outline-secondary" id="detectLocation">
+                    <i class="bi bi-crosshair"></i>
+                </button>
+            </div>
+            <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="shareLocation" name="share_location" checked>
+                <label class="form-check-label" for="shareLocation">
+                    {% trans "Share location with customer" %}
+                </label>
+            </div>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <a href="{% url 'delivery:panel_order_detail' order_id=delivery.order.id %}" class="btn btn-outline-secondary flex-grow-1">
+                {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="btn btn-primary flex-grow-1">
+                {% trans "Update Status" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.status-option {
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+.status-option .form-check-input {
+    margin-top: 0.3em;
+}
+.status-option .form-check-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const detectLocationBtn = document.getElementById('detectLocation');
+        const locationInput = document.getElementById('location');
+        
+        if (detectLocationBtn && locationInput) {
+            detectLocationBtn.addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    detectLocationBtn.disabled = true;
+                    detectLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+                            
+                            // Get address from coordinates using reverse geocoding
+                            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data && data.display_name) {
+                                        locationInput.value = data.display_name;
+                                    } else {
+                                        locationInput.value = `${latitude}, ${longitude}`;
+                                    }
+                                    
+                                    detectLocationBtn.disabled = false;
+                                    detectLocationBtn.innerHTML = '<i class="bi bi-crosshair"></i>';
+                                })
+                                .catch(error => {
+                                    console.error('Error getting address:', error);
+                                    locationInput.value = `${latitude}, ${longitude}`;
+                                    detectLocationBtn.disabled = false;
+                                    detectLocationBtn.innerHTML = '<i class="bi bi-crosshair"></i>';
+                                });
+                        },
+                        function(error) {
+                            console.error('Geolocation error:', error);
+                            alert("{% trans 'Could not detect your location. Please enter it manually.' %}");
+                            detectLocationBtn.disabled = false;
+                            detectLocationBtn.innerHTML = '<i class="bi bi-crosshair"></i>';
+                        }
+                    );
+                } else {
+                    alert("{% trans 'Geolocation is not supported by your browser. Please enter your location manually.' %}");
+                }
+            });
+            
+            // Try to detect location on page load
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        locationInput.value = `${latitude}, ${longitude}`;
+                    },
+                    function(error) {
+                        console.error('Geolocation error:', error);
+                    }
+                );
+            }
+        }
+    });
+</script>
+{% endblock %} 

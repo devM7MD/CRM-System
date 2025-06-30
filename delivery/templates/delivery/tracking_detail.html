@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Tracking Details" %} - {{ delivery.tracking_number }}{% endblock %}
+
+{% block header %}{% trans "Tracking Details" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-800">{% trans "Tracking Details" %}</h2>
+                <div class="text-sm text-gray-500">
+                    {% trans "Tracking Number" %}: <span class="font-medium">{{ delivery.tracking_number }}</span>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'delivery:track' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                    <i class="fas fa-search mr-1"></i> {% trans "Track Another" %}
+                </a>
+                <a href="{% url 'delivery:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+                </a>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Basic Info Card -->
+            <div class="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Delivery Information" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <div class="mb-4">
+                                <span class="block text-sm text-gray-500">{% trans "Order ID" %}</span>
+                                <span class="text-gray-900 font-medium">{{ delivery.order.order_code }}</span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <span class="block text-sm text-gray-500">{% trans "Customer" %}</span>
+                                <span class="text-gray-900 font-medium">
+                                    {% if delivery.order.customer %}
+                                        {{ delivery.order.customer.get_full_name|default:delivery.order.customer.email }}
+                                    {% elif delivery.order.customer_name %}
+                                        {{ delivery.order.customer_name }}
+                                    {% else %}
+                                        {% trans "Unknown Customer" %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <span class="block text-sm text-gray-500">{% trans "Courier" %}</span>
+                                <span class="text-gray-900 font-medium">
+                                    {% if delivery.courier %}
+                                        {{ delivery.courier.name }} ({{ delivery.delivery_company.name }})
+                                    {% else %}
+                                        {% trans "Not Assigned" %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="mb-4">
+                                <span class="block text-sm text-gray-500">{% trans "Current Status" %}</span>
+                                <span class="px-2 py-1 mt-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ delivery.get_status_display_class }}">
+                                    {{ delivery.get_status_display }}
+                                </span>
+                                {% if delivery.priority == 'high' or delivery.priority == 'urgent' %}
+                                    <span class="ml-1 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        {{ delivery.get_priority_display }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <span class="block text-sm text-gray-500">{% trans "Created Date" %}</span>
+                                <span class="text-gray-900 font-medium">{{ delivery.created_at|date:"d M Y, H:i" }}</span>
+                            </div>
+                            
+                            {% if delivery.estimated_delivery %}
+                                <div class="mb-4">
+                                    <span class="block text-sm text-gray-500">{% trans "Estimated Delivery" %}</span>
+                                    <span class="text-gray-900 font-medium">{{ delivery.estimated_delivery|date:"d M Y" }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if delivery.delivery_notes %}
+                        <div class="mt-4 p-3 bg-gray-50 rounded-md">
+                            <span class="block text-sm text-gray-500 mb-1">{% trans "Delivery Notes" %}</span>
+                            <p class="text-gray-900">{{ delivery.delivery_notes }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if delivery.delivery_proof %}
+                        <div class="mt-4">
+                            <span class="block text-sm text-gray-500 mb-1">{% trans "Delivery Proof" %}</span>
+                            <img src="{{ delivery.delivery_proof.url }}" alt="{% trans 'Delivery Proof' %}" class="max-h-32 rounded-md shadow-sm border border-gray-200">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Status Card -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Status Summary" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="flex flex-col space-y-6">
+                        <div class="flex items-center {% if delivery.status == 'assigned' or delivery.status == 'ready_for_pickup' or delivery.status == 'picked_up' or delivery.status == 'in_transit' or delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}text-green-600{% else %}text-gray-400{% endif %}">
+                            <div class="rounded-full bg-{% if delivery.status == 'assigned' or delivery.status == 'ready_for_pickup' or delivery.status == 'picked_up' or delivery.status == 'in_transit' or delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}green-100{% else %}gray-100{% endif %} p-2 mr-3">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium">{% trans "Assigned" %}</span>
+                                {% if delivery.assigned_at %}
+                                    <p class="text-xs text-gray-500">{{ delivery.assigned_at|date:"d M Y, H:i" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center {% if delivery.status == 'picked_up' or delivery.status == 'in_transit' or delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}text-green-600{% else %}text-gray-400{% endif %}">
+                            <div class="rounded-full bg-{% if delivery.status == 'picked_up' or delivery.status == 'in_transit' or delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}green-100{% else %}gray-100{% endif %} p-2 mr-3">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium">{% trans "Picked Up" %}</span>
+                                {% if delivery.pickup_date %}
+                                    <p class="text-xs text-gray-500">{{ delivery.pickup_date|date:"d M Y, H:i" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center {% if delivery.status == 'in_transit' or delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}text-green-600{% else %}text-gray-400{% endif %}">
+                            <div class="rounded-full bg-{% if delivery.status == 'in_transit' or delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}green-100{% else %}gray-100{% endif %} p-2 mr-3">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium">{% trans "In Transit" %}</span>
+                                {% if delivery.status == 'in_transit' %}
+                                    <p class="text-xs text-gray-500">{% trans "On the way to destination" %}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center {% if delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}text-green-600{% else %}text-gray-400{% endif %}">
+                            <div class="rounded-full bg-{% if delivery.status == 'out_for_delivery' or delivery.status == 'delivered' %}green-100{% else %}gray-100{% endif %} p-2 mr-3">
+                                <i class="fas fa-truck-loading"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium">{% trans "Out for Delivery" %}</span>
+                                {% if delivery.status == 'out_for_delivery' %}
+                                    <p class="text-xs text-gray-500">{% trans "Will be delivered today" %}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center {% if delivery.status == 'delivered' %}text-green-600{% else %}text-gray-400{% endif %}">
+                            <div class="rounded-full bg-{% if delivery.status == 'delivered' %}green-100{% else %}gray-100{% endif %} p-2 mr-3">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium">{% trans "Delivered" %}</span>
+                                {% if delivery.delivery_date %}
+                                    <p class="text-xs text-gray-500">{{ delivery.delivery_date|date:"d M Y, H:i" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if delivery.status == 'failed' %}
+                            <div class="flex items-center text-red-600">
+                                <div class="rounded-full bg-red-100 p-2 mr-3">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium">{% trans "Failed" %}</span>
+                                    <p class="text-xs text-gray-500">{% trans "Delivery attempt failed" %}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        {% if delivery.status == 'returned' %}
+                            <div class="flex items-center text-red-600">
+                                <div class="rounded-full bg-red-100 p-2 mr-3">
+                                    <i class="fas fa-undo"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium">{% trans "Returned" %}</span>
+                                    <p class="text-xs text-gray-500">{% trans "Package returned to sender" %}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status History -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">{% trans "Status History" %}</h3>
+            </div>
+            
+            <div class="p-4">
+                {% if history %}
+                    <div class="space-y-4">
+                        {% for entry in history %}
+                            <div class="flex">
+                                <div class="flex-shrink-0 mr-3">
+                                    <div class="rounded-full h-9 w-9 bg-primary-100 flex items-center justify-center">
+                                        <i class="fas fa-history text-primary-600"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow pb-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <span class="block font-medium text-gray-900">{{ entry.status }}</span>
+                                            <span class="text-sm text-gray-500">
+                                                {% if entry.updated_by %}
+                                                    {% trans "Updated by" %} {{ entry.updated_by.get_full_name }}
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <span class="text-sm text-gray-500">{{ entry.created_at|date:"d M Y, H:i" }}</span>
+                                    </div>
+                                    {% if entry.notes %}
+                                        <div class="mt-2 text-sm text-gray-600">
+                                            {{ entry.notes }}
+                                        </div>
+                                    {% endif %}
+                                    {% if entry.location %}
+                                        <div class="mt-1 text-sm text-gray-500">
+                                            <i class="fas fa-map-marker-alt text-xs mr-1"></i> {{ entry.location }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-gray-500">
+                        {% trans "No status history available" %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'delivery:update_status' delivery.id %}" class="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                <i class="fas fa-pencil-alt mr-1"></i> {% trans "Update Status" %}
+            </a>
+            
+            {% if delivery.courier %}
+                <a href="{% url 'delivery:courier_detail' delivery.courier.id %}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-user mr-1"></i> {% trans "View Courier" %}
+                </a>
+            {% else %}
+                <a href="{% url 'delivery:assign' %}?order_id={{ delivery.order.id }}" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                    <i class="fas fa-user-plus mr-1"></i> {% trans "Assign Courier" %}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

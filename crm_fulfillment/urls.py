@@ -18,17 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic.base import RedirectView
-from django.conf.urls.i18n import i18n_patterns
+from django.views.generic.base import RedirectView, TemplateView
+# Removed i18n imports as we're using English only
+# from django.conf.urls.i18n import i18n_patterns
+# from utils import views as util_views
 
-# Base URL patterns without language prefix
+# URL patterns - no language prefix needed
 urlpatterns = [
-    # Language settings
-    path('i18n/', include('django.conf.urls.i18n')),
-]
-
-# URL patterns with language prefix
-urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     path('dashboard/', include('dashboard.urls')),
     path('users/', include('users.urls')),
@@ -38,21 +34,31 @@ urlpatterns += i18n_patterns(
     path('orders/', include('orders.urls')),
     path('callcenter/', include('callcenter.urls')),
     path('packaging/', include('packaging.urls')),
-    path('delivery/', include('delivery.urls')),
+    path('delivery/', include('delivery.urls', namespace='delivery')),
     path('finance/', include('finance.urls')),
     path('followup/', include('followup.urls')),
     path('subscribers/', include('subscribers.urls', namespace='subscribers')),
+    path('warehouses/', include('warehouse.urls', namespace='warehouse')),
+    path('settings/', include('settings.urls', namespace='settings')),
+    path('notifications/', include('notifications.urls', namespace='notifications')),
+    path('roles/', include('roles.urls', namespace='roles')),
     
     # Landing pages
     path('', include('landing.urls')),
     
     # Redirect accounts/login to users/login
     path('accounts/login/', RedirectView.as_view(pattern_name='users:login'), name='login_redirect'),
-    
-    # Add prefix_default_language=False to not have a language prefix for the default language
-    prefix_default_language=settings.PREFIX_DEFAULT_LANGUAGE
-)
+]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+else:
+    # Serve static files from STATICFILES_DIRS in production
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Custom error handlers
+handler400 = 'crm_fulfillment.views.bad_request'
+handler403 = 'crm_fulfillment.views.permission_denied'
+handler404 = 'crm_fulfillment.views.page_not_found'
+handler500 = 'crm_fulfillment.views.server_error'

@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Barcode Scanner" %}{% endblock %}
+
+{% block header %}{% trans "Barcode Scanner" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    #scanner-container {
+        position: relative;
+        min-height: 300px;
+        border: 2px dashed #e2e8f0;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    
+    #scanner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.1);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.375rem;
+    }
+    
+    #scanner-line {
+        position: absolute;
+        height: 2px;
+        width: 80%;
+        background-color: #ef4444;
+        top: 50%;
+        left: 10%;
+        z-index: 3;
+        animation: scan 2s linear infinite;
+    }
+    
+    @keyframes scan {
+        0% {
+            top: 20%;
+        }
+        50% {
+            top: 80%;
+        }
+        100% {
+            top: 20%;
+        }
+    }
+    
+    .scanner-active #scanner-placeholder {
+        display: none;
+    }
+    
+    #scanner-placeholder {
+        text-align: center;
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="max-w-3xl mx-auto">
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-800">{% trans "Barcode Scanner" %}</h2>
+                <p class="text-gray-500">{% trans "Scan barcodes to track and update deliveries" %}</p>
+            </div>
+            <a href="{% url 'delivery:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Scanner Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">{% trans "Scan Barcode" %}</h3>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div id="scanner-container">
+                            <div id="scanner-placeholder">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 mx-auto mb-4 text-gray-400">
+                                        <i class="fas fa-barcode text-5xl"></i>
+                                    </div>
+                                    <h4 class="text-lg font-medium text-gray-700 mb-2">{% trans "Barcode Scanner" %}</h4>
+                                    <p class="text-sm text-gray-500 mb-4">{% trans "Connect a scanner or enter manually" %}</p>
+                                    {% comment %} <button id="start-camera" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                        <i class="fas fa-camera mr-2"></i> {% trans "Use Camera" %}
+                                    </button> {% endcomment %}
+                                </div>
+                            </div>
+                            <video id="scanner-video" style="display: none; width: 100%; height: 100%; object-fit: cover;"></video>
+                            <div id="scanner-overlay" style="display: none;">
+                                <div id="scanner-line"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex">
+                                <input type="text" id="barcode-input" placeholder="{% trans 'Enter tracking number or order code' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-l focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                                <button id="process-barcode" class="bg-primary-500 text-white px-4 py-2 rounded-r hover:bg-primary-600 focus:outline-none">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="scanning-tips" class="text-sm text-gray-600">
+                            <h4 class="font-medium text-gray-700 mb-2">{% trans "Scanning Tips" %}:</h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>{% trans "Position the barcode within the scanner area" %}</li>
+                                <li>{% trans "Make sure the barcode is well-lit and clearly visible" %}</li>
+                                <li>{% trans "For USB scanners, simply click in the input field and scan" %}</li>
+                                <li>{% trans "You can also manually enter the tracking number or order code" %}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Result Section -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">{% trans "Scan Result" %}</h3>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div id="no-result" class="text-center py-8 text-gray-500">
+                            <i class="fas fa-search text-4xl mb-3 text-gray-300"></i>
+                            <p>{% trans "Scan a barcode to see delivery details" %}</p>
+                        </div>
+                        
+                        <div id="result-loading" class="text-center py-8 text-gray-500" style="display: none;">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500 mb-3"></div>
+                            <p>{% trans "Processing..." %}</p>
+                        </div>
+                        
+                        <div id="result-error" class="text-center py-8 text-red-500" style="display: none;">
+                            <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+                            <p id="error-message">{% trans "Error processing barcode" %}</p>
+                        </div>
+                        
+                        <div id="result-success" class="py-4" style="display: none;">
+                            <div class="mb-3 text-center">
+                                <div class="inline-flex h-12 w-12 rounded-full bg-green-100 items-center justify-center mb-2">
+                                    <i class="fas fa-check text-green-600 text-xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-800">{% trans "Delivery Found" %}</h4>
+                            </div>
+                            
+                            <div class="space-y-3 text-sm">
+                                <div>
+                                    <span class="block text-gray-500">{% trans "Order ID" %}</span>
+                                    <span id="result-order-id" class="font-medium text-gray-900"></span>
+                                </div>
+                                
+                                <div>
+                                    <span class="block text-gray-500">{% trans "Tracking Number" %}</span>
+                                    <span id="result-tracking" class="font-medium text-gray-900"></span>
+                                </div>
+                                
+                                <div>
+                                    <span class="block text-gray-500">{% trans "Customer" %}</span>
+                                    <span id="result-customer" class="font-medium text-gray-900"></span>
+                                </div>
+                                
+                                <div>
+                                    <span class="block text-gray-500">{% trans "Status" %}</span>
+                                    <span id="result-status" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"></span>
+                                </div>
+                                
+                                <div class="pt-4 space-y-2">
+                                    <a id="result-track-link" href="#" class="block text-center w-full px-3 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                                        <i class="fas fa-eye mr-1"></i> {% trans "View Details" %}
+                                    </a>
+                                    
+                                    <a id="result-update-link" href="#" class="block text-center w-full px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                        <i class="fas fa-pencil-alt mr-1"></i> {% trans "Update Status" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="result-no-delivery" class="py-4" style="display: none;">
+                            <div class="mb-3 text-center">
+                                <div class="inline-flex h-12 w-12 rounded-full bg-yellow-100 items-center justify-center mb-2">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-800">{% trans "Order Found - No Delivery" %}</h4>
+                            </div>
+                            
+                            <div class="space-y-3 text-sm">
+                                <div>
+                                    <span class="block text-gray-500">{% trans "Order ID" %}</span>
+                                    <span id="result-order-id-only" class="font-medium text-gray-900"></span>
+                                </div>
+                                
+                                <div>
+                                    <span class="block text-gray-500">{% trans "Customer" %}</span>
+                                    <span id="result-customer-only" class="font-medium text-gray-900"></span>
+                                </div>
+                                
+                                <div>
+                                    <span class="block text-gray-500">{% trans "Order Status" %}</span>
+                                    <span id="result-order-status" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"></span>
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <a id="result-assign-link" href="#" class="block text-center w-full px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                        <i class="fas fa-truck mr-1"></i> {% trans "Create Delivery" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const barcodeInput = document.getElementById('barcode-input');
+        const processButton = document.getElementById('process-barcode');
+        const startCameraButton = document.getElementById('start-camera');
+        const scannerContainer = document.getElementById('scanner-container');
+        const scannerVideo = document.getElementById('scanner-video');
+        const scannerOverlay = document.getElementById('scanner-overlay');
+        
+        // Result elements
+        const noResult = document.getElementById('no-result');
+        const resultLoading = document.getElementById('result-loading');
+        const resultError = document.getElementById('error-message');
+        const resultErrorContainer = document.getElementById('result-error');
+        const resultSuccess = document.getElementById('result-success');
+        const resultNoDelivery = document.getElementById('result-no-delivery');
+        
+        // Success result fields
+        const resultOrderId = document.getElementById('result-order-id');
+        const resultTracking = document.getElementById('result-tracking');
+        const resultCustomer = document.getElementById('result-customer');
+        const resultStatus = document.getElementById('result-status');
+        const resultTrackLink = document.getElementById('result-track-link');
+        const resultUpdateLink = document.getElementById('result-update-link');
+        
+        // No delivery result fields
+        const resultOrderIdOnly = document.getElementById('result-order-id-only');
+        const resultCustomerOnly = document.getElementById('result-customer-only');
+        const resultOrderStatus = document.getElementById('result-order-status');
+        const resultAssignLink = document.getElementById('result-assign-link');
+        
+        // Process barcode function
+        function processBarcode() {
+            const barcode = barcodeInput.value.trim();
+            
+            if (!barcode) {
+                showError('{% trans "Please enter a barcode or tracking number" %}');
+                return;
+            }
+            
+            // Show loading state
+            showLoading();
+            
+            // Send AJAX request to backend
+            fetch('{% url "delivery:scan_api" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: 'barcode=' + encodeURIComponent(barcode)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.delivery) {
+                        // Show delivery result
+                        resultOrderId.textContent = data.delivery.order_code;
+                        resultTracking.textContent = data.delivery.tracking_number;
+                        resultCustomer.textContent = data.delivery.customer;
+                        
+                        // Set status with appropriate styling
+                        resultStatus.textContent = data.delivery.status_display;
+                        resultStatus.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full';
+                        
+                        // Add appropriate status class
+                        if (data.delivery.status === 'delivered') {
+                            resultStatus.classList.add('bg-green-100', 'text-green-800');
+                        } else if (data.delivery.status === 'failed' || data.delivery.status === 'returned') {
+                            resultStatus.classList.add('bg-red-100', 'text-red-800');
+                        } else if (data.delivery.status === 'in_transit') {
+                            resultStatus.classList.add('bg-yellow-100', 'text-yellow-800');
+                        } else if (data.delivery.status === 'out_for_delivery') {
+                            resultStatus.classList.add('bg-orange-100', 'text-orange-800');
+                        } else {
+                            resultStatus.classList.add('bg-blue-100', 'text-blue-800');
+                        }
+                        
+                        // Set links
+                        resultTrackLink.href = `/delivery/track/${data.delivery.tracking_number}/`;
+                        resultUpdateLink.href = `/delivery/update-status/${data.delivery.id}/`;
+                        
+                        showSuccess();
+                    } else if (data.order) {
+                        // Show order without delivery result
+                        resultOrderIdOnly.textContent = data.order.order_code;
+                        resultCustomerOnly.textContent = data.order.customer;
+                        resultOrderStatus.textContent = data.order.status;
+                        
+                        // Set link to create delivery
+                        resultAssignLink.href = `/delivery/assign/?order_id=${data.order.id}`;
+                        
+                        showNoDelivery();
+                    }
+                } else {
+                    showError(data.error || '{% trans "Error processing barcode" %}');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('{% trans "Error communicating with server" %}');
+            });
+        }
+        
+        // Event listeners
+        processButton.addEventListener('click', processBarcode);
+        
+        barcodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processBarcode();
+            }
+        });
+        
+        // Helper functions for UI states
+        function showLoading() {
+            noResult.style.display = 'none';
+            resultErrorContainer.style.display = 'none';
+            resultSuccess.style.display = 'none';
+            resultNoDelivery.style.display = 'none';
+            resultLoading.style.display = 'block';
+        }
+        
+        function showError(message) {
+            noResult.style.display = 'none';
+            resultLoading.style.display = 'none';
+            resultSuccess.style.display = 'none';
+            resultNoDelivery.style.display = 'none';
+            resultError.textContent = message;
+            resultErrorContainer.style.display = 'block';
+        }
+        
+        function showSuccess() {
+            noResult.style.display = 'none';
+            resultLoading.style.display = 'none';
+            resultErrorContainer.style.display = 'none';
+            resultNoDelivery.style.display = 'none';
+            resultSuccess.style.display = 'block';
+        }
+        
+        function showNoDelivery() {
+            noResult.style.display = 'none';
+            resultLoading.style.display = 'none';
+            resultErrorContainer.style.display = 'none';
+            resultSuccess.style.display = 'none';
+            resultNoDelivery.style.display = 'block';
+        }
+        
+        // Get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Camera scanning functionality
+        let scanner = null;
+        
+        startCameraButton.addEventListener('click', function() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function(stream) {
+                    scannerVideo.srcObject = stream;
+                    scannerVideo.style.display = 'block';
+                    scannerOverlay.style.display = 'block';
+                    scannerContainer.classList.add('scanner-active');
+                    scannerVideo.play();
+                    
+                    // Here you would integrate with a barcode scanning library
+                    // For example, using QuaggaJS or ZXing
+                    alert('{% trans "Camera access granted. In a production environment, this would use a barcode scanning library." %}');
+                })
+                .catch(function(error) {
+                    console.error('Camera error:', error);
+                    showError('{% trans "Could not access camera" %}');
+                });
+            } else {
+                showError('{% trans "Camera access not supported in this browser" %}');
+            }
+        });
+    });
+</script>
+{% endblock %} 

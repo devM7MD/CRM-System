@@ -27,6 +27,9 @@ SECRET_KEY = 'django-insecure-p6(d1x^*0xb*d)a_hn3iubcl_wen!i4+80*o32=_9pdadls9j!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Debug messages
+TEMPLATE_DEBUG = True
+
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.70.189', '0.0.0.0', "*"]
 
 # Application definition
@@ -38,12 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Third-party apps
-    # 'tailwind',
-    # 'crispy_forms',
-    # 'crispy_tailwind',
-    
     # Custom apps
     'dashboard',
     'users',
@@ -60,6 +57,10 @@ INSTALLED_APPS = [
     'landing',
     'products',
     'subscribers',
+    'warehouse_inventory',
+    'warehouse',
+    'notifications',
+    'roles',  # New dynamic role management app
 ]
 
 
@@ -70,7 +71,9 @@ AUTH_USER_MODEL = 'users.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    # Removed locale middleware as we're using English only
+    # 'django.middleware.locale.LocaleMiddleware',
+    # 'landing.middleware.LandingLanguageMiddleware',  # Custom middleware for landing pages language
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -91,7 +94,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.i18n',
+                # Removed i18n context processor as we're using English only
+                # 'django.template.context_processors.i18n',
+                # 'landing.context_processors.landing_language',  # Custom context processor for landing pages
             ],
         },
     },
@@ -135,25 +140,25 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en'
 
-# Enable multilingual settings
+# English only - no multilingual settings
 LANGUAGES = [
     ('en', _('English')),
-    ('ar', _('Arabic')),
 ]
 
+# Keep locale path for English translations only
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
 
 TIME_ZONE = 'UTC'
 
-# Enable internationalization
-USE_I18N = True
+# Disable internationalization features
+USE_I18N = False
 USE_L10N = True
 
 USE_TZ = True
 
-# Language settings
+# Language settings - keeping for compatibility but not used
 LANGUAGE_COOKIE_NAME = 'django_language'
 LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 year
 
@@ -178,6 +183,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication settings
 LOGIN_URL = 'users:login'
+# LOGIN_REDIRECT_URL is now handled in the login view based on user role
 LOGIN_REDIRECT_URL = 'dashboard:index'
 LOGOUT_REDIRECT_URL = 'users:login'
 
