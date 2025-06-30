@@ -1,399 +1,969 @@
 {% extends 'landing/base_landing.html' %}
 {% load i18n %}
+{% load static %}
 
-{% block title %}{{ title }}{% endblock %}
-
-{% block extra_css %}
-<style>
-    .about-hero {
-        background-color: #eab308;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.1' d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,218.7C672,235,768,245,864,234.7C960,224,1056,192,1152,170.7C1248,149,1344,139,1392,133.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
-        background-size: cover;
-        background-position: center bottom;
-    }
-    
-    .value-icon {
-        font-size: 2rem;
-        height: 80px;
-        width: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        margin: 0 auto 1rem;
-        background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-        box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.3);
-        color: white;
-    }
-    
-    .feature-card {
-        border-radius: 0.5rem;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    
-    .timeline-container {
-        position: relative;
-    }
-    
-    .timeline-line {
-        position: absolute;
-        left: 50%;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background-color: #eab308;
-        transform: translateX(-50%);
-    }
-    
-    .timeline-item {
-        position: relative;
-        padding-left: 2rem;
-        padding-right: 2rem;
-        margin-bottom: 2rem;
-    }
-    
-    .timeline-dot {
-        position: absolute;
-        left: 50%;
-        width: 20px;
-        height: 20px;
-        background-color: #eab308;
-        border-radius: 50%;
-        transform: translateX(-50%);
-    }
-    
-    @media (max-width: 768px) {
-        .timeline-line {
-            left: 2rem;
-        }
-        
-        .timeline-dot {
-            left: 2rem;
-        }
-        
-        .timeline-item {
-            padding-left: 4rem;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}{% trans "About Us - Atlas services" %}{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="about-hero text-white py-20 relative overflow-hidden">
-    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-yellow-600/90 to-yellow-500/90"></div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <div data-aos="fade-down">
-            <h1 class="text-4xl md:text-5xl font-bold mb-6">{{ title }}</h1>
-            <p class="text-xl md:text-2xl mb-4">{{ subtitle }}</p>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: {
+                        50: '#fffbeb',
+                        100: '#fef3c7',
+                        200: '#fde68a',
+                        300: '#fcd34d',
+                        400: '#fbbf24',
+                        500: '#f59e0b',
+                        600: '#d97706',
+                        700: '#b45309',
+                        800: '#92400e',
+                        900: '#78350f',
+                        950: '#451a03'
+                    },
+                    yellow: {
+                        50: '#fefce8',
+                        100: '#fef9c3',
+                        200: '#fef08a',
+                        300: '#fde047',
+                        400: '#facc15',
+                        500: '#eab308',
+                        600: '#ca8a04',
+                        700: '#a16207',
+                        800: '#854d0e',
+                        900: '#713f12',
+                        950: '#422006'
+                    }
+                },
+                animation: {
+                    'fade-in': 'fadeIn 1s ease-in-out',
+                    'slide-up': 'slideUp 0.5s ease-out',
+                    'slide-down': 'slideDown 0.5s ease-out',
+                    'slide-in-right': 'slideInRight 0.5s ease-out',
+                    'slide-in-left': 'slideInLeft 0.5s ease-out',
+                    'scale': 'scale 4s infinite',
+                    'float': 'float 6s ease-in-out infinite',
+                    'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                },
+                keyframes: {
+                    fadeIn: {
+                        '0%': { opacity: 0 },
+                        '100%': { opacity: 1 }
+                    },
+                    slideUp: {
+                        '0%': { transform: 'translateY(20px)', opacity: 0 },
+                        '100%': { transform: 'translateY(0)', opacity: 1 }
+                    },
+                    slideDown: {
+                        '0%': { transform: 'translateY(-20px)', opacity: 0 },
+                        '100%': { transform: 'translateY(0)', opacity: 1 }
+                    },
+                    slideInRight: {
+                        '0%': { transform: 'translateX(-20px)', opacity: 0 },
+                        '100%': { transform: 'translateX(0)', opacity: 1 }
+                    },
+                    slideInLeft: {
+                        '0%': { transform: 'translateX(20px)', opacity: 0 },
+                        '100%': { transform: 'translateX(0)', opacity: 1 }
+                    },
+                    scale: {
+                        '0%, 100%': { transform: 'scale(1)' },
+                        '50%': { transform: 'scale(1.05)' }
+                    },
+                    float: {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(-10px)' }
+                    }
+                },
+                fontFamily: {
+                    sans: ['Poppins', 'Tajawal', 'sans-serif']
+                }
+            }
+        }
+    }
+</script>
+<style>
+    /* Custom Styles */
+    :root {
+        --primary-color: #F59E0B; /* Amber-500 */
+        --primary-dark: #D97706; /* Amber-600 */
+        --primary-light: #FCD34D; /* Amber-300 */
+        --secondary-color: #EAB308; /* Yellow-500 */
+        --dark-color: #1E293B;
+        --light-color: #FFFFFF;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .bg-grid-pattern {
+        background-image: 
+            linear-gradient(rgba(235, 235, 235, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(235, 235, 235, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    
+    .animation-delay-500 {
+        animation-delay: 500ms;
+    }
+    
+    .animation-delay-1000 {
+        animation-delay: 1000ms;
+    }
+    
+    .animated-gradient-text {
+        background: linear-gradient(90deg, #F59E0B, #EAB308, #F59E0B);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientText 3s linear infinite;
+    }
+    
+    @keyframes gradientText {
+        0% { background-position: 0% center; }
+        100% { background-position: 200% center; }
+    }
+    
+    .pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    @keyframes pulse-ring {
+        0% {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+        50% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+    }
+    
+    /* Animation classes that match Tailwind config */
+    .animate-gradient-text {
+        animation: gradientText 3s linear infinite;
+    }
+    
+    .animate-pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    /* Improved dropdown styles */
+    .desktop-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 50;
+        min-width: 12rem;
+        padding: 0.5rem 0;
+        margin-top: 0.5rem;
+        background-color: white;
+        border-radius: 0.375rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 150ms ease-in-out, visibility 150ms ease-in-out;
+    }
+    
+    .desktop-dropdown-trigger:hover .desktop-dropdown,
+    .desktop-dropdown-trigger:focus .desktop-dropdown,
+    .desktop-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
+</head>
+<body class="bg-gray-50">
+   
+    <div class="absolute -z-10 w-full h-full overflow-hidden">
+        <div class="absolute top-0 -left-40 w-96 h-96 bg-amber-300 opacity-30 rounded-full filter blur-3xl"></div>
+        <div class="absolute top-64 right-0 w-80 h-80 bg-yellow-300 opacity-30 rounded-full filter blur-3xl"></div>
+        <div class="absolute bottom-0 left-20 w-72 h-72 bg-amber-200 opacity-30 rounded-full filter blur-3xl"></div>
+    </div>
+
+
+              
+                <button class="lg:hidden text-gray-800 focus:outline-none" id="mobile-menu-button">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <!-- Animated illustration -->
-        <div class="mt-8" data-aos="zoom-in" data-aos-delay="300">
-            <img src="https://cdn.pixabay.com/photo/2022/05/08/03/10/business-team-7181827_960_720.png" alt="Our Team" class="max-w-full h-auto mx-auto" style="max-height: 250px;">
+    </header>
+
+  
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+   
+    <div id="mobile-menu" class="fixed top-0 right-0 w-80 h-full bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-5">
+            
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-2">
+                    <div class="h-8 w-8 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center shadow-lg">
+                        <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-gray-800">Atlas services</span>
+                </div>
+                <button id="mobile-menu-close" class="text-gray-500 hover:text-gray-700">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+           
+            <nav class="flex flex-col space-y-4">
+                <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_home">Home</a>
+                <a href="#features" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_services">Services</a>
+                
+                
+                <div class="border-b border-gray-100">
+                    <button class="flex items-center justify-between w-full text-gray-800 hover:text-amber-600 text-lg font-medium py-2 mobile-submenu-trigger">
+                        <span data-i18n="nav_how_it_works">How It Works</span>
+                    </button>
+                </div>
+                
+                <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_faq">FAQ</a>
+            </nav>
+
+            
+            <div class="mt-8 space-y-4">
+               
+                <div>
+                    <button class="flex items-center justify-between w-full text-gray-800 hover:text-amber-600 py-2 mobile-language-trigger">
+                        <span class="flex items-center">
+                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span data-i18n="select_language">Select Language</span>
+                        </span>
+                        <svg class="h-4 w-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="mobile-language-menu hidden pl-7 py-2 space-y-2">
+                        <a href="#" class="flex items-center text-gray-600 hover:text-amber-600 py-1" data-lang="en">
+                            <img src="https://flagcdn.com/w20/us.png" class="h-4 mr-2" alt="English">
+                            English
+                        </a>
+                        <a href="#" class="flex items-center text-gray-600 hover:text-amber-600 py-1" data-lang="ar">
+                            <img src="https://flagcdn.com/w20/sa.png" class="h-4 mr-2" alt="Arabic">
+                            العربية
+                        </a>
+                    </div>
+                </div>
+                
+                <a href="#" class="block w-full bg-amber-500 hover:bg-amber-600 text-white text-center px-4 py-3 rounded-lg font-medium shadow-md transition-all hover:scale-105" data-i18n="start_trial">
+                    Start Free Trial
+                </a>
+            </div>
         </div>
     </div>
-</section>
 
-<!-- About Us Content -->
-<section class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div data-aos="fade-right">
-                <h2 class="text-3xl font-bold text-gray-900 mb-6 gradient-text">{% trans "Our Story" %}</h2>
-                <div class="w-20 h-1 bg-yellow-500 mb-6"></div>
-                <p class="text-lg text-gray-600 mb-6">
-                    {% trans "Atlas Fulfillment was founded with the goal of providing integrated logistics solutions that meet the needs of merchants and companies in the growing world of e-commerce. We started our journey with a small team of passionate experts and quickly expanded to become one of the leading companies in warehousing, packaging, and delivery services." %}
-                </p>
-                <p class="text-lg text-gray-600">
-                    {% trans "We believe that our success is linked to the success of our clients, so we always strive to provide exceptional services that help them grow and achieve their business goals." %}
-                </p>
-            </div>
-            <div class="bg-gradient-to-br from-yellow-50 to-gray-100 p-8 rounded-lg shadow-lg" data-aos="fade-left">
-                <h3 class="text-2xl font-bold text-gray-900 mb-6 gradient-text">{% trans "Our Vision & Mission" %}</h3>
-                <div class="mb-8 hover-scale">
-                    <div class="flex items-center mb-3">
-                        <div class="value-icon mr-4 animate-pulse-slow" style="width: 40px; height: 40px;">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <h4 class="text-xl font-semibold text-yellow-600">{% trans "Our Vision" %}</h4>
-                    </div>
-                    <p class="text-gray-600">
-                        {% trans "To be the first and most trusted logistics partner for merchants and companies in the region, by providing innovative and effective solutions that contribute to their business growth." %}
-                    </p>
-                </div>
-                <div class="hover-scale">
-                    <div class="flex items-center mb-3">
-                        <div class="value-icon mr-4 animate-float" style="width: 40px; height: 40px;">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <h4 class="text-xl font-semibold text-yellow-600">{% trans "Our Mission" %}</h4>
-                    </div>
-                    <p class="text-gray-600">
-                        {% trans "To empower our clients to focus on growing their businesses by providing integrated and reliable logistics services characterized by efficiency, flexibility, and transparency." %}
-                    </p>
-                </div>
-            </div>
-        </div>
+
+
+  <section class="relative py-24 overflow-hidden">
+  
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-amber-400 opacity-20 blur-[100px]"></div>
     </div>
-</section>
 
-<!-- Our Journey Timeline -->
-<section class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">{% trans "Our Journey" %}</h2>
-            <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                {% trans "Learn about the main stages in the growth journey of Atlas Fulfillment" %}
+    <div class="container px-4 md:px-6">
+      <div class="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+        <div class="flex flex-col justify-center space-y-4">
+          <div class="space-y-2">
+            <h1 class="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+              <span class="bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">{% trans "About Atlas services" %}</span>
+            </h1>
+            <p class="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+              {% trans "We enable businesses to build stronger customer relationships and scale operations through our innovative CRM platform." %}
             </p>
+          </div>
+          <div class="flex flex-col gap-2 min-[400px]:flex-row">
+            <a href="#" class="inline-flex h-10 items-center justify-center rounded-md bg-amber-500 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-amber-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50">
+              {% trans "Get Started" %}
+            </a>
+            <a href="#" class="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50">
+              {% trans "Learn More" %}
+            </a>
+          </div>
+        </div>
+        <div class="flex items-center justify-center">
+          <div class="relative aspect-video overflow-hidden rounded-xl border group bg-white shadow-lg transition-all">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-50 to-amber-100 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative h-full">
+              <img 
+                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                alt="Modern office workspace" 
+                class="h-full w-full object-cover transition-transform group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+              <div class="absolute bottom-0 left-0 w-full p-6 text-white">
+                <div class="font-semibold">Atlas services Dashboard</div>
+                <p class="text-sm text-gray-200">Powerful insights & seamless management</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-12 bg-white border-y border-gray-200">
+    <div class="container px-4 md:px-6 mx-auto">
+      <div class="flex flex-col md:flex-row md:justify-between space-y-8 md:space-y-0">
+        <div class="relative overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+          <div class="flex flex-col items-start justify-between gap-4">
+            <div class="space-y-2">
+              <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <h3 class="text-3xl font-bold text-amber-500">+20k</h3>
+              <p class="text-lg font-medium">Satisfied Clients</p>
+              <p class="text-sm text-gray-500">Our main goal is to provide for our clients the best services quality.</p>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+        </div>
+
+        <div class="relative overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+          <div class="flex flex-col items-start justify-between gap-4">
+            <div class="space-y-2">
+              <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                  <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
+                  <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
+                  <line x1="8" x2="16" y1="12" y2="12"></line>
+                </svg>
+              </div>
+              <h3 class="text-3xl font-bold text-amber-500">+10k</h3>
+              <p class="text-lg font-medium">Daily Orders</p>
+              <p class="text-sm text-gray-500">We maintain a large delivery capacity in the shortest time.</p>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+        </div>
+
+        <div class="relative overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+          <div class="flex flex-col items-start justify-between gap-4">
+            <div class="space-y-2">
+              <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                  <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"></path>
+                  <path d="M6 18h12"></path>
+                  <path d="M6 14h12"></path>
+                  <rect width="12" height="12" x="6" y="10"></rect>
+                </svg>
+              </div>
+              <h3 class="text-3xl font-bold text-amber-500">+17</h3>
+              <p class="text-lg font-medium">Warehouses</p>
+              <p class="text-sm text-gray-500">Our warehouses store all the goods you want to sell.</p>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+        </div>
+
+        <div class="relative overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+          <div class="flex flex-col items-start justify-between gap-4">
+            <div class="space-y-2">
+              <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                  <path d="M2 12h20"></path>
+                </svg>
+              </div>
+              <h3 class="text-3xl font-bold text-amber-500">+9</h3>
+              <p class="text-lg font-medium">Countries</p>
+              <p class="text-sm text-gray-500">Our presence is expanding to cover more countries.</p>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="py-16 bg-gray-50 relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-amber-50 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 w-1/3 aspect-square bg-gradient-to-t from-amber-50 to-transparent rounded-full opacity-50"></div>
+    </div>
+    
+    <div class="container px-4 md:px-6 mx-auto relative z-10">
+      <div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+        <div class="space-y-2 max-w-[800px]">
+          <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+            <span>Our Process</span>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">How It Works</h2>
+          <p class="text-gray-500 md:text-xl/relaxed dark:text-gray-400">
+            Our streamlined approach to customer relationship management
+          </p>
+        </div>
+      </div>
+      
+      <div class="mx-auto grid max-w-4xl items-start gap-8 lg:gap-12">
+        <div class="grid gap-4 md:grid-cols-[80px_1fr] md:gap-8">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm md:h-[80px] md:w-[80px]">
+            <div class="flex items-center justify-center space-x-1 text-3xl font-bold text-amber-500">
+              <span>01</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold">Connect</h3>
+            <p class="text-gray-500 dark:text-gray-400">
+              Connect various e-commerce platforms to our CRM app for seamless integration and data synchronization.
+            </p>
+            <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
+              <div class="absolute inset-y-0 left-0 w-1/3 bg-amber-500 rounded-full"></div>
+            </div>
+          </div>
         </div>
         
-        <div class="timeline-container py-8">
-            <div class="timeline-line"></div>
+        <div class="grid gap-4 md:grid-cols-[80px_1fr] md:gap-8">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm md:h-[80px] md:w-[80px]">
+            <div class="flex items-center justify-center space-x-1 text-3xl font-bold text-amber-500">
+              <span>02</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold">Ecosystem</h3>
+            <p class="text-gray-500 dark:text-gray-400">
+              End-to-End solutions from sourcing to collection, providing a complete business ecosystem.
+            </p>
+            <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
+              <div class="absolute inset-y-0 left-0 w-2/3 bg-amber-500 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid gap-4 md:grid-cols-[80px_1fr] md:gap-8">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm md:h-[80px] md:w-[80px]">
+            <div class="flex items-center justify-center space-x-1 text-3xl font-bold text-amber-500">
+              <span>03</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold">Sell</h3>
+            <p class="text-gray-500 dark:text-gray-400">
+              Focus on marketing and scaling your products while our platform handles backend operations.
+            </p>
+            <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
+              <div class="absolute inset-y-0 left-0 w-full bg-amber-500 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Locations Section -->
+  <section class="py-16 bg-white relative overflow-hidden">
+    <div class="absolute left-1/2 top-0 -z-10 h-full w-full -translate-x-1/2 bg-white [mask-image:radial-gradient(closest-side,white,transparent)]">
+      <div aria-hidden="true" class="absolute inset-0 h-full w-full bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:12px_12px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black_40%,transparent_100%)]"></div>
+    </div>
+
+    <div class="container px-4 md:px-6 mx-auto">
+      <div class="grid gap-6 lg:grid-cols-2 lg:gap-12">
+        <div class="space-y-4">
+          <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+            <span>Global Presence</span>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tighter md:text-4xl">Our Locations</h2>
+          <p class="text-gray-500 md:text-xl">
+            Our growing network of services allows for faster delivery and shorter transit times
+          </p>
+          <div class="text-gray-600">
+            <p class="mb-4">
+              With Atlas services Growing Network and seamless integrations, we help you reach your customers quickly, effectively, and affordably. Expand your business and distribute your inventory in strategically located warehouses spanning four continents and more than 9 countries.
+            </p>
+            <button class="inline-flex h-10 items-center justify-center rounded-md bg-amber-500 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-amber-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50">
+              Start Now
+            </button>
+          </div>
+        </div>
+        
+        <div class="relative">
+          <div class="absolute -inset-4 rounded-3xl bg-gradient-to-b from-amber-100 to-amber-50 opacity-50 blur-xl"></div>
+          <div class="relative grid grid-cols-3 gap-3 md:gap-6">
+            <!-- Country Cards -->
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/qa.png" alt="Qatar flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Qatar</p>
+              </div>
+            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="timeline-item" data-aos="fade-right">
-                    <div class="timeline-dot top-8"></div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold text-yellow-600 mb-2">2018</h3>
-                        <h4 class="text-lg font-semibold mb-3">{% trans "Company Foundation" %}</h4>
-                        <p class="text-gray-600">{% trans "We started our journey with a small team and great enthusiasm to provide distinguished logistics solutions." %}</p>
-                    </div>
-                </div>
-                
-                <div class="md:col-start-2 timeline-item" data-aos="fade-left">
-                    <div class="timeline-dot top-8"></div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold text-yellow-600 mb-2">2019</h3>
-                        <h4 class="text-lg font-semibold mb-3">{% trans "Opening of the First Warehouse" %}</h4>
-                        <p class="text-gray-600">{% trans "We expanded by opening our first warehouse equipped with the latest technologies." %}</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item" data-aos="fade-right" data-aos-delay="100">
-                    <div class="timeline-dot top-8"></div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold text-yellow-600 mb-2">2020</h3>
-                        <h4 class="text-lg font-semibold mb-3">{% trans "Launch of Inventory Management Platform" %}</h4>
-                        <p class="text-gray-600">{% trans "We developed an integrated platform to manage inventory and track orders effectively." %}</p>
-                    </div>
-                </div>
-                
-                <div class="md:col-start-2 timeline-item" data-aos="fade-left" data-aos-delay="100">
-                    <div class="timeline-dot top-8"></div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold text-yellow-600 mb-2">2021</h3>
-                        <h4 class="text-lg font-semibold mb-3">{% trans "Expansion of Services" %}</h4>
-                        <p class="text-gray-600">{% trans "We added new services including professional product photography and custom packaging services." %}</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item" data-aos="fade-right" data-aos-delay="200">
-                    <div class="timeline-dot top-8"></div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold text-yellow-600 mb-2">2022</h3>
-                        <h4 class="text-lg font-semibold mb-3">{% trans "Regional Expansion" %}</h4>
-                        <p class="text-gray-600">{% trans "We opened new branches in several countries in the region to meet the growing demand." %}</p>
-                    </div>
-                </div>
-                
-                <div class="md:col-start-2 timeline-item" data-aos="fade-left" data-aos-delay="200">
-                    <div class="timeline-dot top-8"></div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold text-yellow-600 mb-2">2023</h3>
-                        <h4 class="text-lg font-semibold mb-3">{% trans "Today" %}</h4>
-                        <p class="text-gray-600">{% trans "We continue to grow and evolve to become the preferred logistics partner for many merchants and companies." %}</p>
-                    </div>
-                </div>
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/sa.png" alt="Saudi Arabia flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Saudi Arabia</p>
+              </div>
             </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/kw.png" alt="Kuwait flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Kuwait</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/bh.png" alt="Bahrain flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Bahrain</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/om.png" alt="Oman flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Oman</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/ae.png" alt="UAE flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">UAE</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/ma.png" alt="Morocco flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Morocco</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/in.png" alt="India flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">India</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/sn.png" alt="Senegal flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Senegal</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</section>
+  </section>
 
-<!-- Why Choose Us -->
-<section class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">{% trans "Why Choose Atlas Fulfillment?" %}</h2>
-            <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                {% trans "When you choose Atlas Fulfillment, you are partnering with a partner characterized by professionalism and a commitment to high quality at every stage of the supply chain." %}
+  <!-- Company Overview Section -->
+  <section class="py-16 bg-gray-50 relative overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <div class="absolute left-0 bottom-0 h-1/2 w-3/4 bg-gradient-to-tr from-amber-50 to-transparent rounded-full"></div>
+      <div class="absolute right-0 top-0 h-72 w-72 bg-amber-100 rounded-full opacity-20 filter blur-3xl"></div>
+    </div>
+    
+    <div class="container px-4 md:px-6 mx-auto relative z-10">
+      <div class="grid gap-12 lg:grid-cols-2">
+        <div class="relative group">
+          <div class="absolute -inset-1 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-400 opacity-25 blur transition duration-1000 group-hover:opacity-50"></div>
+          <div class="relative h-full overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+            <div class="h-72 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                alt="Warehouse interior" 
+                class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60"></div>
+            <div class="absolute bottom-0 left-0 w-full p-6">
+              <div class="bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                <div class="space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-amber-500">
+                      <path d="M21 7v6h-6"></path>
+                      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-amber-500">End-to-End Solution</span>
+                  </div>
+                  <h3 class="text-lg font-bold text-gray-900">Global E-commerce Platform</h3>
+                  <p class="text-sm text-gray-500">Handling operations across multiple countries with seamless integration.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex flex-col justify-center space-y-6">
+          <div class="space-y-2">
+            <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+              <span>Our Mission</span>
+            </div>
+            <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl">We Enable Everyone to Start, Grow and Scale Ecommerce Business</h2>
+            <p class="text-gray-500 md:text-lg/relaxed">
+              In the Middle East, Africa and Beyond.
             </p>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="flex gap-4">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-xl font-medium">All-in-One Platform</h3>
+                <p class="text-gray-500">
+                  Atlas services is an all-in-one platform that enables businesses to sell products online across multiple countries in the MENA region & beyond.
+                </p>
+              </div>
+            </div>
+            
+            <div class="flex gap-4">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-xl font-medium">Operational Excellence</h3>
+                <p class="text-gray-500">
+                  Our solution takes care of all operational aspects, enabling you to focus on marketing and scaling your products.
+                </p>
+              </div>
+            </div>
+            
+            <div class="flex gap-4">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                  <line x1="2" x2="22" y1="10" y2="10"></line>
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-xl font-medium">Complete Network Access</h3>
+                <p class="text-gray-500">
+                  Integrating with Atlas services grants you access to call centers, factories, sourcing agents, fulfillment centers, and last-mile shipping solutions.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow feature-card" data-aos="zoom-in" data-aos-delay="100">
-                <div class="flex items-center mb-4">
-                    <div class="value-icon mr-4">
-                        <i class="fas fa-award"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">{% trans "Extensive Experience and Utmost Professionalism" %}</h3>
-                </div>
-                <p class="text-gray-600">
-                    {% trans "We rely on a specialized team with years of experience in logistics and supply chains, which ensures that your operations are carried out with efficiency and accuracy." %}
-                </p>
-            </div>
-            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow feature-card" data-aos="zoom-in" data-aos-delay="200">
-                <div class="flex items-center mb-4">
-                    <div class="value-icon mr-4">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">{% trans "Integrated and Innovative Solutions" %}</h3>
-                </div>
-                <p class="text-gray-600">
-                    {% trans "We offer integrated services from import to delivery, supported by advanced technological solutions that help improve performance and reduce costs." %}
-                </p>
-            </div>
-            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow feature-card" data-aos="zoom-in" data-aos-delay="300">
-                <div class="flex items-center mb-4">
-                    <div class="value-icon mr-4">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">التزام بالمواعيد والجودة</h3>
-                </div>
-                <p class="text-gray-600">
-                    نولي أهمية كبيرة للوقت والجودة في تقديم الخدمات، مما يسهم في بناء ثقة العملاء وتحقيق رضاهم الدائم.
-                </p>
-            </div>
-            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow feature-card" data-aos="zoom-in" data-aos-delay="400">
-                <div class="flex items-center mb-4">
-                    <div class="value-icon mr-4">
-                        <i class="fas fa-sync-alt"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">مرونة عالية لتلبية احتياجاتكم</h3>
-                </div>
-                <p class="text-gray-600">
-                    نعمل على تكييف خدماتنا لتناسب متطلباتكم الخاصة، مما يجعلنا شريكاً موثوقاً في مواجهة تحديات السوق المتغيرة.
-                </p>
-            </div>
-        </div>
+      </div>
     </div>
-</section>
+  </section>
 
-<!-- Our Values -->
-<section class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">قيمنا</h2>
-            <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                تشكل هذه القيم جوهر ثقافتنا وتوجه كل ما نقوم به
-            </p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="text-center" data-aos="flip-left" data-aos-delay="100">
-                <div class="value-icon animate-pulse-slow">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-3">الشفافية</h3>
-                <p class="text-gray-600">
-                    نؤمن بأهمية الشفافية في جميع تعاملاتنا، سواء مع العملاء أو الموردين أو الموظفين.
-                </p>
-            </div>
-            <div class="text-center" data-aos="flip-left" data-aos-delay="200">
-                <div class="value-icon animate-bounce-slow">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-3">الموثوقية</h3>
-                <p class="text-gray-600">
-                    نلتزم بتقديم خدمات يمكن الاعتماد عليها، ونسعى دائمًا للوفاء بوعودنا وتجاوز توقعات عملائنا.
-                </p>
-            </div>
-            <div class="text-center" data-aos="flip-left" data-aos-delay="300">
-                <div class="value-icon animate-float">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-3">التطور المستمر</h3>
-                <p class="text-gray-600">
-                    نسعى دائمًا للتحسين والتطوير، سواء في عملياتنا أو خدماتنا، لمواكبة التغيرات المستمرة في السوق.
-                </p>
-            </div>
-        </div>
+  <!-- Team Section -->
+  <section class="py-16 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
     </div>
-</section>
+    
+    <div class="container px-4 md:px-6 mx-auto">
+      <div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+        <div class="space-y-2">
+          <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+            <span>Meet The Team</span>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Our Team</h2>
+          <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl/relaxed">
+            Our team of experts is dedicated to providing the best customer relationship solutions across the globe.
+          </p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <!-- Team Member 1 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="John Smith" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">John Smith</h3>
+            <p class="text-sm text-gray-500">CEO & Founder</p>
+          </div>
+        </div>
+        
+        <!-- Team Member 2 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1376&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="Sarah Johnson" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">Sarah Johnson</h3>
+            <p class="text-sm text-gray-500">Operations Director</p>
+          </div>
+        </div>
+        
+        <!-- Team Member 3 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="Mohammed Al-Qasim" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">Mohammed Al-Qasim</h3>
+            <p class="text-sm text-gray-500">MENA Regional Manager</p>
+          </div>
+        </div>
+        
+        <!-- Team Member 4 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1522&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="Priya Sharma" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">Priya Sharma</h3>
+            <p class="text-sm text-gray-500">Technology Lead</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- Our Team -->
-{% comment %} <section class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">فريق العمل</h2>
-            <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                يقف خلف نجاحنا فريق متميز من الخبراء المتخصصين في مجالاتهم
-            </p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-            <div class="text-center" data-aos="fade-up" data-aos-delay="100">
-                <div class="mb-4 relative overflow-hidden rounded-full mx-auto hover-scale">
-                    <img src="https://cdn.pixabay.com/photo/2017/08/01/01/33/beanie-2562646_960_720.jpg" alt="Team Member" class="w-48 h-48 object-cover rounded-full border-4 border-yellow-500 mx-auto">
-                </div>
-                <h3 class="text-xl font-semibold mb-1">أحمد محمد</h3>
-                <p class="text-yellow-600 mb-2">المدير التنفيذي</p>
-                <p class="text-gray-600 text-sm">خبرة أكثر من 15 عامًا في مجال اللوجستيات وإدارة سلاسل الإمداد</p>
-            </div>
-            <div class="text-center" data-aos="fade-up" data-aos-delay="200">
-                <div class="mb-4 relative overflow-hidden rounded-full mx-auto hover-scale">
-                    <img src="https://cdn.pixabay.com/photo/2019/11/03/20/11/portrait-4599553_960_720.jpg" alt="Team Member" class="w-48 h-48 object-cover rounded-full border-4 border-yellow-500 mx-auto">
-                </div>
-                <h3 class="text-xl font-semibold mb-1">سارة علي</h3>
-                <p class="text-yellow-600 mb-2">مديرة العمليات</p>
-                <p class="text-gray-600 text-sm">متخصصة في تطوير وتحسين العمليات اللوجستية وتحقيق الكفاءة</p>
-            </div>
-            <div class="text-center" data-aos="fade-up" data-aos-delay="300">
-                <div class="mb-4 relative overflow-hidden rounded-full mx-auto hover-scale">
-                    <img src="https://cdn.pixabay.com/photo/2016/11/21/12/42/beard-1845166_960_720.jpg" alt="Team Member" class="w-48 h-48 object-cover rounded-full border-4 border-yellow-500 mx-auto">
-                </div>
-                <h3 class="text-xl font-semibold mb-1">خالد عبدالله</h3>
-                <p class="text-yellow-600 mb-2">مدير تقنية المعلومات</p>
-                <p class="text-gray-600 text-sm">خبير في تطوير الحلول التكنولوجية وأنظمة إدارة المخزون</p>
-            </div>
-            <div class="text-center" data-aos="fade-up" data-aos-delay="400">
-                <div class="mb-4 relative overflow-hidden rounded-full mx-auto hover-scale">
-                    <img src="https://cdn.pixabay.com/photo/2018/04/27/03/50/woman-3353699_960_720.jpg" alt="Team Member" class="w-48 h-48 object-cover rounded-full border-4 border-yellow-500 mx-auto">
-                </div>
-                <h3 class="text-xl font-semibold mb-1">نورا حسن</h3>
-                <p class="text-yellow-600 mb-2">مديرة خدمة العملاء</p>
-                <p class="text-gray-600 text-sm">متخصصة في تحسين تجربة العملاء وضمان رضاهم عن الخدمات المقدمة</p>
-            </div>
-        </div>
-    </div>
-</section> {% endcomment %}
 
-<!-- CTA Section -->
-<section class="py-16 bg-yellow-500 text-white relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-            <defs>
-                <pattern id="pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M0 20 L40 20 M20 0 L20 40" stroke="white" stroke-width="1" />
-                </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#pattern)" />
-        </svg>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <h2 class="text-3xl font-bold mb-6" data-aos="fade-up">هل أنت مستعد للعمل معنا؟</h2>
-        <p class="text-xl mb-8 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-            انضم إلى قائمة عملائنا المتميزين واستفد من خدماتنا اللوجستية المتكاملة لتنمية أعمالك.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center gap-4" data-aos="fade-up" data-aos-delay="200">
-            <a href="{% url 'landing:services' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg hover-scale">استكشف خدماتنا</a>
-            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg hover-scale">تواصل معنا</a>
-        </div>
-    </div>
-</section>
+
+</body>
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Menu Functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const mobileMenuClose = document.getElementById('mobile-menu-close');
+            
+            // Toggle Mobile Menu
+            function toggleMobileMenu() {
+                mobileMenu.classList.toggle('translate-x-full');
+                mobileMenuOverlay.classList.toggle('hidden');
+                document.body.classList.toggle('overflow-hidden');
+            }
+            
+            mobileMenuButton.addEventListener('click', toggleMobileMenu);
+            mobileMenuClose.addEventListener('click', toggleMobileMenu);
+            mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
+            
+            // Mobile Submenus
+            const mobileSubmenuTriggers = document.querySelectorAll('.mobile-submenu-trigger');
+            
+            mobileSubmenuTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function() {
+                    const submenu = this.nextElementSibling;
+                    const icon = this.querySelector('svg');
+                    
+                    submenu.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+            
+            // Mobile Language Menu
+            const mobileLangTrigger = document.querySelector('.mobile-language-trigger');
+            
+            if (mobileLangTrigger) {
+                mobileLangTrigger.addEventListener('click', function() {
+                    const langMenu = this.nextElementSibling;
+                    const icon = this.querySelector('svg');
+                    
+                    langMenu.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            }
+            
+            // Desktop dropdowns
+            const dropdownTriggers = document.querySelectorAll('.desktop-dropdown-trigger');
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const isDropdownButton = e.target.closest('.desktop-dropdown-trigger');
+                if (!isDropdownButton) {
+                    document.querySelectorAll('.desktop-dropdown.show').forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+            
+            // Toggle dropdown visibility when clicked (for touch devices)
+            dropdownTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function(e) {
+                    const dropdown = this.querySelector('.desktop-dropdown');
+                    if (dropdown) {
+                        const isOpen = dropdown.classList.contains('show');
+                        
+                        // Close any open dropdowns first
+                        document.querySelectorAll('.desktop-dropdown.show').forEach(dropdown => {
+                            dropdown.classList.remove('show');
+                        });
+                        
+                        // Toggle clicked dropdown
+                        if (!isOpen) {
+                            dropdown.classList.add('show');
+                            e.stopPropagation();
+                        }
+                    }
+                });
+            });
+            
+            // Animate on scroll functionality
+            const animateElements = document.querySelectorAll('.animate-on-scroll');
+            
+            function checkIfInView() {
+                animateElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    } else {
+                        element.classList.remove('visible');
+                    }
+                });
+            }
+            
+            // First check on page load
+            window.addEventListener('load', checkIfInView);
+            // Check on scroll
+            window.addEventListener('scroll', checkIfInView);
+            
+            // Gradient Animation
+            function animateGradient() {
+                const gradientElements = document.querySelectorAll('.animated-background');
+                
+                gradientElements.forEach(element => {
+                    let gradientPos = parseInt(element.dataset.gradientPos || '0');
+                    gradientPos = (gradientPos + 1) % 200;
+                    element.style.backgroundPosition = `${gradientPos}% 50%`;
+                    element.dataset.gradientPos = gradientPos;
+                });
+                
+                requestAnimationFrame(animateGradient);
+            }
+            
+            // Start the gradient animation
+            requestAnimationFrame(animateGradient);
+        });
+    </script>
+
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    // Refresh AOS animations when page is fully loaded
-    window.addEventListener('load', function() {
-        AOS.refresh();
-    });
-</script>
-{% endblock %} 

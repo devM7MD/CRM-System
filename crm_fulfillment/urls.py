@@ -19,8 +19,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView, TemplateView
+from django.conf.urls.i18n import i18n_patterns
 # Removed i18n imports as we're using English only
-# from django.conf.urls.i18n import i18n_patterns
 # from utils import views as util_views
 
 # URL patterns - no language prefix needed
@@ -45,6 +45,7 @@ urlpatterns = [
     
     # Landing pages
     path('', include('landing.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
     
     # Redirect accounts/login to users/login
     path('accounts/login/', RedirectView.as_view(pattern_name='users:login'), name='login_redirect'),

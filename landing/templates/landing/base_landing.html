@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 {% load static %}
 {% load i18n %}
-<html lang="en" dir="ltr">
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -111,11 +111,6 @@
         .language-dropdown {
             position: absolute;
             top: 100%;
-            {% if LANGUAGE_CODE == 'ar' %}
-            right: 0;
-            {% else %}
-            left: 0;
-            {% endif %}
             background: white;
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
@@ -200,10 +195,18 @@
                     </a>
                 </nav>
                 
+                <!-- Language Switcher -->
+                <form action="{% url 'set_language' %}" method="post" class="ml-4">
+                    {% csrf_token %}
+                    <select name="language" onchange="this.form.submit()" class="rounded px-2 py-1 text-gray-800">
+                        <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
+                        <option value="ar" {% if LANGUAGE_CODE == 'ar' %}selected{% endif %}>العربية</option>
+                    </select>
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                </form>
+                
                 <!-- Right section -->
                 <div class="hidden lg:flex items-center space-x-3">
-                    <!-- Language Switcher removed - English only -->
-                    
                     <!-- Authentication Links -->
                     {% if user.is_authenticated %}
                         <div class="relative">
@@ -259,8 +262,6 @@
                     </a>
                     
                     <div class="pt-4 border-t border-white/20 mt-4">
-                        <!-- Language Options removed - English only -->
-                        
                         <!-- Auth Links -->
                         <h3 class="text-white/70 text-sm mb-2">{% trans "Account" %}</h3>
                         <div class="flex space-x-3">
