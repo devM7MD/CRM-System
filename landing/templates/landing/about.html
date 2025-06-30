@@ -1,4 +1,5 @@
 {% extends 'landing/base_landing.html' %}
+{% load i18n %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -104,26 +105,26 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div data-aos="fade-right">
-                <h2 class="text-3xl font-bold text-gray-900 mb-6 gradient-text">قصتنا</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 gradient-text">{% trans "Our Story" %}</h2>
                 <div class="w-20 h-1 bg-yellow-500 mb-6"></div>
                 <p class="text-lg text-gray-600 mb-6">
-                    تأسست أطلس فولفيلمنت بهدف توفير حلول لوجستية متكاملة تلبي احتياجات التجار والشركات في عالم التجارة الإلكترونية المتنامي. بدأنا رحلتنا بفريق صغير من الخبراء المتحمسين، وتوسعنا بسرعة لنصبح واحدة من الشركات الرائدة في مجال خدمات التخزين والتغليف والتوصيل.
+                    {% trans "Atlas Fulfillment was founded with the goal of providing integrated logistics solutions that meet the needs of merchants and companies in the growing world of e-commerce. We started our journey with a small team of passionate experts and quickly expanded to become one of the leading companies in warehousing, packaging, and delivery services." %}
                 </p>
                 <p class="text-lg text-gray-600">
-                    نحن نؤمن بأن نجاحنا مرتبط بنجاح عملائنا، لذا نسعى دائمًا لتقديم خدمات استثنائية تساعدهم على النمو وتحقيق أهدافهم التجارية.
+                    {% trans "We believe that our success is linked to the success of our clients, so we always strive to provide exceptional services that help them grow and achieve their business goals." %}
                 </p>
             </div>
             <div class="bg-gradient-to-br from-yellow-50 to-gray-100 p-8 rounded-lg shadow-lg" data-aos="fade-left">
-                <h3 class="text-2xl font-bold text-gray-900 mb-6 gradient-text">رؤيتنا ومهمتنا</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 gradient-text">{% trans "Our Vision & Mission" %}</h3>
                 <div class="mb-8 hover-scale">
                     <div class="flex items-center mb-3">
                         <div class="value-icon mr-4 animate-pulse-slow" style="width: 40px; height: 40px;">
                             <i class="fas fa-eye"></i>
                         </div>
-                        <h4 class="text-xl font-semibold text-yellow-600">رؤيتنا</h4>
+                        <h4 class="text-xl font-semibold text-yellow-600">{% trans "Our Vision" %}</h4>
                     </div>
                     <p class="text-gray-600">
-                        أن نكون الشريك اللوجستي الأول والأكثر موثوقية للتجار والشركات في المنطقة، من خلال توفير حلول مبتكرة وفعالة تسهم في نمو أعمالهم.
+                        {% trans "To be the first and most trusted logistics partner for merchants and companies in the region, by providing innovative and effective solutions that contribute to their business growth." %}
                     </p>
                 </div>
                 <div class="hover-scale">
@@ -131,10 +132,10 @@
                         <div class="value-icon mr-4 animate-float" style="width: 40px; height: 40px;">
                             <i class="fas fa-bullseye"></i>
                         </div>
-                        <h4 class="text-xl font-semibold text-yellow-600">مهمتنا</h4>
+                        <h4 class="text-xl font-semibold text-yellow-600">{% trans "Our Mission" %}</h4>
                     </div>
                     <p class="text-gray-600">
-                        تمكين عملائنا من التركيز على تنمية أعمالهم من خلال توفير خدمات لوجستية متكاملة وموثوقة، تتسم بالكفاءة والمرونة والشفافية.
+                        {% trans "To empower our clients to focus on growing their businesses by providing integrated and reliable logistics services characterized by efficiency, flexibility, and transparency." %}
                     </p>
                 </div>
             </div>
@@ -146,10 +147,10 @@
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">رحلتنا</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">{% trans "Our Journey" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                تعرف على المراحل الرئيسية في رحلة نمو أطلس فولفيلمنت
+                {% trans "Learn about the main stages in the growth journey of Atlas Fulfillment" %}
             </p>
         </div>
         
@@ -161,8 +162,8 @@
                     <div class="timeline-dot top-8"></div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-xl font-bold text-yellow-600 mb-2">2018</h3>
-                        <h4 class="text-lg font-semibold mb-3">تأسيس الشركة</h4>
-                        <p class="text-gray-600">بدأنا رحلتنا بفريق صغير وحماس كبير لتقديم حلول لوجستية متميزة.</p>
+                        <h4 class="text-lg font-semibold mb-3">{% trans "Company Foundation" %}</h4>
+                        <p class="text-gray-600">{% trans "We started our journey with a small team and great enthusiasm to provide distinguished logistics solutions." %}</p>
                     </div>
                 </div>
                 
@@ -170,8 +171,8 @@
                     <div class="timeline-dot top-8"></div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-xl font-bold text-yellow-600 mb-2">2019</h3>
-                        <h4 class="text-lg font-semibold mb-3">افتتاح أول مستودع</h4>
-                        <p class="text-gray-600">توسعنا بافتتاح أول مستودع لنا مجهز بأحدث التقنيات.</p>
+                        <h4 class="text-lg font-semibold mb-3">{% trans "Opening of the First Warehouse" %}</h4>
+                        <p class="text-gray-600">{% trans "We expanded by opening our first warehouse equipped with the latest technologies." %}</p>
                     </div>
                 </div>
                 
@@ -179,8 +180,8 @@
                     <div class="timeline-dot top-8"></div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-xl font-bold text-yellow-600 mb-2">2020</h3>
-                        <h4 class="text-lg font-semibold mb-3">إطلاق منصة إدارة المخزون</h4>
-                        <p class="text-gray-600">طورنا منصة متكاملة لإدارة المخزون وتتبع الطلبيات بشكل فعال.</p>
+                        <h4 class="text-lg font-semibold mb-3">{% trans "Launch of Inventory Management Platform" %}</h4>
+                        <p class="text-gray-600">{% trans "We developed an integrated platform to manage inventory and track orders effectively." %}</p>
                     </div>
                 </div>
                 
@@ -188,8 +189,8 @@
                     <div class="timeline-dot top-8"></div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-xl font-bold text-yellow-600 mb-2">2021</h3>
-                        <h4 class="text-lg font-semibold mb-3">توسيع نطاق الخدمات</h4>
-                        <p class="text-gray-600">أضفنا خدمات جديدة تشمل التصوير الاحترافي للمنتجات وخدمات التغليف المخصص.</p>
+                        <h4 class="text-lg font-semibold mb-3">{% trans "Expansion of Services" %}</h4>
+                        <p class="text-gray-600">{% trans "We added new services including professional product photography and custom packaging services." %}</p>
                     </div>
                 </div>
                 
@@ -197,8 +198,8 @@
                     <div class="timeline-dot top-8"></div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-xl font-bold text-yellow-600 mb-2">2022</h3>
-                        <h4 class="text-lg font-semibold mb-3">التوسع الإقليمي</h4>
-                        <p class="text-gray-600">افتتحنا فروعًا جديدة في عدة دول بالمنطقة لتلبية الطلب المتزايد.</p>
+                        <h4 class="text-lg font-semibold mb-3">{% trans "Regional Expansion" %}</h4>
+                        <p class="text-gray-600">{% trans "We opened new branches in several countries in the region to meet the growing demand." %}</p>
                     </div>
                 </div>
                 
@@ -206,8 +207,8 @@
                     <div class="timeline-dot top-8"></div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-xl font-bold text-yellow-600 mb-2">2023</h3>
-                        <h4 class="text-lg font-semibold mb-3">اليوم</h4>
-                        <p class="text-gray-600">نواصل النمو والتطور لنصبح الشريك اللوجستي المفضل للعديد من التجار والشركات.</p>
+                        <h4 class="text-lg font-semibold mb-3">{% trans "Today" %}</h4>
+                        <p class="text-gray-600">{% trans "We continue to grow and evolve to become the preferred logistics partner for many merchants and companies." %}</p>
                     </div>
                 </div>
             </div>
@@ -219,10 +220,10 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">لماذا تختار أطلس فولفيمنت؟</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4 gradient-text">{% trans "Why Choose Atlas Fulfillment?" %}</h2>
             <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                عند اختياركم لأطلس فولفيمنت، فإنكم تتعاقدون مع شريك يتميز بالاحترافية والتزام الجودة العالية في كل مرحلة من مراحل سلسلة التوريد.
+                {% trans "When you choose Atlas Fulfillment, you are partnering with a partner characterized by professionalism and a commitment to high quality at every stage of the supply chain." %}
             </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -231,10 +232,10 @@
                     <div class="value-icon mr-4">
                         <i class="fas fa-award"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">خبرة واسعة واحترافية متناهية</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">{% trans "Extensive Experience and Utmost Professionalism" %}</h3>
                 </div>
                 <p class="text-gray-600">
-                    نعتمد على فريق متخصص يمتلك سنوات من الخبرة في مجال اللوجستيات وسلاسل الإمداد، مما يضمن تنفيذ عملياتكم بكفاءة ودقة.
+                    {% trans "We rely on a specialized team with years of experience in logistics and supply chains, which ensures that your operations are carried out with efficiency and accuracy." %}
                 </p>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow feature-card" data-aos="zoom-in" data-aos-delay="200">
@@ -242,10 +243,10 @@
                     <div class="value-icon mr-4">
                         <i class="fas fa-lightbulb"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">حلول متكاملة ومبتكرة</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">{% trans "Integrated and Innovative Solutions" %}</h3>
                 </div>
                 <p class="text-gray-600">
-                    نقدم خدمات متكاملة بدءًا من الاستيراد وحتى التسليم، مدعومة بحلول تكنولوجية متطورة تساعد في تحسين الأداء وتقليل التكاليف.
+                    {% trans "We offer integrated services from import to delivery, supported by advanced technological solutions that help improve performance and reduce costs." %}
                 </p>
             </div>
             <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow feature-card" data-aos="zoom-in" data-aos-delay="300">

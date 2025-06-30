@@ -21,13 +21,14 @@
                 
                 <div class="p-4">
                     <!-- Filters -->
-                    <div class="mb-4 flex flex-wrap gap-2">
+                    <form method="get" action="{% url 'packaging:orders' %}" class="mb-4 flex flex-wrap gap-2">
                         <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "All Statuses" %}</option>
-                                <option>{% trans "Pending" %}</option>
-                                <option>{% trans "Processing" %}</option>
-                                <option>{% trans "Completed" %}</option>
+                            <select name="status" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                <option value="">{% trans "All Statuses" %}</option>
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>{% trans "Pending" %}</option>
+                                <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>{% trans "Processing" %}</option>
+                                <option value="packaged" {% if status_filter == 'packaged' %}selected{% endif %}>{% trans "Packaged" %}</option>
+                                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>{% trans "Cancelled" %}</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <i class="fas fa-chevron-down text-xs"></i>
@@ -35,11 +36,11 @@
                         </div>
                         
                         <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "Today" %}</option>
-                                <option>{% trans "Last 7 Days" %}</option>
-                                <option>{% trans "Last 30 Days" %}</option>
-                                <option>{% trans "All Time" %}</option>
+                            <select name="date" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                <option value="">{% trans "All Time" %}</option>
+                                <option value="today" {% if date_filter == 'today' %}selected{% endif %}>{% trans "Today" %}</option>
+                                <option value="week" {% if date_filter == 'week' %}selected{% endif %}>{% trans "Last 7 Days" %}</option>
+                                <option value="month" {% if date_filter == 'month' %}selected{% endif %}>{% trans "Last 30 Days" %}</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <i class="fas fa-chevron-down text-xs"></i>
@@ -47,9 +48,13 @@
                         </div>
                         
                         <div class="relative flex-grow">
-                            <input type="text" placeholder="{% trans 'Search by ID or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                            <input type="text" name="search" value="{{ search_query }}" placeholder="{% trans 'Search by ID or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
                         </div>
-                    </div>
+                        
+                        <button type="submit" class="px-3 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 text-sm">
+                            <i class="fas fa-search mr-1"></i> {% trans "Search" %}
+                        </button>
+                    </form>
                     
                     <!-- Orders Table -->
                     <div class="overflow-x-auto">
@@ -65,67 +70,74 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <!-- This is just sample data - would be populated from the view -->
+                                {% for order in page_obj %}
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-001</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Customer Name</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-15</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">3</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ order.order_code }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ order.customer.full_name|default:"Unknown" }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ order.date|date:"Y-m-d" }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ order.items.count }}</td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {% trans "Pending" %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if order.status == 'packaged' or order.status == 'delivered' or order.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {{ order.get_status_display }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm">
                                         <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
+                                            <a href="{% url 'packaging:order_detail' order.id %}" class="text-primary-600 hover:text-primary-900" title="{% trans 'View Details' %}">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
+                                            {% if order.status == 'pending' or order.status == 'processing' %}
+                                            <a href="{% url 'packaging:package_order' order.id %}" class="text-green-600 hover:text-green-900" title="{% trans 'Package Order' %}">
                                                 <i class="fas fa-box"></i>
                                             </a>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-002</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Another Customer</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-14</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">1</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {% trans "Pending" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-box"></i>
-                                            </a>
-                                        </div>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="px-4 py-4 text-center text-gray-500">
+                                        {% trans "No orders found." %}
                                     </td>
                                 </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                     
                     <!-- Pagination -->
+                    {% if page_obj.paginator.num_pages > 1 %}
                     <div class="mt-4 flex items-center justify-between">
                         <div class="text-sm text-gray-500">
-                            {% trans "Showing" %} <span class="font-medium">1</span> {% trans "to" %} <span class="font-medium">2</span> {% trans "of" %} <span class="font-medium">2</span> {% trans "results" %}
+                            {% trans "Showing" %} <span class="font-medium">{{ page_obj.start_index }}</span> {% trans "to" %} <span class="font-medium">{{ page_obj.end_index }}</span> {% trans "of" %} <span class="font-medium">{{ page_obj.paginator.count }}</span> {% trans "results" %}
                         </div>
                         <div class="flex space-x-1">
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {% if page_obj.has_previous %}
+                            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
                                 {% trans "Previous" %}
                             </a>
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {% else %}
+                            <span class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 opacity-50 cursor-not-allowed">
+                                {% trans "Previous" %}
+                            </span>
+                            {% endif %}
+                            
+                            {% if page_obj.has_next %}
+                            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
                                 {% trans "Next" %}
                             </a>
+                            {% else %}
+                            <span class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 opacity-50 cursor-not-allowed">
+                                {% trans "Next" %}
+                            </span>
+                            {% endif %}
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

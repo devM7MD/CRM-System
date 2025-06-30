@@ -374,3 +374,905 @@ msgstr "للمساعدة في عملية التغليف، اتصل بفريق ا
 #: packaging/templates/packaging/order_list.html
 msgid "View Documentation"
 msgstr "عرض الوثائق"
+
+# New translations for the redesigned landing page
+#: landing/templates/landing/base_landing.html
+msgid "Your trusted partner for e-commerce fulfillment solutions in the Middle East."
+msgstr "شريكك الموثوق لحلول الاستيفاء للتجارة الإلكترونية في الشرق الأوسط."
+
+#: landing/templates/landing/base_landing.html
+msgid "Dubai, United Arab Emirates"
+msgstr "دبي، الإمارات العربية المتحدة"
+
+#: landing/templates/landing/base_landing.html
+msgid "Riyadh, Saudi Arabia"
+msgstr "الرياض، المملكة العربية السعودية"
+
+#: landing/templates/landing/base_landing.html
+msgid "Subscribe to receive updates and offers."
+msgstr "اشترك للحصول على التحديثات والعروض."
+
+#: landing/templates/landing/base_landing.html
+msgid "We respect your privacy. Your information is safe with us."
+msgstr "نحن نحترم خصوصيتك. معلوماتك آمنة معنا."
+
+#: landing/templates/landing/base_landing.html
+msgid "Language"
+msgstr "اللغة"
+
+#: landing/templates/landing/base_landing.html
+msgid "Account"
+msgstr "الحساب"
+
+#: landing/templates/landing/base_landing.html
+msgid "Privacy Policy"
+msgstr "سياسة الخصوصية"
+
+#: landing/templates/landing/base_landing.html
+msgid "Terms of Service"
+msgstr "شروط الخدمة"
+
+#: landing/templates/landing/home.html
+msgid "Your trusted partner from sourcing to perfect delivery"
+msgstr "شريكك الموثوق من مرحلة التوريد إلى التسليم المثالي"
+
+#: landing/templates/landing/home.html
+msgid "Explore Services"
+msgstr "استكشف الخدمات"
+
+#: landing/templates/landing/home.html
+msgid "Get Started"
+msgstr "ابدأ الآن"
+
+#: landing/templates/landing/home.html
+msgid "Welcome to Atlas Fulfillment"
+msgstr "مرحبًا بك في أطلس لوجيستيك"
+
+#: landing/templates/landing/home.html
+msgid "We understand that today's business world requires both innovation and flexibility, so we've designed our services to meet all your needs from importing to profit transfers."
+msgstr "نحن ندرك أن عالم الأعمال اليوم يتطلب الابتكار والمرونة، لذلك صممنا خدماتنا لتلبية جميع احتياجاتك من الاستيراد إلى تحويل الأرباح."
+
+#: landing/templates/landing/home.html
+msgid "Warehousing"
+msgstr "التخزين"
+
+#: landing/templates/landing/home.html
+msgid "State-of-the-art storage facilities with inventory management systems."
+msgstr "مرافق تخزين متطورة مع أنظمة إدارة المخزون."
+
+#: landing/templates/landing/home.html
+msgid "Learn More"
+msgstr "اعرف المزيد"
+
+#: landing/templates/landing/home.html
+msgid "Delivery"
+msgstr "التوصيل"
+
+#: landing/templates/landing/home.html
+msgid "Reliable and fast delivery services across the Middle East."
+msgstr "خدمات توصيل موثوقة وسريعة في جميع أنحاء الشرق الأوسط."
+
+#: landing/templates/landing/home.html
+msgid "Customer Support"
+msgstr "خدمة العملاء"
+
+#: landing/templates/landing/home.html
+msgid "Dedicated call center for order confirmation and customer inquiries."
+msgstr "مركز اتصال مخصص لتأكيد الطلبات واستفسارات العملاء."
+
+#: landing/templates/landing/home.html
+msgid "Ready to Simplify Your E-commerce Logistics?"
+msgstr "هل أنت مستعد لتبسيط الخدمات اللوجستية للتجارة الإلكترونية الخاصة بك؟"
+
+#: landing/templates/landing/home.html
+msgid "Join Atlas Fulfillment today and focus on growing your business while we handle the logistics."
+msgstr "انضم إلى أطلس لوجيستيك اليوم وركز على تنمية أعمالك بينما نتولى الخدمات اللوجستية."
+
+#: landing/templates/landing/home.html
+msgid "Create Your Account"
+msgstr "أنشئ حسابك"
+
+msgid "Our Story"
+msgstr "قصتنا"
+
+#: landing/views.py:27
+msgid ""
+"Atlas Fulfillment was founded with the goal of providing integrated logistics "
+"solutions that meet the needs of merchants and companies in the growing "
+"world of e-commerce. We started our journey with a small team of passionate "
+"experts and quickly expanded to become one of the leading companies in "
+"warehousing, packaging, and delivery services."
+msgstr ""
+"تأسست أطلس فولفيلمنت بهدف توفير حلول لوجستية متكاملة تلبي احتياجات التجار "
+"والشركات في عالم التجارة الإلكترونية المتنامي. بدأنا رحلتنا بفريق صغير من "
+"الخبراء المتحمسين، وتوسعنا بسرعة لنصبح واحدة من الشركات الرائدة في مجال "
+"خدمات التخزين والتغليف والتوصيل."
+
+#: landing/views.py:32
+msgid ""
+"We believe that our success is linked to the success of our clients, so we "
+"always strive to provide exceptional services that help them grow and "
+"achieve their business goals."
+msgstr ""
+"نحن نؤمن بأن نجاحنا مرتبط بنجاح عملائنا، لذا نسعى دائمًا لتقديم خدمات "
+"استثنائية تساعدهم على النمو وتحقيق أهدافهم التجارية."
+
+#: landing/views.py:36
+msgid "Our Vision & Mission"
+msgstr "رؤيتنا ومهمتنا"
+
+#: landing/views.py:38
+msgid "Our Vision"
+msgstr "رؤيتنا"
+
+#: landing/views.py:39
+msgid ""
+"To be the first and most trusted logistics partner for merchants and "
+"companies in the region, by providing innovative and effective solutions "
+"that contribute to their business growth."
+msgstr ""
+"أن نكون الشريك اللوجستي الأول والأكثر موثوقية للتجار والشركات في المنطقة، من "
+"خلال توفير حلول مبتكرة وفعالة تسهم في نمو أعمالهم."
+
+#: landing/views.py:42
+msgid "Our Mission"
+msgstr "مهمتنا"
+
+#: landing/views.py:43
+msgid ""
+"To empower our clients to focus on growing their businesses by providing "
+"integrated and reliable logistics services characterized by efficiency, "
+"flexibility, and transparency."
+msgstr ""
+"تمكين عملائنا من التركيز على تنمية أعمالهم من خلال توفير خدمات لوجستية "
+"متكاملة وموثوقة، تتسم بالكفاءة والمرونة والشفافية."
+
+#: landing/views.py:47
+msgid "Our Journey"
+msgstr "رحلتنا"
+
+#: landing/views.py:48
+msgid "Learn about the main stages in the growth journey of Atlas Fulfillment"
+msgstr "تعرف على المراحل الرئيسية في رحلة نمو أطلس فولفيلمنت"
+
+#: landing/views.py:58
+msgid "Company Foundation"
+msgstr "تأسيس الشركة"
+
+#: landing/views.py:59
+msgid ""
+"We started our journey with a small team and great enthusiasm to provide "
+"distinguished logistics solutions."
+msgstr ""
+"بدأنا رحلتنا بفريق صغير وحماس كبير لتقديم حلول لوجستية متميزة."
+
+#: landing/views.py:62
+msgid "Opening of the First Warehouse"
+msgstr "افتتاح أول مستودع"
+
+#: landing/views.py:63
+msgid ""
+"We expanded by opening our first warehouse equipped with the latest "
+"technologies."
+msgstr "توسعنا بافتتاح أول مستودع لنا مجهز بأحدث التقنيات."
+
+#: landing/views.py:66
+msgid "Launch of Inventory Management Platform"
+msgstr "إطلاق منصة إدارة المخزون"
+
+#: landing/views.py:67
+msgid ""
+"We developed an integrated platform to manage inventory and track orders "
+"effectively."
+msgstr "طورنا منصة متكاملة لإدارة المخزون وتتبع الطلبيات بشكل فعال."
+
+#: landing/views.py:70
+msgid "Expansion of Services"
+msgstr "توسيع نطاق الخدمات"
+
+#: landing/views.py:71
+msgid ""
+"We added new services including professional product photography and custom "
+"packaging services."
+msgstr ""
+"أضفنا خدمات جديدة تشمل التصوير الاحترافي للمنتجات وخدمات التغليف المخصص."
+
+#: landing/views.py:74
+msgid "Regional Expansion"
+msgstr "التوسع الإقليمي"
+
+#: landing/views.py:75
+msgid ""
+"We opened new branches in several countries in the region to meet the "
+"growing demand."
+msgstr "افتتحنا فروعًا جديدة في عدة دول بالمنطقة لتلبية الطلب المتزايد."
+
+#: landing/views.py:78
+msgid "Today"
+msgstr "اليوم"
+
+#: landing/views.py:79
+msgid ""
+"We continue to grow and evolve to become the preferred logistics partner for "
+"many merchants and companies."
+msgstr ""
+"نواصل النمو والتطور لنصبح الشريك اللوجستي المفضل للعديد من التجار والشركات."
+
+#: landing/views.py:83
+msgid "Why Choose Atlas Fulfillment?"
+msgstr "لماذا تختار أطلس فولفيمنت؟"
+
+#: landing/views.py:84
+msgid ""
+"When you choose Atlas Fulfillment, you are partnering with a partner "
+"characterized by professionalism and a commitment to high quality at every "
+"stage of the supply chain."
+msgstr ""
+"عند اختياركم لأطلس فولفيلمنت، فإنكم تتعاقدون مع شريك يتميز بالاحترافية والتزام "
+"الجودة العالية في كل مرحلة من مراحل سلسلة التوريد."
+
+#: landing/views.py:94
+msgid "Extensive Experience and Utmost Professionalism"
+msgstr "خبرة واسعة واحترافية متناهية"
+
+#: landing/views.py:95
+msgid ""
+"We rely on a specialized team with years of experience in logistics and "
+"supply chains, which ensures that your operations are carried out with "
+"efficiency and accuracy."
+msgstr ""
+"نعتمد على فريق متخصص يمتلك سنوات من الخبرة في مجال اللوجستيات وسلاسل الإمداد، "
+"مما يضمن تنفيذ عملياتكم بكفاءة ودقة."
+
+#: landing/views.py:98
+msgid "Integrated and Innovative Solutions"
+msgstr "حلول متكاملة ومبتكرة"
+
+#: landing/views.py:99
+msgid ""
+"We offer integrated services from import to delivery, supported by advanced "
+"technological solutions that help improve performance and reduce costs."
+msgstr ""
+"نقدم خدمات متكاملة بدءًا من الاستيراد وحتى التسليم، مدعومة بحلول تكنولوجية "
+"متطورة تساعد في تحسين الأداء وتقليل التكاليف."
+
+#: landing/views.py:110
+msgid "Contact Page"
+msgstr "صفحة الاتصال"
+
+#: landing/views.py:111
+msgid "Get in touch with us"
+msgstr "تواصل معنا"
+
+#: landing/views.py:119
+msgid "FAQ Page"
+msgstr "صفحة الأسئلة الشائعة"
+
+#: landing/views.py:120
+msgid "Frequently Asked Questions"
+msgstr "الأسئلة الشائعة"
+
+#: landing/views.py:126
+msgid "What services does Atlas Fulfillment offer?"
+msgstr "ما هي الخدمات التي تقدمها أطلس فولفيلمنت؟"
+
+#: landing/views.py:127
+msgid ""
+"We offer a comprehensive range of logistics services including international "
+"sourcing, modern warehousing, order fulfillment, professional packaging, and "
+"fast, secure delivery. We are also working on adding professional product "
+"photography services soon."
+msgstr ""
+"نقدم مجموعة شاملة من الخدمات اللوجستية تشمل التوريد الدولي، التخزين الحديث، "
+"تلبية الطلبات، التغليف الاحترافي، والتوصيل السريع والآمن. كما نعمل على إضافة "
+"خدمات تصوير المنتجات الاحترافية قريباً."
+
+#: landing/views.py:130
+msgid "How can I track my orders and inventory?"
+msgstr "كيف يمكنني تتبع طلباتي ومخزوني؟"
+
+#: landing/views.py:131
+msgid ""
+"Our advanced platform provides you with an easy-to-use interface to track "
+"your orders in real-time, from the moment they are confirmed until they are "
+"delivered to the final customer. You can also monitor your inventory levels "
+"and manage your products efficiently."
+msgstr ""
+"توفر لك منصتنا المتقدمة واجهة سهلة الاستخدام لتتبع طلباتك في الوقت الفعلي، منذ "
+"لحظة تأكيدها وحتى تسليمها للعميل النهائي. كما يمكنك مراقبة مستويات مخزونك "
+"وإدارة منتجاتك بكفاءة."
+
+#: landing/views.py:134
+msgid "What are the payment and fund transfer processes?"
+msgstr "ما هي إجراءات الدفع وتحويل الأموال؟"
+
+#: landing/views.py:135
+msgid ""
+"We ensure a secure and transparent payment management system. Funds are "
+"collected from customers upon delivery and transferred to you quickly "
+"through multiple options like bank transfers or e-wallets, with detailed "
+"financial reports for each transaction."
+msgstr ""
+"نضمن نظامًا آمنًا وشفافًا لإدارة المدفوعات. يتم تحصيل الأموال من العملاء عند "
+"التسليم وتحويلها إليك بسرعة من خلال خيارات متعددة مثل التحويلات البنكية أو "
+"المحافظ الإلكترونية، مع تقارير مالية مفصلة لكل عملية."
+
+#: landing/views.py:138
+msgid "Do you provide international shipping services?"
+msgstr "هل تقدمون خدمات شحن دولية؟"
+
+#: landing/views.py:139
+msgid ""
+"Yes, we specialize in providing integrated import services from major global "
+"markets like China, Dubai, and Europe. Our specialized team handles supplier "
+"negotiations, shipping, and customs clearance to ensure your goods arrive "
+"safely and on time."
+msgstr ""
+"نعم، نحن متخصصون في تقديم خدمات استيراد متكاملة من الأسواق العالمية الكبرى "
+"مثل الصين، دبي، وأوروبا. يتولى فريقنا المتخصص مفاوضات الموردين والشحن والتخليص "
+"الجمركي لضمان وصول بضائعك بأمان وفي الوقت المحدد."
+
+#: landing/views.py:148
+msgid "How It Works Page"
+msgstr "صفحة كيف نعمل"
+
+#: landing/views.py:149
+msgid "Our Working Mechanism"
+msgstr "آلية عملنا"
+
+#: landing/views.py:157
+msgid "Register and define your needs"
+msgstr "سجل وحدد احتياجاتك"
+
+#: landing/views.py:158
+msgid ""
+"Start by creating an account on our platform and specifying the services you "
+"need, whether it's sourcing, storage, or shipping."
+msgstr ""
+"ابدأ بإنشاء حساب على منصتنا وتحديد الخدمات التي تحتاجها، سواء كانت توريدًا أو "
+"تخزينًا أو شحنًا."
+
+#: landing/views.py:161
+msgid "Add and manage your orders"
+msgstr "أضف وأدر طلباتك"
+
+#: landing/views.py:162
+msgid ""
+"Through our user-friendly platform, you can easily add new orders, specify "
+"their details, and track their status in real-time."
+msgstr ""
+"عبر منصتنا سهلة الاستخدام، يمكنك بسهولة إضافة طلبات جديدة وتحديد تفاصيلها "
+"وتتبع حالتها في الوقت الفعلي."
+
+#: landing/views.py:165
+msgid "Our team handles the rest"
+msgstr "فريقنا يتولى الباقي"
+
+#: landing/views.py:166
+msgid ""
+"Our professional team takes over from here, from order confirmation with "
+"customers to packaging, delivery, and follow-up."
+msgstr ""
+"يتولى فريقنا المحترف المهمة من هنا، بدءًا من تأكيد الطلبات مع العملاء وصولًا "
+"إلى التغليف والتسليم والمتابعة."
+
+#: landing/views.py:169
+msgid "Receive your payments"
+msgstr "استلم مستحقاتك"
+
+#: landing/views.py:170
+msgid ""
+"We ensure your funds are collected and transferred to you quickly and "
+"transparently after successful delivery, with detailed financial reports."
+msgstr ""
+"نضمن تحصيل أموالك وتحويلها إليك بسرعة وشفافية بعد التسليم الناجح، مع تقارير "
+"مالية مفصلة."
+
+#: landing/views.py:178
+msgid "Services Page"
+msgstr "صفحة الخدمات"
+
+#: landing/views.py:179
+msgid "Our Integrated Services"
+msgstr "خدماتنا المتكاملة"
+
+#: landing/views.py:187
+msgid "International Sourcing and Import"
+msgstr "التوريد والاستيراد الدولي"
+
+#: landing/views.py:188
+msgid ""
+"We provide you with integrated import services from the largest global "
+"markets like China, Dubai, and Europe."
+msgstr ""
+"نوفر لك خدمات استيراد متكاملة من أكبر الأسواق العالمية مثل الصين ودبي "
+"وأوروبا."
+
+#: landing/views.py:191
+msgid "Modern and Secure Warehousing"
+msgstr "تخزين حديث وآمن"
+
+#: landing/views.py:192
+msgid ""
+"We offer modern warehouses equipped with the latest technologies to store "
+"your goods safely and efficiently."
+msgstr ""
+"نوفر مستودعات حديثة مجهزة بأحدث التقنيات لتخزين بضائعك بأمان وكفاءة."
+
+#: landing/views.py:195
+msgid "Order Fulfillment and Confirmation"
+msgstr "تلبية وتأكيد الطلبات"
+
+#: landing/views.py:196
+msgid ""
+"Our specialized team works to confirm orders with customers with high "
+"accuracy, ensuring the highest confirmation rate."
+msgstr ""
+"يعمل فريقنا المختص على تأكيد الطلبات مع العملاء بدقة عالية، مما يضمن تحقيق "
+"أعلى نسبة تأكيد."
+
+#: landing/views.py:199
+msgid "Professional Packaging"
+msgstr "تغليف احترافي"
+
+#: landing/views.py:200
+msgid ""
+"We offer professional packaging services that ensure your products reach "
+"customers safely and attractively."
+msgstr ""
+"نقدم خدمات تغليف احترافية تضمن وصول منتجاتك إلى العملاء بشكل آمن وجذاب."
+
+#: landing/views.py:203
+msgid "Fast and Secure Delivery"
+msgstr "توصيل سريع وآمن"
+
+#: landing/views.py:204
+msgid ""
+"We guarantee the delivery of goods to end customers on time and with the "
+"highest safety standards."
+msgstr ""
+"نضمن تسليم البضائع للعملاء النهائيين في الوقت المحدد وبأعلى معايير الأمان."
+
+#: landing/views.py:207
+msgid "Professional Product Photography (Soon)"
+msgstr "تصوير احترافي للمنتجات (قريباً)"
+
+#: landing/views.py:208
+msgid ""
+"We are working on providing a professional photography service for products "
+"to display them attractively on your sales platforms."
+msgstr ""
+"نعمل على توفير خدمة تصوير احترافية للمنتجات لعرضها بشكل جذاب على منصات البيع "
+"الخاصة بك."
+
+msgid "At Atlas Fulfillment, we provide integrated logistics solutions that meet our clients' needs in a seamless and professional manner."
+msgstr "في أطلس فولفيلمنت، نقدم حلولاً لوجستية متكاملة تلبي احتياجات عملائنا بأسلوب سلس واحترافي."
+
+msgid "Our المميزة Services"
+msgstr "خدماتنا المتميزة"
+
+msgid "Here are the most prominent services that we are proud to offer to our valued clients."
+msgstr "إليك أبرز خدماتنا التي نفخر بتقديمها لعملائنا الكرام."
+
+msgid "Import from the largest global markets"
+msgstr "استيراد من أكبر الأسواق العالمية"
+
+msgid "We provide you with integrated import services from the largest global markets such as China, Dubai, Europe, and others. Our specialized team handles:"
+msgstr "نوفر لك خدمات استيراد متكاملة من أكبر الأسواق العالمية مثل الصين ودبي وأوروبا وغيرها. يتولى فريقنا المتخصص:"
+
+msgid "Searching for the best suppliers and products at competitive prices"
+msgstr "البحث عن أفضل الموردين والمنتجات بأسعار تنافسية"
+
+msgid "Negotiating with suppliers to ensure the best prices and terms"
+msgstr "التفاوض مع الموردين لضمان أفضل الأسعار والشروط"
+
+msgid "Following up on shipping and customs clearance operations"
+msgstr "متابعة عمليات الشحن والتخليص الجمركي"
+
+msgid "Ensuring the arrival of goods in excellent condition and on time"
+msgstr "ضمان وصول البضائع بحالة ممتازة وفي الوقت المحدد"
+
+msgid "Providing integrated solutions to deal with logistical challenges"
+msgstr "توفير حلول متكاملة للتعامل مع التحديات اللوجستية"
+
+msgid "Modern warehouses equipped with the latest technologies"
+msgstr "مستودعات حديثة ومجهزة بأحدث التقنيات"
+
+msgid "We provide modern warehouses equipped with the latest technologies to store your goods safely and efficiently. Our warehouses are characterized by:"
+msgstr "نوفر مستودعات حديثة ومجهزة بأحدث التقنيات لتخزين بضائعك بأمان وكفاءة. تتميز مستودعاتنا بـ:"
+
+msgid "Advanced security systems around the clock"
+msgstr "أنظمة أمان متطورة على مدار الساعة"
+
+msgid "Temperature and humidity control systems"
+msgstr "أنظمة تحكم في درجات الحرارة والرطوبة"
+
+msgid "An advanced inventory management system that allows you to track your goods at any time"
+msgstr "نظام إدارة مخزون متطور يتيح لك متابعة بضائعك في أي وقت"
+
+msgid "Flexible storage spaces suitable for different types and sizes of products"
+msgstr "مساحات تخزين مرنة تناسب مختلف أنواع وأحجام المنتجات"
+
+msgid "A specialized team in managing and organizing warehouses with high efficiency"
+msgstr "فريق متخصص في إدارة المخازن وتنظيمها بكفاءة عالية"
+
+msgid "Specialized team for order confirmation"
+msgstr "فريق متخصص لتأكيد الطلبيات"
+
+msgid "Our specialized team works on confirming orders with customers with high accuracy, which ensures:"
+msgstr "يعمل فريقنا المتخصص على تأكيد الطلبيات مع العملاء بدقة عالية، مما يضمن:"
+
+msgid "Achieving the highest order confirmation rate"
+msgstr "تحقيق أعلى نسبة تأكيد للطلبيات"
+
+msgid "Communicating with customers professionally and politely"
+msgstr "التواصل مع العملاء باحترافية ولباقة"
+
+msgid "Verifying order details, address, and suitable delivery time"
+msgstr "التأكد من تفاصيل الطلب والعنوان ووقت التسليم المناسب"
+
+msgid "Providing accurate information about products and services"
+msgstr "تقديم معلومات دقيقة عن المنتجات والخدمات"
+
+msgid "Immediate handling of customer inquiries and comments"
+msgstr "التعامل الفوري مع استفسارات وملاحظات العملاء"
+
+msgid "Innovative and high-quality packaging services"
+msgstr "خدمات تغليف مبتكرة وعالية الجودة"
+
+msgid "We offer professional packaging services that ensure your products reach customers safely and attractively:"
+msgstr "نقدم خدمات تغليف احترافية تضمن وصول منتجاتك إلى العملاء بشكل آمن وجذاب:"
+
+msgid "Using high-quality packaging materials suitable for the nature of each product"
+msgstr "استخدام مواد تغليف عالية الجودة تناسب طبيعة كل منتج"
+
+msgid "Designing custom packages that enhance your brand identity"
+msgstr "تصميم عبوات مخصصة تعزز هوية علامتك التجارية"
+
+msgid "Various packaging options to suit different budgets"
+msgstr "خيارات متنوعة للتغليف تناسب مختلف الميزانيات"
+
+msgid "Eco-friendly packaging for customers interested in sustainability"
+msgstr "تغليف صديق للبيئة للعملاء المهتمين بالاستدامة"
+
+msgid "Adding special touches such as thank you cards and free gifts"
+msgstr "إضافة لمسات خاصة مثل بطاقات الشكر والهدايا المجانية"
+
+msgid "Fast and secure delivery"
+msgstr "توصيل سريع وآمن"
+
+msgid "We guarantee the delivery of goods to end customers on time and with the highest safety standards:"
+msgstr "نضمن تسليم البضائع إلى العملاء النهائيين في الوقت المحدد وبأعلى معايير الأمان:"
+
+msgid "A wide delivery network covering different areas"
+msgstr "شبكة توصيل واسعة تغطي مناطق مختلفة"
+
+msgid "Multiple delivery options (standard, express, same-day)"
+msgstr "خيارات متعددة للتوصيل (قياسي، سريع، في نفس اليوم)"
+
+msgid "Real-time shipment tracking"
+msgstr "تتبع الشحنات في الوقت الفعلي"
+
+msgid "Automatic notifications to customers about order status and expected delivery time"
+msgstr "إشعارات آلية للعملاء بحالة الطلب ووقت التسليم المتوقع"
+
+msgid "Customer service available to answer delivery-related inquiries"
+msgstr "خدمة عملاء متاحة للرد على الاستفسارات المتعلقة بالتوصيل"
+
+msgid "Professional quality product photography (soon)"
+msgstr "تصوير المنتجات بجودة احترافية (قريباً)"
+
+msgid "We are working on providing a professional photography service for products, so you can display them attractively on your sales platforms:"
+msgstr "نعمل على توفير خدمة تصوير احترافية للمنتجات، لتتمكن من عرضها بشكل جذاب على منصات البيع الخاصة بك:"
+
+msgid "A studio equipped with the latest photography equipment"
+msgstr "استوديو مجهز بأحدث معدات التصوير"
+
+msgid "Professional photographers with experience in product photography"
+msgstr "مصورون محترفون ذوو خبرة في تصوير المنتجات"
+
+msgid "Multiple options for backgrounds and shooting angles"
+msgstr "خيارات متعددة لخلفيات وزوايا التصوير"
+
+msgid "Editing and modifying images to show the product in the best way"
+msgstr "تحرير الصور وتعديلها لإظهار المنتج بأفضل شكل"
+
+msgid "Delivering images in different formats and sizes suitable for various sales platforms"
+msgstr "تسليم الصور بصيغ وأحجام مختلفة تناسب مختلف منصات البيع"
+
+msgid "Integrated solutions for the success of your business"
+msgstr "حلول متكاملة لنجاح أعمالك"
+
+msgid "We offer an integrated package of logistics services that cover all stages of the supply chain"
+msgstr "نقدم حزمة متكاملة من الخدمات اللوجستية التي تغطي جميع مراحل سلسلة التوريد"
+
+msgid "Inventory Management"
+msgstr "إدارة المخزون"
+
+msgid "An integrated inventory management system that allows you to track inventory levels, sales, and orders in real time."
+msgstr "نظام متكامل لإدارة المخزون يتيح لك متابعة مستويات المخزون والمبيعات والطلبيات في الوقت الفعلي."
+
+msgid "Payment Management"
+msgstr "إدارة المدفوعات"
+
+msgid "A secure and transparent system for managing payments, collecting money from customers, and transferring it to you quickly and safely."
+msgstr "نظام آمن وشفاف لإدارة المدفوعات وتحصيل الأموال من العملاء وتحويلها إليك بسرعة وأمان."
+
+msgid "Reports and Analytics"
+msgstr "تقارير وتحليلات"
+
+msgid "Detailed analytical reports that help you understand your sales performance and make informed decisions to grow your business."
+msgstr "تقارير تحليلية مفصلة تساعدك على فهم أداء مبيعاتك واتخاذ قرارات مستنيرة لتنمية أعمالك."
+
+msgid "Ready to take advantage of our services?"
+msgstr "جاهز للاستفادة من خدماتنا؟"
+
+msgid "Register now and take advantage of our integrated logistics services to grow your business and achieve your commercial goals."
+msgstr "سجل الآن واستفد من خدماتنا اللوجستية المتكاملة لتنمية أعمالك وتحقيق أهدافك التجارية."
+
+msgid "Register Now"
+msgstr "سجل الآن"
+
+msgid "At Atlas Fulfillment, we make the process easy and convenient to ensure you achieve your goals with minimal effort."
+msgstr "في أطلس فولفيلمنت، نجعل العملية سهلة ومريحة لضمان تحقيق أهدافك بأقل جهد ممكن."
+
+msgid "Steps to work with us"
+msgstr "خطوات العمل معنا"
+
+msgid "Here are the simple steps to start working with us and make the most of our services."
+msgstr "إليك الخطوات البسيطة للبدء في العمل معنا وتحقيق أقصى استفادة من خدماتنا."
+
+msgid "Easy and fast registration"
+msgstr "تسجيل سهل وسريع"
+
+msgid "Our registration process is simple and fast, and includes the following steps:"
+msgstr "عملية التسجيل لدينا بسيطة وسريعة، وتتضمن الخطوات التالية:"
+
+msgid "Create an account on our platform using your email"
+msgstr "إنشاء حساب على منصتنا باستخدام بريدك الإلكتروني"
+
+msgid "Fill in the basic information about your business"
+msgstr "تعبئة المعلومات الأساسية عن نشاطك التجاري"
+
+msgid "Choose the services you want to benefit from"
+msgstr "اختيار الخدمات التي ترغب بالاستفادة منها"
+
+msgid "Specify the products you want to import or store"
+msgstr "تحديد المنتجات التي ترغب في استيرادها أو تخزينها"
+
+msgid "One of our consultants will contact you to help you get started"
+msgstr "سيتواصل معك أحد مستشارينا لمساعدتك في بدء العمل"
+
+msgid "Easy-to-use platform"
+msgstr "منصة سهلة الاستخدام"
+
+msgid "Our platform is designed to be easy to use and provides you with:"
+msgstr "منصتنا مصممة لتكون سهلة الاستخدام وتوفر لك:"
+
+msgid "A simple and easy-to-use interface"
+msgstr "واجهة بسيطة وسهلة الاستخدام"
+
+msgid "The ability to add orders with ease"
+msgstr "إمكانية إضافة الطلبيات بكل سهولة ويسر"
+
+msgid "Real-time order status tracking"
+msgstr "متابعة حالة الطلبيات في الوقت الفعلي"
+
+msgid "Efficient inventory management"
+msgstr "إدارة المخزون بكفاءة"
+
+msgid "Detailed reports on your sales performance"
+msgstr "تقارير مفصلة عن أداء مبيعاتك"
+
+msgid "A dedicated team to serve you"
+msgstr "فريق متخصص لخدمتك"
+
+msgid "Our professional team will:"
+msgstr "يتولى فريقنا المحترف:"
+
+msgid "Contact customers to confirm orders"
+msgstr "الاتصال بالعملاء لتأكيد الطلبيات"
+
+msgid "Verify address details and suitable delivery time"
+msgstr "التحقق من تفاصيل العنوان ووقت التسليم المناسب"
+
+msgid "Answer customer inquiries about products"
+msgstr "الإجابة على استفسارات العملاء حول المنتجات"
+
+msgid "Follow up on the delivery process and resolve any issues that may arise"
+msgstr "متابعة عملية التسليم وحل أي مشكلات قد تطرأ"
+
+msgid "Provide periodic reports on the status of orders"
+msgstr "تقديم تقارير دورية عن حالة الطلبيات"
+
+msgid "Money transfer process"
+msgstr "عملية تحويل الأموال"
+
+msgid "We guarantee that you will receive your payments quickly and transparently through:"
+msgstr "نضمن لك استلام مستحقاتك بسرعة وشفافية من خلال:"
+
+msgid "Transferring funds after successful delivery of orders"
+msgstr "تحويل الأموال بعد تسليم الطلبيات بنجاح"
+
+msgid "Multiple transfer options (bank transfer, e-wallets, etc.)"
+msgstr "خيارات متعددة للتحويل (تحويل بنكي، محافظ إلكترونية، إلخ)"
+
+msgid "Detailed financial reports for each sale"
+msgstr "تقارير مالية مفصلة لكل عملية بيع"
+
+msgid "Full transparency in all financial transactions"
+msgstr "الشفافية الكاملة في جميع المعاملات المالية"
+
+msgid "Technical support available to answer any payment-related inquiries"
+msgstr "دعم فني متاح للإجابة على أي استفسارات متعلقة بالمدفوعات"
+
+msgid "Benefits of working with us"
+msgstr "مميزات العمل معنا"
+
+msgid "When you choose to work with Atlas Fulfillment, you will get many benefits that will help you grow your business."
+msgstr "عند اختيارك للعمل مع أطلس فولفيلمنت، ستحصل على العديد من المميزات التي تساعدك على تنمية أعمالك."
+
+msgid "Save time"
+msgstr "توفير الوقت"
+
+msgid "We handle all logistics operations, allowing you to focus on growing your business and increasing your sales."
+msgstr "نتولى جميع العمليات اللوجستية، مما يتيح لك التركيز على تنمية أعمالك وزيادة مبيعاتك."
+
+msgid "Cost reduction"
+msgstr "خفض التكاليف"
+
+msgid "Reduce operating costs by taking advantage of our integrated services instead of building your own infrastructure."
+msgstr "تقليل تكاليف التشغيل من خلال الاستفادة من خدماتنا المتكاملة بدلاً من إنشاء بنية تحتية خاصة بك."
+
+msgid "Increase sales"
+msgstr "زيادة المبيعات"
+
+msgid "Improve the customer experience through professional service and fast delivery, leading to increased customer satisfaction and sales."
+msgstr "تحسين تجربة العملاء من خلال خدمة احترافية وتسليم سريع، مما يؤدي إلى زيادة رضا العملاء والمبيعات."
+
+msgid "What our customers say"
+msgstr "ما يقوله عملاؤنا"
+
+msgid "Listen to the experiences of some of our clients who have benefited from our services"
+msgstr "استمع إلى تجارب بعض عملائنا الذين استفادوا من خدماتنا"
+
+msgid "\"Since I started working with Atlas Fulfillment, I have been able to focus on growing my brand and increasing my sales by 150%. I highly recommend their services to anyone who wants to grow their business.\""
+msgstr "\"منذ أن بدأت العمل مع أطلس فولفيلمنت، تمكنت من التركيز على تنمية علامتي التجارية وزيادة مبيعاتي بنسبة 150%. أنصح بشدة بخدماتهم لكل من يرغب في تطوير أعماله.\""
+
+msgid "Mohammed Al-Ahmed"
+msgstr "محمد الأحمد"
+
+msgid "E-commerce store owner"
+msgstr "صاحب متجر إلكتروني"
+
+msgid "\"Professional customer service and delivery accuracy were among the most important factors that made me continue to work with Atlas. They helped me build a good reputation for my brand.\""
+msgstr "\"خدمة العملاء الاحترافية ودقة التسليم كانت من أهم العوامل التي جعلتني أستمر في العمل مع أطلس. لقد ساعدوني في بناء سمعة طيبة لعلامتي التجارية.\""
+
+msgid "Sarah Al-Ali"
+msgstr "سارة العلي"
+
+msgid "Fashion brand owner"
+msgstr "صاحبة علامة تجارية للأزياء"
+
+msgid "\"What I liked most about Atlas Fulfillment is the transparency in dealing and the flexibility in meeting my special needs. They saved me a lot of time and effort.\""
+msgstr "\"أكثر ما أعجبني في أطلس فولفيلمنت هو الشفافية في التعامل والمرونة في تلبية احتياجاتي الخاصة. لقد وفروا علي الكثير من الوقت والجهد.\""
+
+msgid "Abdullah Al-Khaldi"
+msgstr "عبدالله الخالدي"
+
+msgid "Import and export company manager"
+msgstr "مدير شركة استيراد وتصدير"
+
+msgid "Ready to get started?"
+msgstr "جاهز للبدء؟"
+
+msgid "Join us today and take advantage of our integrated services to grow your business and achieve your business goals."
+msgstr "انضم إلينا اليوم واستفد من خدماتنا المتكاملة لتنمية أعمالك وتحقيق أهدافك التجارية."
+
+msgid "Answers to the most frequently asked questions about our services"
+msgstr "إجابات على الأسئلة الأكثر شيوعاً حول خدماتنا"
+
+msgid "To facilitate your experience with Atlas Fulfillment, we have compiled a set of frequently asked questions you may have about our services and how to partner with us."
+msgstr "لتسهيل تجربتك مع أطلس فولفيلمنت، قمنا بتجميع مجموعة من الأسئلة الشائعة التي قد تكون لديك حول خدماتنا وكيفية التعاون معنا"
+
+msgid "Didn't find an answer to your question? Do not hesitate to contact us directly"
+msgstr "لم تجد إجابة لسؤالك؟ لا تتردد في التواصل معنا مباشرة"
+
+msgid "Additional Resources"
+msgstr "موارد إضافية"
+
+msgid "Explore more information about our services and how to benefit from them"
+msgstr "استكشف المزيد من المعلومات حول خدماتنا وكيفية الاستفادة منها"
+
+msgid "User Guide"
+msgstr "دليل المستخدم"
+
+msgid "A comprehensive guide on how to use our platform and take advantage of all available features."
+msgstr "دليل شامل يوضح كيفية استخدام منصتنا والاستفادة من جميع الميزات المتاحة."
+
+msgid "Download Guide"
+msgstr "تحميل الدليل"
+
+msgid "Video Tutorials"
+msgstr "فيديوهات توضيحية"
+
+msgid "A collection of video tutorials explaining our services and how to benefit from them."
+msgstr "مجموعة من الفيديوهات التوضيحية التي تشرح خدماتنا وكيفية الاستفادة منها."
+
+msgid "Watch Videos"
+msgstr "مشاهدة الفيديوهات"
+
+msgid "Webinars"
+msgstr "ندوات عبر الإنترنت"
+
+msgid "Regular online seminars that provide tips and guidance on how to make the most of our services."
+msgstr "ندوات دورية عبر الإنترنت تقدم نصائح وإرشادات حول كيفية تحقيق أقصى استفادة من خدماتنا."
+
+msgid "Webinar Schedule"
+msgstr "جدول الندوات"
+
+msgid "Are you ready to get started?"
+msgstr "هل أنت مستعد للبدء؟"
+
+msgid "We are here to answer your questions and help you achieve your goals"
+msgstr "نحن هنا للإجابة على استفساراتك ومساعدتك في تحقيق أهدافك"
+
+msgid "We appreciate you contacting us. Please fill out the form below and we will get back to you as soon as possible."
+msgstr "نحن نقدر تواصلك معنا. يرجى ملء النموذج أدناه وسنرد عليك في أقرب وقت ممكن."
+
+msgid "Full Name"
+msgstr "الاسم الكامل"
+
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+msgid "Subject"
+msgstr "الموضوع"
+
+msgid "Select Subject"
+msgstr "اختر الموضوع"
+
+msgid "General Inquiry"
+msgstr "استفسار عام"
+
+msgid "Inquiry about Services"
+msgstr "استفسار عن الخدمات"
+
+msgid "Inquiry about Pricing"
+msgstr "استفسار عن الأسعار"
+
+msgid "Technical Support"
+msgstr "الدعم الفني"
+
+msgid "Business Partnership"
+msgstr "شراكة تجارية"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Send Message"
+msgstr "إرسال الرسالة"
+
+msgid "Follow us on social media"
+msgstr "تابعنا على وسائل التواصل الاجتماعي"
+
+msgid "Our Location"
+msgstr "موقعنا"
+
+msgid "Here are some frequently asked questions where you may find an answer to your inquiry"
+msgstr "إليك بعض الأسئلة الشائعة التي قد تجد فيها إجابة على استفسارك"
+
+msgid "How can I start working with Atlas Fulfillment?"
+msgstr "كيف يمكنني البدء بالعمل مع أطلس فولفيلمنت؟"
+
+msgid "You can easily start by registering on our website, after which you can choose the products you want to import or store. Full support will be provided by our team throughout the process."
+msgstr "يمكنك البدء بسهولة من خلال التسجيل على موقعنا الإلكتروني، وبعد ذلك يمكنك اختيار المنتجات التي ترغب في استيرادها أو تخزينها. سيتم تقديم الدعم الكامل من فريقنا طوال العملية."
+
+msgid "Can I import from any country?"
+msgstr "هل يمكنني الاستيراد من أي بلد؟"
+
+msgid "Yes, we help you import products from global markets such as China, Dubai, Europe and others. We have a specialized team that manages supply operations professionally."
+msgstr "نعم، نحن نساعدك على استيراد المنتجات من الأسواق العالمية مثل الصين، دبي، وأوروبا وغيرها. لدينا فريق متخصص يدير عمليات التوريد بشكل احترافي."
+
+msgid "View all frequently asked questions"
+msgstr "عرض جميع الأسئلة الشائعة"
