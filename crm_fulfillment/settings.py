@@ -76,6 +76,7 @@ MIDDLEWARE = [
     # 'landing.middleware.LandingLanguageMiddleware',  # Custom middleware for landing pages language
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -140,23 +141,18 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en'
 
-# English only - no multilingual settings
-LANGUAGES = [
-    ('en', _('English')),
-]
-
-# Keep locale path for English translations only
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
-]
-
-TIME_ZONE = 'UTC'
-
-# Disable internationalization features
-USE_I18N = False
+USE_I18N = True
 USE_L10N = True
-
 USE_TZ = True
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('ar', 'Arabic'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 # Language settings - keeping for compatibility but not used
 LANGUAGE_COOKIE_NAME = 'django_language'

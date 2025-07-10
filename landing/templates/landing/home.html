@@ -3,7 +3,8 @@
 {% load i18n %}
 
 {% block title %}{% trans "Atlas Fulfillment & Delivery Services" %}{% endblock %}
-
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% block extra_css %}
 <style>
     /* Custom animations that extend Tailwind */
@@ -173,7 +174,7 @@
                 </h1>
                 <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0">
                     {% trans "Streamline customer relationships, automate workflows, and drive growth with our all-in-one CRM platform designed for modern businesses." %}
-                </p>
+                </p> 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
                     <a href="{% url 'users:register' %}" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-lg font-medium shadow-lg transition-all hover:scale-105 text-center">
                         {% trans "Start Free Trial" %}
@@ -348,8 +349,8 @@
 <section id="features" class="py-20 bg-white relative">
     <div class="container mx-auto px-4 md:px-6">
         <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4">Powerful CRM Tools For Business Growth</h2>
-            <p class="text-lg text-gray-600">Our integrated CRM system provides everything you need to manage customer relationships, streamline workflows, and drive business growth.</p>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">{% trans "Powerful CRM Tools For Business Growth" %}</h2>
+            <p class="text-lg text-gray-600">{% trans "Our integrated CRM system provides everything you need to manage customer relationships, streamline workflows, and drive business growth." %}</p>
         </div>
         <!-- Feature Cards ... (copy as in index.html, already read) -->
     </div>
@@ -359,14 +360,14 @@
 <section class="py-20 bg-gradient-to-r from-amber-500 to-yellow-500 text-white relative overflow-hidden">
     <div class="container mx-auto px-4 md:px-6 relative z-10">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Customer Relationships?</h2>
-            <p class="text-xl opacity-90 mb-10 max-w-2xl mx-auto">Join thousands of successful businesses that have already streamlined their operations and improved customer satisfaction with our CRM platform.</p>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">{% trans "Ready to Transform Your Customer Relationships?" %}</h2>
+            <p class="text-xl opacity-90 mb-10 max-w-2xl mx-auto">{% trans "Join thousands of successful businesses that have already streamlined their operations and improved customer satisfaction with our CRM platform." %}</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{% url 'users:register' %}" class="bg-white text-amber-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-medium shadow-lg transition-all hover:scale-105 text-center text-lg">
-                    Start Your Free Trial
+                    {% trans "Start Your Free Trial" %}
                 </a>
                 <a href="{% url 'users:login' %}" class="bg-transparent text-white border-2 border-white hover:bg-white/10 px-8 py-4 rounded-lg font-medium transition-all hover:scale-105 text-center text-lg">
-                    Schedule a Demo
+                    {% trans "Schedule a Demo" %}
                 </a>
             </div>
             <div class="mt-12 flex justify-center items-center space-x-4">
@@ -379,7 +380,7 @@
                         +2k
                     </div>
                 </div>
-                <div class="text-sm opacity-90">Join our growing community of satisfied customers</div>
+                <div class="text-sm opacity-90">{% trans "Join our growing community of satisfied customers" %}</div>
             </div>
         </div>
     </div>

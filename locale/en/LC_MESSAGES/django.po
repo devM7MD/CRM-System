@@ -143,3 +143,42 @@ msgstr "Edit"
 
 msgid "Delete"
 msgstr "Delete" 
+
+msgid "Unified CRM"
+msgstr ""
+
+msgid "For Growing Businesses"
+msgstr ""
+
+msgid "Streamline customer relationships, automate workflows, and drive growth with our all-in-one CRM platform designed for modern businesses."
+msgstr ""
+
+msgid "Start Free Trial"
+msgstr ""
+
+msgid "Watch Demo"
+msgstr "" 
+
+msgid "Powerful CRM Tools For Business Growth"
+msgstr ""
+
+msgid "Our integrated CRM system provides everything you need to manage customer relationships, streamline workflows, and drive business growth."
+msgstr ""
+
+msgid "Ready to Transform Your Customer Relationships?"
+msgstr ""
+
+msgid "Join thousands of successful businesses that have already streamlined their operations and improved customer satisfaction with our CRM platform."
+msgstr ""
+
+msgid "Start Your Free Trial"
+msgstr ""
+
+msgid " Schedule a Demo"
+msgstr ""
+
+msgid "Join our growing community of satisfied customers"
+msgstr ""
+
+msgid "Trusted by leading companies"
+msgstr ""

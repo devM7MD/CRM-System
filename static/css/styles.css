@@ -1,5 +1,6 @@
 /* Copied from Atlas Service css/styles.css */
 // ... existing code ... 
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap');
 
 /* Custom styles beyond Tailwind CSS */
 
@@ -16,7 +17,7 @@ html {
 
 /* Font settings */
 body {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Cairo', sans-serif;
 }
 
 /* Neo-brutalism shadows */
