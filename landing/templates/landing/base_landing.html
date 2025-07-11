@@ -196,14 +196,18 @@
                 </nav>
                 
                 <!-- Language Switcher -->
-                <form action="{% url 'set_language' %}" method="post" class="ml-4">
-                    {% csrf_token %}
-                    <select name="language" onchange="this.form.submit()" class="rounded px-2 py-1 text-gray-800">
-                        <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
-                        <option value="ar" {% if LANGUAGE_CODE == 'ar' %}selected{% endif %}>العربية</option>
-                    </select>
-                    <input type="hidden" name="next" value="{{ request.path }}">
-                </form>
+              {% block language_switcher %}
+      <form method="post" action="{% url 'set_language' %}">
+        {% csrf_token %}
+        {% get_current_language as current_language %}
+        <input type="hidden" name="language" value="{{ current_language }}">
+       
+        <select id="language-select" onchange="switchLang(this)" class="rounded px-2 py-1 text-gray-800">
+          <option value="en" {% if current_language == "en" %}selected{% endif %}>English</option>
+          <option value="ar" {% if current_language == "ar" %}selected{% endif %}>العربية</option>
+        </select>
+      </form>
+      {% endblock %}
                 
                 <!-- Right section -->
                 <div class="hidden lg:flex items-center space-x-3">
@@ -450,6 +454,14 @@
                 }
             });
         }
+
+         function switchLang(select) {
+      const lang = select.value;
+      const form = select.closest("form");
+      const input = form.querySelector("input[name=language]");
+      input.value = lang;
+      form.submit();
+    }
     </script>
     {% block scripts %}{% endblock %}
 </body>
