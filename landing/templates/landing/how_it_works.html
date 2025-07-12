@@ -205,91 +205,12 @@
 </style>
 
 </head>
-<body class="bg-gray-50 overflow-x-hidden">
+<body class="bg-gray-50 overflow-x-hidden " dir="{% get_current_language as LANGUAGE_CODE %}{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
 
 
 
           
-            <button class="lg:hidden text-gray-800 focus:outline-none" id="mobile-menu-button">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
-        </div>
-    </div>
-</header>
 
-
-<div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
-
-
-<div id="mobile-menu" class="fixed top-0 right-0 w-80 h-full bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
-    <div class="p-5">
-        
-        <div class="flex items-center justify-between mb-8">
-            <div class="flex items-center space-x-2">
-                <div class="h-8 w-8 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center shadow-lg">
-                    <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                </div>
-                <span class="text-lg font-bold text-gray-800">Atlas services</span>
-            </div>
-            <button id="mobile-menu-close" class="text-gray-500 hover:text-gray-700">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-
-       
-        <nav class="flex flex-col space-y-4">
-            <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_home">Home</a>
-            <a href="#features" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_services">Services</a>
-            
-            
-            <div class="border-b border-gray-100">
-                <button class="flex items-center justify-between w-full text-gray-800 hover:text-amber-600 text-lg font-medium py-2 mobile-submenu-trigger">
-                    <span data-i18n="nav_how_it_works">How It Works</span>
-                </button>
-            </div>
-            
-            <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_faq">FAQ</a>
-        </nav>
-
-        
-        <div class="mt-8 space-y-4">
-           
-            <div>
-                <button class="flex items-center justify-between w-full text-gray-800 hover:text-amber-600 py-2 mobile-language-trigger">
-                    <span class="flex items-center">
-                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
-                        </svg>
-                        <span data-i18n="select_language">Select Language</span>
-                    </span>
-                    <svg class="h-4 w-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="mobile-language-menu hidden pl-7 py-2 space-y-2">
-                    <a href="#" class="flex items-center text-gray-600 hover:text-amber-600 py-1" data-lang="en">
-                        <img src="https://flagcdn.com/w20/us.png" class="h-4 mr-2" alt="English">
-                        English
-                    </a>
-                    <a href="#" class="flex items-center text-gray-600 hover:text-amber-600 py-1" data-lang="ar">
-                        <img src="https://flagcdn.com/w20/sa.png" class="h-4 mr-2" alt="Arabic">
-                        العربية
-                    </a>
-                </div>
-            </div>
-            
-            <a href="#" class="block w-full bg-amber-500 hover:bg-amber-600 text-white text-center px-4 py-3 rounded-lg font-medium shadow-md transition-all hover:scale-105" data-i18n="start_trial">
-                Start Free Trial
-            </a>
-        </div>
-    </div>
-</div>
 
 
 

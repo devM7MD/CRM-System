@@ -195,7 +195,7 @@
     </style>
     {% block extra_css %}{% endblock %}
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50">
+<body class="min-h-screen flex flex-col bg-gray-50 " dir="{% get_current_language as LANGUAGE_CODE %}{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
     <!-- Header -->
     <header class="bg-primary-500 text-white relative z-10 shadow-md">
         <div class="container mx-auto px-4 py-4">
