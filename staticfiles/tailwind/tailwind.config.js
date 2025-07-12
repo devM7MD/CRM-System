@@ -12,8 +12,9 @@ module.exports = {
           },
         },
         fontFamily: {
-          sans: ['Inter', 'sans-serif'],
-          heading: ['Poppins', 'sans-serif'],
+          sans: ['Cairo', 'Inter', 'sans-serif'],
+          heading: ['Cairo', 'Poppins', 'sans-serif'],
+          arabic: ['Cairo', 'sans-serif'],
         },
         boxShadow: {
           card: '0 4px 6px rgba(0, 0, 0, 0.05)',

@@ -1,4 +1,12 @@
-/* Custom CSS for Atlas Services */
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+
+body, html {
+    font-family: 'Cairo', 'Poppins', sans-serif;
+}
 
 /* Fix for RTL layout */
 [dir="rtl"] .flex-row {
