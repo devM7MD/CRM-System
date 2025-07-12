@@ -182,3 +182,48 @@ msgstr ""
 
 msgid "Trusted by leading companies"
 msgstr ""
+
+msgid "Business"
+msgstr ""
+
+msgid "For growing businesses"
+msgstr ""
+
+msgid "Ideal for businesses ready to scale operations."
+msgstr ""
+
+msgid "Access to 9 warehouses"
+msgstr ""
+
+msgid "Up to 2,000 orders/month"
+msgstr ""
+
+msgid "Dedicated call center support"
+msgstr ""
+
+msgid "Enterprise"
+msgstr ""
+
+msgid "Custom solutions"
+msgstr ""
+
+msgid "Tailored solutions for large-scale operations."
+msgstr ""
+
+msgid "Access to all warehouses"
+msgstr ""
+
+msgid "Unlimited orders"
+msgstr ""
+
+msgid "24/7 priority support"
+msgstr ""
+
+msgid "Custom integrations"
+msgstr ""
+
+msgid "Most Popular"
+msgstr ""
+
+msgid "Transparent Pricing"
+msgstr ""

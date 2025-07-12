@@ -2059,3 +2059,48 @@ msgstr "الدردشة المباشرة"
 
 msgid "Start Free Trial"
 msgstr "ابدأ النسخة التجريبية المجانية"
+
+msgid "Business"
+msgstr "للأعمال"
+
+msgid "For growing businesses"
+msgstr "للشركات النامية"
+
+msgid "Ideal for businesses ready to scale operations."
+msgstr "مثالي للشركات التي تستعد للتوسع في أعمالها."
+
+msgid "Access to 9 warehouses" 
+msgstr "إمكانية الوصول إلى 9 مستودعات"
+
+msgid "Up to 2,000 orders/month"
+msgstr "حتي 2000 طلب/شهر"
+
+msgid "Dedicated call center support"
+msgstr "فريق دعم هاتفي مخصص لخدمتك"
+
+msgid "Enterprise"
+msgstr "المؤسسات الكبري"
+
+msgid "Custom solutions"
+msgstr "حلول مخصصة لك"
+
+msgid "Tailored solutions for large-scale operations."
+msgstr "حلول مخصصة لتلبية احتياجات الأعمال الكبيرة."
+
+msgid "Access to all warehouses"
+msgstr "الوصول لكل المستودعات"
+
+msgid "Unlimited orders"
+msgstr "طلبات غير محدوده"
+
+msgid "24/7 priority support"
+msgstr "دعم مخصص لك 24/7"
+
+msgid "Custom integrations"
+msgstr "دفع مخصص"
+
+msgid "Most Popular"
+msgstr "الأكثر طلبا"
+
+msgid "Transparent Pricing"
+msgstr "الأسعار واضحه"
