@@ -249,17 +249,17 @@
 
            
             <nav class="flex flex-col space-y-4">
-                <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_home">Home</a>
-                <a href="#features" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_services">Services</a>
+                <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_home">{% trans "Home" %}</a>
+                <a href="#features" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_services">{% trans "Services" %}</a>
                 
                 
                 <div class="border-b border-gray-100">
                     <button class="flex items-center justify-between w-full text-gray-800 hover:text-amber-600 text-lg font-medium py-2 mobile-submenu-trigger">
-                        <span data-i18n="nav_how_it_works">How It Works</span>
+                        <span data-i18n="nav_how_it_works">{% trans "How It Works" %}</span>
                     </button>
                 </div>
                 
-                <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_faq">FAQ</a>
+                <a href="#" class="text-gray-800 hover:text-amber-600 text-lg font-medium py-2 border-b border-gray-100" data-i18n="nav_faq">{% trans "FAQ" %}</a>
             </nav>
 
             
@@ -271,7 +271,7 @@
                             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
                             </svg>
-                            <span data-i18n="select_language">Select Language</span>
+                            <span data-i18n="select_language">{% trans "Select Language" %}</span>
                         </span>
                         <svg class="h-4 w-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -290,7 +290,7 @@
                 </div>
                 
                 <a href="#" class="block w-full bg-amber-500 hover:bg-amber-600 text-white text-center px-4 py-3 rounded-lg font-medium shadow-md transition-all hover:scale-105" data-i18n="start_trial">
-                    Start Free Trial
+                    {% trans "Start Free Trial" %}
                 </a>
             </div>
         </div>
@@ -336,8 +336,8 @@
               />
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
               <div class="absolute bottom-0 left-0 w-full p-6 text-white">
-                <div class="font-semibold">Atlas services Dashboard</div>
-                <p class="text-sm text-gray-200">Powerful insights & seamless management</p>
+                <div class="font-semibold">{% trans "Atlas services Dashboard" %}</div>
+                <p class="text-sm text-gray-200">{% trans "Powerful insights & seamless management" %}</p>
               </div>
             </div>
           </div>
@@ -362,8 +362,8 @@
                 </svg>
               </div>
               <h3 class="text-3xl font-bold text-amber-500">+20k</h3>
-              <p class="text-lg font-medium">Satisfied Clients</p>
-              <p class="text-sm text-gray-500">Our main goal is to provide for our clients the best services quality.</p>
+              <p class="text-lg font-medium">{% trans "Satisfied Clients" %}</p>
+              <p class="text-sm text-gray-500">{% trans "Our main goal is to provide for our clients the best services quality." %}</p>
             </div>
           </div>
           <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
@@ -380,8 +380,8 @@
                 </svg>
               </div>
               <h3 class="text-3xl font-bold text-amber-500">+10k</h3>
-              <p class="text-lg font-medium">Daily Orders</p>
-              <p class="text-sm text-gray-500">We maintain a large delivery capacity in the shortest time.</p>
+              <p class="text-lg font-medium">{% trans "Daily Orders" %}</p>
+              <p class="text-sm text-gray-500">{% trans "We maintain a large delivery capacity in the shortest time." %}</p>
             </div>
           </div>
           <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
@@ -399,8 +399,8 @@
                 </svg>
               </div>
               <h3 class="text-3xl font-bold text-amber-500">+17</h3>
-              <p class="text-lg font-medium">Warehouses</p>
-              <p class="text-sm text-gray-500">Our warehouses store all the goods you want to sell.</p>
+              <p class="text-lg font-medium">{% trans "Warehouses" %}</p>
+              <p class="text-sm text-gray-500">{% trans "Our warehouses store all the goods you want to sell." %}</p>
             </div>
           </div>
           <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
@@ -417,8 +417,8 @@
                 </svg>
               </div>
               <h3 class="text-3xl font-bold text-amber-500">+9</h3>
-              <p class="text-lg font-medium">Countries</p>
-              <p class="text-sm text-gray-500">Our presence is expanding to cover more countries.</p>
+              <p class="text-lg font-medium">{% trans "Countries" %}</p>
+              <p class="text-sm text-gray-500">{% trans "Our presence is expanding to cover more countries." %}</p>
             </div>
           </div>
           <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
@@ -439,11 +439,11 @@
       <div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
         <div class="space-y-2 max-w-[800px]">
           <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
-            <span>Our Process</span>
+            <span>{% trans "Our Process" %}</span>
           </div>
-          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">How It Works</h2>
+          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">{% trans "How It Works" %}</h2>
           <p class="text-gray-500 md:text-xl/relaxed dark:text-gray-400">
-            Our streamlined approach to customer relationship management
+            {% trans "Our streamlined approach to customer relationship management" %}
           </p>
         </div>
       </div>
@@ -456,9 +456,9 @@
             </div>
           </div>
           <div class="space-y-2">
-            <h3 class="text-xl font-bold">Connect</h3>
+            <h3 class="text-xl font-bold">{% trans "Connect" %}</h3>
             <p class="text-gray-500 dark:text-gray-400">
-              Connect various e-commerce platforms to our CRM app for seamless integration and data synchronization.
+              {% trans "Connect various e-commerce platforms to our CRM app for seamless integration and data synchronization." %}
             </p>
             <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
               <div class="absolute inset-y-0 left-0 w-1/3 bg-amber-500 rounded-full"></div>
@@ -473,9 +473,9 @@
             </div>
           </div>
           <div class="space-y-2">
-            <h3 class="text-xl font-bold">Ecosystem</h3>
+            <h3 class="text-xl font-bold">{% trans "Ecosystem" %}</h3>
             <p class="text-gray-500 dark:text-gray-400">
-              End-to-End solutions from sourcing to collection, providing a complete business ecosystem.
+              {% trans "End-to-End solutions from sourcing to collection, providing a complete business ecosystem." %}
             </p>
             <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
               <div class="absolute inset-y-0 left-0 w-2/3 bg-amber-500 rounded-full"></div>
@@ -490,9 +490,9 @@
             </div>
           </div>
           <div class="space-y-2">
-            <h3 class="text-xl font-bold">Sell</h3>
+            <h3 class="text-xl font-bold">{% trans "Sell" %}</h3>
             <p class="text-gray-500 dark:text-gray-400">
-              Focus on marketing and scaling your products while our platform handles backend operations.
+              {% trans "Focus on marketing and scaling your products while our platform handles backend operations." %}
             </p>
             <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
               <div class="absolute inset-y-0 left-0 w-full bg-amber-500 rounded-full"></div>
@@ -513,18 +513,18 @@
       <div class="grid gap-6 lg:grid-cols-2 lg:gap-12">
         <div class="space-y-4">
           <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
-            <span>Global Presence</span>
+            <span>{% trans "Global Presence" %}</span>
           </div>
-          <h2 class="text-3xl font-bold tracking-tighter md:text-4xl">Our Locations</h2>
+          <h2 class="text-3xl font-bold tracking-tighter md:text-4xl">{% trans "Our Locations" %}</h2>
           <p class="text-gray-500 md:text-xl">
-            Our growing network of services allows for faster delivery and shorter transit times
+            {% trans "Our growing network of services allows for faster delivery and shorter transit times" %}
           </p>
           <div class="text-gray-600">
             <p class="mb-4">
-              With Atlas services Growing Network and seamless integrations, we help you reach your customers quickly, effectively, and affordably. Expand your business and distribute your inventory in strategically located warehouses spanning four continents and more than 9 countries.
+              {% trans "With Atlas services Growing Network and seamless integrations, we help you reach your customers quickly, effectively, and affordably. Expand your business and distribute your inventory in strategically located warehouses spanning four continents and more than 9 countries." %}
             </p>
             <button class="inline-flex h-10 items-center justify-center rounded-md bg-amber-500 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-amber-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50">
-              Start Now
+              {% trans "Start Now" %}
             </button>
           </div>
         </div>
@@ -623,17 +623,17 @@
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60"></div>
             <div class="absolute bottom-0 left-0 w-full p-6">
               <div class="bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                <div class="space-y-2">
-                  <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-amber-500">
-                      <path d="M21 7v6h-6"></path>
-                      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
-                    </svg>
-                    <span class="text-sm font-medium text-amber-500">End-to-End Solution</span>
+                                  <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-amber-500">
+                        <path d="M21 7v6h-6"></path>
+                        <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+                      </svg>
+                      <span class="text-sm font-medium text-amber-500">{% trans "End-to-End Solution" %}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">{% trans "Global E-commerce Platform" %}</h3>
+                    <p class="text-sm text-gray-500">{% trans "Handling operations across multiple countries with seamless integration." %}</p>
                   </div>
-                  <h3 class="text-lg font-bold text-gray-900">Global E-commerce Platform</h3>
-                  <p class="text-sm text-gray-500">Handling operations across multiple countries with seamless integration.</p>
-                </div>
               </div>
             </div>
           </div>
@@ -642,11 +642,11 @@
         <div class="flex flex-col justify-center space-y-6">
           <div class="space-y-2">
             <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
-              <span>Our Mission</span>
+              <span>{% trans "Our Mission" %}</span>
             </div>
-            <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl">We Enable Everyone to Start, Grow and Scale Ecommerce Business</h2>
+            <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl">{% trans "We Enable Everyone to Start, Grow and Scale Ecommerce Business" %}</h2>
             <p class="text-gray-500 md:text-lg/relaxed">
-              In the Middle East, Africa and Beyond.
+              {% trans "In the Middle East, Africa and Beyond." %}
             </p>
           </div>
           
@@ -658,9 +658,9 @@
                 </svg>
               </div>
               <div class="space-y-1">
-                <h3 class="text-xl font-medium">All-in-One Platform</h3>
+                <h3 class="text-xl font-medium">{% trans "All-in-One Platform" %}</h3>
                 <p class="text-gray-500">
-                  Atlas services is an all-in-one platform that enables businesses to sell products online across multiple countries in the MENA region & beyond.
+                  {% trans "Atlas services is an all-in-one platform that enables businesses to sell products online across multiple countries in the MENA region & beyond." %}
                 </p>
               </div>
             </div>
@@ -672,9 +672,9 @@
                 </svg>
               </div>
               <div class="space-y-1">
-                <h3 class="text-xl font-medium">Operational Excellence</h3>
+                <h3 class="text-xl font-medium">{% trans "Operational Excellence" %}</h3>
                 <p class="text-gray-500">
-                  Our solution takes care of all operational aspects, enabling you to focus on marketing and scaling your products.
+                  {% trans "Our solution takes care of all operational aspects, enabling you to focus on marketing and scaling your products." %}
                 </p>
               </div>
             </div>
@@ -687,9 +687,9 @@
                 </svg>
               </div>
               <div class="space-y-1">
-                <h3 class="text-xl font-medium">Complete Network Access</h3>
+                <h3 class="text-xl font-medium">{% trans "Complete Network Access" %}</h3>
                 <p class="text-gray-500">
-                  Integrating with Atlas services grants you access to call centers, factories, sourcing agents, fulfillment centers, and last-mile shipping solutions.
+                  {% trans "Integrating with Atlas services grants you access to call centers, factories, sourcing agents, fulfillment centers, and last-mile shipping solutions." %}
                 </p>
               </div>
             </div>
@@ -709,11 +709,11 @@
       <div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
         <div class="space-y-2">
           <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
-            <span>Meet The Team</span>
+            <span>{% trans "Meet The Team" %}</span>
           </div>
-          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Our Team</h2>
+          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">{% trans "Our Team" %}</h2>
           <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl/relaxed">
-            Our team of experts is dedicated to providing the best customer relationship solutions across the globe.
+            {% trans "Our team of experts is dedicated to providing the best customer relationship solutions across the globe." %}
           </p>
         </div>
       </div>
@@ -744,8 +744,8 @@
             </div>
           </div>
           <div class="p-4 text-center">
-            <h3 class="text-lg font-bold">John Smith</h3>
-            <p class="text-sm text-gray-500">CEO & Founder</p>
+            <h3 class="text-lg font-bold">{% trans "John Smith" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "CEO & Founder" %}</p>
           </div>
         </div>
         
@@ -774,8 +774,8 @@
             </div>
           </div>
           <div class="p-4 text-center">
-            <h3 class="text-lg font-bold">Sarah Johnson</h3>
-            <p class="text-sm text-gray-500">Operations Director</p>
+            <h3 class="text-lg font-bold">{% trans "Sarah Johnson" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "Operations Director" %}</p>
           </div>
         </div>
         
@@ -804,8 +804,8 @@
             </div>
           </div>
           <div class="p-4 text-center">
-            <h3 class="text-lg font-bold">Mohammed Al-Qasim</h3>
-            <p class="text-sm text-gray-500">MENA Regional Manager</p>
+            <h3 class="text-lg font-bold">{% trans "Mohammed Al-Qasim" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "MENA Regional Manager" %}</p>
           </div>
         </div>
         
@@ -834,8 +834,8 @@
             </div>
           </div>
           <div class="p-4 text-center">
-            <h3 class="text-lg font-bold">Priya Sharma</h3>
-            <p class="text-sm text-gray-500">Technology Lead</p>
+            <h3 class="text-lg font-bold">{% trans "Priya Sharma" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "Technology Lead" %}</p>
           </div>
         </div>
       </div>

@@ -74,6 +74,36 @@
             scroll-behavior: smooth;
         }
         
+        /* RTL specific styles for Arabic only */
+        [dir="rtl"] body {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        [dir="rtl"] .flex {
+            flex-direction: row-reverse;
+        }
+        
+        [dir="rtl"] .space-x-1 > * + * {
+            margin-right: 0.25rem;
+            margin-left: 0;
+        }
+        
+        [dir="rtl"] .space-x-3 > * + * {
+            margin-right: 0.75rem;
+            margin-left: 0;
+        }
+        
+        [dir="rtl"] .space-x-4 > * + * {
+            margin-right: 1rem;
+            margin-left: 0;
+        }
+        
+        [dir="rtl"] .space-x-6 > * + * {
+            margin-right: 1.5rem;
+            margin-left: 0;
+        }
+        
         /* Animations */
         .animate-float {
             animation: float 3s ease-in-out infinite;
@@ -161,6 +191,7 @@
                 opacity: 1;
             }
         }
+
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -168,14 +199,14 @@
     <!-- Header -->
     <header class="bg-primary-500 text-white relative z-10 shadow-md">
         <div class="container mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% else %}flex-row{% endif %}">
                 <!-- Logo -->
                 <a href="{% url 'landing:home' %}" class="flex items-center">
                     <span class="text-xl font-bold">Atlas Services</span>
                 </a>
                 
                 <!-- Desktop Menu -->
-                <nav class="hidden lg:flex items-center space-x-1">
+                <nav class="hidden lg:flex items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse space-x-reverse space-x-6{% else %}flex-row space-x-6{% endif %}">
                     <a href="{% url 'landing:home' %}" class="nav-link px-3 py-2 rounded-md hover:bg-primary-600 transition-colors font-medium {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                         {% trans "Home" %}
                     </a>
@@ -197,29 +228,29 @@
                 </nav>
                 
                 <!-- Language Switcher -->
-              {% block language_switcher %}
-      <form method="post" action="{% url 'set_language' %}">
-        {% csrf_token %}
-        {% get_current_language as current_language %}
-        <input type="hidden" name="language" value="{{ current_language }}">
-       
-        <select id="language-select" onchange="switchLang(this)" class="rounded px-2 py-1 text-gray-800">
-          <option value="en" {% if current_language == "en" %}selected{% endif %}>English</option>
-          <option value="ar" {% if current_language == "ar" %}selected{% endif %}>العربية</option>
-        </select>
-      </form>
-      {% endblock %}
+                {% block language_switcher %}
+                <form method="post" action="{% url 'set_language' %}">
+                    {% csrf_token %}
+                    {% get_current_language as current_language %}
+                    <input type="hidden" name="language" value="{{ current_language }}">
+                    
+                    <select id="language-select" onchange="switchLang(this)" class="rounded px-2 py-1 text-gray-800">
+                        <option value="en" {% if current_language == "en" %}selected{% endif %}>English</option>
+                        <option value="ar" {% if current_language == "ar" %}selected{% endif %}>العربية</option>
+                    </select>
+                </form>
+                {% endblock %}
                 
                 <!-- Right section -->
-                <div class="hidden lg:flex items-center space-x-3">
+                <div class="hidden lg:flex items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse space-x-reverse space-x-3{% else %}flex-row space-x-3{% endif %}">
                     <!-- Authentication Links -->
                     {% if user.is_authenticated %}
                         <div class="relative">
                             <button id="user-menu-button" class="flex items-center px-4 py-2 rounded-md border border-white/30 hover:bg-white/10 transition-colors">
-                                <span class="mr-2">{{ user.get_full_name|default:user.username }}</span>
+                                <span class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}">{{ user.get_full_name|default:user.username }}</span>
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <div id="user-dropdown" class="hidden absolute {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                                 <a href="{% url 'dashboard:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{% trans "Dashboard" %}</a>
                                 <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{% trans "Profile" %}</a>
                                 <div class="border-t border-gray-100"></div>
@@ -269,7 +300,7 @@
                     <div class="pt-4 border-t border-white/20 mt-4">
                         <!-- Auth Links -->
                         <h3 class="text-white/70 text-sm mb-2">{% trans "Account" %}</h3>
-                        <div class="flex space-x-3">
+                        <div class="flex {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse space-x-reverse space-x-3{% else %}flex-row space-x-3{% endif %}">
                             {% if user.is_authenticated %}
                                 <a href="{% url 'dashboard:index' %}" class="flex-1 text-center px-4 py-2 rounded-md border border-white/30 hover:bg-white/10 transition-colors">
                                     {% trans "Dashboard" %}
@@ -289,7 +320,7 @@
                     </div>
                     
                     <!-- Close button -->
-                    <button id="mobile-menu-close" class="absolute top-6 right-6 text-white focus:outline-none">
+                    <button id="mobile-menu-close" class="absolute top-6 {% if LANGUAGE_CODE == 'ar' %}left-6{% else %}right-6{% endif %} text-white focus:outline-none">
                         <i class="fas fa-times text-2xl"></i>
                     </button>
                 </div>
@@ -312,7 +343,7 @@
                     <p class="text-gray-400 mb-6">
                         {% trans "Your trusted partner for e-commerce fulfillment solutions in the Middle East." %}
                     </p>
-                    <div class="flex space-x-4">
+                    <div class="flex {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse space-x-reverse space-x-4{% else %}flex-row space-x-4{% endif %}">
                         <a href="#" class="bg-white/10 hover:bg-primary-600 h-10 w-10 rounded-full flex items-center justify-center transition-colors">
                             <i class="fab fa-facebook-f"></i>
                         </a>
@@ -345,22 +376,22 @@
                 <div>
                     <h3 class="text-xl font-bold mb-6">{% trans "Contact Us" %}</h3>
                     <ul class="space-y-4">
-                        <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1.5 mr-3 text-primary-400"></i>
+                        <li class="flex items-start {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% else %}flex-row{% endif %}">
+                            <i class="fas fa-map-marker-alt mt-1.5 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-primary-400"></i>
                             <span class="text-gray-400">
                                 {% trans "Dubai, United Arab Emirates" %}<br>
                                 {% trans "Riyadh, Saudi Arabia" %}
                             </span>
                         </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-phone-alt mt-1.5 mr-3 text-primary-400"></i>
+                        <li class="flex items-start {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% else %}flex-row{% endif %}">
+                            <i class="fas fa-phone-alt mt-1.5 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-primary-400"></i>
                             <span class="text-gray-400">
                                 +971 50 123 4567<br>
                                 +966 53 770 2332
                             </span>
                         </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-envelope mt-1.5 mr-3 text-primary-400"></i>
+                        <li class="flex items-start {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% else %}flex-row{% endif %}">
+                            <i class="fas fa-envelope mt-1.5 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-primary-400"></i>
                             <span class="text-gray-400">
                                 info@asfulfillment.com<br>
                                 support@asfulfillment.com
@@ -374,9 +405,9 @@
                     <h3 class="text-xl font-bold mb-6">{% trans "Newsletter" %}</h3>
                     <p class="text-gray-400 mb-4">{% trans "Subscribe to receive updates and offers." %}</p>
                     <form action="#" method="post" class="mb-3">
-                        <div class="flex">
-                            <input type="email" placeholder="{% trans 'Your email' %}" class="flex-grow rounded-l-md border-0 px-4 py-3 focus:ring-2 focus:ring-primary-400 text-gray-900">
-                            <button type="submit" class="bg-primary-500 px-4 py-3 rounded-r-md hover:bg-primary-600 transition-colors">
+                        <div class="flex {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% else %}flex-row{% endif %}">
+                            <input type="email" placeholder="{% trans 'Your email' %}" class="flex-grow {% if LANGUAGE_CODE == 'ar' %}rounded-r-md{% else %}rounded-l-md{% endif %} border-0 px-4 py-3 focus:ring-2 focus:ring-primary-400 text-gray-900">
+                            <button type="submit" class="bg-primary-500 px-4 py-3 {% if LANGUAGE_CODE == 'ar' %}rounded-l-md{% else %}rounded-r-md{% endif %} hover:bg-primary-600 transition-colors">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -388,11 +419,11 @@
             </div>
             
             <!-- Bottom Footer -->
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% else %}flex-row{% endif %}">
                 <div class="text-gray-500 text-sm">
                     &copy; {% now "Y" %} Atlas Fulfillment. {% trans "All rights reserved." %}
                 </div>
-                <div class="flex space-x-6 text-sm">
+                <div class="flex {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse space-x-reverse space-x-6{% else %}flex-row space-x-6{% endif %} text-sm">
                     <a href="{% url 'landing:privacy' %}" class="text-gray-500 hover:text-primary-400 transition-colors">{% trans "Privacy Policy" %}</a>
                     <a href="{% url 'landing:terms' %}" class="text-gray-500 hover:text-primary-400 transition-colors">{% trans "Terms of Service" %}</a>
                 </div>
