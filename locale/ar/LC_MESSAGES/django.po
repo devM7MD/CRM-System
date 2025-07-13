@@ -1754,10 +1754,10 @@ msgid "Perfect for businesses starting their e-commerce journey."
 msgstr "مثالي للشركات التي تبدأ رحلتها في التجارة الإلكترونية."
 
 msgid "Access to 3 warehouses"
-msgstr "الوصول إلى 3 مستودعات"
+msgstr "الوصول إلى ٣ مستودعات"
 
 msgid "Up to 500 orders/month"
-msgstr "حتى 500 طلب/شهر"
+msgstr "حتى ٥٠٠ طلب/شهر"
 
 msgid "Basic call center support"
 msgstr "دعم أساسي لمركز الاتصال"
@@ -2070,10 +2070,10 @@ msgid "Ideal for businesses ready to scale operations."
 msgstr "مثالي للشركات التي تستعد للتوسع في أعمالها."
 
 msgid "Access to 9 warehouses" 
-msgstr "إمكانية الوصول إلى 9 مستودعات"
+msgstr "إمكانية الوصول إلى ٩ مستودعات"
 
 msgid "Up to 2,000 orders/month"
-msgstr "حتي 2000 طلب/شهر"
+msgstr "حتي ٢٠٠٠ طلب/شهر"
 
 msgid "Dedicated call center support"
 msgstr "فريق دعم هاتفي مخصص لخدمتك"
@@ -2094,7 +2094,7 @@ msgid "Unlimited orders"
 msgstr "طلبات غير محدوده"
 
 msgid "24/7 priority support"
-msgstr "دعم مخصص لك 24/7"
+msgstr "دعم مخصص لك ٢٤/٧"
 
 msgid "Custom integrations"
 msgstr "دفع مخصص"

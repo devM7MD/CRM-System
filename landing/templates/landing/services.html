@@ -542,45 +542,89 @@
                 </span>
               </div>
               <div class="flex items-baseline mb-6">
-                <span class="text-5xl font-extrabold text-amber-900">$299</span>
+                {% get_current_language as LANGUAGE_CODE %}
+                {% if LANGUAGE_CODE == 'ar' %}
+                  <span class="text-5xl font-extrabold text-amber-900">$٢٩٩</span>
+                {% else %}
+                  <span class="text-5xl font-extrabold text-amber-900">$299</span>
+                {% endif %}
                 <span class="text-lg text-amber-600 font-normal ml-2">/month</span>
               </div>
               <p class="text-amber-700">{% trans "Perfect for businesses starting their e-commerce journey." %}</p>
             </div>
             
-            <div class="space-y-4 mb-8 flex-grow">
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+            <div class="space-y-2 mb-8 flex-grow">
+              {% get_current_language as LANGUAGE_CODE %}
+              {% if LANGUAGE_CODE == 'ar' %}
+              <div class="flex flex-col items-end text-right pr-4 space-y-1">
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Access to 3 warehouses" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Up to 500 orders/month" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Basic call center support" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Weekly COD remittance" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+              
+              <div class="flex flex-row items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Access to 3 warehouses" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+              <div class="flex flex-row items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Up to 500 orders/month" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+              <div class="flex flex-row items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Basic call center support" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+              <div class="flex flex-row items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Weekly COD remittance" %}</span>
               </div>
+              {% endif %}
             </div>
             
             <button class="inline-flex items-center justify-center px-6 py-3 rounded-lg text-white bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 shadow-lg shadow-amber-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-amber-300/50 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-white">
@@ -612,45 +656,89 @@
                 </span>
               </div>
               <div class="flex items-baseline mb-6">
-                <span class="text-5xl font-extrabold text-amber-900">$699</span>
+                {% get_current_language as LANGUAGE_CODE %}
+                {% if LANGUAGE_CODE == 'ar' %}
+                  <span class="text-5xl font-extrabold text-amber-900">$٦٩٩</span>
+                {% else %}
+                  <span class="text-5xl font-extrabold text-amber-900">$699</span>
+                {% endif %}
                 <span class="text-lg text-amber-600 font-normal ml-2">/month</span>
               </div>
               <p class="text-amber-700">{% trans "Ideal for businesses ready to scale operations." %}</p>
             </div>
             
-            <div class="space-y-4 mb-8 flex-grow">
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+            <div class="space-y-2 mb-8 flex-grow">
+              {% get_current_language as LANGUAGE_CODE %}
+              {% if LANGUAGE_CODE == 'ar' %}
+              <div class="flex flex-col items-end text-right pr-4 space-y-1">
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Access to 9 warehouses" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Up to 2,000 orders/month" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Dedicated call center support" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Weekly COD remittance" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+              
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Access to 9 warehouses" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Up to 2,000 orders/month" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Dedicated call center support" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Weekly COD remittance" %}</span>
               </div>
+              {% endif %}
             </div>
             
             <button class="inline-flex items-center justify-center px-6 py-3 rounded-lg text-amber-900 bg-gradient-to-r from-yellow-300 to-amber-300 hover:from-yellow-400 hover:to-amber-400 shadow-lg shadow-amber-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-amber-300/50 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-white font-semibold">
@@ -664,7 +752,7 @@
       </div>
 
       <!-- Enterprise Plan -->
-      <div class="group relative">
+      <div class="group relative ">
         <div class="absolute -inset-px bg-gradient-to-b from-amber-200 to-yellow-300 rounded-2xl blur transition duration-1000 group-hover:opacity-75 opacity-50"></div>
         <div class="relative h-full bg-white border border-amber-200 rounded-xl p-8 shadow-xl shadow-amber-100/50 transition-transform duration-300 hover:-translate-y-1">
           <div class="flex flex-col h-full">
@@ -681,39 +769,78 @@
               <p class="text-amber-700">{% trans "Tailored solutions for large-scale operations." %}</p>
             </div>
             
-            <div class="space-y-4 mb-8 flex-grow">
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+            <div class="space-y-2 mb-8 flex-grow">
+              {% get_current_language as LANGUAGE_CODE %}
+              {% if LANGUAGE_CODE == 'ar' %}
+              <div class="flex flex-col items-end text-right pr-4 space-y-1">
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Access to all warehouses" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Unlimited orders" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "24/7 priority support" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse items-center gap-2">
+                  <span class="text-amber-800">{% trans "Custom integrations" %}</span>
+                  <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+              
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Access to all warehouses" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Unlimited orders" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "24/7 priority support" %}</span>
               </div>
-              <div class="flex items-start">
-                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+              <div class="flex items-center gap-2 w-full text-left pl-4">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center">
                   <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span class="text-amber-800">{% trans "Custom integrations" %}</span>
               </div>
+              {% endif %}
             </div>
             
             <button class="inline-flex items-center justify-center px-6 py-3 rounded-lg text-white bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 border border-amber-200 shadow-lg shadow-amber-100/50 transition-all duration-300 hover:shadow-xl hover:shadow-amber-200/50 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-white">
