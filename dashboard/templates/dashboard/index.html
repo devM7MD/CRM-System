@@ -121,7 +121,7 @@
                     </div>
                     <div class="bg-gray-50 px-4 py-4 sm:px-6">
                         <div class="text-sm">
-                            <a href="/delivery/orders/" class="font-medium text-primary-600 hover:text-primary-500">
+                            <a href="{% url 'delivery:orders' %}" class="font-medium text-primary-600 hover:text-primary-500">
                                 {% trans "View all deliveries" %} &rarr;
                             </a>
                         </div>
@@ -147,7 +147,7 @@
                     </div>
                     <div class="bg-gray-50 px-4 py-4 sm:px-6">
                         <div class="text-sm">
-                            <a href="{% url 'finance:sales' %}" class="font-medium text-primary-600 hover:text-primary-500">
+                            <a href="{% url 'finance:list' %}" class="font-medium text-primary-600 hover:text-primary-500">
                                 {% trans "View finance details" %} &rarr;
                             </a>
                         </div>

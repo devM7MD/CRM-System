@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+
+* {
+    font-family: 'Cairo', 'Poppins', sans-serif;
+}
+
+body {
+    font-family: 'Cairo', 'Poppins', sans-serif;
+}
+
+
+.arabic-text {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+.arabic-heading {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.arabic-bold {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+}
+
+
+[dir="rtl"] {
+    font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] body {
+    font-family: 'Cairo', sans-serif;
+}
+
+
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+    font-family: 'Cairo', sans-serif;
+    text-align: right;
+}
+
+
+[dir="rtl"] button,
+[dir="rtl"] .btn {
+    font-family: 'Cairo', sans-serif;
+}
+
+
+[dir="rtl"] nav,
+[dir="rtl"] .nav-link {
+    font-family: 'Cairo', sans-serif;
+}
+
+
+[dir="rtl"] table,
+[dir="rtl"] th,
+[dir="rtl"] td {
+    font-family: 'Cairo', sans-serif;
+}
+
+
+[dir="rtl"] .modal,
+[dir="rtl"] .dropdown,
+[dir="rtl"] .tooltip {
+    font-family: 'Cairo', sans-serif;
+}
+
+/* Font weights for Arabic text */
+.font-arabic-light {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 300;
+}
+
+.font-arabic-regular {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 400;
+}
+
+.font-arabic-medium {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 500;
+}
+
+.font-arabic-semibold {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 600;
+}
+
+.font-arabic-bold {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+}
+
+.font-arabic-extrabold {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+}
+
+.font-arabic-black {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 900;
+} 

@@ -43,7 +43,28 @@ def subscribers_list(request):
     return render(request, 'subscribers/subscribers.html', {'subscribers': subscribers})
 
 @login_required
-def subscriber_detail(request, pk):
+def subscriber_detail(request, pk=None, seller_id=None):
+    # Handle the case when seller_id is provided (string ID)
+    if seller_id is not None:
+        # Try to get a user with the provided seller_id
+        user = get_object_or_404(User, id=seller_id, role='seller')
+        
+        # Create a dictionary that mimics Subscriber model fields
+        subscriber = {
+            'id': user.id,
+            'full_name': user.full_name,
+            'email': user.email,
+            'phone_number': user.phone_number,
+            'business_name': user.company_name or '',
+            'residence_country': user.country or '',
+            'registration_date': user.date_joined,
+            'user': user,
+            'store_link': '',
+            'services': []
+        }
+        return render(request, 'subscribers/subscriber_detail.html', {'subscriber': subscriber, 'from_users': True})
+    
+    # Handle the case when pk is provided (integer ID)
     # Try to get a subscriber object first
     try:
         subscriber = Subscriber.objects.get(pk=pk)

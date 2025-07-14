@@ -8,7 +8,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     
     # Sales list (another name for finance_list)
-    path('sales/', views.finance_list, name='sales'),
+    path('sales/', views.finance_list, name='list'),
     
     # Main finance list
     path('', views.finance_list, name='finance_list'),

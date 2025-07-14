@@ -5,7 +5,7 @@ app_name = 'delivery'
 
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('orders/', views.order_list, name='order_list'),
+    path('orders/', views.order_list, name='orders'),
     path('assign/', views.assign_orders, name='assign_orders'),
     path('couriers/', views.courier_management, name='courier_management'),
     path('couriers/<int:courier_id>/', views.courier_detail, name='courier_detail'),

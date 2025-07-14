@@ -8,6 +8,58 @@ body, html {
     font-family: 'Cairo', 'Poppins', sans-serif;
 }
 
+/* Primary color classes */
+.bg-primary {
+    background-color: #FFCC00 !important;
+}
+
+.text-primary {
+    color: #FFCC00 !important;
+}
+
+.border-primary {
+    border-color: #FFCC00 !important;
+}
+
+.hover\:bg-primary:hover {
+    background-color: #FFCC00 !important;
+}
+
+.hover\:text-primary:hover {
+    color: #FFCC00 !important;
+}
+
+.hover\:border-primary:hover {
+    border-color: #FFCC00 !important;
+}
+
+/* Primary color variants */
+.bg-primary-50 { background-color: #fefce8 !important; }
+.bg-primary-100 { background-color: #fef9c3 !important; }
+.bg-primary-200 { background-color: #fef08a !important; }
+.bg-primary-300 { background-color: #fde047 !important; }
+.bg-primary-400 { background-color: #facc15 !important; }
+.bg-primary-500 { background-color: #eab308 !important; }
+.bg-primary-600 { background-color: #ca8a04 !important; }
+.bg-primary-700 { background-color: #a16207 !important; }
+.bg-primary-800 { background-color: #854d0e !important; }
+.bg-primary-900 { background-color: #713f12 !important; }
+
+.text-primary-50 { color: #fefce8 !important; }
+.text-primary-100 { color: #fef9c3 !important; }
+.text-primary-200 { color: #fef08a !important; }
+.text-primary-300 { color: #fde047 !important; }
+.text-primary-400 { color: #facc15 !important; }
+.text-primary-500 { color: #eab308 !important; }
+.text-primary-600 { color: #ca8a04 !important; }
+.text-primary-700 { color: #a16207 !important; }
+.text-primary-800 { color: #854d0e !important; }
+.text-primary-900 { color: #713f12 !important; }
+
+.hover\:bg-primary-600:hover { background-color: #ca8a04 !important; }
+.hover\:text-primary-600:hover { color: #ca8a04 !important; }
+.hover\:text-primary-700:hover { color: #a16207 !important; }
+
 /* Fix for RTL layout */
 [dir="rtl"] .flex-row {
     flex-direction: row-reverse;
