@@ -1,313 +1,511 @@
-# 🚀 CRM System
+# CRM Fulfillment System
 
-<div align="center">
-  <img src="https://img.shields.io/badge/CRM-System-blue?style=for-the-badge&logo=salesforce" alt="CRM System">
-  <img src="https://img.shields.io/badge/Version-1.0.0-green?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/Node.js-16+-brightgreen?style=for-the-badge&logo=node.js" alt="Node.js">
-  <img src="https://img.shields.io/badge/React-18+-blue?style=for-the-badge&logo=react" alt="React">
-</div>
+A comprehensive Customer Relationship Management (CRM) system with integrated order fulfillment capabilities designed for e-commerce businesses. This system handles the complete customer journey from lead generation to post-purchase follow-up.
 
-<div align="center">
-  <h3>🎯 A comprehensive Customer Relationship Management (CRM) system designed to help businesses manage customer interactions, sales processes, and customer data efficiently.</h3>
-</div>
+## 🌟 Features
 
----
+- **User Management**: Role-based access control with customizable permissions
+- **Seller Management**: Track seller information, orders, and performance
+- **Order Processing**: Complete order lifecycle management
+- **Inventory Management**: Track product stock across warehouses
+- **Call Center Integration**: Customer support and outreach management
+- **Packaging & Delivery**: Order fulfillment and shipping management
+- **Financial Tracking**: Payment processing and invoice generation
+- **Customer Follow-up**: Post-purchase communication and feedback collection
+- **Warehouse Management**: Multiple warehouse inventory tracking
+- **Notifications System**: Real-time alerts and updates
+- **Multilingual Support**: English and Arabic language support
+- **Responsive Dashboard**: Comprehensive analytics and reporting
 
-## ✨ Features
+## 📋 Requirements
 
-### 🎯 Core Functionality
-- **👥 Customer Management**: Store and organize customer information, contact details, and interaction history
-- **🎪 Lead Management**: Track potential customers through the sales pipeline
-- **📊 Sales Pipeline**: Visual representation of deals and their stages
-- **📞 Contact Management**: Centralized database for all customer contacts
-- **📈 Activity Tracking**: Log calls, emails, meetings, and other customer interactions
-- **✅ Task Management**: Create, assign, and track tasks and follow-ups
-- **📋 Reporting & Analytics**: Generate insights on sales performance and customer behavior
+- Python 3.8+
+- Django 5.2
+- SQLite (default) or other compatible database
+- Additional dependencies listed in requirements.txt
 
-### 🚀 Advanced Features
-- **📧 Email Integration**: Sync with email providers for seamless communication
-- **📅 Calendar Integration**: Schedule and manage appointments
-- **📁 Document Management**: Store and share customer-related documents
-- **🤖 Automation**: Automated workflows for repetitive tasks
-- **📱 Mobile Support**: Responsive design for mobile and tablet access
-- **🔐 User Roles & Permissions**: Multi-level access control
-- **📤 Data Import/Export**: Bulk import customers and export reports
+## 🚀 Installation
 
-## 🛠️ Technology Stack
-
-### ⚙️ Backend
-- **Framework**: Node.js with Express.js
-- **Database**: PostgreSQL with Sequelize ORM
-- **Authentication**: JWT-based authentication
-- **API**: RESTful API design
-
-### 🎨 Frontend
-- **Framework**: React.js with TypeScript
-- **State Management**: Redux Toolkit
-- **UI Components**: Material-UI (MUI)
-- **Styling**: Styled Components + CSS Modules
-
-### 🔧 DevOps & Tools
-- **Version Control**: Git
-- **CI/CD**: GitHub Actions
-- **Testing**: Jest, React Testing Library
-- **Documentation**: Swagger/OpenAPI
-- **Monitoring**: Winston for logging
-
-## 🚀 Getting Started
-
-### 📋 Prerequisites
-- Node.js (v16 or higher) ⚡
-- PostgreSQL (v12 or higher) 🐘
-- npm or yarn package manager 📦
-
-### 📥 Installation
-
-1. **📂 Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/crm-system.git
-   cd crm-system
-   ```
-
-2. **📦 Install dependencies**
-   ```bash
-   # Install backend dependencies
-   cd backend
-   npm install
-   
-   # Install frontend dependencies
-   cd ../frontend
-   npm install
-   ```
-
-3. **⚙️ Environment Configuration**
-   ```bash
-   # Backend environment variables
-   cp backend/.env.example backend/.env
-   
-   # Frontend environment variables
-   cp frontend/.env.example frontend/.env
-   ```
-
-4. **🗄️ Database Setup**
-   ```bash
-   # Create database
-   createdb crm_database
-   
-   # Run migrations
-   cd backend
-   npm run migrate
-   
-   # Seed initial data (optional)
-   npm run seed
-   ```
-
-5. **🎉 Start the application**
-   ```bash
-   # Start backend server
-   cd backend
-   npm run dev
-   
-   # Start frontend development server (in new terminal)
-   cd frontend
-   npm start
-   ```
-
-## ⚙️ Configuration
-
-### 🔧 Environment Variables
-
-#### Backend (.env)
-```env
-NODE_ENV=development
-PORT=5000
-DATABASE_URL=postgresql://username:password@localhost:5432/crm_database
-JWT_SECRET=your-jwt-secret-key
-JWT_EXPIRE=24h
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
-```
-
-#### Frontend (.env)
-```env
-REACT_APP_API_URL=http://localhost:5000/api
-REACT_APP_APP_NAME=CRM System
-REACT_APP_VERSION=1.0.0
-```
-
-## 📚 API Documentation
-
-The API documentation is available at `http://localhost:5000/api-docs` when running the development server.
-
-### 🔑 Key Endpoints
-
-#### 🔐 Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/logout` - User logout
-
-#### 👥 Customers
-- `GET /api/customers` - Get all customers
-- `POST /api/customers` - Create new customer
-- `GET /api/customers/:id` - Get customer by ID
-- `PUT /api/customers/:id` - Update customer
-- `DELETE /api/customers/:id` - Delete customer
-
-#### 🎯 Leads
-- `GET /api/leads` - Get all leads
-- `POST /api/leads` - Create new lead
-- `PUT /api/leads/:id` - Update lead
-- `DELETE /api/leads/:id` - Delete lead
-
-## 🗄️ Database Schema
-
-### 📊 Main Tables
-- `users` - System users and authentication
-- `customers` - Customer information
-- `leads` - Sales leads and prospects
-- `contacts` - Customer contacts
-- `activities` - Customer interactions and activities
-- `tasks` - Tasks and follow-ups
-- `deals` - Sales opportunities
-- `companies` - Company information
-
-## 🧪 Testing
-
-### 🔍 Running Tests
+1. Clone the repository
 ```bash
-# Backend tests
-cd backend
-npm test
-
-# Frontend tests
-cd frontend
-npm test
-
-# Run all tests
-npm run test:all
+git clone https://github.com/organization/crm-system.git
+cd crm-system
 ```
 
-### 📊 Test Coverage
+2. Create and activate a virtual environment
 ```bash
-# Generate coverage report
-npm run test:coverage
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-## 🚀 Deployment
-
-### 🏗️ Production Build
+3. Install dependencies
 ```bash
-# Build frontend
-cd frontend
-npm run build
-
-# Build backend
-cd backend
-npm run build
+pip install -r requirements.txt
 ```
 
-### 🐳 Docker Deployment
+4. Set up environment variables (create a .env file in the project root)
+```
+SECRET_KEY=your_secret_key
+DEBUG=True
+DATABASE_URL=sqlite:///db.sqlite3
+ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+5. Run migrations
 ```bash
-# Build and run with Docker Compose
-docker-compose up --build
-
-# Production deployment
-docker-compose -f docker-compose.prod.yml up -d
+python manage.py migrate
 ```
 
-### 🌐 Environment Setup
-1. Set up production database
-2. Configure environment variables
-3. Set up SSL certificates
-4. Configure reverse proxy (Nginx)
-5. Set up monitoring and logging
+6. Create a superuser
+```bash
+python manage.py createsuperuser
+```
 
-## 🤝 Contributing
+7. Run the development server
+```bash
+python manage.py runserver
+```
 
-We welcome contributions to the CRM System! Please follow these guidelines:
+8. Access the application at http://127.0.0.1:8000
 
-1. **🍴 Fork the repository**
-2. **🌟 Create a feature branch**: `git checkout -b feature/new-feature`
-3. **💻 Make your changes** and add tests
-4. **🧪 Run tests**: `npm test`
-5. **📝 Commit your changes**: `git commit -m 'Add new feature'`
-6. **🚀 Push to branch**: `git push origin feature/new-feature`
-7. **🔄 Submit a pull request**
-
-### 📋 Code Style
-- Follow ESLint configuration
-- Use TypeScript for type safety
-- Write meaningful commit messages
-- Add unit tests for new features
-
-## 📁 Project Structure
+## 🏗️ Project Structure
 
 ```
 crm-system/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   ├── utils/
-│   │   └── config/
-│   ├── tests/
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── store/
-│   │   └── utils/
-│   ├── public/
-│   └── package.json
-├── docs/
-├── docker-compose.yml
-└── README.md
+├── crm_fulfillment/           # Main project configuration
+│   ├── __init__.py
+│   ├── asgi.py                # ASGI configuration
+│   ├── settings.py            # Project settings
+│   ├── urls.py                # Main URL routing
+│   ├── wsgi.py                # WSGI configuration
+│   └── views.py               # Error handlers
+│
+├── dashboard/                 # Dashboard and analytics
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── dashboard/         # Dashboard templates
+│
+├── users/                     # User authentication and management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py              # Custom User model
+│   ├── urls.py
+│   ├── views.py
+│   ├── management/            # Management commands
+│   │   └── commands/
+│   └── templates/
+│       └── users/             # User-related templates
+│
+├── roles/                     # Role-based permission management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py              # Role and Permission models
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── roles/             # Role management templates
+│
+├── sellers/                   # Seller management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── sellers/           # Seller-related templates
+│
+├── orders/                    # Order processing
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py              # Order models
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── orders/            # Order-related templates
+│
+├── inventory/                 # Inventory management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── inventory/         # Inventory templates
+│
+├── callcenter/                # Call center functionality
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── callcenter/        # Call center templates
+│
+├── packaging/                 # Packaging management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── packaging/         # Packaging templates
+│
+├── delivery/                  # Delivery management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── delivery/          # Delivery templates
+│           └── panel/         # Delivery panel templates
+│
+├── finance/                   # Financial tracking
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── finance/           # Finance templates
+│           └── widgets/       # Finance widgets
+│
+├── followup/                  # Customer follow-up
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── followup/          # Follow-up templates
+│
+├── settings/                  # System settings
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── settings/          # Settings templates
+│
+├── warehouse/                 # Warehouse management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── warehouse/         # Warehouse templates
+│
+├── warehouse_inventory/       # Warehouse inventory
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   ├── static/
+│   │   └── warehouse_inventory/
+│   │       └── css/           # Inventory-specific CSS
+│   └── templates/
+│       └── warehouse_inventory/ # Inventory templates
+│
+├── notifications/             # System notifications
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── notifications/     # Notification templates
+│
+├── landing/                   # Public-facing pages
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       └── landing/           # Landing page templates
+│
+├── products/                  # Product management
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   └── views.py
+│
+├── subscribers/               # Subscriber management
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   ├── management/
+│   │   └── commands/
+│   │       └── sync_sellers.py
+│   └── templates/
+│       └── subscribers/       # Subscriber templates
+│
+├── utils/                     # Utility functions
+│   ├── __init__.py
+│   ├── language_utils.py
+│   ├── views.py
+│   └── templatetags/          # Custom template tags
+│
+├── static/                    # Static files
+│   ├── css/                   # CSS stylesheets
+│   ├── js/                    # JavaScript files
+│   ├── img/                   # Images and icons
+│   └── tailwind/              # Tailwind configuration
+│
+├── media/                     # User-uploaded files
+│   ├── products/              # Product images
+│   └── profile_images/        # User profile images
+│
+├── templates/                 # Global templates
+│   ├── 400.html              # Error pages
+│   ├── 403.html
+│   ├── 404.html
+│   └── followup/              # Global followup templates
+│
+├── locale/                    # Translation files
+│   ├── ar/                    # Arabic translations
+│   │   └── LC_MESSAGES/
+│   └── en/                    # English translations
+│       └── LC_MESSAGES/
+│
+├── manage.py                  # Django management script
+├── requirements.txt           # Project dependencies
+└── .env                       # Environment variables (to be created)
 ```
 
-## 📄 License
+### Core Apps
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **crm_fulfillment/**: Main project configuration
+  - `settings.py`: Project settings and configurations
+  - `urls.py`: Main URL routing
+  - `asgi.py` & `wsgi.py`: Server configurations
 
-## 🆘 Support
+- **dashboard/**: Main dashboard and analytics
+  - Provides overview statistics and activity monitoring
+  - Includes system status monitoring and reporting tools
 
-For support and questions:
-- 🐛 Create an issue on GitHub
-- 📧 Email: support@crmsystem.com
-- 📖 Documentation: [Wiki](https://github.com/your-username/crm-system/wiki)
+- **users/**: User authentication and management
+  - Custom User model with email-based authentication
+  - Role-based access control integration
+  - User profile management and audit logging
 
-## 📈 Changelog
+- **roles/**: Role-based permission management
+  - Dynamic permission system with granular access control
+  - Custom roles with specific required fields
+  - Permission categories by functional area
 
-See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.
+### Business Process Apps
 
-## 🗺️ Roadmap
+- **sellers/**: Seller profiles and management
+  - Seller onboarding and profile management
+  - Performance tracking and analytics
 
-### 🎯 Version 2.0 (Planned)
-- Advanced analytics dashboard
-- Mobile app (React Native)
-- Third-party integrations (Slack, Zapier)
-- Advanced automation workflows
-- Multi-language support
-- Enhanced security features
+- **orders/**: Order processing and management
+  - Complete order lifecycle from creation to completion
+  - Order status tracking and management
+  - Integration with other modules
 
-### 🔄 Version 1.5 (In Progress)
-- Real-time notifications
-- Advanced search and filtering
-- Custom fields and forms
-- Email templates
-- Performance optimizations
+- **inventory/**: Product inventory tracking
+  - Product catalog management
+  - Stock level monitoring
+  - Inventory adjustments and history
+
+- **callcenter/**: Customer support integration
+  - Call logging and tracking
+  - Customer interaction management
+  - Support ticket system
+
+- **packaging/**: Order preparation and packaging
+  - Packaging workflow management
+  - Package tracking and quality control
+
+- **delivery/**: Shipping and delivery management
+  - Delivery company integration
+  - Courier assignment and tracking
+  - Delivery status updates
+
+- **finance/**: Payment processing and financial tracking
+  - Invoice generation and management
+  - Payment tracking and reconciliation
+  - Financial reporting
+
+- **followup/**: Customer follow-up and feedback
+  - Post-purchase communication
+  - Customer feedback collection and analysis
+  - Satisfaction tracking
+
+### Support Apps
+
+- **settings/**: System configuration
+  - Global system settings
+  - Regional and localization settings
+
+- **warehouse/**: Warehouse management
+  - Multiple warehouse support
+  - Warehouse inventory allocation
+
+- **warehouse_inventory/**: Detailed inventory tracking
+  - Barcode scanning integration
+  - Inventory movement tracking
+
+- **notifications/**: System notifications
+  - Real-time alerts
+  - User notification preferences
+
+- **landing/**: Public-facing pages
+  - Marketing pages and public information
+  - Multilingual support
+
+- **products/**: Product management
+  - Product catalog and details
+  - Product categorization and attributes
+
+- **subscribers/**: Subscriber management
+  - Subscription tracking and management
+  - Subscriber communication
+
+- **sourcing/**: Sourcing management
+  - Supplier management
+  - Sourcing requests and tracking
+
+### Static Files Organization
+
+- **static/**: Contains all static assets
+  - `css/`: Custom CSS styles including responsive design
+  - `js/`: JavaScript files for interactive features
+  - `img/`: Images and icons
+  - `tailwind/`: Tailwind CSS configuration and utilities
+
+- **media/**: User-uploaded content
+  - `products/`: Product images
+  - `profile_images/`: User profile pictures
+
+### Templates Structure
+
+Each app contains its own templates directory with app-specific templates. The main template structure follows:
+
+- `base.html`: Base template with common layout elements
+- `dashboard.html`: App-specific dashboard view
+- Component-specific templates (e.g., `create_order.html`, `order_list.html`)
+
+## 🎨 UI Components and Design
+
+The system uses a modern, responsive UI built with:
+
+- **Tailwind CSS**: Utility-first CSS framework for responsive design
+- **Custom Components**: Neo-brutalism inspired UI elements with custom shadows and transitions
+- **Responsive Design**: Mobile-friendly interface that adapts to different screen sizes
+- **RTL Support**: Full right-to-left language support for Arabic
+- **Custom Animations**: Subtle animations for improved user experience
+- **Dashboard Widgets**: Interactive charts and data visualization
+- **Color Scheme**: 
+  - Primary: Yellow (#FFCC00) with various shades
+  - Secondary: Dark gray (#333333)
+  - Background: White (#FFFFFF)
+  - Accent colors for notifications and alerts
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root with the following variables:
+
+```
+# Django Settings
+SECRET_KEY=your_secret_key
+DEBUG=True|False
+ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
+
+# Database Configuration
+DATABASE_URL=sqlite:///db.sqlite3
+# For PostgreSQL:
+# DATABASE_URL=postgres://user:password@localhost:5432/dbname
+
+# Email Configuration
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your_email@example.com
+EMAIL_HOST_PASSWORD=your_email_password
+EMAIL_USE_TLS=True
+
+# Language Settings
+LANGUAGE_CODE=en
+```
+
+### Custom Settings
+
+Additional system settings can be configured through the admin interface:
+
+1. **General Settings**: System name, logo, contact information
+2. **Regional Settings**: Default country, currency, timezone
+3. **Notification Settings**: Email templates, notification preferences
+4. **Integration Settings**: Third-party service connections
+
+## 🛠️ Development
+
+### Creating New Apps
+
+```bash
+python manage.py startapp new_app_name
+```
+
+Remember to add the new app to INSTALLED_APPS in settings.py
+
+### Role-Based Development
+
+When developing new features, consider the role-based permission system:
+
+1. Define required permissions in the Permission model
+2. Assign permissions to appropriate roles
+3. Use permission checks in views and templates
+
+### Running Tests
+
+```bash
+python manage.py test
+```
+
+### Internationalization
+
+To add or update translations:
+
+```bash
+python manage.py makemessages -l ar  # For Arabic
+python manage.py compilemessages
+```
+
+## 📝 License
+
+This project is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
+
+## 👥 Contributors
+
+- CodixVerse Development Team
 
 ---
 
-<div align="center">
-  <h3>🌟 Star this project if you find it helpful! 🌟</h3>
-</div>
-
-**Built with ❤️ by the CodixVerse Team**
+© 2025 CodixVerse. All Rights Reserved.
