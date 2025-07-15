@@ -1,0 +1,571 @@
+{% extends 'landing/base_landing.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: {
+                        50: '#fffbeb',
+                        100: '#fef3c7',
+                        200: '#fde68a',
+                        300: '#fcd34d',
+                        400: '#fbbf24',
+                        500: '#f59e0b',
+                        600: '#d97706',
+                        700: '#b45309',
+                        800: '#92400e',
+                        900: '#78350f',
+                        950: '#451a03'
+                    },
+                    yellow: {
+                        50: '#fefce8',
+                        100: '#fef9c3',
+                        200: '#fef08a',
+                        300: '#fde047',
+                        400: '#facc15',
+                        500: '#eab308',
+                        600: '#ca8a04',
+                        700: '#a16207',
+                        800: '#854d0e',
+                        900: '#713f12',
+                        950: '#422006'
+                    }
+                },
+                animation: {
+                    'fade-in': 'fadeIn 1s ease-in-out',
+                    'slide-up': 'slideUp 0.5s ease-out',
+                    'slide-down': 'slideDown 0.5s ease-out',
+                    'slide-in-right': 'slideInRight 0.5s ease-out',
+                    'slide-in-left': 'slideInLeft 0.5s ease-out',
+                    'scale': 'scale 4s infinite',
+                    'float': 'float 6s ease-in-out infinite',
+                    'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                },
+                keyframes: {
+                    fadeIn: {
+                        '0%': { opacity: 0 },
+                        '100%': { opacity: 1 }
+                    },
+                    slideUp: {
+                        '0%': { transform: 'translateY(20px)', opacity: 0 },
+                        '100%': { transform: 'translateY(0)', opacity: 1 }
+                    },
+                    slideDown: {
+                        '0%': { transform: 'translateY(-20px)', opacity: 0 },
+                        '100%': { transform: 'translateY(0)', opacity: 1 }
+                    },
+                    slideInRight: {
+                        '0%': { transform: 'translateX(-20px)', opacity: 0 },
+                        '100%': { transform: 'translateX(0)', opacity: 1 }
+                    },
+                    slideInLeft: {
+                        '0%': { transform: 'translateX(20px)', opacity: 0 },
+                        '100%': { transform: 'translateX(0)', opacity: 1 }
+                    },
+                    scale: {
+                        '0%, 100%': { transform: 'scale(1)' },
+                        '50%': { transform: 'scale(1.05)' }
+                    },
+                    float: {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(-10px)' }
+                    }
+                },
+                fontFamily: {
+                    sans: ['Poppins', 'Tajawal', 'sans-serif']
+                }
+            }
+        }
+    }
+</script>
+<style>
+    /* Custom Styles */
+    :root {
+        --primary-color: #F59E0B; /* Amber-500 */
+        --primary-dark: #D97706; /* Amber-600 */
+        --primary-light: #FCD34D; /* Amber-300 */
+        --secondary-color: #EAB308; /* Yellow-500 */
+        --dark-color: #1E293B;
+        --light-color: #FFFFFF;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .bg-grid-pattern {
+        background-image: 
+            linear-gradient(rgba(235, 235, 235, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(235, 235, 235, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    
+    .animation-delay-500 {
+        animation-delay: 500ms;
+    }
+    
+    .animation-delay-1000 {
+        animation-delay: 1000ms;
+    }
+    
+    .animated-gradient-text {
+        background: linear-gradient(90deg, #F59E0B, #EAB308, #F59E0B);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientText 3s linear infinite;
+    }
+    
+    @keyframes gradientText {
+        0% { background-position: 0% center; }
+        100% { background-position: 200% center; }
+    }
+    
+    .pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    @keyframes pulse-ring {
+        0% {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+        50% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+    }
+    
+    /* Animation classes that match Tailwind config */
+    .animate-gradient-text {
+        animation: gradientText 3s linear infinite;
+    }
+    
+    .animate-pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    /* Improved dropdown styles */
+    .desktop-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 50;
+        min-width: 12rem;
+        padding: 0.5rem 0;
+        margin-top: 0.5rem;
+        background-color: white;
+        border-radius: 0.375rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 150ms ease-in-out, visibility 150ms ease-in-out;
+    }
+    
+    .desktop-dropdown-trigger:hover .desktop-dropdown,
+    .desktop-dropdown-trigger:focus .desktop-dropdown,
+    .desktop-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
+</head>
+<body class="bg-gray-50 overflow-x-hidden " dir="{% get_current_language as LANGUAGE_CODE %}{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+
+
+          
+
+
+<!-- Hero Section -->
+<section class="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-dot-pattern pt-24">
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-amber-300 to-yellow-300 opacity-20 blur-[100px]"></div>
+        <div class="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-gradient-to-bl from-amber-400 to-yellow-400 opacity-20 blur-[100px]"></div>
+    </div>
+
+    <div class="container mx-auto px-4 relative">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600 mb-6 animate-fade-in">
+                <span class="relative flex h-2 w-2 mr-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+                Get Answers Fast
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 relative z-10">{% trans title %}</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed">
+                {% trans "Find answers to the most common questions about our services, platform, and how we can help grow your e-commerce business." %}
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Main Section -->
+<section class="py-24 relative">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- FAQ Categories -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <button class="category-btn bg-amber-500 text-white px-4 py-2 rounded-full font-medium" data-category="all">{% trans "All Questions" %}</button>
+                <button class="category-btn bg-white text-gray-700 px-4 py-2 rounded-full font-medium hover:bg-amber-50 border border-gray-200" data-category="general">{% trans "General" %}</button>
+                <button class="category-btn bg-white text-gray-700 px-4 py-2 rounded-full font-medium hover:bg-amber-50 border border-gray-200" data-category="payments">{% trans "Payments" %}</button>
+                <button class="category-btn bg-white text-gray-700 px-4 py-2 rounded-full font-medium hover:bg-amber-50 border border-gray-200" data-category="shipping">{% trans "Shipping" %}</button>
+                <button class="category-btn bg-white text-gray-700 px-4 py-2 rounded-full font-medium hover:bg-amber-50 border border-gray-200" data-category="platform">{% trans "Platform" %}</button>
+                <button class="category-btn bg-white text-gray-700 px-4 py-2 rounded-full font-medium hover:bg-amber-50 border border-gray-200" data-category="account">{% trans "Account" %}</button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative max-w-2xl mx-auto mb-16">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" id="faq-search" class="block w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="{% trans 'Search for questions...' %}">
+            </div>
+
+            <!-- FAQ Accordion -->
+            <div class="space-y-6">
+                <!-- General FAQ -->
+                <div class="faq-item" data-category="general">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "What is Atlas services?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "Atlas services is an all-in-one digital platform that provides end-to-end e-commerce solutions. We handle everything from inventory sourcing, order management, fulfillment, delivery tracking, to payment processing - allowing you to focus on growing your business while we take care of operations." %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="general">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "How can Atlas services help my e-commerce business?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "We provide a comprehensive solution that streamlines your entire e-commerce operation. By integrating with your online store, we handle inventory sourcing, warehouse management, order processing, confirmation calls, fulfillment, and payment collection. This allows you to scale your business without the operational headaches. Our platform provides full visibility of the entire process, helping you make data-driven decisions for growth." %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments FAQ -->
+                <div class="faq-item" data-category="payments">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "How does the payment collection work?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "We provide Cash on Delivery (COD) collection services across various regions. Our delivery agents collect payment from customers at the time of delivery and the funds are securely processed and remitted to your merchant account. We handle all financial reconciliation and provide detailed reporting through our platform." %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="payments">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "How quickly do I receive payments from COD orders?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "We process and remit payments on a weekly basis. Once payments are collected, they go through reconciliation and are transferred to your merchant account according to the payment schedule in your contract. You can track all transactions in real-time through our merchant dashboard." %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping FAQ -->
+                <div class="faq-item" data-category="shipping">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "What countries do you deliver to?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "We currently operate in 9 countries across the MENA region and are constantly expanding our reach. Our primary markets include Saudi Arabia, UAE, Egypt, Kuwait, Bahrain, Oman, Qatar, Jordan, and Lebanon. Check our coverage map on the platform for the most up-to-date information on delivery areas." %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="shipping">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "How long does delivery typically take?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "Delivery times vary by location, but we typically deliver within 1-3 business days for major cities and 3-5 business days for other areas. Express delivery options are available in select locations. You can track shipments in real-time through our platform and provide this tracking information to your customers." %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform FAQ -->
+                <div class="faq-item" data-category="platform">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "Which e-commerce platforms do you integrate with?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "We offer seamless integration with major e-commerce platforms including Shopify, WooCommerce, Magento, BigCommerce, and custom-built stores. Our API-based integration allows for real-time order syncing, inventory updates, and delivery status sharing. For platforms not directly supported, we offer alternative solutions like CSV imports or custom integration development." %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account FAQ -->
+                <div class="faq-item" data-category="account">
+                    <div class="faq-question group bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">{% trans "How do I get started with Atlas services?" %}</h3>
+                            <div class="faq-icon h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center transform transition-transform group-hover:bg-amber-100">
+                                <svg class="w-5 h-5 text-amber-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path class="vertical" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12"></path>
+                                    <path class="horizontal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="faq-answer mt-4 hidden">
+                            <p class="text-gray-600">{% trans "Getting started is easy! Simply sign up for a free trial on our website, and one of our onboarding specialists will contact you to set up your account. The onboarding process typically takes 2-3 business days, which includes platform integration, account setup, and training. We provide full support throughout the process to ensure you're up and running quickly." %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More Questions Section -->
+            <div class="mt-16 text-center">
+                <h3 class="text-2xl font-bold mb-4">{% trans "Still have questions?" %}</h3>
+                <p class="text-gray-600 mb-8">{% trans "Our support team is here to help you with any other questions you might have." %}</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#" class="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-medium shadow-md transition-all hover:scale-105">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        {% trans "Contact Support" %}
+                    </a>
+                    <a href="#" class="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-800 px-6 py-3 rounded-lg font-medium shadow-md border border-gray-200 transition-all hover:scale-105">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        {% trans "Live Chat" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu functionality
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    
+    if (mobileMenuButton && mobileMenu && mobileMenuOverlay) {
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('translate-x-full');
+            mobileMenuOverlay.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+        }
+        
+        mobileMenuButton.addEventListener('click', toggleMobileMenu);
+        if (document.getElementById('mobile-menu-close')) {
+            document.getElementById('mobile-menu-close').addEventListener('click', toggleMobileMenu);
+        }
+        mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
+    }
+
+    // FAQ accordion functionality
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+            const answer = this.querySelector('.faq-answer');
+            const icon = this.querySelector('.faq-icon svg');
+            
+            // Toggle answer visibility
+            answer.classList.toggle('hidden');
+            
+            // Animate icon
+            if (answer.classList.contains('hidden')) {
+                icon.querySelector('.vertical').classList.remove('hidden');
+            } else {
+                icon.querySelector('.vertical').classList.add('hidden');
+            }
+        });
+    });
+
+    // FAQ category filtering
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const category = this.getAttribute('data-category');
+            
+            // Update active button styling
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('bg-amber-500', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            
+            this.classList.remove('bg-white', 'text-gray-700');
+            this.classList.add('bg-amber-500', 'text-white');
+            
+            // Filter FAQ items
+            if (category === 'all') {
+                faqItems.forEach(item => {
+                    item.style.display = 'block';
+                });
+            } else {
+                faqItems.forEach(item => {
+                    if (item.getAttribute('data-category') === category) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('faq-search');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('h3').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Reset category buttons
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('bg-amber-500', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            
+            document.querySelector('[data-category="all"]').classList.remove('bg-white', 'text-gray-700');
+            document.querySelector('[data-category="all"]').classList.add('bg-amber-500', 'text-white');
+        });
+    }
+});
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+{% endblock %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Atlas services</title>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{% static 'js/app.js' %}"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Gradient Blob Background -->
+    <div class="absolute -z-10 w-full h-full overflow-hidden">
+        <div class="absolute top-0 -left-40 w-96 h-96 bg-amber-300 opacity-30 rounded-full filter blur-3xl"></div>
+        <div class="absolute top-64 right-0 w-80 h-80 bg-yellow-300 opacity-30 rounded-full filter blur-3xl"></div>
+        <div class="absolute bottom-0 left-20 w-72 h-72 bg-amber-200 opacity-30 rounded-full filter blur-3xl"></div>
+    </div>
+    {% include 'landing/partials/header.html' %}
+    <!-- Main FAQ Content (replace this comment with the main content from faq.html) -->
+    <!-- ... faq content ... -->
+    {% include 'landing/partials/footer.html' %}
+</body>
+</html> 

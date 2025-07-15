@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CRM Fulfillment System{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+        .sidebar-active {
+            background-color: #FFCC00;
+            color: #333333;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-light">
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-secondary text-white shadow-sidebar">
+            <div class="p-4 flex items-center justify-center border-b border-gray-700">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" class="h-10">
+                <h1 class="text-xl font-heading font-bold ml-2">CRM System</h1>
+            </div>
+            
+            <nav class="mt-6">
+                <div class="px-4 py-2 text-xs uppercase text-gray-400 font-semibold">
+                    Main
+                </div>
+                
+                <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-3 hover:bg-gray-700 {% if request.resolver_match.url_name == 'dashboard' %}sidebar-active{% endif %}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                
+                {% if user.user_type == 'seller' or user.user_type == 'admin' or user.user_type == 'super_admin' %}
+                <a href="{% url 'orders:list' %}" class="flex items-center px-4 py-3 hover:bg-gray-700 {% if 'orders' in request.path %}sidebar-active{% endif %}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <span>Orders</span>
+                </a>
+                
+                <a href="{% url 'products:list' %}" class="flex items-center px-4 py-3 hover:bg-gray-700 {% if 'products' in request.path %}sidebar-active{% endif %}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span>Products</span>
+                </a>
+                {% endif %}
+                
+                {% if user.user_type == 'sourcing' or user.user_type == 'admin' or user.user_type == 'super_admin' %}
+                <a href="{% url 'sourcing:requests' %}" class="flex items-center px-4 py-3 hover:bg-gray-700 {% if 'sourcing' in request.path %}sidebar-active{% endif %}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                    </svg>
+                    <span>Sourcing</span>
+                </a>
+                {% endif %}
+                
+                <!-- Additional menu items based on user role -->
+                {% include 'includes/sidebar_menu_items.html' %}
+                
+                {% if user.user_type == 'super_admin' %}
+                <div class="px-4 py-2 mt-4 text-xs uppercase text-gray-400 font-semibold">
+                    Administration
+                </div>
+                
+                <a href="{% url 'admin:users' %}" class="flex items-center px-4 py-3 hover:bg-gray-700 {% if 'admin/users' in request.path %}sidebar-active{% endif %}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <span>Users</span>
+                </a>
+                
+                <a href="{% url 'admin:settings' %}" class="flex items-center px-4 py-3 hover:bg-gray-700 {% if 'admin/settings' in request.path %}sidebar-active{% endif %}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+                {% endif %}
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between p-4">
+                    <div>
+                        <button class="text-gray-600 focus:outline-none lg:hidden">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="relative">
+                            <button class="flex items-center focus:outline-none">
+                                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-secondary font-bold mr-2">
+                                    {{ user.first_name|first }}{{ user.last_name|first }}
+                                </div>
+                                <span class="text-gray-700">{{ user.get_full_name }}</span>
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto p-6">
+                <!-- Page Header -->
+                <div class="mb-6">
+                    <h1 class="text-2xl font-heading font-bold text-secondary">{% block page_title %}Dashboard{% endblock %}</h1>
+                    <div class="text-sm text-gray-dark">{% block breadcrumbs %}Home / Dashboard{% endblock %}</div>
+                </div>
+                
+                <!-- Main Content -->
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

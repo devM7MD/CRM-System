@@ -1,0 +1,889 @@
+{% extends 'landing/base_landing.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "About Us - Atlas services" %}{% endblock %}
+
+{% block content %}
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: {
+                        50: '#fffbeb',
+                        100: '#fef3c7',
+                        200: '#fde68a',
+                        300: '#fcd34d',
+                        400: '#fbbf24',
+                        500: '#f59e0b',
+                        600: '#d97706',
+                        700: '#b45309',
+                        800: '#92400e',
+                        900: '#78350f',
+                        950: '#451a03'
+                    },
+                    yellow: {
+                        50: '#fefce8',
+                        100: '#fef9c3',
+                        200: '#fef08a',
+                        300: '#fde047',
+                        400: '#facc15',
+                        500: '#eab308',
+                        600: '#ca8a04',
+                        700: '#a16207',
+                        800: '#854d0e',
+                        900: '#713f12',
+                        950: '#422006'
+                    }
+                },
+                animation: {
+                    'fade-in': 'fadeIn 1s ease-in-out',
+                    'slide-up': 'slideUp 0.5s ease-out',
+                    'slide-down': 'slideDown 0.5s ease-out',
+                    'slide-in-right': 'slideInRight 0.5s ease-out',
+                    'slide-in-left': 'slideInLeft 0.5s ease-out',
+                    'scale': 'scale 4s infinite',
+                    'float': 'float 6s ease-in-out infinite',
+                    'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                },
+                keyframes: {
+                    fadeIn: {
+                        '0%': { opacity: 0 },
+                        '100%': { opacity: 1 }
+                    },
+                    slideUp: {
+                        '0%': { transform: 'translateY(20px)', opacity: 0 },
+                        '100%': { transform: 'translateY(0)', opacity: 1 }
+                    },
+                    slideDown: {
+                        '0%': { transform: 'translateY(-20px)', opacity: 0 },
+                        '100%': { transform: 'translateY(0)', opacity: 1 }
+                    },
+                    slideInRight: {
+                        '0%': { transform: 'translateX(-20px)', opacity: 0 },
+                        '100%': { transform: 'translateX(0)', opacity: 1 }
+                    },
+                    slideInLeft: {
+                        '0%': { transform: 'translateX(20px)', opacity: 0 },
+                        '100%': { transform: 'translateX(0)', opacity: 1 }
+                    },
+                    scale: {
+                        '0%, 100%': { transform: 'scale(1)' },
+                        '50%': { transform: 'scale(1.05)' }
+                    },
+                    float: {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(-10px)' }
+                    }
+                },
+                fontFamily: {
+                    sans: ['Poppins', 'Tajawal', 'sans-serif']
+                }
+            }
+        }
+    }
+</script>
+<style>
+    /* Custom Styles */
+    :root {
+        --primary-color: #F59E0B; /* Amber-500 */
+        --primary-dark: #D97706; /* Amber-600 */
+        --primary-light: #FCD34D; /* Amber-300 */
+        --secondary-color: #EAB308; /* Yellow-500 */
+        --dark-color: #1E293B;
+        --light-color: #FFFFFF;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .bg-grid-pattern {
+        background-image: 
+            linear-gradient(rgba(235, 235, 235, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(235, 235, 235, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    
+    .animation-delay-500 {
+        animation-delay: 500ms;
+    }
+    
+    .animation-delay-1000 {
+        animation-delay: 1000ms;
+    }
+    
+    .animated-gradient-text {
+        background: linear-gradient(90deg, #F59E0B, #EAB308, #F59E0B);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientText 3s linear infinite;
+    }
+    
+    @keyframes gradientText {
+        0% { background-position: 0% center; }
+        100% { background-position: 200% center; }
+    }
+    
+    .pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    @keyframes pulse-ring {
+        0% {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+        50% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+    }
+    
+    /* Animation classes that match Tailwind config */
+    .animate-gradient-text {
+        animation: gradientText 3s linear infinite;
+    }
+    
+    .animate-pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    /* Improved dropdown styles */
+    .desktop-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 50;
+        min-width: 12rem;
+        padding: 0.5rem 0;
+        margin-top: 0.5rem;
+        background-color: white;
+        border-radius: 0.375rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 150ms ease-in-out, visibility 150ms ease-in-out;
+    }
+    
+    .desktop-dropdown-trigger:hover .desktop-dropdown,
+    .desktop-dropdown-trigger:focus .desktop-dropdown,
+    .desktop-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
+</head>
+<body class="bg-gray-50 " dir="{% get_current_language as LANGUAGE_CODE %}{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+   
+
+
+
+
+  <section class="relative py-24 overflow-hidden">
+  
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-amber-400 opacity-20 blur-[100px]"></div>
+    </div>
+
+    <div class="container px-4 md:px-6">
+      <div class="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+        <div class="flex flex-col justify-center items-center text-center space-y-4">
+          <div class="space-y-2">
+            <h1 class="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+              <span class="bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">{% trans "About Atlas services" %}</span>
+            </h1>
+            <p class="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400 mx-auto">
+              {% trans "We enable businesses to build stronger customer relationships and scale operations through our innovative CRM platform." %}
+            </p>
+          </div>
+          <div class="flex flex-col gap-2 min-[400px]:flex-row justify-center">
+            <a href="#" class="inline-flex h-10 items-center justify-center rounded-md bg-amber-500 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-amber-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50">
+              {% trans "Get Started" %}
+            </a>
+            <a href="#" class="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50">
+              {% trans "Learn More" %}
+            </a>
+          </div>
+        </div>
+        <div class="flex items-center justify-center">
+          <div class="relative aspect-video overflow-hidden rounded-xl border group bg-white shadow-lg transition-all">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-50 to-amber-100 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative h-full">
+              <img 
+                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                alt="Modern office workspace" 
+                class="h-full w-full object-cover transition-transform group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+              <div class="absolute bottom-0 left-0 w-full p-6 text-white">
+                <div class="font-semibold">{% trans "Atlas services Dashboard" %}</div>
+                <p class="text-sm text-gray-200">{% trans "Powerful insights & seamless management" %}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+ <section class="py-12 bg-white border-y border-gray-200">
+  <div class="container px-4 md:px-6 mx-auto">
+    <div class="flex flex-wrap justify-between gap-4">
+      
+      <!-- Card 1 -->
+      <div class="relative w-full md:w-[calc(25%-12px)] overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+        <div class="flex flex-col items-start justify-between gap-4">
+          <div class="space-y-2">
+            <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <h3 class="text-3xl font-bold text-amber-500">+20k</h3>
+            <p class="text-lg font-medium">{% trans "Satisfied Clients" %}</p>
+            <p class="text-sm text-gray-500">{% trans "Our main goal is to provide for our clients the best services quality." %}</p>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="relative w-full md:w-[calc(25%-12px)] overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+        <div class="flex flex-col items-start justify-between gap-4">
+          <div class="space-y-2">
+            <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M9 17H7A5 5 0 0 1 7 7h2"/>
+                <path d="M15 7h2a5 5 0 1 1 0 10h-2"/>
+                <line x1="8" x2="16" y1="12" y2="12"/>
+              </svg>
+            </div>
+            <h3 class="text-3xl font-bold text-amber-500">+10k</h3>
+            <p class="text-lg font-medium">{% trans "Daily Orders" %}</p>
+            <p class="text-sm text-gray-500">{% trans "We maintain a large delivery capacity in the shortest time." %}</p>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="relative w-full md:w-[calc(25%-12px)] overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+        <div class="flex flex-col items-start justify-between gap-4">
+          <div class="space-y-2">
+            <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/>
+                <path d="M6 18h12"/>
+                <path d="M6 14h12"/>
+                <rect width="12" height="12" x="6" y="10"/>
+              </svg>
+            </div>
+            <h3 class="text-3xl font-bold text-amber-500">+17</h3>
+            <p class="text-lg font-medium">{% trans "Warehouses" %}</p>
+            <p class="text-sm text-gray-500">{% trans "Our warehouses store all the goods you want to sell." %}</p>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="relative w-full md:w-[calc(25%-12px)] overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow group">
+        <div class="flex flex-col items-start justify-between gap-4">
+          <div class="space-y-2">
+            <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                <path d="M2 12h20"/>
+              </svg>
+            </div>
+            <h3 class="text-3xl font-bold text-amber-500">+9</h3>
+            <p class="text-lg font-medium">{% trans "Countries" %}</p>
+            <p class="text-sm text-gray-500">{% trans "Our presence is expanding to cover more countries." %}</p>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-300 to-yellow-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+  <!-- How It Works Section -->
+  <section class="py-16 bg-gray-50 relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-amber-50 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 w-1/3 aspect-square bg-gradient-to-t from-amber-50 to-transparent rounded-full opacity-50"></div>
+    </div>
+    
+    <div class="container px-4 md:px-6 mx-auto relative z-10">
+      <div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+        <div class="space-y-2 max-w-[800px]">
+          <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+            <span>{% trans "Our Process" %}</span>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">{% trans "How It Works" %}</h2>
+          <p class="text-gray-500 md:text-xl/relaxed dark:text-gray-400">
+            {% trans "Our streamlined approach to customer relationship management" %}
+          </p>
+        </div>
+      </div>
+      
+      <div class="mx-auto grid max-w-4xl items-start gap-8 lg:gap-12">
+        <div class="grid gap-4 md:grid-cols-[80px_1fr] md:gap-8">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm md:h-[80px] md:w-[80px]">
+            <div class="flex items-center justify-center space-x-1 text-3xl font-bold text-amber-500">
+              <span>01</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold">{% trans "Connect" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400">
+              {% trans "Connect various e-commerce platforms to our CRM app for seamless integration and data synchronization." %}
+            </p>
+            <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
+              <div class="absolute inset-y-0 left-0 w-1/3 bg-amber-500 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid gap-4 md:grid-cols-[80px_1fr] md:gap-8">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm md:h-[80px] md:w-[80px]">
+            <div class="flex items-center justify-center space-x-1 text-3xl font-bold text-amber-500">
+              <span>02</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold">{% trans "Ecosystem" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400">
+              {% trans "End-to-End solutions from sourcing to collection, providing a complete business ecosystem." %}
+            </p>
+            <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
+              <div class="absolute inset-y-0 left-0 w-2/3 bg-amber-500 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid gap-4 md:grid-cols-[80px_1fr] md:gap-8">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm md:h-[80px] md:w-[80px]">
+            <div class="flex items-center justify-center space-x-1 text-3xl font-bold text-amber-500">
+              <span>03</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold">{% trans "Sell" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400">
+              {% trans "Focus on marketing and scaling your products while our platform handles backend operations." %}
+            </p>
+            <div class="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
+              <div class="absolute inset-y-0 left-0 w-full bg-amber-500 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Locations Section -->
+  <section class="py-16 bg-white relative overflow-hidden">
+    <div class="absolute left-1/2 top-0 -z-10 h-full w-full -translate-x-1/2 bg-white [mask-image:radial-gradient(closest-side,white,transparent)]">
+      <div aria-hidden="true" class="absolute inset-0 h-full w-full bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:12px_12px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black_40%,transparent_100%)]"></div>
+    </div>
+
+    <div class="container px-4 md:px-6 mx-auto">
+      <div class="grid gap-6 lg:grid-cols-2 lg:gap-12">
+        <div class="space-y-4">
+          <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+            <span>{% trans "Global Presence" %}</span>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tighter md:text-4xl">{% trans "Our Locations" %}</h2>
+          <p class="text-gray-500 md:text-xl">
+            {% trans "Our growing network of services allows for faster delivery and shorter transit times" %}
+          </p>
+          <div class="text-gray-600">
+            <p class="mb-4">
+              {% trans "With Atlas services Growing Network and seamless integrations, we help you reach your customers quickly, effectively, and affordably. Expand your business and distribute your inventory in strategically located warehouses spanning four continents and more than 9 countries." %}
+            </p>
+            <button class="inline-flex h-10 items-center justify-center rounded-md bg-amber-500 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-amber-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50">
+              {% trans "Start Now" %}
+            </button>
+          </div>
+        </div>
+        
+        <div class="relative">
+          <div class="absolute -inset-4 rounded-3xl bg-gradient-to-b from-amber-100 to-amber-50 opacity-50 blur-xl"></div>
+          <div class="relative grid grid-cols-3 gap-3 md:gap-6">
+            <!-- Country Cards -->
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/qa.png" alt="Qatar flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Qatar</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/sa.png" alt="Saudi Arabia flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Saudi Arabia</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/kw.png" alt="Kuwait flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Kuwait</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/bh.png" alt="Bahrain flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Bahrain</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/om.png" alt="Oman flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Oman</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/ae.png" alt="UAE flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">UAE</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/ma.png" alt="Morocco flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Morocco</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/in.png" alt="India flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">India</p>
+              </div>
+            </div>
+            
+            <div class="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg hover:-translate-y-1">
+              <div class="p-3 flex flex-col items-center justify-center">
+                <img src="https://flagcdn.com/w80/sn.png" alt="Senegal flag" class="h-12 w-auto rounded-md border shadow-sm">
+                <p class="mt-2 text-xs font-medium text-center text-gray-700">Senegal</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Company Overview Section -->
+  <section class="py-16 bg-gray-50 relative overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <div class="absolute left-0 bottom-0 h-1/2 w-3/4 bg-gradient-to-tr from-amber-50 to-transparent rounded-full"></div>
+      <div class="absolute right-0 top-0 h-72 w-72 bg-amber-100 rounded-full opacity-20 filter blur-3xl"></div>
+    </div>
+    
+    <div class="container px-4 md:px-6 mx-auto relative z-10">
+      <div class="grid gap-12 lg:grid-cols-2">
+        <div class="relative group">
+          <div class="absolute -inset-1 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-400 opacity-25 blur transition duration-1000 group-hover:opacity-50"></div>
+          <div class="relative h-full overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+            <div class="h-72 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                alt="Warehouse interior" 
+                class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60"></div>
+            <div class="absolute bottom-0 left-0 w-full p-6">
+              <div class="bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                                  <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-amber-500">
+                        <path d="M21 7v6h-6"></path>
+                        <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+                      </svg>
+                      <span class="text-sm font-medium text-amber-500">{% trans "End-to-End Solution" %}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">{% trans "Global E-commerce Platform" %}</h3>
+                    <p class="text-sm text-gray-500">{% trans "Handling operations across multiple countries with seamless integration." %}</p>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex flex-col justify-center space-y-6">
+          <div class="space-y-2">
+            <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+              <span>{% trans "Our Mission" %}</span>
+            </div>
+            <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl">{% trans "We Enable Everyone to Start, Grow and Scale Ecommerce Business" %}</h2>
+            <p class="text-gray-500 md:text-lg/relaxed">
+              {% trans "In the Middle East, Africa and Beyond." %}
+            </p>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="flex gap-4">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-xl font-medium">{% trans "All-in-One Platform" %}</h3>
+                <p class="text-gray-500">
+                  {% trans "Atlas services is an all-in-one platform that enables businesses to sell products online across multiple countries in the MENA region & beyond." %}
+                </p>
+              </div>
+            </div>
+            
+            <div class="flex gap-4">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-xl font-medium">{% trans "Operational Excellence" %}</h3>
+                <p class="text-gray-500">
+                  {% trans "Our solution takes care of all operational aspects, enabling you to focus on marketing and scaling your products." %}
+                </p>
+              </div>
+            </div>
+            
+            <div class="flex gap-4">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                  <line x1="2" x2="22" y1="10" y2="10"></line>
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-xl font-medium">{% trans "Complete Network Access" %}</h3>
+                <p class="text-gray-500">
+                  {% trans "Integrating with Atlas services grants you access to call centers, factories, sourcing agents, fulfillment centers, and last-mile shipping solutions." %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="py-16 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+    </div>
+    
+    <div class="container px-4 md:px-6 mx-auto">
+      <div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+        <div class="space-y-2">
+          <div class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm text-amber-600">
+            <span>{% trans "Meet The Team" %}</span>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">{% trans "Our Team" %}</h2>
+          <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl/relaxed">
+            {% trans "Our team of experts is dedicated to providing the best customer relationship solutions across the globe." %}
+          </p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <!-- Team Member 1 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="John Smith" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">{% trans "John Smith" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "CEO & Founder" %}</p>
+          </div>
+        </div>
+        
+        <!-- Team Member 2 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1376&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="Sarah Johnson" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">{% trans "Sarah Johnson" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "Operations Director" %}</p>
+          </div>
+        </div>
+        
+        <!-- Team Member 3 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="Mohammed Al-Qasim" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">{% trans "Mohammed Al-Qasim" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "MENA Regional Manager" %}</p>
+          </div>
+        </div>
+        
+        <!-- Team Member 4 -->
+        <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+          <div class="aspect-square overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1522&auto=format&fit=crop&ixlib=rb-4.0.3" 
+              alt="Priya Sharma" 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                  </svg>
+                </a>
+                <a href="#" class="rounded-full bg-white/80 p-2 text-gray-900 transition-colors hover:bg-amber-500 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-4 w-4" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 text-center">
+            <h3 class="text-lg font-bold">{% trans "Priya Sharma" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "Technology Lead" %}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+</body>
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Menu Functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const mobileMenuClose = document.getElementById('mobile-menu-close');
+            
+            // Toggle Mobile Menu
+            function toggleMobileMenu() {
+                mobileMenu.classList.toggle('translate-x-full');
+                mobileMenuOverlay.classList.toggle('hidden');
+                document.body.classList.toggle('overflow-hidden');
+            }
+            
+            mobileMenuButton.addEventListener('click', toggleMobileMenu);
+            mobileMenuClose.addEventListener('click', toggleMobileMenu);
+            mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
+            
+            // Mobile Submenus
+            const mobileSubmenuTriggers = document.querySelectorAll('.mobile-submenu-trigger');
+            
+            mobileSubmenuTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function() {
+                    const submenu = this.nextElementSibling;
+                    const icon = this.querySelector('svg');
+                    
+                    submenu.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+            
+            // Mobile Language Menu
+            const mobileLangTrigger = document.querySelector('.mobile-language-trigger');
+            
+            if (mobileLangTrigger) {
+                mobileLangTrigger.addEventListener('click', function() {
+                    const langMenu = this.nextElementSibling;
+                    const icon = this.querySelector('svg');
+                    
+                    langMenu.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            }
+            
+            // Desktop dropdowns
+            const dropdownTriggers = document.querySelectorAll('.desktop-dropdown-trigger');
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const isDropdownButton = e.target.closest('.desktop-dropdown-trigger');
+                if (!isDropdownButton) {
+                    document.querySelectorAll('.desktop-dropdown.show').forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+            
+            // Toggle dropdown visibility when clicked (for touch devices)
+            dropdownTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function(e) {
+                    const dropdown = this.querySelector('.desktop-dropdown');
+                    if (dropdown) {
+                        const isOpen = dropdown.classList.contains('show');
+                        
+                        // Close any open dropdowns first
+                        document.querySelectorAll('.desktop-dropdown.show').forEach(dropdown => {
+                            dropdown.classList.remove('show');
+                        });
+                        
+                        // Toggle clicked dropdown
+                        if (!isOpen) {
+                            dropdown.classList.add('show');
+                            e.stopPropagation();
+                        }
+                    }
+                });
+            });
+            
+            // Animate on scroll functionality
+            const animateElements = document.querySelectorAll('.animate-on-scroll');
+            
+            function checkIfInView() {
+                animateElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    } else {
+                        element.classList.remove('visible');
+                    }
+                });
+            }
+            
+            // First check on page load
+            window.addEventListener('load', checkIfInView);
+            // Check on scroll
+            window.addEventListener('scroll', checkIfInView);
+            
+            // Gradient Animation
+            function animateGradient() {
+                const gradientElements = document.querySelectorAll('.animated-background');
+                
+                gradientElements.forEach(element => {
+                    let gradientPos = parseInt(element.dataset.gradientPos || '0');
+                    gradientPos = (gradientPos + 1) % 200;
+                    element.style.backgroundPosition = `${gradientPos}% 50%`;
+                    element.dataset.gradientPos = gradientPos;
+                });
+                
+                requestAnimationFrame(animateGradient);
+            }
+            
+            // Start the gradient animation
+            requestAnimationFrame(animateGradient);
+        });
+    </script>
+
+{% endblock %}
+

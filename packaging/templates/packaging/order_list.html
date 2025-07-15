@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Packaging Orders" %}{% endblock %}
+
+{% block header %}{% trans "Orders for Packaging" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Orders List -->
+        <div class="w-full lg:w-2/3">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 flex justify-between items-center border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Orders List" %}</h3>
+                    <a href="{% url 'packaging:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                        <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+                    </a>
+                </div>
+                
+                <div class="p-4">
+                    <!-- Filters -->
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        <div class="relative">
+                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                <option>{% trans "All Statuses" %}</option>
+                                <option>{% trans "Pending" %}</option>
+                                <option>{% trans "Processing" %}</option>
+                                <option>{% trans "Completed" %}</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="relative">
+                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                <option>{% trans "Today" %}</option>
+                                <option>{% trans "Last 7 Days" %}</option>
+                                <option>{% trans "Last 30 Days" %}</option>
+                                <option>{% trans "All Time" %}</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="relative flex-grow">
+                            <input type="text" placeholder="{% trans 'Search by ID or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        </div>
+                    </div>
+                    
+                    <!-- Orders Table -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order ID" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Customer" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Items" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <!-- This is just sample data - would be populated from the view -->
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-001</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Customer Name</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-15</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">3</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            {% trans "Pending" %}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <a href="#" class="text-primary-600 hover:text-primary-900">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="#" class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-box"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-002</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Another Customer</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-14</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">1</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            {% trans "Pending" %}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <a href="#" class="text-primary-600 hover:text-primary-900">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="#" class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-box"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="mt-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            {% trans "Showing" %} <span class="font-medium">1</span> {% trans "to" %} <span class="font-medium">2</span> {% trans "of" %} <span class="font-medium">2</span> {% trans "results" %}
+                        </div>
+                        <div class="flex space-x-1">
+                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                {% trans "Previous" %}
+                            </a>
+                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                {% trans "Next" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help sidebar -->
+        <div class="w-full lg:w-1/3">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Packaging Guide" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="flex flex-col items-center">
+                        <img src="{% static 'img/undraw_shipping.svg' %}" alt="{% trans 'Shipping Illustration' %}" class="max-h-48 mb-4">
+                        
+                        <div class="space-y-3 w-full text-sm">
+                            <div class="border border-gray-200 rounded-md p-3">
+                                <div class="font-medium text-gray-800 mb-1">
+                                    <i class="fas fa-info-circle text-primary-500 mr-2"></i>
+                                    {% trans "Packaging Process" %}
+                                </div>
+                                <p class="text-gray-600">
+                                    {% trans "Click on the box icon to start processing an order. Make sure to verify all items before confirming." %}
+                                </p>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-md p-3">
+                                <div class="font-medium text-gray-800 mb-1">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                    {% trans "Need Help?" %}
+                                </div>
+                                <p class="text-gray-600">
+                                    {% trans "For assistance with the packaging process, contact the support team or check the documentation." %}
+                                </p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <a href="#" class="block text-center w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                                    {% trans "View Documentation" %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

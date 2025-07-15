@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create New Order{% endblock %}
+
+{% block content %}
+<div class="py-10">
+    <header>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold leading-tight text-gray-900">Create New Order</h1>
+        </div>
+    </header>
+    <main>
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Order Information</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the order details below</p>
+                    </div>
+                    <a href="{% url 'orders:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                        </svg>
+                        Back to Order List
+                    </a>
+                </div>
+                <form method="post" action="{% url 'orders:create_order' %}">
+                    {% csrf_token %}
+                    <div class="px-4 py-5 sm:p-6">
+                        <!-- Customer Information -->
+                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div class="sm:col-span-3">
+                                <label for="id_customer_name" class="block text-sm font-medium text-gray-700">Customer Name</label>
+                                <div class="mt-1">
+                                    {{ form.customer_name }}
+                                </div>
+                                {% if form.customer_name.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.customer_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="sm:col-span-3">
+                                <label for="id_customer_phone" class="block text-sm font-medium text-gray-700">Customer Phone</label>
+                                <div class="mt-1">
+                                    {{ form.customer_phone }}
+                                </div>
+                                {% if form.customer_phone.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.customer_phone.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="sm:col-span-3">
+                                <label for="id_customer_email" class="block text-sm font-medium text-gray-700">Customer Email</label>
+                                <div class="mt-1">
+                                    {{ form.customer_email }}
+                                </div>
+                                {% if form.customer_email.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.customer_email.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="sm:col-span-3">
+                                <label for="id_delivery_address" class="block text-sm font-medium text-gray-700">Delivery Address</label>
+                                <div class="mt-1">
+                                    {{ form.delivery_address }}
+                                </div>
+                                {% if form.delivery_address.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.delivery_address.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="sm:col-span-3">
+                                <label for="id_status" class="block text-sm font-medium text-gray-700">Status</label>
+                                <div class="mt-1">
+                                    {{ form.status }}
+                                </div>
+                                {% if form.status.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            {% if user.role == 'super_admin' or user.role == 'admin' %}
+                            <div class="sm:col-span-3">
+                                <label for="id_seller" class="block text-sm font-medium text-gray-700">Seller</label>
+                                <div class="mt-1">
+                                    <select name="seller" id="id_seller" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                        {% for seller in sellers %}
+                                        <option value="{{ seller.id }}">{{ seller.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="sm:col-span-6">
+                                <label for="id_notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                                <div class="mt-1">
+                                    {{ form.notes }}
+                                </div>
+                                {% if form.notes.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="mt-10">
+                            <h3 class="text-lg font-medium text-gray-900 mb-5">Order Items</h3>
+                            <div id="items-container">
+                                {{ formset.management_form }}
+                                {% for item_form in formset %}
+                                <div class="order-item border border-gray-200 rounded-md p-4 mb-4">
+                                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                                        {{ item_form.id }}
+                                        
+                                        <div class="sm:col-span-3">
+                                            <label for="{{ item_form.product.id_for_label }}" class="block text-sm font-medium text-gray-700">Product</label>
+                                            <div class="mt-1">
+                                                <select name="{{ item_form.product.html_name }}" id="{{ item_form.product.id_for_label }}" class="product-select shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                                    <option value="">---------</option>
+                                                    {% for product in products %}
+                                                    <option value="{{ product.id }}" data-price="{{ product.selling_price }}">{{ product.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            {% if item_form.product.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ item_form.product.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="sm:col-span-1">
+                                            <label for="{{ item_form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700">Quantity</label>
+                                            <div class="mt-1">
+                                                {{ item_form.quantity }}
+                                            </div>
+                                            {% if item_form.quantity.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ item_form.quantity.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="sm:col-span-1">
+                                            <label for="{{ item_form.price.id_for_label }}" class="block text-sm font-medium text-gray-700">Price</label>
+                                            <div class="mt-1">
+                                                {{ item_form.price }}
+                                            </div>
+                                            {% if item_form.price.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ item_form.price.errors.0 }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="sm:col-span-1 flex items-end">
+                                            <button type="button" class="remove-item text-red-600 hover:text-red-900">
+                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mt-2">
+                                <button type="button" id="add-item" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
+                                    <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Add Item
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                            Create Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Empty form for cloning -->
+<div id="empty-form" class="hidden">
+    <div class="order-item border border-gray-200 rounded-md p-4 mb-4">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            {{ formset.empty_form.id }}
+            
+            <div class="sm:col-span-3">
+                <label for="{{ formset.empty_form.product.id_for_label }}" class="block text-sm font-medium text-gray-700">Product</label>
+                <div class="mt-1">
+                    <select name="{{ formset.empty_form.product.html_name }}" id="{{ formset.empty_form.product.id_for_label }}" class="product-select shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">---------</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}" data-price="{{ product.selling_price }}">{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="sm:col-span-1">
+                <label for="{{ formset.empty_form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700">Quantity</label>
+                <div class="mt-1">
+                    {{ formset.empty_form.quantity }}
+                </div>
+            </div>
+
+            <div class="sm:col-span-1">
+                <label for="{{ formset.empty_form.price.id_for_label }}" class="block text-sm font-medium text-gray-700">Price</label>
+                <div class="mt-1">
+                    {{ formset.empty_form.price }}
+                </div>
+            </div>
+
+            <div class="sm:col-span-1 flex items-end">
+                <button type="button" class="remove-item text-red-600 hover:text-red-900">
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add new item functionality
+        const addItemBtn = document.getElementById('add-item');
+        const itemsContainer = document.getElementById('items-container');
+        const emptyForm = document.getElementById('empty-form').firstElementChild.cloneNode(true);
+        
+        // Get the total forms
+        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+        
+        addItemBtn.addEventListener('click', function() {
+            // Clone the empty form
+            const newForm = emptyForm.cloneNode(true);
+            
+            // Update form index
+            const formCount = parseInt(totalForms.value);
+            newForm.innerHTML = newForm.innerHTML.replace(/__prefix__/g, formCount);
+            
+            // Increment total forms
+            totalForms.value = formCount + 1;
+            
+            // Add to container
+            itemsContainer.appendChild(newForm);
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+        
+        // Remove item functionality
+        function setupEventListeners() {
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemDiv = this.closest('.order-item');
+                    itemDiv.remove();
+                });
+            });
+            
+            document.querySelectorAll('.product-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const priceInput = this.closest('.order-item').querySelector('input[name$="-price"]');
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption.value) {
+                        priceInput.value = selectedOption.getAttribute('data-price');
+                    } else {
+                        priceInput.value = '';
+                    }
+                });
+            });
+        }
+        
+        // Initial setup
+        setupEventListeners();
+    });
+</script>
+{% endblock %} 

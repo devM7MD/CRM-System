@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventory Movements{% endblock %}
+
+{% block content %}
+<div class="py-10">
+    <header>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold leading-tight text-gray-900 dark:text-white">Inventory Movements</h1>
+        </div>
+    </header>
+    <main>
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Search and Filters -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-8">
+                <div class="px-4 py-5 sm:p-6">
+                    <form method="get" action="{% url 'inventory:movements' %}">
+                        <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-12 sm:gap-x-4">
+                            <div class="sm:col-span-3">
+                                <label for="warehouse" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Warehouse</label>
+                                <select id="warehouse" name="warehouse" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                                    <option value="">All Warehouses</option>
+                                    {% for warehouse in warehouses %}
+                                    <option value="{{ warehouse.id }}" {% if selected_warehouse_id == warehouse.id|stringformat:"i" %}selected{% endif %}>{{ warehouse.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Movement Type</label>
+                                <select id="type" name="type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                                    <option value="">All Types</option>
+                                    {% for key, value in movement_types.items %}
+                                    <option value="{{ key }}" {% if selected_movement_type == key %}selected{% endif %}>{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">From Date</label>
+                                <input type="date" id="from_date" name="from_date" value="{{ from_date }}" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">To Date</label>
+                                <input type="date" id="to_date" name="to_date" value="{{ to_date }}" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                            </div>
+                            <div class="sm:col-span-2 flex items-end">
+                                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 w-full">
+                                    Filter
+                                </button>
+                            </div>
+                            <div class="sm:col-span-1 flex items-end">
+                                <a href="{% url 'inventory:movements' %}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 w-full">
+                                    Reset
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Movements List -->
+            <div class="mt-8">
+                <div class="sm:flex sm:items-center">
+                    <div class="sm:flex-auto">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Inventory Movements</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">A list of all inventory movements with filtering options.</p>
+                    </div>
+                    <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                        <a href="{% url 'inventory:export_movements' %}?{% if selected_warehouse_id %}warehouse={{ selected_warehouse_id }}&{% endif %}{% if selected_movement_type %}type={{ selected_movement_type }}&{% endif %}{% if selected_product_id %}product={{ selected_product_id }}&{% endif %}{% if from_date %}from_date={{ from_date }}&{% endif %}{% if to_date %}to_date={{ to_date }}{% endif %}" class="inline-flex items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:w-auto">
+                            Export
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-8 flex flex-col">
+                    <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+                            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sm:pl-6">Date</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Product</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">From</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">To</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Reference</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                                        {% for movement in movements %}
+                                        <tr>
+                                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 dark:text-gray-400 sm:pl-6">{{ movement.created_at|date:"M d, Y H:i" }}</td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ movement.product.name_en }}</td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    {% if movement.movement_type == 'receive' %}bg-green-100 text-green-800
+                                                    {% elif movement.movement_type == 'transfer' %}bg-blue-100 text-blue-800
+                                                    {% elif movement.movement_type == 'order' %}bg-red-100 text-red-800
+                                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                                    {{ movement.get_movement_type_display }}
+                                                </span>
+                                            </td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ movement.quantity }}</td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ movement.from_warehouse.name }}</td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                {% if movement.to_warehouse %}
+                                                    {{ movement.to_warehouse.name }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ movement.created_by.full_name }}</td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ movement.reference|default:"-" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-gray-400">
+                                                No inventory movements found matching your criteria.
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %} 

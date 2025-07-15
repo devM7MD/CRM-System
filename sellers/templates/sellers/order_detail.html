@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Order Detail{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6">Order Detail</h1>
+    <div class="bg-white shadow rounded-lg p-6">
+        <dl class="divide-y divide-gray-200">
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Order Code</dt>
+                <dd class="text-gray-900">{{ order.order_code }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Customer</dt>
+                <dd class="text-gray-900">{{ order.customer }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Date</dt>
+                <dd class="text-gray-900">{{ order.date|date:"M d, Y H:i" }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Product</dt>
+                <dd class="text-gray-900">{{ order.product }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Quantity</dt>
+                <dd class="text-gray-900">{{ order.quantity }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Price Per Unit</dt>
+                <dd class="text-gray-900">{{ order.price_per_unit }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Seller</dt>
+                <dd class="text-gray-900">{{ order.seller }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Status</dt>
+                <dd class="text-gray-900">{{ order.status }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Total Price</dt>
+                <dd class="text-gray-900">{{ order.total_price }}</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+{% endblock %} 

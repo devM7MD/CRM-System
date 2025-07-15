@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}User Details{% endblock %}
+
+{% block content %}
+<div class="py-10">
+    <header>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a href="{% url 'users:list' %}" class="mr-3 text-yellow-600 hover:text-yellow-700">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <h1 class="text-3xl font-bold leading-tight text-gray-900 dark:text-white">User Details</h1>
+                </div>
+                <div class="flex ml-4">
+                    <a href="{% url 'users:edit' user_obj.id %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        Edit User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- User Profile Section -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-8">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">User Information</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Personal details and application.</p>
+                    </div>
+                    <div>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if user_obj.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if user_obj.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="border-t border-gray-200 dark:border-gray-700">
+                    <div class="px-4 py-5 sm:p-0">
+                        <dl class="sm:divide-y sm:divide-gray-200 dark:sm:divide-gray-700">
+                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Full name</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user_obj.full_name }}</dd>
+                            </div>
+                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Role</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                                    {% if user_obj.role == 'admin' %}
+                                    Administrator
+                                    {% elif user_obj.role == 'manager' %}
+                                    Manager
+                                    {% elif user_obj.role == 'staff' %}
+                                    Staff Member
+                                    {% else %}
+                                    {{ user_obj.role|title }}
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Email address</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user_obj.email }}</dd>
+                            </div>
+                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Phone</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user_obj.phone|default:"Not provided" }}</dd>
+                            </div>
+                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Date Joined</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user_obj.date_joined|date:"F d, Y" }}</dd>
+                            </div>
+                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Login</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user_obj.last_login|date:"F d, Y, g:i A"|default:"Never" }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities Section -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-8">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Recent Activities</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">User's most recent actions in the system.</p>
+                </div>
+                <div class="border-t border-gray-200 dark:border-gray-700">
+                    <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for activity in recent_activities %}
+                        <li class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ activity.description }}
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        <time datetime="{{ activity.timestamp|date:'c' }}">{{ activity.timestamp|date:"F d, Y, g:i A" }}</time>
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                        {% if activity.action_type == 'create' %}bg-green-100 text-green-800
+                                        {% elif activity.action_type == 'update' %}bg-blue-100 text-blue-800
+                                        {% elif activity.action_type == 'delete' %}bg-red-100 text-red-800
+                                        {% elif activity.action_type == 'login' %}bg-purple-100 text-purple-800
+                                        {% elif activity.action_type == 'logout' %}bg-gray-100 text-gray-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ activity.action_type|title }}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="py-10 px-6 text-center">
+                            <p class="text-gray-500 dark:text-gray-400">No recent activities found for this user.</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if recent_activities %}
+                <div class="px-4 py-4 sm:px-6 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{% url 'dashboard:activities' %}?user={{ user_obj.id }}" class="text-sm font-medium text-yellow-600 hover:text-yellow-500">
+                        View all activities
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Assigned Tasks Section -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-8">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Assigned Tasks</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Tasks currently assigned to this user.</p>
+                </div>
+                <div class="border-t border-gray-200 dark:border-gray-700">
+                    <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for task in assigned_tasks %}
+                        <li class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ task.title }}
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        Due: <time datetime="{{ task.due_date|date:'c' }}">{{ task.due_date|date:"F d, Y" }}</time>
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                        {% if task.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                        {% elif task.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                        {% elif task.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif task.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ task.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="py-10 px-6 text-center">
+                            <p class="text-gray-500 dark:text-gray-400">No tasks currently assigned to this user.</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if assigned_tasks %}
+                <div class="px-4 py-4 sm:px-6 border-t border-gray-200 dark:border-gray-700">
+                    <a href="#" class="text-sm font-medium text-yellow-600 hover:text-yellow-500">
+                        View all tasks
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex justify-end space-x-3">
+                {% if user_obj.is_active %}
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Deactivate User
+                </button>
+                {% else %}
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Activate User
+                </button>
+                {% endif %}
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Reset Password
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %} 
