@@ -1,0 +1,242 @@
+{% extends 'landing/base_landing.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-yellow-500 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6">{{ title }}</h1>
+        <p class="text-xl md:text-2xl mb-4">
+            في أطلس فولفيلمنت، نجعل العملية سهلة ومريحة لضمان تحقيق أهدافك بأقل جهد ممكن
+        </p>
+    </div>
+</section>
+
+<!-- How It Works Content -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">خطوات العمل معنا</h2>
+            <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                إليك الخطوات البسيطة للبدء في العمل معنا وتحقيق أقصى استفادة من خدماتنا
+            </p>
+        </div>
+        
+        <div class="relative">
+            <!-- Vertical Line -->
+            <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-yellow-200 transform -translate-x-1/2"></div>
+            
+            <!-- Steps -->
+            <div class="space-y-24">
+                {% for step in steps %}
+                <div class="relative">
+                    <!-- Step Number (Circle) -->
+                    <div class="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-yellow-500 text-white rounded-full items-center justify-center text-xl font-bold z-10">
+                        {{ forloop.counter }}
+                    </div>
+                    
+                    <!-- Step Content -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 {% if forloop.counter|divisibleby:2 %}md:flex-row-reverse{% endif %}">
+                        <div class="bg-gray-50 p-8 rounded-lg shadow-lg">
+                            <div class="md:hidden text-4xl text-yellow-500 mb-4">{{ step.number }}</div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">{{ step.title }}</h3>
+                            <p class="text-gray-600 text-lg">{{ step.description }}</p>
+                        </div>
+                        <div class="flex items-center">
+                            {% if forloop.counter == 1 %}
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">تسجيل سهل وسريع</h3>
+                                <p class="text-lg text-gray-600 mb-6">
+                                    عملية التسجيل لدينا بسيطة وسريعة، تتضمن الخطوات التالية:
+                                </p>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                    <li>إنشاء حساب على منصتنا باستخدام بريدك الإلكتروني</li>
+                                    <li>تعبئة المعلومات الأساسية عن نشاطك التجاري</li>
+                                    <li>اختيار الخدمات التي ترغب بالاستفادة منها</li>
+                                    <li>تحديد المنتجات التي ترغب في استيرادها أو تخزينها</li>
+                                    <li>سيتواصل معك أحد مستشارينا لمساعدتك في بدء العمل</li>
+                                </ol>
+                            </div>
+                            {% elif forloop.counter == 2 %}
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">منصة سهلة الاستخدام</h3>
+                                <p class="text-lg text-gray-600 mb-6">
+                                    منصتنا مصممة لتكون سهلة الاستخدام وتوفر لك:
+                                </p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-600">
+                                    <li>واجهة بسيطة وسهلة الاستخدام</li>
+                                    <li>إمكانية إضافة الطلبيات بكل سهولة ويسر</li>
+                                    <li>متابعة حالة الطلبيات في الوقت الفعلي</li>
+                                    <li>إدارة المخزون بكفاءة</li>
+                                    <li>تقارير مفصلة عن أداء مبيعاتك</li>
+                                </ul>
+                            </div>
+                            {% elif forloop.counter == 3 %}
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">فريق متخصص لخدمتك</h3>
+                                <p class="text-lg text-gray-600 mb-6">
+                                    يتولى فريقنا المحترف:
+                                </p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-600">
+                                    <li>الاتصال بالعملاء لتأكيد الطلبيات</li>
+                                    <li>التحقق من تفاصيل العنوان ووقت التسليم المناسب</li>
+                                    <li>الإجابة على استفسارات العملاء حول المنتجات</li>
+                                    <li>متابعة عملية التسليم وحل أي مشكلات قد تطرأ</li>
+                                    <li>تقديم تقارير دورية عن حالة الطلبيات</li>
+                                </ul>
+                            </div>
+                            {% elif forloop.counter == 4 %}
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-4">عملية تحويل الأموال</h3>
+                                <p class="text-lg text-gray-600 mb-6">
+                                    نضمن لك استلام مستحقاتك بسرعة وشفافية من خلال:
+                                </p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-600">
+                                    <li>تحويل الأموال بعد تسليم الطلبيات بنجاح</li>
+                                    <li>خيارات متعددة للتحويل (تحويل بنكي، محافظ إلكترونية، إلخ)</li>
+                                    <li>تقارير مالية مفصلة لكل عملية بيع</li>
+                                    <li>الشفافية الكاملة في جميع المعاملات المالية</li>
+                                    <li>دعم فني متاح للإجابة على أي استفسارات متعلقة بالمدفوعات</li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">مميزات العمل معنا</h2>
+            <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                عند اختيارك للعمل مع أطلس فولفيلمنت، ستحصل على العديد من المميزات التي تساعدك على تنمية أعمالك
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="text-xl font-semibold mb-3">توفير الوقت</h3>
+                <p class="text-gray-600">
+                    نتولى جميع العمليات اللوجستية، مما يتيح لك التركيز على تنمية أعمالك وزيادة مبيعاتك.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <h3 class="text-xl font-semibold mb-3">خفض التكاليف</h3>
+                <p class="text-gray-600">
+                    تقليل تكاليف التشغيل من خلال الاستفادة من خدماتنا المتكاملة بدلاً من إنشاء بنية تحتية خاصة بك.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <h3 class="text-xl font-semibold mb-3">زيادة المبيعات</h3>
+                <p class="text-gray-600">
+                    تحسين تجربة العملاء من خلال خدمة احترافية وتسليم سريع، مما يؤدي إلى زيادة رضا العملاء والمبيعات.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+{% comment %}
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">ما يقوله عملاؤنا</h2>
+            <div class="w-20 h-1 bg-yellow-500 mx-auto mb-6"></div>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                استمع إلى تجارب بعض عملائنا الذين استفادوا من خدماتنا
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="text-yellow-500">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    "منذ أن بدأت العمل مع أطلس فولفيلمنت، تمكنت من التركيز على تنمية علامتي التجارية وزيادة مبيعاتي بنسبة 150%. أنصح بشدة بخدماتهم لكل من يرغب في تطوير أعماله."
+                </p>
+                <div class="flex items-center">
+                    <div class="bg-yellow-200 rounded-full w-12 h-12 flex items-center justify-center text-yellow-800 font-bold text-xl">
+                        م
+                    </div>
+                    <div class="mr-4">
+                        <p class="font-semibold">محمد الأحمد</p>
+                        <p class="text-sm text-gray-500">صاحب متجر إلكتروني</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="text-yellow-500">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    "خدمة العملاء الاحترافية ودقة التسليم كانت من أهم العوامل التي جعلتني أستمر في العمل مع أطلس. لقد ساعدوني في بناء سمعة طيبة لعلامتي التجارية."
+                </p>
+                <div class="flex items-center">
+                    <div class="bg-yellow-200 rounded-full w-12 h-12 flex items-center justify-center text-yellow-800 font-bold text-xl">
+                        س
+                    </div>
+                    <div class="mr-4">
+                        <p class="font-semibold">سارة العلي</p>
+                        <p class="text-sm text-gray-500">صاحبة علامة تجارية للأزياء</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="text-yellow-500">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    "أكثر ما أعجبني في أطلس فولفيلمنت هو الشفافية في التعامل والمرونة في تلبية احتياجاتي الخاصة. لقد وفروا علي الكثير من الوقت والجهد."
+                </p>
+                <div class="flex items-center">
+                    <div class="bg-yellow-200 rounded-full w-12 h-12 flex items-center justify-center text-yellow-800 font-bold text-xl">
+                        ع
+                    </div>
+                    <div class="mr-4">
+                        <p class="font-semibold">عبدالله الخالدي</p>
+                        <p class="text-sm text-gray-500">مدير شركة استيراد وتصدير</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endcomment %}
+<!-- CTA Section -->
+<section class="py-16 bg-yellow-500 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold mb-6">جاهز للبدء؟</h2>
+        <p class="text-xl mb-8 max-w-3xl mx-auto">
+            انضم إلينا اليوم واستفد من خدماتنا المتكاملة لتنمية أعمالك وتحقيق أهدافك التجارية.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{% url 'users:register' %}" class="bg-white text-yellow-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg">سجل الآن</a>
+            <a href="{% url 'landing:contact' %}" class="border-2 border-white text-white hover:bg-yellow-600 px-6 py-3 rounded-lg font-medium text-lg">تواصل معنا</a>
+        </div>
+    </div>
+</section>
+{% endblock %} 
