@@ -57,10 +57,6 @@ INSTALLED_APPS = [
     'landing',
     'products',
     'subscribers',
-    'warehouse_inventory',
-    'warehouse',
-    'notifications',
-    'roles',  # New dynamic role management app
 ]
 
 

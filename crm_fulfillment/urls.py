@@ -19,7 +19,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView, TemplateView
-from django.conf.urls.i18n import i18n_patterns
 # Removed i18n imports as we're using English only
 # from utils import views as util_views
 
@@ -38,11 +37,6 @@ urlpatterns = [
     path('finance/', include('finance.urls')),
     path('followup/', include('followup.urls')),
     path('subscribers/', include('subscribers.urls', namespace='subscribers')),
-    path('warehouses/', include('warehouse.urls', namespace='warehouse')),
-    path('settings/', include('settings.urls', namespace='settings')),
-    path('notifications/', include('notifications.urls', namespace='notifications')),
-    path('roles/', include('roles.urls', namespace='roles')),
-    
     # Landing pages
     path('', include('landing.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
@@ -58,8 +52,3 @@ else:
     # Serve static files from STATICFILES_DIRS in production
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# Custom error handlers
-handler400 = 'crm_fulfillment.views.bad_request'
-handler403 = 'crm_fulfillment.views.permission_denied'
-handler404 = 'crm_fulfillment.views.page_not_found'
-handler500 = 'crm_fulfillment.views.server_error'

@@ -1,1 +1,0 @@
-# warehouse app initialization 
