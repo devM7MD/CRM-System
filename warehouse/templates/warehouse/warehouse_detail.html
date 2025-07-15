@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Warehouse Detail" %} - {{ warehouse.name }}{% endblock %}
+
+{% block header %}{% trans "Warehouse Detail" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800 flex items-center">
+            <i class="fas fa-warehouse text-blue-500 mr-3"></i>
+            {{ warehouse.name }}
+        </h1>
+        <div class="flex space-x-2">
+            <a href="{% url 'warehouse:edit_warehouse' warehouse.id %}" class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                <i class="fas fa-edit mr-2"></i> {% trans "Edit" %}
+            </a>
+            <a href="{% url 'warehouse:warehouse_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i> {% trans "Back to List" %}
+            </a>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Main Info Card -->
+        <div class="md:col-span-2">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 bg-blue-50 border-b border-blue-100">
+                    <h2 class="text-xl font-semibold text-blue-800">{% trans "Warehouse Information" %}</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">{% trans "Name" %}</h3>
+                            <p class="mt-1 text-lg font-semibold text-gray-900">{{ warehouse.name }}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">{% trans "Location" %}</h3>
+                            <p class="mt-1 text-lg font-semibold text-gray-900">{{ warehouse.location }}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">{% trans "Status" %}</h3>
+                            <p class="mt-1">
+                                {% if warehouse.is_active %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    {% trans "Active" %}
+                                </span>
+                                {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    {% trans "Inactive" %}
+                                </span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">{% trans "Created At" %}</h3>
+                            <p class="mt-1 text-gray-900">{{ warehouse.created_at|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if warehouse.description %}
+                    <div class="mt-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">{% trans "Description" %}</h3>
+                        <div class="mt-1 p-4 bg-gray-50 rounded-lg text-gray-800">
+                            {{ warehouse.description|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions Card -->
+        <div>
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                    <h2 class="text-xl font-semibold text-gray-800">{% trans "Actions" %}</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <a href="{% url 'warehouse:edit_warehouse' warehouse.id %}" class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-edit mr-2"></i> {% trans "Edit Warehouse" %}
+                    </a>
+                    
+                    <a href="{% url 'warehouse:delete_warehouse' warehouse.id %}" class="block w-full text-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-trash mr-2"></i> {% trans "Delete Warehouse" %}
+                    </a>
+                    
+                    {% if warehouse.is_active %}
+                    <form method="post" action="{% url 'warehouse:edit_warehouse' warehouse.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="name" value="{{ warehouse.name }}">
+                        <input type="hidden" name="location" value="{{ warehouse.location }}">
+                        <input type="hidden" name="description" value="{{ warehouse.description }}">
+                        <input type="hidden" name="is_active" value="off">
+                        <button type="submit" class="block w-full text-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-times-circle mr-2"></i> {% trans "Deactivate" %}
+                        </button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="{% url 'warehouse:edit_warehouse' warehouse.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="name" value="{{ warehouse.name }}">
+                        <input type="hidden" name="location" value="{{ warehouse.location }}">
+                        <input type="hidden" name="description" value="{{ warehouse.description }}">
+                        <input type="hidden" name="is_active" value="on">
+                        <button type="submit" class="block w-full text-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-check-circle mr-2"></i> {% trans "Activate" %}
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-6">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                    <h2 class="text-xl font-semibold text-gray-800">{% trans "Details" %}</h2>
+                </div>
+                <div class="p-6">
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">{% trans "Last Updated" %}</h3>
+                        <p class="mt-1 text-gray-900">{{ warehouse.updated_at|date:"F d, Y H:i" }}</p>
+                    </div>
+                    <!-- Add more details as needed -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

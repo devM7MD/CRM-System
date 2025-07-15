@@ -1,0 +1,332 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% trans "Login" %} - {% trans "Delivery Panel" %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    
+    <!-- Core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #3b82f6;
+            --accent-color: #60a5fa;
+            --body-bg: #f3f4f6;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--body-bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 5px solid var(--accent-color);
+        }
+        
+        .login-header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .login-body {
+            padding: 2rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-container img {
+            max-width: 150px;
+            height: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+        
+        .form-control {
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25);
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-check-input {
+            margin-right: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e5e7eb;
+        }
+        
+        .divider::before {
+            margin-right: 1rem;
+        }
+        
+        .divider::after {
+            margin-left: 1rem;
+        }
+        
+        .btn-qr {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .btn-qr i {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+        }
+        
+        .help-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        /* Messages/Alerts */
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .login-container {
+                border-radius: 0;
+                box-shadow: none;
+                height: 100vh;
+                max-width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .login-body {
+                flex: 1;
+                overflow-y: auto;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --body-bg: #1f2937;
+            }
+            
+            body {
+                color: #e5e7eb;
+            }
+            
+            .login-container {
+                background-color: #111827;
+            }
+            
+            .form-control {
+                background-color: #374151;
+                border-color: #4b5563;
+                color: #e5e7eb;
+            }
+            
+            .input-group i {
+                color: #9ca3af;
+            }
+            
+            .form-check-label {
+                color: #d1d5db;
+            }
+            
+            .divider {
+                color: #9ca3af;
+            }
+            
+            .divider::before,
+            .divider::after {
+                background-color: #4b5563;
+            }
+            
+            .btn-qr {
+                background-color: #1f2937;
+                border-color: #4b5563;
+                color: #e5e7eb;
+            }
+            
+            .help-text {
+                color: #9ca3af;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>{% trans "DELIVERY PANEL LOGIN" %}</h1>
+        </div>
+        
+        <div class="login-body">
+            <div class="logo-container">
+                <!-- Company Logo - Substitute with your actual logo path -->
+                <img src="{% static 'img/logo.png' %}" alt="Company Logo" onerror="this.src='https://via.placeholder.com/150x70?text=DELIVERY+COMPANY';this.onerror='';">
+            </div>
+            
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" action="{% url 'delivery:panel_login' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="email">{% trans "Email/Phone" %}</label>
+                    <div class="input-group">
+                        <i class="bi bi-envelope"></i>
+                        <input type="text" class="form-control" id="email" name="email" placeholder="{% trans 'Enter your email or phone' %}" required autofocus>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">{% trans "Password" %}</label>
+                    <div class="input-group">
+                        <i class="bi bi-lock"></i>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="{% trans 'Enter your password' %}" required>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                        <label class="form-check-label" for="remember_me">
+                            {% trans "Remember me" %}
+                        </label>
+                    </div>
+                    <a href="#" class="text-decoration-none text-primary fw-medium">
+                        {% trans "Forgot Password?" %}
+                    </a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    {% trans "LOGIN TO DELIVERY PANEL" %}
+                </button>
+            </form>
+            
+            <div class="divider">
+                {% trans "OR" %}
+            </div>
+            
+            <button type="button" class="btn-qr" disabled>
+                <i class="bi bi-qr-code-scan"></i>
+                {% trans "LOGIN WITH QR CODE SCANNER" %}
+            </button>
+            
+            <div class="help-text">
+                {% trans "Need help? Contact dispatch:" %} <a href="tel:+971XXXXXXXX">+971-XX-XXXXXXX</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Core JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

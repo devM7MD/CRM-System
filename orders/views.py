@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
 from django.contrib import messages
 from django.utils import timezone
@@ -12,33 +12,45 @@ from settings.models import DeliveryCompany
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
+from django.template.loader import render_to_string
+from datetime import datetime
+from django.core.paginator import Paginator
+from django.utils.translation import gettext_lazy as _
+import re
+from delivery.models import DeliveryCompany, DeliveryRecord, DeliveryStatusHistory
+from followup.models import FollowupRecord, CustomerFeedback
 
 @login_required
 def order_list(request):
     """View for listing all orders based on user role."""
     # Different users see different sets of orders
     if request.user.role == 'super_admin' or request.user.role == 'admin':
-        orders = Order.objects.all().order_by('-created_at')
+        orders = Order.objects.all().order_by('-created_at' if hasattr(Order, 'created_at') else '-date')
     elif request.user.role == 'seller':
-        orders = Order.objects.filter(seller=request.user).order_by('-created_at')
+        orders = Order.objects.filter(seller=request.user).order_by('-created_at' if hasattr(Order, 'created_at') else '-date')
     elif request.user.role in ['call_center_manager', 'call_center_agent']:
-        # Call center sees pending and confirmed orders for follow-up
+        # Call center sees pending and processing orders for followup
         orders = Order.objects.filter(
-            status__in=['pending', 'confirmed', 'no_response', 'postponed']
-        ).order_by('-created_at')
+            status__in=['pending', 'processing']
+        ).order_by('-created_at' if hasattr(Order, 'created_at') else '-date')
+    elif request.user.role == 'follow_up':
+        # Follow-up team sees delivered and completed orders for feedback
+        orders = Order.objects.filter(
+            status__in=['delivered', 'completed']
+        ).order_by('-created_at' if hasattr(Order, 'created_at') else '-date')
     elif request.user.role == 'packaging':
         # Packaging team sees orders ready for packaging
         orders = Order.objects.filter(
-            status__in=['ready_for_packaging', 'packaging_in_progress']
-        ).order_by('-created_at')
+            status__in=['processing', 'packaged']
+        ).order_by('-created_at' if hasattr(Order, 'created_at') else '-date')
     elif request.user.role == 'delivery':
         # Delivery team sees orders ready for delivery and in delivery
         orders = Order.objects.filter(
-            status__in=['ready_for_delivery', 'in_delivery', 'delivered', 'returned']
-        ).order_by('-created_at')
+            status__in=['packaged', 'shipped', 'delivered']
+        ).order_by('-created_at' if hasattr(Order, 'created_at') else '-date')
     else:
         # Other roles see all orders for reference
-        orders = Order.objects.all().order_by('-created_at')
+        orders = Order.objects.all().order_by('-created_at' if hasattr(Order, 'created_at') else '-date')
     
     # Filter options
     status_filter = request.GET.get('status', '')
@@ -52,16 +64,33 @@ def order_list(request):
     
     if search_query:
         orders = orders.filter(
-            Q(code__icontains=search_query) | 
+            Q(order_code__icontains=search_query) | 
             Q(customer_name__icontains=search_query) | 
             Q(customer_phone__icontains=search_query)
         )
+    
+    # Apply date filters if provided
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            orders = orders.filter(date__date__gte=date_from_obj)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            orders = orders.filter(date__date__lte=date_to_obj)
+        except ValueError:
+            pass
     
     return render(request, 'orders/order_list.html', {
         'orders': orders,
         'status_choices': Order.STATUS_CHOICES,
         'current_status': status_filter,
-        'search_query': search_query
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to
     })
 
 @login_required
@@ -220,6 +249,79 @@ def update_order_status(request, order_id):
     
     old_status = order.status
     
+    # Handle approve/reject from followup detail view
+    approve = request.GET.get('approve', 'false').lower() == 'true'
+    reject = request.GET.get('reject', 'false').lower() == 'true'
+    
+    if approve or reject:
+        # Find the related followup record
+        from followup.models import FollowupRecord
+        followup = FollowupRecord.objects.filter(
+            order=order, 
+            status__in=['pending', 'in_progress']
+        ).first()
+        
+        if not followup:
+            messages.error(request, "No pending follow-up record found for this order.")
+            return redirect('orders:order_detail', order_id=order.id)
+        
+        if approve:
+            # Find the requested status in the feedback text
+            import re
+            pattern = r"Seller requested status change from (.*) to (.*)"
+            match = re.search(pattern, followup.feedback)
+            
+            if match:
+                requested_status = match.group(2).strip()
+                # Check if requested status is valid
+                valid_statuses = dict(Order.STATUS_CHOICES).keys()
+                if requested_status in valid_statuses:
+                    # Update the order status
+                    order.status = requested_status
+                    order.save()
+                    
+                    # Update followup record
+                    followup.status = 'completed'
+                    followup.completed_at = timezone.now()
+                    followup.feedback += f"\nStatus change to {requested_status} approved by {request.user.get_full_name() or request.user.username} on {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+                    followup.save()
+                    
+                    # Create audit log entry
+                    AuditLog.objects.create(
+                        user=request.user,
+                        action='status_change',
+                        entity_type='Order',
+                        entity_id=str(order.id),
+                        description=f"Approved seller status change request from {old_status} to {requested_status}"
+                    )
+                    
+                    messages.success(request, f"Seller's request to change order status to {requested_status} has been approved.")
+                else:
+                    messages.error(request, f"Invalid status requested: {requested_status}")
+            else:
+                messages.error(request, "Could not determine the requested status from the followup record.")
+            
+            return redirect('followup:orders')
+            
+        elif reject:
+            # Update followup record
+            followup.status = 'completed'
+            followup.completed_at = timezone.now()
+            followup.feedback += f"\nStatus change request rejected by {request.user.get_full_name() or request.user.username} on {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+            followup.save()
+            
+            # Create audit log entry
+            AuditLog.objects.create(
+                user=request.user,
+                action='status_change_rejected',
+                entity_type='Order',
+                entity_id=str(order.id),
+                description=f"Rejected seller status change request for order {order.order_code}"
+            )
+            
+            messages.success(request, "Seller's request to change order status has been rejected.")
+            return redirect('followup:orders')
+    
     if request.method == 'POST':
         form = OrderStatusUpdateForm(request.POST, instance=order)
         
@@ -250,19 +352,21 @@ def update_order_status(request, order_id):
                 
                 order.save()
             
-            messages.success(request, f"Order {order.code} status updated to {order.get_status_display()}!")
-            
-            # If this is an AJAX request
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True})
-                
+            messages.success(request, f"Order {order.order_code} status updated to {order.get_status_display()}!")
             return redirect('orders:order_detail', order_id=order.id)
+    else:
+        form = OrderStatusUpdateForm(instance=order)
     
-    # If this is an AJAX request that failed validation
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({'success': False, 'errors': form.errors})
-        
-    return redirect('orders:order_detail', order_id=order.id)
+    # Get available delivery companies for the form
+    delivery_companies = DeliveryCompany.objects.filter(status='active')
+    
+    context = {
+        'order': order,
+        'form': form,
+        'delivery_companies': delivery_companies
+    }
+    
+    return render(request, 'orders/update_order_status.html', context)
 
 @login_required
 def order_dashboard(request):
@@ -427,3 +531,113 @@ def import_orders(request):
         form = OrderImportForm()
     
     return render(request, 'orders/import_orders.html', {'form': form})
+
+@login_required
+def download_invoice(request, order_id):
+    """Download an invoice for an order."""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Check if user has permission to view this order
+    if request.user.role == 'seller' and order.seller != request.user:
+        messages.error(request, "You don't have permission to view this order's invoice.")
+        return redirect('orders:list')
+    
+    # Generate invoice context
+    context = {
+        'order': order,
+        'company_name': 'Atlas Fulfillment',
+        'company_address': '123 Business St, City, Country',
+        'company_email': 'info@atlasfulfillment.com',
+        'company_phone': '+1 234 567 8900',
+        'invoice_date': timezone.now().strftime('%Y-%m-%d'),
+        'invoice_number': f'INV-{order.order_code}',
+    }
+    
+    # Return invoice view instead of download
+    return render(request, 'orders/invoice_print.html', context)
+
+@login_required
+def process_order(request, order_id):
+    """Process an order (change status to processing)."""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Check if user has permission to process this order
+    if request.user.role not in ['super_admin', 'admin', 'call_center_manager']:
+        messages.error(request, "You don't have permission to process this order.")
+        return redirect('orders:detail', pk=order_id)
+    
+    # Only pending orders can be processed
+    if order.status != 'pending':
+        messages.error(request, f"Order #{order.order_code} cannot be processed because it is not in pending status.")
+        return redirect('orders:detail', pk=order_id)
+    
+    # Update order status
+    old_status = order.status
+    order.status = 'processing'
+    order.save()
+    
+    # Log the status change
+    if 'AuditLog' in globals():
+        AuditLog.objects.create(
+            user=request.user,
+            action='status_change',
+            entity_type='Order',
+            entity_id=str(order.id),
+            description=f"Changed order status from {old_status} to processing"
+        )
+    
+    messages.success(request, f"Order #{order.order_code} has been processed successfully.")
+    return redirect('orders:detail', pk=order_id)
+
+@login_required
+def print_order(request, order_id):
+    """Show a printable version of the order."""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Check if user has permission to view this order
+    if request.user.role == 'seller' and order.seller != request.user:
+        messages.error(request, "You don't have permission to view this order.")
+        return redirect('orders:list')
+    
+    context = {
+        'order': order,
+        'company_name': 'Atlas Fulfillment',
+        'company_address': '123 Business St, City, Country',
+        'company_email': 'info@atlasfulfillment.com',
+        'company_phone': '+1 234 567 8900',
+    }
+    
+    return render(request, 'orders/order_print.html', context)
+
+@login_required
+def cancel_order(request, order_id):
+    """Cancel an order."""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Check if user has permission to cancel this order
+    if request.user.role not in ['super_admin', 'admin', 'call_center_manager']:
+        messages.error(request, "You don't have permission to cancel this order.")
+        return redirect('orders:detail', pk=order_id)
+    
+    # Orders that are delivered or already cancelled cannot be cancelled
+    if order.status in ['delivered', 'cancelled']:
+        messages.error(request, f"Order #{order.order_code} cannot be cancelled because it is already {order.status}.")
+        return redirect('orders:detail', pk=order_id)
+    
+    # Update order status
+    old_status = order.status
+    order.status = 'cancelled'
+    order.save()
+    
+    # Log the status change
+    if 'AuditLog' in globals():
+        AuditLog.objects.create(
+            user=request.user,
+            action='status_change',
+            entity_type='Order',
+            entity_id=str(order.id),
+            description=f"Changed order status from {old_status} to cancelled"
+        )
+    
+    messages.success(request, f"Order #{order.order_code} has been cancelled successfully.")
+    return redirect('orders:detail', pk=order_id)

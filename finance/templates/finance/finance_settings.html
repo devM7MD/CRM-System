@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Finance Settings" %}{% endblock %}
+
+{% block header %}{% trans "Finance Settings" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="mb-6 flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-gray-800">{% trans "Finance Settings" %}</h2>
+        <div class="flex space-x-3">
+            <a href="{% url 'finance:dashboard' %}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>{% trans "Back to Dashboard" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Settings Form -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-5 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Configure Finance Options" %}</h3>
+            <p class="text-sm text-gray-600">{% trans "Customize your finance settings for the system" %}</p>
+        </div>
+        
+        <form method="post" action="{% url 'finance:finance_settings' %}" class="p-5 space-y-6">
+            {% csrf_token %}
+            
+            <!-- Payment Methods Section -->
+            <div>
+                <h4 class="text-md font-semibold text-gray-700 mb-3">{% trans "Payment Methods" %}</h4>
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <p class="text-sm text-gray-600 mb-3">{% trans "Configure which payment methods are available in the system" %}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for method_code, method_name in payment_methods %}
+                            <div class="flex items-center">
+                                <input type="checkbox" id="method_{{ method_code }}" name="active_payment_methods" value="{{ method_code }}" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                <label for="method_{{ method_code }}" class="ml-2 block text-sm text-gray-700">
+                                    {{ method_name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="new_payment_method" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Add New Payment Method" %}</label>
+                        <div class="flex">
+                            <input type="text" id="new_payment_method" name="new_payment_method" class="flex-grow border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="{% trans 'Enter payment method name' %}">
+                            <button type="button" class="ml-2 px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                                {% trans "Add" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Status Section -->
+            <div>
+                <h4 class="text-md font-semibold text-gray-700 mb-3">{% trans "Payment Statuses" %}</h4>
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <p class="text-sm text-gray-600 mb-3">{% trans "Configure payment status options" %}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for status_code, status_name in payment_statuses %}
+                            <div class="flex items-center">
+                                <input type="checkbox" id="status_{{ status_code }}" name="active_payment_statuses" value="{{ status_code }}" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                <label for="status_{{ status_code }}" class="ml-2 block text-sm text-gray-700">
+                                    {{ status_name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="new_payment_status" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Add New Payment Status" %}</label>
+                        <div class="flex">
+                            <input type="text" id="new_payment_status" name="new_payment_status" class="flex-grow border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="{% trans 'Enter payment status name' %}">
+                            <button type="button" class="ml-2 px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                                {% trans "Add" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Default Fees Section -->
+            <div>
+                <h4 class="text-md font-semibold text-gray-700 mb-3">{% trans "Default Fees" %}</h4>
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <p class="text-sm text-gray-600 mb-3">{% trans "Set default fees for new orders" %}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="default_upsell_fees" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Upsell Fees (%)" %}</label>
+                            <input type="number" id="default_upsell_fees" name="default_upsell_fees" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="2.5">
+                        </div>
+                        
+                        <div>
+                            <label for="default_confirmation_fees" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Confirmation Fees (%)" %}</label>
+                            <input type="number" id="default_confirmation_fees" name="default_confirmation_fees" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="1.0">
+                        </div>
+                        
+                        <div>
+                            <label for="default_cancellation_fees" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Cancellation Fees (%)" %}</label>
+                            <input type="number" id="default_cancellation_fees" name="default_cancellation_fees" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="5.0">
+                        </div>
+                        
+                        <div>
+                            <label for="default_fulfillment_fees" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Fulfillment Fees (%)" %}</label>
+                            <input type="number" id="default_fulfillment_fees" name="default_fulfillment_fees" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="3.0">
+                        </div>
+                        
+                        <div>
+                            <label for="default_shipping_fees" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Shipping Fees (%)" %}</label>
+                            <input type="number" id="default_shipping_fees" name="default_shipping_fees" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="4.0">
+                        </div>
+                        
+                        <div>
+                            <label for="default_return_fees" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Return Fees (%)" %}</label>
+                            <input type="number" id="default_return_fees" name="default_return_fees" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="2.0">
+                        </div>
+                        
+                        <div>
+                            <label for="default_warehouse_fees" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Warehouse Fees (%)" %}</label>
+                            <input type="number" id="default_warehouse_fees" name="default_warehouse_fees" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="1.5">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Invoice Settings Section -->
+            <div>
+                <h4 class="text-md font-semibold text-gray-700 mb-3">{% trans "Invoice Settings" %}</h4>
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <p class="text-sm text-gray-600 mb-3">{% trans "Configure invoice generation options" %}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="invoice_prefix" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Invoice Number Prefix" %}</label>
+                            <input type="text" id="invoice_prefix" name="invoice_prefix" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="INV-">
+                        </div>
+                        
+                        <div>
+                            <label for="starting_invoice_number" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Starting Invoice Number" %}</label>
+                            <input type="number" id="starting_invoice_number" name="starting_invoice_number" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="1001">
+                        </div>
+                        
+                        <div>
+                            <label for="company_name" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Company Name" %}</label>
+                            <input type="text" id="company_name" name="company_name" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="Your Company Name">
+                        </div>
+                        
+                        <div>
+                            <label for="company_address" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Company Address" %}</label>
+                            <input type="text" id="company_address" name="company_address" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="123 Business Street, City, Country">
+                        </div>
+                        
+                        <div>
+                            <label for="company_phone" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Company Phone" %}</label>
+                            <input type="text" id="company_phone" name="company_phone" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="+1 (555) 123-4567">
+                        </div>
+                        
+                        <div>
+                            <label for="company_email" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Company Email" %}</label>
+                            <input type="email" id="company_email" name="company_email" class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" value="finance@yourcompany.com">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Save Button -->
+            <div class="flex justify-end">
+                <button type="submit" class="px-6 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                    {% trans "Save Settings" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

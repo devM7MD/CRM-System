@@ -1,0 +1,238 @@
+{% extends "delivery_panel_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Performance" %}{% endblock %}
+
+{% block header_title %}{% trans "Performance" %}{% endblock %}
+
+{% block content %}
+<div class="panel-card">
+    <div class="panel-card-header">
+        <h2 class="panel-card-title">{% trans "THIS WEEK'S PERFORMANCE" %}</h2>
+    </div>
+    
+    <div class="key-metrics d-flex flex-wrap justify-content-between mb-4">
+        <div class="metric-card text-center p-3">
+            <div class="metric-value text-primary display-6">{{ delivered_count }}</div>
+            <div class="metric-label">{% trans "Deliveries" %}</div>
+        </div>
+        
+        <div class="metric-card text-center p-3">
+            <div class="metric-value text-success display-6">{{ success_rate }}%</div>
+            <div class="metric-label">{% trans "Success Rate" %}</div>
+        </div>
+        
+        <div class="metric-card text-center p-3">
+            <div class="metric-value text-info display-6">{{ avg_delivery_time }}</div>
+            <div class="metric-label">{% trans "Avg. Time (min)" %}</div>
+        </div>
+    </div>
+    
+    <div class="chart-container mb-4">
+        <canvas id="deliveryChart" height="200"></canvas>
+    </div>
+</div>
+
+<div class="panel-card mt-3">
+    <div class="panel-card-header">
+        <h2 class="panel-card-title">{% trans "TIPS TO IMPROVE" %}</h2>
+    </div>
+    
+    <div class="tips-list">
+        <div class="tip-item d-flex p-3 border-bottom">
+            <div class="tip-icon me-3">
+                <i class="bi bi-clock text-primary fs-4"></i>
+            </div>
+            <div class="tip-content">
+                <h5 class="tip-title">{% trans "Optimize Your Route" %}</h5>
+                <p class="tip-description mb-0">
+                    {% trans "Plan your delivery route in advance to minimize travel time. Cluster deliveries by area to be more efficient." %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="tip-item d-flex p-3 border-bottom">
+            <div class="tip-icon me-3">
+                <i class="bi bi-telephone text-success fs-4"></i>
+            </div>
+            <div class="tip-content">
+                <h5 class="tip-title">{% trans "Call Before Arriving" %}</h5>
+                <p class="tip-description mb-0">
+                    {% trans "Call customers 15-30 minutes before arrival to ensure they're available. This reduces failed delivery attempts." %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="tip-item d-flex p-3 border-bottom">
+            <div class="tip-icon me-3">
+                <i class="bi bi-camera text-warning fs-4"></i>
+            </div>
+            <div class="tip-content">
+                <h5 class="tip-title">{% trans "Document Everything" %}</h5>
+                <p class="tip-description mb-0">
+                    {% trans "Always take clear photos of delivered packages and get signatures when possible. This prevents disputes later." %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="tip-item d-flex p-3">
+            <div class="tip-icon me-3">
+                <i class="bi bi-shield-check text-danger fs-4"></i>
+            </div>
+            <div class="tip-content">
+                <h5 class="tip-title">{% trans "Verify Customer Identity" %}</h5>
+                <p class="tip-description mb-0">
+                    {% trans "Always verify the customer's identity, especially for high-value packages or when collecting payment." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel-card mt-3">
+    <div class="panel-card-header">
+        <h2 class="panel-card-title">{% trans "RECENT FEEDBACK" %}</h2>
+    </div>
+    
+    <div class="feedback-list">
+        <!-- This would typically be populated with actual feedback data -->
+        <div class="feedback-empty text-center p-4">
+            <i class="bi bi-chat-square-text display-5 text-muted"></i>
+            <p class="mt-3">{% trans "No customer feedback yet this week" %}</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.metric-card {
+    flex: 1;
+    min-width: 100px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.metric-value {
+    font-weight: 700;
+}
+.metric-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+.chart-container {
+    position: relative;
+    margin: 0 auto;
+}
+.tip-item:hover {
+    background-color: rgba(0, 0, 0, 0.01);
+}
+.tip-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.tip-description {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .metric-card {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    .metric-label {
+        color: #9ca3af;
+    }
+    .tip-description {
+        color: #9ca3af;
+    }
+    .tip-item:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart data
+        const dailyData = {{ daily_counts|safe }};
+        const labels = dailyData.map(item => item.day);
+        const data = dailyData.map(item => item.count);
+        
+        // Create chart
+        const ctx = document.getElementById('deliveryChart').getContext('2d');
+        const deliveryChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '{% trans "Deliveries" %}',
+                    data: data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: '{% trans "Daily Deliveries" %}',
+                        color: '#6b7280',
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Check for dark mode and update chart colors
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            deliveryChart.options.plugins.title.color = '#e5e7eb';
+            deliveryChart.options.scales.x.ticks.color = '#e5e7eb';
+            deliveryChart.options.scales.y.ticks.color = '#e5e7eb';
+            deliveryChart.options.scales.x.grid.color = 'rgba(255, 255, 255, 0.1)';
+            deliveryChart.options.scales.y.grid.color = 'rgba(255, 255, 255, 0.1)';
+            deliveryChart.update();
+        }
+        
+        // Listen for dark mode changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            const newColorScheme = e.matches ? 'dark' : 'light';
+            
+            if (newColorScheme === 'dark') {
+                deliveryChart.options.plugins.title.color = '#e5e7eb';
+                deliveryChart.options.scales.x.ticks.color = '#e5e7eb';
+                deliveryChart.options.scales.y.ticks.color = '#e5e7eb';
+                deliveryChart.options.scales.x.grid.color = 'rgba(255, 255, 255, 0.1)';
+                deliveryChart.options.scales.y.grid.color = 'rgba(255, 255, 255, 0.1)';
+            } else {
+                deliveryChart.options.plugins.title.color = '#6b7280';
+                deliveryChart.options.scales.x.ticks.color = '#6b7280';
+                deliveryChart.options.scales.y.ticks.color = '#6b7280';
+                deliveryChart.options.scales.x.grid.color = 'rgba(0, 0, 0, 0.1)';
+                deliveryChart.options.scales.y.grid.color = 'rgba(0, 0, 0, 0.1)';
+            }
+            
+            deliveryChart.update();
+        });
+    });
+</script>
+{% endblock %} 

@@ -158,44 +158,6 @@
             transform: translateY(0);
         }
         
-        /* Language button hover effect */
-        #language-dropdown-button {
-            transition: all 0.3s ease;
-        }
-        
-        #language-dropdown-button:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-        }
-        
-        /* Language dropdown animation */
-        #language-dropdown {
-            transform-origin: top;
-            transition: all 0.2s ease-out;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(229, 231, 235, 1);
-        }
-        
-        #language-dropdown.hidden {
-            display: none;
-            opacity: 0;
-            transform: scaleY(0.95);
-        }
-        
-        #language-dropdown:not(.hidden) {
-            display: block;
-            opacity: 1;
-            transform: scaleY(1);
-        }
-        
-        /* Language option hover effect */
-        #language-dropdown a {
-            transition: all 0.2s ease;
-        }
-        
-        #language-dropdown a:hover {
-            background-color: rgba(243, 244, 246, 1);
-        }
-        
         /* Navbar Active Link */
         .nav-link.active {
             background-color: rgba(255, 255, 255, 0.1);
@@ -267,43 +229,15 @@
                 
                 <!-- Language Switcher -->
                 {% block language_switcher %}
-                <form method="post" action="{% url 'set_language' %}" class="language-switcher">
+                <form method="post" action="{% url 'set_language' %}">
                     {% csrf_token %}
                     {% get_current_language as current_language %}
                     <input type="hidden" name="language" value="{{ current_language }}">
                     
-                    <div class="relative">
-                        <button type="button" id="language-dropdown-button" class="flex items-center px-3 py-2 rounded-md border border-white/30 hover:bg-white/10 transition-colors text-white">
-                            {% if current_language == "en" %}
-                                <span class="flex items-center">
-                                    <i class="fas fa-globe {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
-                                    <span>English</span>
-                                    <i class="fas fa-chevron-down text-xs ml-2"></i>
-                                </span>
-                            {% else %}
-                                <span class="flex items-center">
-                                    <i class="fas fa-globe {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
-                                    <span>العربية</span>
-                                    <i class="fas fa-chevron-down text-xs ml-2"></i>
-                                </span>
-                            {% endif %}
-                        </button>
-                        
-                        <div id="language-dropdown" class="absolute mt-2 {% if LANGUAGE_CODE == 'ar' %}right-0{% else %}left-0{% endif %} w-36 bg-white rounded-md shadow-lg py-1 z-50 hidden">
-                            <a href="#" onclick="switchToLanguage('en'); return false;" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if current_language == 'en' %}bg-gray-100 font-medium{% endif %}">
-                                <span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}">
-                                    <span class="text-xs text-blue-800">EN</span>
-                                </span>
-                                English
-                            </a>
-                            <a href="#" onclick="switchToLanguage('ar'); return false;" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if current_language == 'ar' %}bg-gray-100 font-medium{% endif %}">
-                                <span class="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}">
-                                    <span class="text-xs text-green-800">AR</span>
-                                </span>
-                                العربية
-                            </a>
-                        </div>
-                    </div>
+                    <select id="language-select" onchange="switchLang(this)" class="rounded px-2 py-1 text-gray-800">
+                        <option value="en" {% if current_language == "en" %}selected{% endif %}>English</option>
+                        <option value="ar" {% if current_language == "ar" %}selected{% endif %}>العربية</option>
+                    </select>
                 </form>
                 {% endblock %}
                 
@@ -553,38 +487,13 @@
             });
         }
 
-        // Language dropdown toggle
-        const languageButton = document.getElementById('language-dropdown-button');
-        const languageDropdown = document.getElementById('language-dropdown');
-        
-        if (languageButton && languageDropdown) {
-            languageButton.addEventListener('click', function() {
-                languageDropdown.classList.toggle('hidden');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!languageButton.contains(event.target) && !languageDropdown.contains(event.target)) {
-                    languageDropdown.classList.add('hidden');
-                }
-            });
-        }
-
-        // Switch language function
-        function switchToLanguage(lang) {
-            const form = document.querySelector('.language-switcher');
-            const input = form.querySelector('input[name="language"]');
-            input.value = lang;
-            form.submit();
-        }
-
-        function switchLang(select) {
-            const lang = select.value;
-            const form = select.closest("form");
-            const input = form.querySelector("input[name=language]");
-            input.value = lang;
-            form.submit();
-        }
+         function switchLang(select) {
+      const lang = select.value;
+      const form = select.closest("form");
+      const input = form.querySelector("input[name=language]");
+      input.value = lang;
+      form.submit();
+    }
     </script>
     {% block scripts %}{% endblock %}
 </body>

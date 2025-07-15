@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Add Courier" %}{% endblock %}
+
+{% block header %}{% trans "Add Courier" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800">{% trans "Add New Courier" %}</h1>
+        <a href="{% url 'delivery:couriers' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+            <i class="fas fa-arrow-left mr-2"></i>
+            {% trans "Back to Couriers" %}
+        </a>
+    </div>
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                {% trans "Courier Information" %}
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                {% trans "Fill in the details to add a new courier" %}
+            </p>
+        </div>
+
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                <p class="font-bold">{% trans "Please correct the errors below:" %}</p>
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name Field -->
+                <div class="col-span-1">
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {% trans "Name" %} <span class="text-red-500">*</span>
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" required
+                               class="pl-10 block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md"
+                               placeholder="{% trans 'Enter courier name' %}">
+                    </div>
+                </div>
+                
+                <!-- Company Field -->
+                <div class="col-span-1">
+                    <label for="{{ form.company.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {% trans "Company" %} <span class="text-red-500">*</span>
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-building text-gray-400"></i>
+                        </div>
+                        <select name="{{ form.company.name }}" id="{{ form.company.id_for_label }}" required
+                                class="pl-10 block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md">
+                            <option value="">{% trans "Select a company" %}</option>
+                            {% for company in companies %}
+                                <option value="{{ company.id }}">{{ company.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if not companies %}
+                        <p class="mt-2 text-sm text-red-600">
+                            {% trans "No active companies found. Please add a company first." %}
+                            <a href="{% url 'delivery:add_company' %}" class="text-primary-600 hover:text-primary-500">
+                                {% trans "Add Company" %}
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Phone Field -->
+                <div class="col-span-1">
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {% trans "Phone" %}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-phone text-gray-400"></i>
+                        </div>
+                        <input type="tel" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}"
+                               class="pl-10 block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md"
+                               placeholder="{% trans 'Enter phone number' %}">
+                    </div>
+                </div>
+                
+                <!-- Email Field -->
+                <div class="col-span-1">
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {% trans "Email" %}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"
+                               class="pl-10 block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md"
+                               placeholder="{% trans 'Enter email address' %}">
+                    </div>
+                </div>
+                
+                <!-- Status Field -->
+                <div class="col-span-1">
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {% trans "Status" %}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-toggle-on text-gray-400"></i>
+                        </div>
+                        <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}"
+                                class="pl-10 block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md">
+                            <option value="active">{% trans "Active" %}</option>
+                            <option value="inactive">{% trans "Inactive" %}</option>
+                            <option value="suspended">{% trans "Suspended" %}</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Available Field -->
+                <div class="col-span-1">
+                    <div class="relative flex items-start pt-5">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" name="{{ form.available.name }}" id="{{ form.available.id_for_label }}" checked
+                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.available.id_for_label }}" class="font-medium text-gray-700">
+                                {% trans "Available for deliveries" %}
+                            </label>
+                            <p class="text-gray-500">{% trans "Mark if this courier is currently available to take deliveries" %}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Areas Field (hidden for simplicity) -->
+                <input type="hidden" name="{{ form.service_areas.name }}" value="">
+            </div>
+            
+            <div class="mt-8 flex justify-end space-x-3">
+                <a href="{% url 'delivery:couriers' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                    {% trans "Cancel" %}
+                </a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none">
+                    <i class="fas fa-save mr-2"></i>
+                    {% trans "Save Courier" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

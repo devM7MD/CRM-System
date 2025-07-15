@@ -5,537 +5,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% trans "Atlas Fulfillment" %}{% endblock %}</title>
+    <title>{% block title %}Atlas Fulfillment{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#fef9e7',
-                            100: '#fef3c7',
-                            200: '#fde68a',
-                            300: '#fcd34d',
-                            400: '#fbbf24',
-                            500: '#eab308',
-                            600: '#ca8a04',
-                            700: '#a16207',
-                            800: '#854d0e',
-                            900: '#713f12',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'css/arabic-fonts.css' %}">
+    
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Inline critical CSS -->
     <style>
-        /* Add your custom styles here */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            scroll-behavior: smooth;
-            overflow-x: hidden;
-            background-color: #f8f9fa;
-        }
-        
-        main {
-            flex: 1;
-        }
-        
-        .sidebar {
-            transition: width 0.3s ease;
-            position: fixed;
-            height: calc(100vh - 56px);
-            overflow-y: auto;
-            scrollbar-width: thin;
-            -ms-overflow-style: none;
-            background: linear-gradient(to bottom, #eab308, #ca8a04);
-            top: 56px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .sidebar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-        
-        .sidebar.collapsed {
-            width: 80px;
-        }
-        
-        .main-content {
-            transition: margin-left 0.3s ease;
-            min-height: calc(100vh - 60px);
-        }
-        
-        .logo-container {
-            height: 45px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo-container img {
-            height: 100%;
-            width: auto;
-            object-fit: contain;
-        }
-        
-        /* Fixed header to prevent jumpiness */
-        .header-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            height: 56px;
-            background: #eab308;
-        }
-        
-        /* Adjust main content to account for fixed header */
-        .page-container {
-            padding-top: 56px;
-        }
-        
-        /* Smooth content transition */
-        .content-wrapper {
-            transition: all 0.3s ease;
-        }
-        
-        /* Card shadow transition for smoother hover */
-        .card {
-            transition: box-shadow 0.3s ease;
-            border-top: 3px solid #eab308;
-        }
-        
-        .card:hover {
-            box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.1);
-        }
-        
-        /* Menu item styling */
-        .menu-item {
-            border-radius: 6px;
-            margin-bottom: 3px;
-            transition: all 0.2s ease;
-        }
-        
-        .menu-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .menu-item.active {
-            background-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .menu-item i {
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        /* Custom scrollbar for the entire page */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #eab308;
-            border-radius: 6px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #ca8a04;
-        }
-        
-        /* Button styles */
-        .btn-primary {
-            background-color: #eab308;
-            border-color: #ca8a04;
-        }
-        
-        .btn-primary:hover {
-            background-color: #ca8a04;
-            border-color: #a16207;
-        }
-        
-        /* Dashboard stat panels */
-        .dashboard-stat {
-            border-left: 4px solid #eab308;
-        }
-        
-        /* Table styling */
-        thead th {
-            background-color: #fef3c7;
-            color: #854d0e;
-        }
-        
-        tbody tr:hover {
-            background-color: #fef9e7;
-        }
-        
-        /* RTL Support */
-        [dir="rtl"] .sidebar {
-            right: 0;
-            left: auto;
-        }
-        
-        [dir="rtl"] .main-content {
-            margin-right: 16rem;
-            margin-left: 0;
-        }
-        
-        [dir="rtl"] .dashboard-stat {
-            border-left: none;
-            border-right: 4px solid #eab308;
-        }
-        
-        [dir="rtl"] .ml-2, [dir="rtl"] .ml-3, [dir="rtl"] .ml-4 {
-            margin-left: 0;
-            margin-right: 0.5rem;
-        }
-        
-        [dir="rtl"] .mr-2, [dir="rtl"] .mr-3, [dir="rtl"] .mr-4 {
-            margin-right: 0;
-            margin-left: 0.5rem;
+            font-family: 'Cairo', 'Poppins', sans-serif;
         }
     </style>
+    
     {% block extra_css %}{% endblock %}
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.2/dist/cdn.min.js" defer></script>
+    
+    {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-100">
-    <nav class="header-nav text-white shadow-md py-2">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                    <button id="sidebar-toggle" class="mr-4 p-2 rounded hover:bg-primary-600 focus:outline-none lg:hidden">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <a href="{% url 'dashboard:index' %}" class="flex items-center logo-container">
-                        <picture>
-                            {% comment %} <source srcset="{% static 'img/atlas_logo1231.svg' %}" type="image/svg+xml"> {% endcomment %}
-                            <img src="" alt="{% trans 'Atlas Fulfillment' %}" class="h-full">
-                        </picture>
-                    </a>
-                        </div>
-                
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <!-- Logo and Title -->
                 <div class="flex items-center">
-                            <!-- Language Switcher -->
-                    <div class="mr-3">
-                        <form action="{% url 'set_language' %}" method="post" class="inline-block">
-                                {% csrf_token %}
-                            <input name="next" type="hidden" value="{{ request.path }}"/>
-                            <select name="language" onchange="this.form.submit()" class="bg-primary-600 text-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300">
-                                    {% get_current_language as CURRENT_LANGUAGE %}
-                                {% get_available_languages as LANGUAGES %}
-                                {% for lang_code, lang_name in LANGUAGES %}
-                                        <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
-                                        {{ lang_name }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </form>
-                    </div>
-                    
-                    <div class="hidden md:block">
-                        <div class="ml-4 flex items-center">
-                            <button id="notif-dropdown-button" class="p-2 rounded hover:bg-primary-600 focus:outline-none relative">
-                                <i class="fas fa-bell"></i>
-                                {% if unread_notifications_count > 0 %}
-                                <span class="absolute top-0 right-0 flex h-3 w-3">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                                    </span>
-                                {% endif %}
-                                </button>
-                            <div id="notif-dropdown" class="hidden absolute mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-20 top-14 right-24">
-                                <div class="py-2">
-                                    <div class="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-                                        <h3 class="text-sm font-semibold text-gray-700">{% trans "Notifications" %}</h3>
-                                        <a href="#" class="text-xs text-primary-500 hover:text-primary-600">{% trans "Mark all as read" %}</a>
-                                    </div>
-                                    <div class="max-h-60 overflow-y-auto">
-                                        {% if user_notifications %}
-                                            {% for notification in user_notifications|slice:":5" %}
-                                            <a href="{{ notification.get_absolute_url }}" class="block px-4 py-2 hover:bg-gray-100 {% if not notification.is_read %}bg-gray-50{% endif %}">
-                                                <div class="flex items-start">
-                                                    <div class="flex-shrink-0 mr-3">
-                                                        <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-                                                            <i class="fas fa-bell text-primary-500"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-sm font-medium text-gray-900">{{ notification.title }}</p>
-                                                        <p class="text-xs text-gray-500">{{ notification.message|truncatechars:60 }}</p>
-                                                        <p class="text-xs text-gray-400 mt-1">{{ notification.created_at|timesince }} {% trans "ago" %}</p>
+                    <a href="{% url 'dashboard:index' %}" class="flex items-center">
+                        <img src="{% static 'img/atlas_logo.svg' %}" alt="Atlas Fulfillment" class="h-8 mr-3">
+                        <span class="text-xl font-bold text-gray-800 hidden md:inline">Atlas Fulfillment</span>
+                    </a>
+                </div>
+                
+                <!-- Right Side Navigation -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-100 transition-colors relative">
+                            <i class="fas fa-bell text-gray-600"></i>
+                            {% if unread_notifications_count > 0 %}
+                                <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ unread_notifications_count }}
+                                </span>
+                            {% endif %}
+                        </button>
+                        
+                        <!-- Notifications Dropdown -->
+                        <div x-show="open" 
+                             @click.away="open = false" 
+                             x-transition:enter="transition ease-out duration-200" 
+                             x-transition:enter-start="opacity-0 scale-95" 
+                             x-transition:enter-end="opacity-100 scale-100" 
+                             x-transition:leave="transition ease-in duration-150" 
+                             x-transition:leave-start="opacity-100 scale-100" 
+                             x-transition:leave-end="opacity-0 scale-95" 
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50"
+                             style="display: none;">
+                            
+                            <div class="px-4 py-2 border-b border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-sm font-medium text-gray-900">{% trans "Notifications" %}</h3>
+                                    {% if unread_notifications_count > 0 %}
+                                        <a href="{% url 'notifications:mark_all_read' %}" class="text-xs text-blue-600 hover:text-blue-800">
+                                            {% trans "Mark all as read" %}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="max-h-60 overflow-y-auto">
+                                {% if recent_notifications %}
+                                    {% for notification in recent_notifications %}
+                                        <a href="{{ notification.get_absolute_url }}" class="block px-4 py-2 hover:bg-gray-50 transition-colors {% if not notification.is_read %}bg-blue-50{% endif %}">
+                                            <div class="flex items-start">
+                                                <div class="flex-shrink-0 mr-3">
+                                                    <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                                        <i class="{{ notification.get_icon_class }} text-blue-600"></i>
                                                     </div>
                                                 </div>
-                                            </a>
-                                            {% endfor %}
-                                        {% else %}
-                                            <div class="px-4 py-6 text-center text-gray-500">
-                                                <i class="fas fa-bell-slash text-2xl mb-2"></i>
-                                                <p class="text-sm">{% trans "No notifications yet" %}</p>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                                        {{ notification.title }}
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 mt-1 truncate">
+                                                        {{ notification.message|truncatechars:60 }}
+                                                    </p>
+                                                    <p class="text-xs text-gray-400 mt-1">
+                                                        {{ notification.created_at|timesince }} ago
+                                                    </p>
+                                                </div>
+                                                {% if not notification.is_read %}
+                                                    <div class="ml-2 flex-shrink-0">
+                                                        <span class="inline-block h-2 w-2 rounded-full bg-blue-600"></span>
+                                                    </div>
+                                                {% endif %}
                                             </div>
-                                        {% endif %}
+                                        </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="px-4 py-6 text-center text-gray-500">
+                                        <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                                        <p class="text-sm">{% trans "No notifications yet" %}</p>
                                     </div>
-                                    <div class="border-t border-gray-200 py-2 px-4 text-center">
-                                        <a href="#" class="text-xs text-primary-500 hover:text-primary-600">{% trans "View all notifications" %}</a>
-                                    </div>
-                                </div>
-                                    </div>
-                                </div>
+                                {% endif %}
                             </div>
-
-                    <div class="ml-3 relative">
-                                <div>
-                            <button type="button" id="user-menu-button" class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary-600 focus:ring-white" aria-expanded="false" aria-haspopup="true">
-                                <span class="sr-only">{% trans "Open user menu" %}</span>
-                                <span class="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center text-white">
-                                        {% if user.profile_image %}
-                                    <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" class="h-8 w-8 rounded-full">
-                                        {% else %}
-                                    <span class="text-lg font-medium">{{ user.get_initials }}</span>
-                                        {% endif %}
-                                </span>
-                                <span class="ml-2 hidden md:block">{{ user.get_short_name }}</span>
-                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                                    </button>
-                                </div>
-                                
-                        <div id="user-menu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                            <div class="py-1" role="none">
-                                <div class="block px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                                    <div class="font-medium">{{ user.get_full_name }}</div>
-                                    <div class="text-xs text-gray-500">{{ user.email }}</div>
-                                </div>
-                                <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">
-                                    <i class="fas fa-user mr-2"></i> {% trans "Your Profile" %}
-                                </a>
-                                <a href="{% url 'dashboard:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">
-                                    <i class="fas fa-cog mr-2"></i> {% trans "Settings" %}
-                                </a>
-                                <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">
-                                    <i class="fas fa-sign-out-alt mr-2"></i> {% trans "Sign out" %}
+                            
+                            <div class="px-4 py-2 border-t border-gray-200">
+                                <a href="{% url 'notifications:list' %}" class="block text-center text-xs text-blue-600 hover:text-blue-800">
+                                    {% trans "View all notifications" %}
                                 </a>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- User Menu -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                            <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                {% if user.profile_image %}
+                                    <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" class="h-full w-full object-cover">
+                                {% else %}
+                                    <i class="fas fa-user text-gray-400"></i>
+                                {% endif %}
+                            </div>
+                            <div class="hidden md:block text-left">
+                                <div class="text-sm font-medium text-gray-900">{{ user.get_full_name }}</div>
+                                <div class="text-xs text-gray-500">{{ user.get_role_display }}</div>
+                            </div>
+                            <i class="fas fa-chevron-down text-xs text-gray-400 hidden md:block"></i>
+                        </button>
+                        
+                        <!-- User Dropdown -->
+                        <div x-show="open" 
+                             @click.away="open = false" 
+                             x-transition:enter="transition ease-out duration-200" 
+                             x-transition:enter-start="opacity-0 scale-95" 
+                             x-transition:enter-end="opacity-100 scale-100" 
+                             x-transition:leave="transition ease-in duration-150" 
+                             x-transition:leave-start="opacity-100 scale-100" 
+                             x-transition:leave-end="opacity-0 scale-95" 
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+                             style="display: none;">
+                            
+                            <div class="px-4 py-2 border-b border-gray-200">
+                                <p class="text-sm font-medium text-gray-900">{{ user.get_full_name }}</p>
+                                <p class="text-xs text-gray-500">{{ user.email }}</p>
+                            </div>
+                            
+                            <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-user-circle mr-2 text-gray-400"></i>
+                                {% trans "My Profile" %}
+                            </a>
+                            
+                            <a href="{% url 'users:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-cog mr-2 text-gray-400"></i>
+                                {% trans "Settings" %}
+                            </a>
+                            
+                            <div class="border-t border-gray-200"></div>
+                            
+                            <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-sign-out-alt mr-2 text-gray-400"></i>
+                                {% trans "Logout" %}
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-button" class="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-bars text-gray-600"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <div class="flex min-h-screen page-container">
+    </header>
+    
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar text-white w-64 lg:w-64 fixed h-full z-10 left-0 shadow hidden lg:block">
-            <div class="overflow-y-auto h-full p-4">
-                <ul class="space-y-2">
-                    <li>
-                        <a href="{% url 'dashboard:index' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
-                            <i class="fas fa-tachometer-alt w-6"></i>
-                            <span class="ml-3">{% trans "Dashboard" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'orders:list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'orders' in request.path %}active{% endif %}">
-                            <i class="fas fa-shopping-cart w-6"></i>
-                            <span class="ml-3">{% trans "Orders" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'inventory:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'inventory' in request.path %}active{% endif %}">
-                            <i class="fas fa-boxes w-6"></i>
-                            <span class="ml-3">{% trans "Inventory" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'sourcing:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'sourcing' in request.path %}active{% endif %}">
-                            <i class="fas fa-globe w-6"></i>
-                            <span class="ml-3">{% trans "Sourcing" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'callcenter:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'callcenter' in request.path %}active{% endif %}">
-                            <i class="fas fa-headset w-6"></i>
-                            <span class="ml-3">{% trans "Call Center" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'packaging:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'packaging' in request.path %}active{% endif %}">
-                            <i class="fas fa-box w-6"></i>
-                            <span class="ml-3">{% trans "Packaging" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'delivery:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'delivery' in request.path %}active{% endif %}">
-                            <i class="fas fa-truck w-6"></i>
-                            <span class="ml-3">{% trans "Delivery" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'finance:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'finance' in request.path %}active{% endif %}">
-                            <i class="fas fa-money-bill-wave w-6"></i>
-                            <span class="ml-3">{% trans "Finance" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'sellers:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'sellers' in request.path %}active{% endif %}">
-                            <i class="fas fa-users w-6"></i>
-                            <span class="ml-3">{% trans "Sellers" %}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'subscribers:list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'subscribers' in request.path %}active{% endif %}">
-                            <i class="fas fa-user-friends w-6"></i>
-                            <span class="ml-3">{% trans "Subscribers" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'followup:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'followup' in request.path %}active{% endif %}">
-                            <i class="fas fa-clipboard-check w-6"></i>
-                            <span class="ml-3">{% trans "Follow-up" %}</span>
-                        </a>
-                    </li>
-                    
-                    {% if user.is_staff %}
-                    <li class="pt-4 mt-4 border-t border-white/20">
-                        <a href="{% url 'admin:index' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'admin' in request.path %}active{% endif %}">
-                            <i class="fas fa-cogs w-6"></i>
-                            <span class="ml-3">{% trans "Admin Panel" %}</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-                </div>
-                                </div>
+        <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 hidden md:block overflow-y-auto h-[calc(100vh-64px)] sticky top-16">
+            {% include "sidebar.html" %}
+        </aside>
         
-        <!-- Mobile menu backdrop -->
-        <div id="sidebar-backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 hidden lg:hidden"></div>
-        
-        <!-- Main content -->
-        <main class="main-content flex-1 bg-gray-100 lg:ml-64">
-            <div class="py-6 content-wrapper">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-                    <!-- Page header -->
-                    <div class="mb-6">
-                        <h1 class="text-2xl font-semibold text-gray-800">{% block header %}{% trans "Dashboard" %}{% endblock %}</h1>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="bg-white shadow rounded-lg p-6 card">
-                        {% block content %}{% endblock %}
-                    </div>
-                </div>
+        <!-- Mobile Sidebar -->
+        <div id="mobile-sidebar" class="fixed inset-0 z-50 bg-gray-800 text-white w-64 transform -translate-x-full transition-transform duration-300 ease-in-out overflow-y-auto">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                <h2 class="text-lg font-medium">Atlas Fulfillment</h2>
+                <button id="mobile-sidebar-close" class="text-white hover:text-gray-300 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
+            
+            {% include "sidebar.html" %}
+        </div>
+        
+        <!-- Mobile Sidebar Overlay -->
+        <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden"></div>
+        
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6">
+            {% block breadcrumbs %}{% endblock %}
+            
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="p-4 mb-2 rounded-md {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    {% if message.tags == 'success' %}
+                                        <i class="fas fa-check-circle text-green-400"></i>
+                                    {% elif message.tags == 'error' %}
+                                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                                    {% elif message.tags == 'warning' %}
+                                        <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle text-blue-400"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm">{{ message }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
         </main>
     </div>
-
-    <!-- JavaScript -->
+    
+    <!-- Footer -->
+    <footer class="bg-white py-4 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-sm text-gray-500 mb-2 md:mb-0">
+                    &copy; {% now "Y" %} Atlas Fulfillment. {% trans "All rights reserved." %}
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">{% trans "Privacy Policy" %}</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">{% trans "Terms of Service" %}</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">{% trans "Contact" %}</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Common Scripts -->
     <script>
-        $(document).ready(function() {
-            // RTL support adjustments
-            if (document.dir === 'rtl') {
-                $('.main-content').removeClass('lg:ml-64').addClass('lg:mr-64');
-                $('#sidebar').removeClass('left-0').addClass('right-0');
-                $('.ml-2, .ml-3, .ml-4').removeClass('ml-2 ml-3 ml-4').addClass('mr-2 mr-3 mr-4');
-                $('.mr-2, .mr-3, .mr-4').removeClass('mr-2 mr-3 mr-4').addClass('ml-2 ml-3 ml-4');
-            }
-        
-            // Toggle sidebar
-            $('#sidebar-toggle').click(function() {
-                $('#sidebar').toggleClass('hidden');
-                $('#sidebar-backdrop').toggleClass('hidden');
-            });
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+            const mobileSidebarClose = document.getElementById('mobile-sidebar-close');
+            const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
             
-            // Close sidebar when backdrop is clicked
-            $('#sidebar-backdrop').click(function() {
-                $('#sidebar').addClass('hidden');
-                $('#sidebar-backdrop').addClass('hidden');
-            });
-            
-            // User dropdown toggle
-            $('#user-menu-button').click(function(e) {
-                e.stopPropagation();
-                $('#user-menu').toggleClass('hidden');
-                });
-            
-            // Notification dropdown toggle
-            $('#notif-dropdown-button').click(function(e) {
-                e.stopPropagation();
-                $('#notif-dropdown').toggleClass('hidden');
-            });
-            
-            // Close dropdowns when clicking outside
-            $(document).click(function() {
-                $('#user-menu').addClass('hidden');
-                $('#notif-dropdown').addClass('hidden');
-            });
-            
-            // Prevent propagation for dropdown content
-            $('#user-menu, #notif-dropdown').click(function(e) {
-                e.stopPropagation();
-            });
-            
-            // Function to apply styles to dashboard cards
-            function styleDashboardCards() {
-                // Style dashboard stat cards
-                $('.dashboard-stat').each(function() {
-                    $(this).addClass('transition-all duration-300 hover:shadow-lg');
+            if (mobileMenuButton && mobileSidebar && mobileSidebarClose && mobileSidebarOverlay) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileSidebar.classList.toggle('-translate-x-full');
+                    mobileSidebarOverlay.classList.toggle('hidden');
+                    document.body.classList.toggle('overflow-hidden');
                 });
                 
-                // Style dashboard activity panels
-                $('.activity-panel').each(function() {
-                    $(this).addClass('rounded-lg overflow-hidden');
+                mobileSidebarClose.addEventListener('click', function() {
+                    mobileSidebar.classList.add('-translate-x-full');
+                    mobileSidebarOverlay.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
                 });
                 
-                // Apply hover effects to action buttons
-                $('.action-btn').each(function() {
-                    $(this).addClass('transition-all duration-300 hover:bg-amber-600 hover:shadow-md');
-                });
-                
-                // Style tables
-                $('table').each(function() {
-                    $(this).addClass('border-collapse');
-                    $(this).find('thead th').addClass('text-amber-800 bg-amber-100');
-                    $(this).find('tbody tr').addClass('hover:bg-amber-50');
+                mobileSidebarOverlay.addEventListener('click', function() {
+                    mobileSidebar.classList.add('-translate-x-full');
+                    mobileSidebarOverlay.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
                 });
             }
-            
-            // Call the function when document is ready
-            styleDashboardCards();
-            
-            // Apply styles to any dynamically loaded content
-            $(document).ajaxComplete(function() {
-                styleDashboardCards();
-            });
         });
     </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html> 

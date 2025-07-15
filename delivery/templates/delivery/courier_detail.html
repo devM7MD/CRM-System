@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Courier Details" %} - {{ courier.name }}{% endblock %}
+
+{% block header %}{% trans "Courier Details" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-800">{% trans "Courier Details" %}</h2>
+            <div class="text-gray-500">{{ courier.name }} - {{ courier.company.name }}</div>
+        </div>
+        <a href="{% url 'delivery:couriers' %}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Couriers" %}
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Courier Info -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Courier Profile" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-user text-3xl text-blue-600"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <span class="block text-sm text-gray-500">{% trans "Full Name" %}</span>
+                            <span class="font-medium text-gray-900">{{ courier.name }}</span>
+                        </div>
+                        
+                        <div>
+                            <span class="block text-sm text-gray-500">{% trans "Company" %}</span>
+                            <span class="font-medium text-gray-900">{{ courier.company.name }}</span>
+                        </div>
+                        
+                        <div>
+                            <span class="block text-sm text-gray-500">{% trans "Phone" %}</span>
+                            <span class="font-medium text-gray-900">{{ courier.phone|default:"-" }}</span>
+                        </div>
+                        
+                        <div>
+                            <span class="block text-sm text-gray-500">{% trans "Email" %}</span>
+                            <span class="font-medium text-gray-900">{{ courier.email|default:"-" }}</span>
+                        </div>
+                        
+                        <div>
+                            <span class="block text-sm text-gray-500">{% trans "Status" %}</span>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if courier.status == 'active' %}bg-green-100 text-green-800
+                            {% elif courier.status == 'inactive' %}bg-gray-100 text-gray-800
+                            {% elif courier.status == 'suspended' %}bg-red-100 text-red-800{% endif %}">
+                                {{ courier.get_status_display }}
+                            </span>
+                            {% if courier.available %}
+                                <span class="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {% trans "Available" %}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <span class="block text-sm text-gray-500">{% trans "Rating" %}</span>
+                            <div class="flex items-center">
+                                <div class="flex text-yellow-400">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= courier.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter <= courier.rating|add:"0.5" %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="ml-2 text-gray-900">{{ courier.rating }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Stats -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Performance" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-green-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-green-600">{{ successful_deliveries }}</div>
+                            <div class="text-xs text-gray-600">{% trans "Successful" %}</div>
+                        </div>
+                        
+                        <div class="bg-red-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-red-600">{{ failed_deliveries }}</div>
+                            <div class="text-xs text-gray-600">{% trans "Failed" %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">{% trans "Success Rate" %}</span>
+                            <span class="font-medium text-gray-900">{{ success_rate }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: {{ success_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">{% trans "Total Deliveries" %}</span>
+                            <span class="font-medium text-gray-900">{{ total_deliveries }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">{% trans "Active Deliveries" %}</span>
+                            <span class="font-medium text-gray-900">{{ active_deliveries|length }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Edit Courier Details" %}</h3>
+                </div>
+                
+                <div class="p-6">
+                    <form method="post" action="{% url 'delivery:courier_detail' courier.id %}">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Full Name" %} *</label>
+                                <input type="text" id="name" name="name" value="{{ courier.name }}" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500" required>
+                            </div>
+                            
+                            <div>
+                                <label for="company_id" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Company" %} *</label>
+                                <select id="company_id" name="company_id" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500" required>
+                                    {% for company in companies %}
+                                        <option value="{{ company.id }}" {% if company.id == courier.company.id %}selected{% endif %}>
+                                            {{ company.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Phone" %}</label>
+                                <input type="tel" id="phone" name="phone" value="{{ courier.phone|default:'' }}" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Email" %}</label>
+                                <input type="email" id="email" name="email" value="{{ courier.email|default:'' }}" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                            
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Status" %}</label>
+                                <select id="status" name="status" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                                    <option value="active" {% if courier.status == 'active' %}selected{% endif %}>{% trans "Active" %}</option>
+                                    <option value="inactive" {% if courier.status == 'inactive' %}selected{% endif %}>{% trans "Inactive" %}</option>
+                                    <option value="suspended" {% if courier.status == 'suspended' %}selected{% endif %}>{% trans "Suspended" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex items-center h-full pt-6">
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" name="available" class="text-primary-600 focus:ring-primary-500 h-4 w-4 border-gray-300 rounded" {% if courier.available %}checked{% endif %}>
+                                    <span class="ml-2 text-gray-700">{% trans "Available for Deliveries" %}</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                {% trans "Save Changes" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Active Deliveries -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Active Deliveries" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    {% if active_deliveries %}
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Customer" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Assigned" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for delivery in active_deliveries %}
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {{ delivery.order.order_code }}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                {% if delivery.order.customer %}
+                                                    {{ delivery.order.customer.full_name }}
+                                                {% else %}
+                                                    {% trans "Unknown Customer" %}
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ delivery.get_status_display_class }}">
+                                                    {{ delivery.get_status_display }}
+                                                </span>
+                                                {% if delivery.priority == 'high' or delivery.priority == 'urgent' %}
+                                                    <span class="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        {{ delivery.get_priority_display }}
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                                {{ delivery.assigned_at|date:"d M Y" }}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                                <div class="flex space-x-2">
+                                                    <a href="{% url 'delivery:track_delivery' delivery.tracking_number %}" class="text-primary-600 hover:text-primary-900" title="{% trans 'Track' %}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'delivery:update_status' delivery.id %}" class="text-green-600 hover:text-green-900" title="{% trans 'Update Status' %}">
+                                                        <i class="fas fa-truck"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8 text-gray-500">
+                            <div class="w-16 h-16 mx-auto mb-4 text-gray-300">
+                                <i class="fas fa-truck text-5xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium text-gray-700 mb-2">{% trans "No Active Deliveries" %}</h4>
+                            <p class="text-sm">{% trans "This courier does not have any active deliveries." %}</p>
+                            <a href="{% url 'delivery:assign' %}" class="mt-4 inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600">
+                                <i class="fas fa-truck-loading mr-2"></i> {% trans "Assign Deliveries" %}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

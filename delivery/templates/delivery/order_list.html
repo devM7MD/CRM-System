@@ -10,46 +10,94 @@
 <div class="container mx-auto">
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- Orders List -->
-        <div class="w-full lg:w-2/3">
+        <div class="w-full lg:w-3/4">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <div class="p-4 flex justify-between items-center border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Orders List" %}</h3>
-                    <a href="{% url 'delivery:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
-                        <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
-                    </a>
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        {% trans "Deliveries" %}
+                        {% if unassigned_count > 0 %}
+                            <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                                {{ unassigned_count }} {% trans "unassigned" %}
+                            </span>
+                        {% endif %}
+                    </h3>
+                    <div class="flex space-x-2">
+                        {% if search_query or status_filter or date_filter or courier_filter %}
+                            <a href="{% url 'delivery:orders' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                                <i class="fas fa-times mr-1"></i> {% trans "Clear Filters" %}
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'delivery:assign' %}" class="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 inline-flex items-center">
+                            <i class="fas fa-plus mr-1"></i> {% trans "Assign Orders" %}
+                        </a>
+                        <a href="{% url 'delivery:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="p-4">
                     <!-- Filters -->
-                    <div class="mb-4 flex flex-wrap gap-2">
-                        <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "All Statuses" %}</option>
-                                <option>{% trans "In Transit" %}</option>
-                                <option>{% trans "Scheduled" %}</option>
-                                <option>{% trans "Delivered" %}</option>
-                                <option>{% trans "Failed" %}</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <i class="fas fa-chevron-down text-xs"></i>
+                    <form method="get" action="{% url 'delivery:orders' %}">
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            <div class="relative">
+                                <select name="status" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="">{% trans "All Statuses" %}</option>
+                                    <option value="assigned" {% if status_filter == 'assigned' %}selected{% endif %}>{% trans "Assigned" %}</option>
+                                    <option value="picked_up" {% if status_filter == 'picked_up' %}selected{% endif %}>{% trans "Picked Up" %}</option>
+                                    <option value="in_transit" {% if status_filter == 'in_transit' %}selected{% endif %}>{% trans "In Transit" %}</option>
+                                    <option value="out_for_delivery" {% if status_filter == 'out_for_delivery' %}selected{% endif %}>{% trans "Out for Delivery" %}</option>
+                                    <option value="delivered" {% if status_filter == 'delivered' %}selected{% endif %}>{% trans "Delivered" %}</option>
+                                    <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>{% trans "Failed" %}</option>
+                                    <option value="returned" {% if status_filter == 'returned' %}selected{% endif %}>{% trans "Returned" %}</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <select name="date" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="">{% trans "All Time" %}</option>
+                                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>{% trans "Today" %}</option>
+                                    <option value="last_7_days" {% if date_filter == 'last_7_days' %}selected{% endif %}>{% trans "Last 7 Days" %}</option>
+                                    <option value="last_30_days" {% if date_filter == 'last_30_days' %}selected{% endif %}>{% trans "Last 30 Days" %}</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <select name="courier" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="">{% trans "All Drivers" %}</option>
+                                    {% for courier in couriers %}
+                                        <option value="{{ courier.id }}" {% if courier_filter == courier.id|stringformat:"i" %}selected{% endif %}>
+                                            {{ courier.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="relative flex-grow">
+                                <div class="flex">
+                                    <input type="text" name="search" value="{{ search_query }}" placeholder="{% trans 'Search by Order ID, Tracking # or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-l focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <button type="submit" class="bg-primary-500 text-white px-4 py-2 rounded-r hover:bg-primary-600 focus:outline-none">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "Today" %}</option>
-                                <option>{% trans "Last 7 Days" %}</option>
-                                <option>{% trans "Last 30 Days" %}</option>
-                                <option>{% trans "All Time" %}</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="relative flex-grow">
-                            <input type="text" placeholder="{% trans 'Search by ID or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                        </div>
+                    </form>
+                    
+                    <!-- Export Buttons -->
+                    <div class="mb-4 flex justify-end">
+                        <a href="{% url 'delivery:orders' %}?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}{% if courier_filter %}courier={{ courier_filter }}&{% endif %}export=csv" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm ml-2">
+                            <i class="fas fa-file-csv mr-1"></i> {% trans "Export CSV" %}
+                        </a>
                     </div>
                     
                     <!-- Orders Table -->
@@ -58,137 +106,257 @@
                             <thead>
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order ID" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Tracking #" %}</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Customer" %}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Location" %}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Driver" %}</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Dates" %}</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <!-- This is just sample data - would be populated from the view -->
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-001</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Customer Name</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Dubai</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-15</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {% trans "In Transit" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-truck"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-002</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Another Customer</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Abu Dhabi</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-14</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            {% trans "Delivered" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-check"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-003</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">New Customer</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Sharjah</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-13</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            {% trans "Scheduled" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-blue-600 hover:text-blue-900">
-                                                <i class="fas fa-calendar-alt"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
+                                {% if page_obj %}
+                                    {% for delivery in page_obj %}
+                                        <tr class="hover:bg-gray-50 {% if delivery.is_unassigned %}bg-yellow-50{% endif %}">
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {{ delivery.order.order_code }}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                {% if delivery.tracking_number %}
+                                                    <a href="{% url 'delivery:track_delivery' delivery.tracking_number %}" class="text-primary-600 hover:underline">
+                                                        {{ delivery.tracking_number }}
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-yellow-600">{% trans "Not assigned yet" %}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                {% if delivery.order.customer %}
+                                                    <div class="flex items-center">
+                                                        <div class="h-8 w-8 flex-shrink-0 mr-2 bg-gray-200 rounded-full flex items-center justify-center">
+                                                            {% with name=delivery.order.customer.full_name %}
+                                                                <span class="font-medium text-gray-600">{{ name|first|upper }}</span>
+                                                            {% endwith %}
+                                                        </div>
+                                                        <div>
+                                                            <div class="text-sm font-medium text-gray-900">{{ delivery.order.customer.full_name }}</div>
+                                                            <div class="text-xs text-gray-500">{{ delivery.order.customer.country }}</div>
+                                                        </div>
+                                                    </div>
+                                                {% elif delivery.order.customer_name %}
+                                                    <div class="flex items-center">
+                                                        <div class="h-8 w-8 flex-shrink-0 mr-2 bg-gray-200 rounded-full flex items-center justify-center">
+                                                            <span class="font-medium text-gray-600">{{ delivery.order.customer_name|first|upper }}</span>
+                                                        </div>
+                                                        <div>
+                                                            <div class="text-sm font-medium text-gray-900">{{ delivery.order.customer_name }}</div>
+                                                            <div class="text-xs text-gray-500">{{ delivery.order.shipping_address|truncatechars:20 }}</div>
+                                                        </div>
+                                                    </div>
+                                                {% else %}
+                                                    {% trans "Unknown Customer" %}
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                {% if delivery.driver %}
+                                                    <div class="flex items-center">
+                                                        <div class="flex-shrink-0 h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                                            <i class="fas fa-user text-xs text-blue-600"></i>
+                                                        </div>
+                                                        <div>
+                                                            <div class="text-sm font-medium">{{ delivery.driver.get_full_name }}</div>
+                                                        </div>
+                                                    </div>
+                                                {% else %}
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        {% trans "Not Assigned" %}
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                                {% if delivery.is_unassigned %}
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        {% trans "Needs Assignment" %}
+                                                    </span>
+                                                {% elif delivery.get_status_display_class %}
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ delivery.get_status_display_class }}">
+                                                        {{ delivery.get_status_display }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        {{ delivery.status|title }}
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                                <div class="flex flex-col">
+                                                    {% if delivery.assigned_at %}
+                                                        <span class="text-xs">
+                                                            <span class="font-semibold">{% trans "Assigned" %}:</span> {{ delivery.assigned_at|date:"d M Y" }}
+                                                        </span>
+                                                    {% endif %}
+                                                    {% if delivery.delivered_at %}
+                                                        <span class="text-xs">
+                                                            <span class="font-semibold">{% trans "Delivered" %}:</span> {{ delivery.delivered_at|date:"d M Y" }}
+                                                        </span>
+                                                    {% endif %}
+                                                    {% if delivery.is_unassigned %}
+                                                        <span class="text-xs">
+                                                            <span class="font-semibold">{% trans "Order Date" %}:</span> {{ delivery.order.date|date:"d M Y" }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                                <div class="flex space-x-2">
+                                                    {% if delivery.is_unassigned %}
+                                                        <a href="{% url 'delivery:assign' %}?order_id={{ delivery.order.id }}" class="text-blue-600 hover:text-blue-900" title="{% trans 'Assign Driver' %}">
+                                                            <i class="fas fa-user-plus"></i>
+                                                        </a>
+                                                    {% else %}
+                                                        {% if delivery.tracking_number %}
+                                                            <a href="{% url 'delivery:track_delivery' delivery.tracking_number %}" class="text-primary-600 hover:text-primary-900" title="{% trans 'Track' %}">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if delivery.id %}
+                                                            <a href="{% url 'delivery:update_status' delivery.id %}" class="text-green-600 hover:text-green-900" title="{% trans 'Update Status' %}">
+                                                                <i class="fas fa-truck"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if not delivery.driver %}
+                                                            <a href="{% url 'delivery:assign' %}?order_id={{ delivery.order.id }}" class="text-blue-600 hover:text-blue-900" title="{% trans 'Assign Driver' %}">
+                                                                <i class="fas fa-user-plus"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if delivery.status == 'failed' %}
+                                                            <a href="#" class="text-red-600 hover:text-red-900" title="{% trans 'View Issue' %}">
+                                                                <i class="fas fa-exclamation-circle"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                                            {% trans "No deliveries found matching your filters" %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
                     
                     <!-- Pagination -->
-                    <div class="mt-4 flex items-center justify-between">
-                        <div class="text-sm text-gray-500">
-                            {% trans "Showing" %} <span class="font-medium">1</span> {% trans "to" %} <span class="font-medium">3</span> {% trans "of" %} <span class="font-medium">3</span> {% trans "results" %}
+                    {% if page_obj.paginator.num_pages > 1 %}
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                {% trans "Showing" %} <span class="font-medium">{{ page_obj.start_index }}</span> {% trans "to" %} <span class="font-medium">{{ page_obj.end_index }}</span> {% trans "of" %} <span class="font-medium">{{ page_obj.paginator.count }}</span> {% trans "results" %}
+                            </div>
+                            <div class="flex space-x-1">
+                                {% if page_obj.has_previous %}
+                                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if courier_filter %}&courier={{ courier_filter }}{% endif %}" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+                                        {% trans "Previous" %}
+                                    </a>
+                                {% else %}
+                                    <span class="px-3 py-1 border border-gray-200 rounded-md text-sm text-gray-400 bg-gray-50 cursor-not-allowed">
+                                        {% trans "Previous" %}
+                                    </span>
+                                {% endif %}
+                                
+                                {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if courier_filter %}&courier={{ courier_filter }}{% endif %}" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+                                        {% trans "Next" %}
+                                    </a>
+                                {% else %}
+                                    <span class="px-3 py-1 border border-gray-200 rounded-md text-sm text-gray-400 bg-gray-50 cursor-not-allowed">
+                                        {% trans "Next" %}
+                                    </span>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="flex space-x-1">
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                {% trans "Previous" %}
-                            </a>
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                {% trans "Next" %}
-                            </a>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Help sidebar -->
-        <div class="w-full lg:w-1/3">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="w-full lg:w-1/4">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
                 <div class="p-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Delivery Guide" %}</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Quick Actions" %}</h3>
                 </div>
                 
                 <div class="p-4">
-                    <div class="flex flex-col items-center">
-                        <img src="{% static 'img/undraw_delivery_address_re_cjca.svg' %}" alt="{% trans 'Delivery Illustration' %}" class="max-h-48 mb-4">
+                    <div class="space-y-3">
+                        <a href="{% url 'delivery:assign' %}" class="block w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors text-center">
+                            <i class="fas fa-truck-loading mr-2"></i>{% trans "Assign Orders" %}
+                        </a>
                         
-                        <div class="space-y-3 w-full text-sm">
-                            <div class="border border-gray-200 rounded-md p-3">
-                                <div class="font-medium text-gray-800 mb-1">
-                                    <i class="fas fa-info-circle text-primary-500 mr-2"></i>
-                                    {% trans "Delivery Process" %}
-                                </div>
-                                <p class="text-gray-600">
-                                    {% trans "Track deliveries in real-time and update their status as they progress. Ensure all delivery details are verified." %}
-                                </p>
-                            </div>
-                            
-                            <div class="border border-gray-200 rounded-md p-3">
-                                <div class="font-medium text-gray-800 mb-1">
-                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                                    {% trans "Need Help?" %}
-                                </div>
-                                <p class="text-gray-600">
-                                    {% trans "For assistance with delivery management, contact the operations team or check the documentation." %}
-                                </p>
-                            </div>
-                            
-                            <div class="mt-4">
-                                <a href="#" class="block text-center w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
-                                    {% trans "View Documentation" %}
-                                </a>
-                            </div>
+                        <a href="{% url 'delivery:scan' %}" class="block w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-center">
+                            <i class="fas fa-barcode mr-2"></i>{% trans "Scan Barcode" %}
+                        </a>
+                        
+                        <a href="{% url 'delivery:track' %}" class="block w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-center">
+                            <i class="fas fa-search-location mr-2"></i>{% trans "Track Delivery" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Delivery Status Guide" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-gray-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Pending Assignment" %} - {% trans "Order needs to be assigned to a courier" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-blue-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Assigned" %} - {% trans "Order assigned to a courier but not yet picked up" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-purple-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Ready for Pickup" %} - {% trans "Order is packaged and ready for courier pickup" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-indigo-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Picked Up" %} - {% trans "Order has been picked up by courier" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-yellow-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "In Transit" %} - {% trans "Order is in transit to customer" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-orange-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Out for Delivery" %} - {% trans "Order is out for final delivery to customer" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-green-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Delivered" %} - {% trans "Order successfully delivered to customer" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-red-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Failed" %} - {% trans "Delivery attempt failed" %}</span>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-pink-200 mr-2"></span>
+                            <span class="text-gray-700">{% trans "Returned" %} - {% trans "Order returned to sender" %}</span>
                         </div>
                     </div>
                 </div>

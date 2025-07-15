@@ -35,6 +35,7 @@ class Supplier(models.Model):
         verbose_name = _('supplier')
         verbose_name_plural = _('suppliers')
         ordering = ['-created_at']
+        db_table = 'sourcing_supplier'
     
     def __str__(self):
         return self.name
@@ -157,6 +158,7 @@ class SourcingRequest(models.Model):
         verbose_name = _('sourcing request')
         verbose_name_plural = _('sourcing requests')
         ordering = ['-created_at']
+        db_table = 'sourcing_sourcingrequest'
     
     def __str__(self):
         return self.request_number

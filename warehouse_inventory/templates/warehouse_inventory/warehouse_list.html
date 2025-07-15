@@ -1,0 +1,95 @@
+{% extends 'warehouse_inventory/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block page_title %}{% trans "Warehouses" %}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'warehouse_inventory:warehouse_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> {% trans "Add New Warehouse" %}
+</a>
+{% endblock %}
+
+{% block inventory_content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {% trans "Warehouse Name" %}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {% trans "Country" %}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {% trans "Currency" %}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {% trans "Zone" %}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {% trans "Status" %}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {% trans "Actions" %}
+                </th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for warehouse in warehouses %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ warehouse.name }}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ warehouse.code }}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ warehouse.country }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ warehouse.currency }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ warehouse.zone }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if warehouse.is_active %}
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {% trans "Active" %}
+                    </span>
+                    {% else %}
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                        {% trans "Inactive" %}
+                    </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <a href="{% url 'warehouse_inventory:warehouse_inventory' warehouse_id=warehouse.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                        <i class="fas fa-box"></i> {% trans "Inventory" %}
+                    </a>
+                    <a href="{% url 'warehouse_inventory:warehouse_edit' warehouse_id=warehouse.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <i class="fas fa-edit"></i> {% trans "Edit" %}
+                    </a>
+                    <a href="{% url 'warehouse_inventory:warehouse_delete' warehouse_id=warehouse.id %}" class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i> {% trans "Delete" %}
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                    {% trans "No warehouses found. Please add a new warehouse." %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

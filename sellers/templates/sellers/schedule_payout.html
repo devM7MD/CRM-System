@@ -1,0 +1,156 @@
+{% extends 'seller_base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Schedule Payout" %}{% endblock %}
+
+{% block header %}{% trans "Schedule Payout" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">{% trans "Schedule a New Payout" %}</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">{% trans "Request a payout from your available balance" %}</p>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+        <form method="post" action="{% url 'sellers:finance_transactions' %}" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="process_payout">
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <div class="sm:col-span-3">
+                    <label for="payout_amount" class="block text-sm font-medium text-gray-700">{% trans "Payout Amount" %} ($)</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="text" name="payout_amount" id="payout_amount" class="focus:ring-yellow-500 focus:border-yellow-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md" placeholder="0.00">
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">{% trans "Enter the amount you want to withdraw" %}</p>
+                </div>
+                
+                <div class="sm:col-span-3">
+                    <label for="payment_method" class="block text-sm font-medium text-gray-700">{% trans "Payment Method" %}</label>
+                    <select id="payment_method" name="payment_method" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                        {% if payment_methods %}
+                            {% for method in payment_methods %}
+                                <option value="{{ method.id }}" {% if method.is_default %}selected{% endif %}>
+                                    {% if method.type == 'bank' %}
+                                        {% trans "Bank Account" %} ({{ method.description }})
+                                    {% elif method.type == 'paypal' %}
+                                        {% trans "PayPal" %} ({{ method.description }})
+                                    {% else %}
+                                        {% trans "Credit Card" %} ({{ method.description }})
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>{% trans "No payment methods available" %}</option>
+                        {% endif %}
+                    </select>
+                    {% if not payment_methods %}
+                        <p class="mt-2 text-sm text-red-600">
+                            {% trans "Please add a payment method before scheduling a payout." %}
+                            <a href="{% url 'sellers:finance_transactions' %}?action=add_payment_method" class="font-medium text-yellow-600 hover:text-yellow-500">
+                                {% trans "Add payment method" %}
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="sm:col-span-6">
+                    <label for="payout_notes" class="block text-sm font-medium text-gray-700">{% trans "Notes" %}</label>
+                    <div class="mt-1">
+                        <textarea id="payout_notes" name="payout_notes" rows="3" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{% trans 'Add any additional information about this payout' %}"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-5">
+                <div class="flex justify-end">
+                    <a href="{% url 'sellers:finances' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                        {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
+                        {% trans "Request Payout" %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="bg-gray-50 px-4 py-5 sm:px-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 bg-blue-100 rounded-md p-2">
+                <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-gray-900">{% trans "Important Information" %}</h3>
+                <div class="mt-1 text-sm text-gray-500">
+                    <p>{% trans "Payouts are typically processed within 1-3 business days. The minimum payout amount is $50." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payout Summary -->
+<div class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">{% trans "Payout Summary" %}</h3>
+    </div>
+    <div class="border-t border-gray-200">
+        <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">{% trans "Available Balance" %}</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">${{ available_balance|default:"0.00"|floatformat:2 }}</dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">{% trans "Pending Balance" %}</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">${{ pending_balance|default:"0.00"|floatformat:2 }}</dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">{% trans "Last Payout" %}</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{% trans "None" %}</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Scheduled Payouts -->
+<div class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">{% trans "Scheduled Payouts" %}</h3>
+    </div>
+    <div class="border-t border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {% trans "Date Requested" %}
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {% trans "Amount" %}
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {% trans "Payment Method" %}
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {% trans "Status" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                        {% trans "No scheduled payouts" %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

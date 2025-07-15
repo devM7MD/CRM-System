@@ -1,0 +1,365 @@
+{% extends 'seller_base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Delivery Tracking" %}{% endblock %}
+
+{% block header %}{% trans "Delivery Tracking" %}{% endblock %}
+
+{% block content %}
+<!-- Filter & Search Bar -->
+<div class="bg-white p-4 rounded-lg shadow mb-6">
+    <form method="get" action="{% url 'sellers:delivery_tracking' %}">
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            <div class="flex-1">
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Status" %}</label>
+                <select id="status" name="status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                    <option value="all" {% if request.GET.status == 'all' or not request.GET.status %}selected{% endif %}>{% trans "All Statuses" %}</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>{% trans "Pending" %}</option>
+                    <option value="processing" {% if request.GET.status == 'processing' %}selected{% endif %}>{% trans "Processing" %}</option>
+                    <option value="shipped" {% if request.GET.status == 'shipped' %}selected{% endif %}>{% trans "In Transit" %}</option>
+                    <option value="delivered" {% if request.GET.status == 'delivered' %}selected{% endif %}>{% trans "Delivered" %}</option>
+                    <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>{% trans "Cancelled" %}</option>
+                </select>
+            </div>
+            <div class="flex-1">
+                <label for="date" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Date Range" %}</label>
+                <select id="date" name="date" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                    <option value="all" {% if request.GET.date == 'all' or not request.GET.date %}selected{% endif %}>{% trans "All Time" %}</option>
+                    <option value="today" {% if request.GET.date == 'today' %}selected{% endif %}>{% trans "Today" %}</option>
+                    <option value="this_week" {% if request.GET.date == 'this_week' %}selected{% endif %}>{% trans "This Week" %}</option>
+                    <option value="this_month" {% if request.GET.date == 'this_month' %}selected{% endif %}>{% trans "This Month" %}</option>
+                    <option value="last_month" {% if request.GET.date == 'last_month' %}selected{% endif %}>{% trans "Last Month" %}</option>
+                </select>
+            </div>
+            <div class="flex-1">
+                <label for="courier" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Courier" %}</label>
+                <select id="courier" name="courier" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                    <option value="all" {% if request.GET.courier == 'all' or not request.GET.courier %}selected{% endif %}>{% trans "All Couriers" %}</option>
+                    <option value="dhl" {% if request.GET.courier == 'dhl' %}selected{% endif %}>DHL</option>
+                    <option value="fedex" {% if request.GET.courier == 'fedex' %}selected{% endif %}>FedEx</option>
+                    <option value="ups" {% if request.GET.courier == 'ups' %}selected{% endif %}>UPS</option>
+                    <option value="aramex" {% if request.GET.courier == 'aramex' %}selected{% endif %}>Aramex</option>
+                    <option value="royal" {% if request.GET.courier == 'royal' %}selected{% endif %}>Royal Mail</option>
+                    <option value="usps" {% if request.GET.courier == 'usps' %}selected{% endif %}>USPS</option>
+                </select>
+            </div>
+            <div class="flex-1">
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Search" %}</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <input type="text" id="search" name="search" value="{{ request.GET.search }}" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-3 pr-10 py-2 sm:text-sm border-gray-300 rounded-md" placeholder="{% trans 'Order ID, Tracking #...' %}">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 flex justify-end">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
+                <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                {% trans "Apply Filters" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Delivery Tracking Table -->
+<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6 flex justify-between">
+        <div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900">{% trans "Shipments" %}</h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{% trans "Track your order deliveries in real-time" %}</p>
+        </div>
+        <div>
+            <a href="{% url 'sellers:export_deliveries' %}?{{ request.GET.urlencode }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {% trans "Export CSV" %}
+            </a>
+        </div>
+    </div>
+    <div class="border-t border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Order ID" %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Tracking Number" %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Courier" %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Customer" %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Shipping Date" %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Status" %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "ETA" %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Actions" %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% if deliveries %}
+                        {% for delivery in deliveries %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-primary-600 hover:text-primary-900">
+                                        <a href="#">{{ delivery.order_id }}</a>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ delivery.tracking_number }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="text-sm text-gray-900">{{ delivery.courier }}</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ delivery.customer_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ delivery.customer_location }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if delivery.shipping_date %}
+                                        {{ delivery.shipping_date|date:"M j, Y" }}
+                                    {% else %}
+                                        {% trans "Pending" %}
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if delivery.status == 'delivered' %}bg-green-100 text-green-800
+                                        {% elif delivery.status == 'shipped' %}bg-blue-100 text-blue-800
+                                        {% elif delivery.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                        {% elif delivery.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% if delivery.status == 'delivered' %}
+                                            {% trans "Delivered" %}
+                                        {% elif delivery.status == 'shipped' %}
+                                            {% trans "In Transit" %}
+                                        {% elif delivery.status == 'processing' %}
+                                            {% trans "Processing" %}
+                                        {% elif delivery.status == 'cancelled' %}
+                                            {% trans "Cancelled" %}
+                                        {% else %}
+                                            {% trans "Pending" %}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if delivery.eta %}
+                                        {{ delivery.eta|date:"M j, Y" }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="{% url 'sellers:delivery_detail' delivery.id %}" class="text-primary-600 hover:text-primary-900">{% trans "View" %}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                {% trans "No deliveries found" %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delivery Stats -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Delivered Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Delivered" %}</dt>
+                        <dd class="text-xl font-semibold text-gray-900">{{ delivered_count }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- In Transit Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">{% trans "In Transit" %}</dt>
+                        <dd class="text-xl font-semibold text-gray-900">{{ in_transit_count }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Pending" %}</dt>
+                        <dd class="text-xl font-semibold text-gray-900">{{ pending_count }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issues Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Issues" %}</dt>
+                        <dd class="text-xl font-semibold text-gray-900">{{ issues_count }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if paginator and paginator.num_pages > 1 %}
+<div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-lg shadow">
+    <div class="flex-1 flex justify-between sm:hidden">
+        {% if deliveries.has_previous %}
+        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ deliveries.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            {% trans "Previous" %}
+        </a>
+        {% else %}
+        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100">
+            {% trans "Previous" %}
+        </span>
+        {% endif %}
+        
+        {% if deliveries.has_next %}
+        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ deliveries.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            {% trans "Next" %}
+        </a>
+        {% else %}
+        <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100">
+            {% trans "Next" %}
+        </span>
+        {% endif %}
+    </div>
+    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm text-gray-700">
+                {% trans "Showing" %}
+                <span class="font-medium">{{ deliveries.start_index }}</span>
+                {% trans "to" %}
+                <span class="font-medium">{{ deliveries.end_index }}</span>
+                {% trans "of" %}
+                <span class="font-medium">{{ paginator.count }}</span>
+                {% trans "results" %}
+            </p>
+        </div>
+        <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                {% if deliveries.has_previous %}
+                <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ deliveries.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span class="sr-only">{% trans "Previous" %}</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                {% else %}
+                <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+                    <span class="sr-only">{% trans "Previous" %}</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </span>
+                {% endif %}
+                
+                {% for i in paginator.page_range %}
+                    {% if i == deliveries.number %}
+                    <a href="#" aria-current="page" class="z-10 bg-yellow-50 border-yellow-500 text-yellow-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                        {{ i }}
+                    </a>
+                    {% elif i > deliveries.number|add:"-3" and i < deliveries.number|add:"3" %}
+                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ i }}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                        {{ i }}
+                    </a>
+                    {% elif i == 1 or i == paginator.num_pages %}
+                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ i }}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                        {{ i }}
+                    </a>
+                    {% elif i == deliveries.number|add:"-3" or i == deliveries.number|add:"3" %}
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        ...
+                    </span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if deliveries.has_next %}
+                <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ deliveries.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span class="sr-only">{% trans "Next" %}</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+                {% else %}
+                <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+                    <span class="sr-only">{% trans "Next" %}</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </span>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

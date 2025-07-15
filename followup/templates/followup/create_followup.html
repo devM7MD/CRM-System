@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Create New Follow-up" %}{% endblock %}
+
+{% block header %}{% trans "Create New Follow-up" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 flex justify-between items-center border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Schedule a Follow-up" %}</h3>
+            <a href="{% url 'followup:orders' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to List" %}
+            </a>
+        </div>
+        
+        <div class="p-6">
+            <form method="post" action="{% url 'followup:create' %}">
+                {% csrf_token %}
+                
+                <div class="mb-6">
+                    <label for="order_id" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Select Order" %} *</label>
+                    <select id="order_id" name="order_id" required class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        <option value="">{% trans "-- Select an order --" %}</option>
+                        {% for order in orders %}
+                        <option value="{{ order.id }}">
+                            {{ order.order_code }} - 
+                            {% if order.customer %}
+                                {{ order.customer.get_full_name|default:order.customer.email }}
+                            {% elif order.customer_name %}
+                                {{ order.customer_name }}
+                            {% else %}
+                                {% trans "Unknown" %}
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">{% trans "Only delivered orders that don't have an active follow-up are shown." %}</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="scheduled_for" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Schedule Date and Time" %} *</label>
+                    <input type="datetime-local" id="scheduled_for" name="scheduled_for" required class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        {% trans "Schedule Follow-up" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="mt-6 bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Follow-up Guidelines" %}</h3>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full bg-primary-100 p-2 mr-3">
+                            <i class="fas fa-clock text-primary-600"></i>
+                        </div>
+                        <h4 class="font-medium text-gray-800">{% trans "Timing" %}</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">
+                        {% trans "Schedule follow-ups 2-3 days after delivery to allow customers time to use the product." %}
+                    </p>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full bg-green-100 p-2 mr-3">
+                            <i class="fas fa-comments text-green-600"></i>
+                        </div>
+                        <h4 class="font-medium text-gray-800">{% trans "Approach" %}</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">
+                        {% trans "Be friendly and concise. Ask about their experience, if they have any questions, and offer assistance if needed." %}
+                    </p>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full bg-blue-100 p-2 mr-3">
+                            <i class="fas fa-clipboard-check text-blue-600"></i>
+                        </div>
+                        <h4 class="font-medium text-gray-800">{% trans "Documentation" %}</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">
+                        {% trans "Record all feedback received, both positive and negative. This helps improve products and services." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

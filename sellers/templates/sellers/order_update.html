@@ -1,0 +1,86 @@
+{% extends 'seller_base.html' %}
+{% load static %}
+
+{% block title %}Update Order Status{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    Order #{{ order.order_code }} - Current Status: {{ order.get_status_display }}
+                </h3>
+                <div class="mt-2 max-w-xl text-sm text-gray-500">
+                    {% if user.role == 'seller' %}
+                    <p>Request a status change for this order. Your request will be reviewed by the admin team.</p>
+                    {% else %}
+                    <p>Update the status of this order. This will notify the customer of the change.</p>
+                    {% endif %}
+                </div>
+                
+                {% if user.role == 'seller' %}
+                <div class="mt-4 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">Important Note</h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <p>Status change requests require admin approval. Your request will be reviewed and processed accordingly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <form action="{% url 'sellers:order_update' order.id %}" method="post" class="mt-5">
+                    {% csrf_token %}
+                    <div class="max-w-md">
+                        <label for="status" class="block text-sm font-medium text-gray-700">
+                            {% if user.role == 'seller' %}
+                            Requested New Status
+                            {% else %}
+                            New Status
+                            {% endif %}
+                        </label>
+                        <select id="status" name="status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                            {% for value, label in status_choices %}
+                                {% if value == 'cancelled' and user.role == 'seller' %}
+                                    <option value="{{ value }}">{{ label }} (Requires approval)</option>
+                                {% else %}
+                                    <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    {% if user.role == 'seller' %}
+                    <div class="mt-4">
+                        <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Change (Optional)</label>
+                        <textarea id="reason" name="reason" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-500 focus:ring-opacity-50"></textarea>
+                        <p class="mt-1 text-sm text-gray-500">Please provide a brief explanation for the status change request.</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-5 flex">
+                        <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:text-sm">
+                            {% if user.role == 'seller' %}
+                            Submit Request
+                            {% else %}
+                            Update Status
+                            {% endif %}
+                        </button>
+                        <a href="{% url 'sellers:order_detail' order.id %}" class="ml-3 inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:text-sm">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

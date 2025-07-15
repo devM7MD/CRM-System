@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Update Delivery Status" %}{% endblock %}
+
+{% block header %}{% trans "Update Delivery Status" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="max-w-lg mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Update Delivery Status" %}</h3>
+            <a href="{% url 'delivery:track_delivery' delivery.tracking_number %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+                <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Tracking" %}
+            </a>
+        </div>
+        
+        <div class="p-6">
+            <div class="mb-6 text-center">
+                <div class="inline-flex h-16 w-16 rounded-full bg-primary-100 items-center justify-center mb-4">
+                    <i class="fas fa-truck text-primary-600 text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">{% trans "Update Status" %}</h2>
+                <p class="text-gray-600">
+                    {% trans "Order" %}: <span class="font-medium">{{ delivery.order.order_code }}</span> | 
+                    {% trans "Tracking" %}: <span class="font-medium">{{ delivery.tracking_number }}</span>
+                </p>
+                <div class="mt-3">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ delivery.get_status_display_class }}">
+                        {% trans "Current Status" %}: {{ delivery.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <form method="post" action="{% url 'delivery:update_status' delivery.id %}" class="space-y-4">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">{% trans "New Status" %}</label>
+                    <select id="status" name="status" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for status_code, status_label in status_choices %}
+                            <option value="{{ status_code }}" {% if status_code == delivery.status %}selected{% endif %}>
+                                {{ status_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Location" %} ({% trans "optional" %})</label>
+                    <input type="text" id="location" name="location" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="{% trans 'e.g. Dubai Warehouse, Transit Hub, etc.' %}">
+                </div>
+                
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Notes" %} ({% trans "optional" %})</label>
+                    <textarea id="notes" name="notes" rows="3" class="block w-full appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="{% trans 'Additional information about this status update' %}"></textarea>
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" class="w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                        {% trans "Update Status" %}
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6 border-t border-gray-200 pt-4">
+                <h4 class="font-medium text-gray-800 mb-2">{% trans "Status Guidelines" %}</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "Pending Assignment - Order needs to be assigned to a courier" %}</span>
+                    </div>
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "Ready for Pickup - Package is ready for courier collection" %}</span>
+                    </div>
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "Picked Up - Package has been collected by the courier" %}</span>
+                    </div>
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "In Transit - Package is en route to its destination" %}</span>
+                    </div>
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "Out for Delivery - Package is out for final delivery" %}</span>
+                    </div>
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "Delivered - Package has been delivered successfully" %}</span>
+                    </div>
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "Failed - Delivery attempt was unsuccessful" %}</span>
+                    </div>
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-info-circle text-primary-500 mt-1 mr-2"></i>
+                        <span>{% trans "Returned - Package has been returned to sender" %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

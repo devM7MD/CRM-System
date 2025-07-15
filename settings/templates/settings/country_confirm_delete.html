@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Delete Country" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{% trans "Delete Country" %}</h1>
+        <a href="{% url 'settings:country_list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded inline-flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            {% trans "Back to Countries" %}
+        </a>
+    </div>
+    
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="p-4 {% if message.tags == 'success' %}bg-green-100 border-l-4 border-green-500 text-green-700{% elif message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-blue-100 border-l-4 border-blue-500 text-blue-700{% endif %} rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-red-50 px-4 py-3 border-b border-red-200">
+            <h2 class="text-lg font-medium text-red-800">{% trans "Confirm Deletion" %}</h2>
+        </div>
+        <div class="p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{% trans "Delete Country" %}</h3>
+                <div class="mt-2 px-2">
+                    <p class="text-sm text-gray-500">
+                        {% blocktrans with country_name=country.name_en %}Are you sure you want to delete the country "{{ country_name }}"? This action cannot be undone.{% endblocktrans %}
+                    </p>
+                </div>
+                
+                <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Country Information" %}</h4>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">{% trans "Name (English)" %}</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ country.name_en }}</dd>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">{% trans "Name (Arabic)" %}</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ country.name_ar }}</dd>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">{% trans "Code" %}</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ country.code }}</dd>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">{% trans "Currency" %}</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ country.currency }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                
+                <div class="mt-5">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="flex justify-center space-x-3">
+                            <a href="{% url 'settings:country_list' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                {% trans "Delete" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

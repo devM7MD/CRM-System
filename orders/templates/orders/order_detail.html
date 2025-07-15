@@ -1,65 +1,349 @@
-{% extends 'base.html' %}
+{% extends 'admin_base.html' %}
 {% load i18n %}
 {% load static %}
 
 {% block content %}
+<style>
+    @media print {
+        .page-header, .inline-flex:not(.print-show), nav, footer, .mt-8 {
+            display: none !important;
+        }
+        body {
+            background-color: white !important;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+        .container {
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
+        }
+        .info-card {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            margin-bottom: 20px;
+            border: 1px solid #eee !important;
+            box-shadow: none !important;
+            padding: 15px !important;
+        }
+        .print-show {
+            display: block !important;
+        }
+        
+        /* Print Header */
+        .print-header {
+            display: flex !important;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 2px solid #333;
+            margin-bottom: 30px;
+        }
+        .print-logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .print-title {
+            text-align: right;
+            font-size: 18px;
+        }
+        
+        /* Order Status Banner */
+        .print-status {
+            padding: 10px !important;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        
+        /* Grid Layout */
+        .print-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #f8f8f8 !important;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        td {
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+        }
+        
+        /* Summary Section */
+        .print-summary {
+            display: flex !important;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Footer */
+        .print-footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Print-only elements */
+        .print-only {
+            display: none;
+        }
+        @media print {
+            .print-only {
+                display: block !important;
+            }
+        }
+    }
+</style>
+
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">{% trans "Order Details" %}</h1>
-        <div class="flex space-x-4">
-            <a href="{% url 'orders:list' %}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
-                {% trans "Back to Orders" %}
+    <div class="page-header mb-8 flex justify-between items-center">
+        <h1 class="page-title flex items-center">
+            <i class="fas fa-file-invoice text-primary-500 mr-3"></i>
+            {% trans "Order Details" %}
+        </h1>
+        <div class="flex space-x-3">
+            <a href="{% url 'orders:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                <i class="fas fa-arrow-left mr-2"></i> {% trans "Back to Orders" %}
             </a>
-            <a href="{% url 'orders:update' order.pk %}" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
-                {% trans "Edit Order" %}
+            <a href="{% url 'orders:update' order.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                <i class="fas fa-edit mr-2"></i> {% trans "Edit Order" %}
             </a>
         </div>
     </div>
 
-    <!-- Order Information -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Order Details -->
-            <div>
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Order Information" %}</h2>
-                <dl class="grid grid-cols-2 gap-4">
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Order Code" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.order_code }}</dd>
+    <!-- Order Status Banner -->
+    <div class="mb-6 rounded-lg shadow-sm overflow-hidden">
+        <div class="px-6 py-4 {% if order.status == 'pending' %}bg-yellow-500 text-white
+                {% elif order.status == 'processing' %}bg-blue-500 text-white
+                {% elif order.status == 'shipped' %}bg-purple-500 text-white
+                {% elif order.status == 'delivered' %}bg-green-500 text-white
+                {% elif order.status == 'cancelled' %}bg-red-500 text-white
+                {% else %}bg-gray-500 text-white{% endif %} print-status">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas {% if order.status == 'pending' %}fa-clock
+                        {% elif order.status == 'processing' %}fa-spinner fa-spin
+                        {% elif order.status == 'shipped' %}fa-truck
+                        {% elif order.status == 'delivered' %}fa-check-circle
+                        {% elif order.status == 'cancelled' %}fa-times-circle
+                        {% else %}fa-question-circle{% endif %} text-2xl mr-3"></i>
+                    <div>
+                        <h2 class="text-lg font-bold">
+                            {% if order.status == 'pending' %}{% trans "Pending Order" %}
+                            {% elif order.status == 'processing' %}{% trans "Processing Order" %}
+                            {% elif order.status == 'shipped' %}{% trans "Shipped Order" %}
+                            {% elif order.status == 'delivered' %}{% trans "Delivered Order" %}
+                            {% elif order.status == 'cancelled' %}{% trans "Cancelled Order" %}
+                            {% else %}{{ order.get_status_display }}{% endif %}
+                        </h2>
+                        <p class="text-sm opacity-90">{% trans "Order" %} #{{ order.order_code }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm opacity-90">{% trans "Order Date" %}</div>
+                    <div class="font-medium">{{ order.date|date:"F j, Y" }}</div>
+                    <div class="text-xs">{{ order.date|date:"H:i" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Order Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 print-grid">
+        <!-- Order Details -->
+        <div class="info-card">
+            <h2 class="info-card-header flex items-center">
+                <i class="fas fa-info-circle text-primary-500 mr-2"></i> 
+                {% trans "Order Information" %}
+            </h2>
+            <dl class="space-y-4 mt-4">
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">{% trans "Order Code" %}</dt>
+                    <dd class="text-sm font-bold text-gray-900">{{ order.order_code }}</dd>
+                </div>
+
+                <div class="flex justify-between">
                     <dt class="text-sm font-medium text-gray-500">{% trans "Date" %}</dt>
                     <dd class="text-sm text-gray-900">{{ order.date|date:"Y-m-d H:i" }}</dd>
+                </div>
 
+                <div class="flex justify-between">
                     <dt class="text-sm font-medium text-gray-500">{% trans "Status" %}</dt>
                     <dd class="text-sm">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
-                            {% elif order.status == 'shipped' %}bg-purple-100 text-purple-800
-                            {% elif order.status == 'delivered' %}bg-green-100 text-green-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
+                        <span class="status-badge {% if order.status == 'pending' %}status-warning
+                            {% elif order.status == 'processing' %}status-info
+                            {% elif order.status == 'shipped' %}status-info
+                            {% elif order.status == 'delivered' %}status-success
+                            {% else %}status-danger{% endif %}">
+                            <i class="fas {% if order.status == 'pending' %}fa-clock
+                                {% elif order.status == 'processing' %}fa-spinner
+                                {% elif order.status == 'shipped' %}fa-truck
+                                {% elif order.status == 'delivered' %}fa-check-circle
+                                {% else %}fa-times-circle{% endif %} mr-1"></i>
                             {{ order.get_status_display }}
                         </span>
                     </dd>
+                </div>
 
+                <div class="flex justify-between">
                     <dt class="text-sm font-medium text-gray-500">{% trans "Total Price" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.total_price }}</dd>
+                    <dd class="text-sm font-bold text-primary-600">${{ order.total_price }}</dd>
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200">
+                    <a href="{% url 'orders:print' order.id %}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        <i class="fas fa-print mr-2"></i> {% trans "Print Order" %}
+                    </a>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Product Details -->
+        <div class="info-card">
+            <h2 class="info-card-header flex items-center">
+                <i class="fas fa-box text-primary-500 mr-2"></i>
+                {% trans "Product Information" %}
+            </h2>
+            <div class="mt-4">
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="flex-shrink-0 h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center">
+                        {% if order.product.image %}
+                            <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}" class="h-full w-full object-contain p-1">
+                        {% else %}
+                            <i class="fas fa-box text-gray-400 text-2xl"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ order.product.name }}</p>
+                        <p class="text-sm text-gray-500">
+                            {% if order.product.code %}{% trans "SKU:" %} {{ order.product.code }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <dl class="space-y-4">
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">{% trans "Quantity" %}</dt>
+                        <dd class="text-sm text-gray-900">{{ order.quantity }}</dd>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">{% trans "Price Per Unit" %}</dt>
+                        <dd class="text-sm text-gray-900">${{ order.price_per_unit }}</dd>
+                    </div>
+                    
+                    <div class="flex justify-between pt-4 border-t border-gray-200">
+                        <dt class="text-sm font-medium text-gray-900">{% trans "Subtotal" %}</dt>
+                        <dd class="text-sm font-bold text-gray-900">${{ order.total_price }}</dd>
+                    </div>
                 </dl>
             </div>
+        </div>
 
-            <!-- Product Details -->
-            <div>
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Product Information" %}</h2>
-                <dl class="grid grid-cols-2 gap-4">
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Product" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.product.name }}</dd>
-
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Quantity" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.quantity }}</dd>
-
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Price Per Unit" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.price_per_unit }}</dd>
-                </dl>
+        <!-- Order Timeline -->
+        <div class="info-card">
+            <h2 class="info-card-header flex items-center">
+                <i class="fas fa-history text-primary-500 mr-2"></i>
+                {% trans "Order Timeline" %}
+            </h2>
+            <div class="mt-4 space-y-8">
+                <div class="relative">
+                    <div class="absolute h-full w-0.5 bg-gray-200 left-3.5 top-5"></div>
+                    
+                    <div class="relative flex items-start space-x-3">
+                        <div class="relative">
+                            <div class="h-7 w-7 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center ring-8 ring-white">
+                                <i class="fas fa-plus text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-medium text-gray-900">{% trans "Order Created" %}</div>
+                            <p class="text-xs text-gray-500">{{ order.date|date:"F j, Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if order.status != 'pending' and order.status != 'cancelled' %}
+                <div class="relative">
+                    <div class="relative flex items-start space-x-3">
+                        <div class="relative">
+                            <div class="h-7 w-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center ring-8 ring-white">
+                                <i class="fas fa-cog text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-medium text-gray-900">{% trans "Processing Started" %}</div>
+                            <p class="text-xs text-gray-500">{{ order.date|date:"F j"|add:", +1 day" }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if order.status == 'shipped' or order.status == 'delivered' %}
+                <div class="relative">
+                    <div class="relative flex items-start space-x-3">
+                        <div class="relative">
+                            <div class="h-7 w-7 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center ring-8 ring-white">
+                                <i class="fas fa-truck text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-medium text-gray-900">{% trans "Order Shipped" %}</div>
+                            <p class="text-xs text-gray-500">{{ order.date|date:"F j"|add:", +2 days" }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if order.status == 'delivered' %}
+                <div class="relative">
+                    <div class="relative flex items-start space-x-3">
+                        <div class="relative">
+                            <div class="h-7 w-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center ring-8 ring-white">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-medium text-gray-900">{% trans "Order Delivered" %}</div>
+                            <p class="text-xs text-gray-500">{{ order.date|date:"F j"|add:", +4 days" }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if order.status == 'cancelled' %}
+                <div class="relative">
+                    <div class="relative flex items-start space-x-3">
+                        <div class="relative">
+                            <div class="h-7 w-7 rounded-full bg-red-100 text-red-600 flex items-center justify-center ring-8 ring-white">
+                                <i class="fas fa-times text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-medium text-gray-900">{% trans "Order Cancelled" %}</div>
+                            <p class="text-xs text-gray-500">{{ order.date|date:"F j, Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -67,40 +351,154 @@
     <!-- Customer and Seller Information -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Customer Details -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Customer Details" %}</h2>
-            <dl class="grid grid-cols-1 gap-4">
-                <dt class="text-sm font-medium text-gray-500">{% trans "Name" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.customer.get_full_name }}</dd>
-
-                <dt class="text-sm font-medium text-gray-500">{% trans "Phone" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.customer_phone }}</dd>
-            </dl>
+        <div class="info-card">
+            <h2 class="info-card-header flex items-center">
+                <i class="fas fa-user text-primary-500 mr-2"></i>
+                {% trans "Customer Details" %}
+            </h2>
+            <div class="mt-4">
+                <div class="flex items-center mb-4">
+                    <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full overflow-hidden">
+                        {% if order.customer and order.customer.profile_image %}
+                        <img src="{{ order.customer.profile_image.url|default:"https://ui-avatars.com/api/?name="|add:order.customer.first_name|add:"+"|add:order.customer.last_name }}" alt="{{ order.customer.get_full_name }}" class="h-10 w-10 object-cover">
+                        {% else %}
+                        <div class="h-10 w-10 flex items-center justify-center bg-primary-100 text-primary-800 font-semibold text-lg">
+                            {% if order.customer %}
+                                {{ order.customer.get_full_name|slice:":1" }}
+                            {% elif order.customer_name %}
+                                {{ order.customer_name|slice:":1" }}
+                            {% else %}
+                                ?
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">
+                            {% if order.customer %}
+                                {{ order.customer.get_full_name }}
+                            {% elif order.customer_name %}
+                                {{ order.customer_name }}
+                            {% else %}
+                                {% trans "No Customer Name" %}
+                            {% endif %}
+                        </h3>
+                        <p class="text-xs text-gray-500">{% trans "Customer" %}</p>
+                    </div>
+                </div>
+                
+                <dl class="grid grid-cols-1 gap-4 mt-4">
+                    {% if order.customer_phone %}
+                    <div class="flex items-center">
+                        <dt class="flex-shrink-0 w-8">
+                            <i class="fas fa-phone text-gray-400"></i>
+                        </dt>
+                        <dd class="text-sm text-gray-900">{{ order.customer_phone }}</dd>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.customer.email %}
+                    <div class="flex items-center">
+                        <dt class="flex-shrink-0 w-8">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </dt>
+                        <dd class="text-sm text-gray-900">{{ order.customer.email }}</dd>
+                    </div>
+                    {% elif order.customer_email %}
+                    <div class="flex items-center">
+                        <dt class="flex-shrink-0 w-8">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </dt>
+                        <dd class="text-sm text-gray-900">{{ order.customer_email }}</dd>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.shipping_address %}
+                    <div class="flex items-start mt-4 pt-4 border-t border-gray-200">
+                        <dt class="flex-shrink-0 w-8">
+                            <i class="fas fa-map-marker-alt text-gray-400"></i>
+                        </dt>
+                        <dd class="text-sm text-gray-900">
+                            <div class="font-medium mb-1">{% trans "Shipping Address" %}</div>
+                            <p>{{ order.shipping_address }}</p>
+                        </dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
         </div>
 
         <!-- Seller Details -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Seller Details" %}</h2>
-            <dl class="grid grid-cols-1 gap-4">
-                <dt class="text-sm font-medium text-gray-500">{% trans "Name" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.seller.name }}</dd>
-
-                <dt class="text-sm font-medium text-gray-500">{% trans "Phone" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.seller_phone }}</dd>
-
-                <dt class="text-sm font-medium text-gray-500">{% trans "Email" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.seller_email }}</dd>
-
-                {% if order.store_link %}
-                <dt class="text-sm font-medium text-gray-500">{% trans "Store Link" %}</dt>
-                <dd class="text-sm text-gray-900">
-                    <a href="{{ order.store_link }}" target="_blank" class="text-yellow-600 hover:text-yellow-800">
-                        {% trans "Visit Store" %}
-                    </a>
-                </dd>
-                {% endif %}
-            </dl>
+        <div class="info-card">
+            <h2 class="info-card-header flex items-center">
+                <i class="fas fa-store text-primary-500 mr-2"></i>
+                {% trans "Seller Details" %}
+            </h2>
+            <div class="mt-4">
+                <div class="flex items-center mb-4">
+                    <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full overflow-hidden">
+                        {% if order.seller.logo %}
+                        <img src="{{ order.seller.logo.url }}" alt="{{ order.seller.name }}" class="h-10 w-10 object-cover">
+                        {% else %}
+                        <div class="h-10 w-10 flex items-center justify-center bg-blue-100 text-blue-800 font-semibold text-lg">
+                            {{ order.seller.name|slice:":1" }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">{{ order.seller.name }}</h3>
+                        <p class="text-xs text-gray-500">{% trans "Seller" %}</p>
+                    </div>
+                </div>
+                
+                <dl class="grid grid-cols-1 gap-4 mt-4">
+                    {% if order.seller_phone %}
+                    <div class="flex items-center">
+                        <dt class="flex-shrink-0 w-8">
+                            <i class="fas fa-phone text-gray-400"></i>
+                        </dt>
+                        <dd class="text-sm text-gray-900">{{ order.seller_phone }}</dd>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.seller_email %}
+                    <div class="flex items-center">
+                        <dt class="flex-shrink-0 w-8">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </dt>
+                        <dd class="text-sm text-gray-900">{{ order.seller_email }}</dd>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.store_link %}
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <a href="{{ order.store_link }}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full justify-center">
+                            <i class="fas fa-external-link-alt mr-2"></i> {% trans "Visit Store" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
         </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="mt-8 flex flex-wrap justify-end space-x-3">
+        <a href="{% url 'orders:invoice' order.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            <i class="fas fa-download mr-2"></i> {% trans "Download Invoice" %}
+        </a>
+        
+        {% if order.status == 'pending' and request.user.role in 'super_admin,admin,call_center_manager' %}
+        <a href="{% url 'orders:process' order.id %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="fas fa-shipping-fast mr-2"></i> {% trans "Process Order" %}
+        </a>
+        {% endif %}
+        
+        {% if order.status != 'cancelled' and order.status != 'delivered' and request.user.role in 'super_admin,admin,call_center_manager' %}
+        <a href="{% url 'orders:cancel' order.id %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            <i class="fas fa-times-circle mr-2"></i> {% trans "Cancel Order" %}
+        </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %} 
