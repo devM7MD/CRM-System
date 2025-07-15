@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+{% load static %}
+{% load i18n %}
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% trans "Atlas Fulfillment" %}{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fef9e7',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            background-color: #f8f9fa;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        .sidebar {
+            transition: width 0.3s ease;
+            position: fixed;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            -ms-overflow-style: none;
+            background: linear-gradient(to bottom, #eab308, #ca8a04);
+            top: 56px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .main-content {
+            transition: margin-left 0.3s ease;
+            min-height: calc(100vh - 60px);
+        }
+        
+        .logo-container {
+            height: 45px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-container img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        /* Fixed header to prevent jumpiness */
+        .header-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            height: 56px;
+            background: #eab308;
+        }
+        
+        /* Adjust main content to account for fixed header */
+        .page-container {
+            padding-top: 56px;
+        }
+        
+        /* Smooth content transition */
+        .content-wrapper {
+            transition: all 0.3s ease;
+        }
+        
+        /* Card shadow transition for smoother hover */
+        .card {
+            transition: box-shadow 0.3s ease;
+            border-top: 3px solid #eab308;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.1);
+        }
+        
+        /* Menu item styling */
+        .menu-item {
+            border-radius: 6px;
+            margin-bottom: 3px;
+            transition: all 0.2s ease;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-item i {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Custom scrollbar for the entire page */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #eab308;
+            border-radius: 6px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ca8a04;
+        }
+        
+        /* Button styles */
+        .btn-primary {
+            background-color: #eab308;
+            border-color: #ca8a04;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ca8a04;
+            border-color: #a16207;
+        }
+        
+        /* Dashboard stat panels */
+        .dashboard-stat {
+            border-left: 4px solid #eab308;
+        }
+        
+        /* Table styling */
+        thead th {
+            background-color: #fef3c7;
+            color: #854d0e;
+        }
+        
+        tbody tr:hover {
+            background-color: #fef9e7;
+        }
+        
+        /* RTL Support */
+        [dir="rtl"] .sidebar {
+            right: 0;
+            left: auto;
+        }
+        
+        [dir="rtl"] .main-content {
+            margin-right: 16rem;
+            margin-left: 0;
+        }
+        
+        [dir="rtl"] .dashboard-stat {
+            border-left: none;
+            border-right: 4px solid #eab308;
+        }
+        
+        [dir="rtl"] .ml-2, [dir="rtl"] .ml-3, [dir="rtl"] .ml-4 {
+            margin-left: 0;
+            margin-right: 0.5rem;
+        }
+        
+        [dir="rtl"] .mr-2, [dir="rtl"] .mr-3, [dir="rtl"] .mr-4 {
+            margin-right: 0;
+            margin-left: 0.5rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+
+
+
+        
+        <!-- Mobile menu backdrop -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 hidden lg:hidden"></div>
+    
+ 
+                    
+                    <!-- Content -->
+                    <div class="bg-white shadow rounded-lg p-6 card">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // RTL support adjustments
+            if (document.dir === 'rtl') {
+                $('.main-content').removeClass('lg:ml-64').addClass('lg:mr-64');
+                $('#sidebar').removeClass('left-0').addClass('right-0');
+                $('.ml-2, .ml-3, .ml-4').removeClass('ml-2 ml-3 ml-4').addClass('mr-2 mr-3 mr-4');
+                $('.mr-2, .mr-3, .mr-4').removeClass('mr-2 mr-3 mr-4').addClass('ml-2 ml-3 ml-4');
+            }
+        
+            // Toggle sidebar
+            $('#sidebar-toggle').click(function() {
+                $('#sidebar').toggleClass('hidden');
+                $('#sidebar-backdrop').toggleClass('hidden');
+            });
+            
+            // Close sidebar when backdrop is clicked
+            $('#sidebar-backdrop').click(function() {
+                $('#sidebar').addClass('hidden');
+                $('#sidebar-backdrop').addClass('hidden');
+            });
+            
+            // User dropdown toggle
+            $('#user-menu-button').click(function(e) {
+                e.stopPropagation();
+                $('#user-menu').toggleClass('hidden');
+                });
+            
+            // Notification dropdown toggle
+            $('#notif-dropdown-button').click(function(e) {
+                e.stopPropagation();
+                $('#notif-dropdown').toggleClass('hidden');
+            });
+            
+            // Close dropdowns when clicking outside
+            $(document).click(function() {
+                $('#user-menu').addClass('hidden');
+                $('#notif-dropdown').addClass('hidden');
+            });
+            
+            // Prevent propagation for dropdown content
+            $('#user-menu, #notif-dropdown').click(function(e) {
+                e.stopPropagation();
+            });
+            
+            // Function to apply styles to dashboard cards
+            function styleDashboardCards() {
+                // Style dashboard stat cards
+                $('.dashboard-stat').each(function() {
+                    $(this).addClass('transition-all duration-300 hover:shadow-lg');
+                });
+                
+                // Style dashboard activity panels
+                $('.activity-panel').each(function() {
+                    $(this).addClass('rounded-lg overflow-hidden');
+                });
+                
+                // Apply hover effects to action buttons
+                $('.action-btn').each(function() {
+                    $(this).addClass('transition-all duration-300 hover:bg-amber-600 hover:shadow-md');
+                });
+                
+                // Style tables
+                $('table').each(function() {
+                    $(this).addClass('border-collapse');
+                    $(this).find('thead th').addClass('text-amber-800 bg-amber-100');
+                    $(this).find('tbody tr').addClass('hover:bg-amber-50');
+                });
+            }
+            
+            // Call the function when document is ready
+            styleDashboardCards();
+            
+            // Apply styles to any dynamically loaded content
+            $(document).ajaxComplete(function() {
+                styleDashboardCards();
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 
