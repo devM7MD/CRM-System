@@ -1,211 +1,48 @@
-{% extends 'seller_base.html' %}
-{% load static %}
-
-{% block title %}Order Details - {{ order.order_code }}{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Order Detail{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <!-- Order Header with Status -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Order Detail</h1>
-            <p class="text-sm text-gray-500">Created on {{ order.date|date:"M d, Y H:i" }}</p>
-        </div>
-        <div class="mt-4 md:mt-0">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                {% if order.status == 'completed' or order.status == 'delivered' %}
-                    bg-green-100 text-green-800
-                {% elif order.status == 'cancelled' %}
-                    bg-red-100 text-red-800
-                {% elif order.status == 'pending' %}
-                    bg-yellow-100 text-yellow-800
-                {% else %}
-                    bg-blue-100 text-blue-800
-                {% endif %}
-            ">
-                {% if order.status == 'pending' %}
-                    <svg class="mr-1.5 h-2 w-2 text-yellow-400" fill="currentColor" viewBox="0 0 8 8">
-                        <circle cx="4" cy="4" r="3" />
-                    </svg>
-                {% elif order.status == 'completed' or order.status == 'delivered' %}
-                    <svg class="mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
-                        <circle cx="4" cy="4" r="3" />
-                    </svg>
-                {% elif order.status == 'cancelled' %}
-                    <svg class="mr-1.5 h-2 w-2 text-red-400" fill="currentColor" viewBox="0 0 8 8">
-                        <circle cx="4" cy="4" r="3" />
-                    </svg>
-                {% else %}
-                    <svg class="mr-1.5 h-2 w-2 text-blue-400" fill="currentColor" viewBox="0 0 8 8">
-                        <circle cx="4" cy="4" r="3" />
-                    </svg>
-                {% endif %}
-                {{ order.get_status_display }}
-            </span>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Order Information -->
-        <div class="md:col-span-2">
-            <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
-                <div class="px-4 py-5 border-b border-gray-200 bg-gray-50 sm:px-6">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Order Information</h3>
-                </div>
-                <div class="px-4 py-5 sm:p-6">
-                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                        <div class="sm:col-span-1">
-                            <dt class="text-sm font-medium text-gray-500">Order Code</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ order.order_code }}</dd>
-                        </div>
-                        <div class="sm:col-span-1">
-                            <dt class="text-sm font-medium text-gray-500">Order Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ order.date|date:"M d, Y H:i" }}</dd>
-                        </div>
-                        <div class="sm:col-span-1">
-                            <dt class="text-sm font-medium text-gray-500">Seller</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ order.seller|default:"Not Assigned" }}</dd>
-                        </div>
-                        <div class="sm:col-span-1">
-                            <dt class="text-sm font-medium text-gray-500">Status</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ order.get_status_display }}</dd>
-                        </div>
-                    </dl>
-                </div>
+<div class="max-w-2xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6">Order Detail</h1>
+    <div class="bg-white shadow rounded-lg p-6">
+        <dl class="divide-y divide-gray-200">
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Order Code</dt>
+                <dd class="text-gray-900">{{ order.order_code }}</dd>
             </div>
-
-            <!-- Order Items -->
-            <div class="mt-6 bg-white shadow rounded-lg overflow-hidden border border-gray-200">
-                <div class="px-4 py-5 border-b border-gray-200 bg-gray-50 sm:px-6">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Order Items</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {% if order.items.all %}
-                                {% for item in order.items.all %}
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {% if item.product %}
-                                                {{ item.product.name_en }}
-                                                <div class="text-xs text-gray-500">{{ item.product.code }}</div>
-                                            {% else %}
-                                                Product Not Available
-                                            {% endif %}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.quantity }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{{ item.price }} AED</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">{{ item.total }} AED</td>
-                                    </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" colspan="4">No items found for this order</td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Customer</dt>
+                <dd class="text-gray-900">{{ order.customer }}</dd>
             </div>
-        </div>
-
-        <!-- Customer Information & Order Summary -->
-        <div class="md:col-span-1">
-            <!-- Customer Information -->
-            <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
-                <div class="px-4 py-5 border-b border-gray-200 bg-gray-50 sm:px-6">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Customer Information</h3>
-                </div>
-                <div class="px-4 py-5 sm:p-6">
-                    <dl class="space-y-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Name</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ order.customer_name|default:"Not Available" }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Email</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ order.customer_email|default:"Not Available" }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ order.customer_phone|default:"Not Available" }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Shipping Address</dt>
-                            <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ order.shipping_address|default:"Not Available" }}</dd>
-                        </div>
-                    </dl>
-                </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Date</dt>
+                <dd class="text-gray-900">{{ order.date|date:"M d, Y H:i" }}</dd>
             </div>
-
-            <!-- Order Summary -->
-            <div class="mt-6 bg-white shadow rounded-lg overflow-hidden border border-gray-200">
-                <div class="px-4 py-5 border-b border-gray-200 bg-gray-50 sm:px-6">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Order Summary</h3>
-                </div>
-                <div class="px-4 py-5 sm:p-6">
-                    <dl class="space-y-4">
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-500">Subtotal</dt>
-                            <dd class="text-sm text-gray-900">{{ order.get_subtotal }} AED</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-500">Tax (5%)</dt>
-                            <dd class="text-sm text-gray-900">{{ order.tax_amount }} AED</dd>
-                        </div>
-                        <div class="pt-4 flex justify-between border-t border-gray-200">
-                            <dt class="text-base font-medium text-gray-900">Total</dt>
-                            <dd class="text-base font-medium text-gray-900">{{ order.total_price }} AED</dd>
-                        </div>
-                    </dl>
-                </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Product</dt>
+                <dd class="text-gray-900">{{ order.product }}</dd>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="mt-6 flex flex-col space-y-3">
-                {% if user.role != 'seller' %}
-                <a href="{% url 'sellers:order_update' order.id %}" class="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                    Update Status
-                </a>
-                {% else %}
-                <a href="{% url 'sellers:order_update' order.id %}" class="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                    Request Status Change
-                </a>
-                <div class="bg-gray-100 rounded-md p-3 text-sm text-gray-700">
-                    <p class="font-medium">Order Status Changes</p>
-                    <p class="mt-1">All order status changes require admin approval. Your request will be reviewed by the admin team.</p>
-                </div>
-                {% endif %}
-                
-                {% if order.status == 'cancelled' %}
-                <div class="bg-gray-100 rounded-md p-3 text-sm text-gray-700">
-                    <p class="font-medium">This order has been cancelled.</p>
-                    <p class="mt-1">Status changes for cancelled orders require admin approval.</p>
-                </div>
-                {% endif %}
-                
-                <a href="{% url 'sellers:orders' %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                    </svg>
-                    Back to Orders
-                </a>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Quantity</dt>
+                <dd class="text-gray-900">{{ order.quantity }}</dd>
             </div>
-        </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Price Per Unit</dt>
+                <dd class="text-gray-900">{{ order.price_per_unit }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Seller</dt>
+                <dd class="text-gray-900">{{ order.seller }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Status</dt>
+                <dd class="text-gray-900">{{ order.status }}</dd>
+            </div>
+            <div class="py-3 flex justify-between">
+                <dt class="font-medium text-gray-700">Total Price</dt>
+                <dd class="text-gray-900">{{ order.total_price }}</dd>
+            </div>
+        </dl>
     </div>
 </div>
 {% endblock %} 

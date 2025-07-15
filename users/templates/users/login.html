@@ -1,301 +1,94 @@
-{% extends 'auth_base.html' %}
-{% load i18n %}
-{% load static %}
+{% extends 'base.html' %}
 
-{% block title %}{% trans "Login" %}{% endblock %}
-
-{% block extra_css %}
-<style>
-  .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags.png");}
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags@2x.png");}
-  }
-  
-  /* Login form specific styles */
-  .text-yellow-500 { color: #eab308; }
-  .text-yellow-600 { color: #ca8a04; }
-  .text-yellow-800 { color: #854d0e; }
-  .text-red-600 { color: #dc2626; }
-  .text-red-700 { color: #b91c1c; }
-  .text-red-800 { color: #991b1b; }
-  .bg-yellow-50 { background-color: #fefce8; }
-  .bg-red-50 { background-color: #fef2f2; }
-  
-  .input-field {
-    width: 100%;
-    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-  }
-  
-  .relative {
-    position: relative;
-  }
-  
-  .absolute {
-    position: absolute;
-  }
-  
-  .inset-y-0 {
-    top: 0;
-    bottom: 0;
-  }
-  
-  .left-0 {
-    left: 0;
-  }
-  
-  .pl-3 {
-    padding-left: 0.75rem;
-  }
-  
-  .pl-10 {
-    padding-left: 2.5rem;
-  }
-  
-  .pointer-events-none {
-    pointer-events: none;
-  }
-  
-  .rounded-md {
-    border-radius: 0.375rem;
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .mt-1 {
-    margin-top: 0.25rem;
-  }
-  
-  .mt-2 {
-    margin-top: 0.5rem;
-  }
-  
-  .mt-6 {
-    margin-top: 1.5rem;
-  }
-  
-  .mt-8 {
-    margin-top: 2rem;
-  }
-  
-  .mb-1 {
-    margin-bottom: 0.25rem;
-  }
-  
-  .mb-2 {
-    margin-bottom: 0.5rem;
-  }
-  
-  .mb-6 {
-    margin-bottom: 1.5rem;
-  }
-  
-  .mb-8 {
-    margin-bottom: 2rem;
-  }
-  
-  .ml-1 {
-    margin-left: 0.25rem;
-  }
-  
-  .ml-2 {
-    margin-left: 0.5rem;
-  }
-  
-  .ml-3 {
-    margin-left: 0.75rem;
-  }
-  
-  .mr-2 {
-    margin-right: 0.5rem;
-  }
-  
-  .block {
-    display: block;
-  }
-  
-  .inline-block {
-    display: inline-block;
-  }
-  
-  .h-4 {
-    height: 1rem;
-  }
-  
-  .h-5 {
-    height: 1.25rem;
-  }
-  
-  .w-4 {
-    width: 1rem;
-  }
-  
-  .w-5 {
-    width: 1.25rem;
-  }
-  
-  .rounded {
-    border-radius: 0.25rem;
-  }
-  
-  .transition-colors {
-    transition-property: color, background-color, border-color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-  
-  .transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-  
-  .duration-200 {
-    transition-duration: 200ms;
-  }
-  
-  .ease-in-out {
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .space-y-1 > * + * {
-    margin-top: 0.25rem;
-  }
-  
-  .space-y-4 > * + * {
-    margin-top: 1rem;
-  }
-  
-  .space-y-6 > * + * {
-    margin-top: 1.5rem;
-  }
-  
-  .list-disc {
-    list-style-type: disc;
-  }
-  
-  .pl-5 {
-    padding-left: 1.25rem;
-  }
-  
-  .p-4 {
-    padding: 1rem;
-  }
-  
-  .p-8 {
-    padding: 2rem;
-  }
-  
-  .py-3 {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-  }
-  
-  .px-3 {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-  
-  .px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .font-medium {
-    font-weight: 500;
-  }
-  
-  .font-bold {
-    font-weight: 700;
-  }
-  
-  .text-xs {
-    font-size: 0.75rem;
-  }
-  
-  .text-sm {
-    font-size: 0.875rem;
-  }
-  
-  .text-2xl {
-    font-size: 1.5rem;
-  }
-  
-  .text-gray-400 {
-    color: #9ca3af;
-  }
-  
-  .text-gray-700 {
-    color: #374151;
-  }
-  
-  .text-gray-800 {
-    color: #1f2937;
-  }
-  
-  .text-gray-900 {
-    color: #111827;
-  }
-  
-  .focus\:outline-none:focus {
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-  }
-  
-  .focus\:ring-2:focus {
-    box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
-  }
-  
-  .focus\:ring-offset-2:focus {
-    box-shadow: 0 0 0 2px white, 0 0 0 4px rgba(234, 179, 8, 0.2);
-  }
-  
-  .focus\:ring-yellow-500:focus {
-    box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
-  }
-  
-  .focus\:border-yellow-500:focus {
-    border-color: #eab308;
-  }
-  
-  .hover\:text-yellow-500:hover {
-    color: #eab308;
-  }
-</style>
-{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center">
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
-    <div class="form-card p-8">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">
-          <i class="fas fa-sign-in-alt text-yellow-500 mr-2"></i>{% trans "Welcome Back" %}
-        </h2>
-        <p class="text-sm text-gray-500">
-          {% trans "Login to manage your fulfillment" %}
-        </p>
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Sign in to your account
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        CRM Fulfillment System
+      </p>
+    </div>
+    
+    {% if messages %}
+    <div class="rounded-md bg-yellow-50 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-yellow-800">
+            Attention needed
+          </h3>
+          <div class="mt-2 text-sm text-yellow-700">
+            <ul class="list-disc pl-5 space-y-1">
+              {% for message in messages %}
+              <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <form class="mt-8 space-y-6" method="POST" action="{% url 'users:login' %}">
+      {% csrf_token %}
+      
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div>
+          <label for="id_email" class="sr-only">Email address</label>
+          <input id="id_email" name="email" type="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm" placeholder="Email address">
+        </div>
+        <div>
+          <label for="id_password" class="sr-only">Password</label>
+          <input id="id_password" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm" placeholder="Password">
+        </div>
       </div>
 
-      {% if messages %}
-      <div class="rounded-md bg-yellow-50 p-4 mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+          <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+            Remember me
+          </label>
+        </div>
+
+        <div class="text-sm">
+          <a href="#" class="font-medium text-yellow-600 hover:text-yellow-500">
+            Forgot your password?
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+          Sign in
+        </button>
+      </div>
+      
+      {% if form.non_field_errors %}
+      <div class="rounded-md bg-red-50 p-4">
         <div class="flex">
           <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
             </svg>
           </div>
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-yellow-800">
-              {% trans "Attention needed" %}
+            <h3 class="text-sm font-medium text-red-800">
+              There were errors with your submission
             </h3>
-            <div class="mt-2 text-sm text-yellow-700">
+            <div class="mt-2 text-sm text-red-700">
               <ul class="list-disc pl-5 space-y-1">
-                {% for message in messages %}
-                <li>{{ message }}</li>
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
                 {% endfor %}
               </ul>
             </div>
@@ -303,99 +96,16 @@
         </div>
       </div>
       {% endif %}
-      
-      <form class="space-y-6" method="POST">
-        {% csrf_token %}
-        
-        <div class="space-y-4">
-          <!-- Email -->
-          <div>
-            <label for="id_email" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Email address" %}</label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i class="fas fa-envelope text-gray-400"></i>
-              </div>
-              <input id="id_email" name="email" type="email" required class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Enter your email address' %}">
-            </div>
-            {% if form.email.errors %}
-            <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
-            {% endif %}
-          </div>
-          
-          <!-- Password -->
-          <div>
-            <label for="id_password" class="block text-sm font-medium text-gray-700 mb-1 flex justify-between">
-              <span>{% trans "Password" %}</span>
-              <a href="#" class="text-xs font-medium text-yellow-600 hover:text-yellow-500 transition-colors">
-                {% trans "Forgot password?" %}
-              </a>
-            </label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i class="fas fa-lock text-gray-400"></i>
-              </div>
-              <input id="id_password" name="password" type="password" required class="input-field pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="{% trans 'Your password' %}">
-            </div>
-            {% if form.password.errors %}
-            <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
-            {% endif %}
-          </div>
-          
-          <!-- Remember Me -->
-          <div class="flex items-center">
-            <input id="id_remember_me" name="remember_me" type="checkbox" class="h-4 w-4 text-yellow-500 focus:ring-yellow-500 border-gray-300 rounded transition-all">
-            <label for="id_remember_me" class="ml-2 block text-sm text-gray-700">
-              {% trans "Remember me" %}
-            </label>
-          </div>
-        </div>
-
-        <div class="mt-8">
-          <button type="submit" class="btn-primary group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 ease-in-out">
-            {% trans "Sign in" %}
-          </button>
-        </div>
-        
-        {% if form.non_field_errors %}
-        <div class="rounded-md bg-red-50 p-4 mt-6">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">
-                {% trans "Login failed" %}
-              </h3>
-              <div class="mt-2 text-sm text-red-700">
-                <ul class="list-disc pl-5 space-y-1">
-                  {% for error in form.non_field_errors %}
-                  <li>{{ error }}</li>
-                  {% endfor %}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-      </form>
-      
-      <div class="mt-6 flex items-center justify-center">
-        <div class="text-sm">
-          <span class="text-gray-500">{% trans "Don't have an account?" %}</span>
-          <a href="{% url 'users:register' %}" class="font-medium text-yellow-600 hover:text-yellow-500 ml-1 transition-colors">
-            {% trans "Create one now" %}
-          </a>
-        </div>
-      </div>
+    </form>
+    
+    <div class="text-center mt-4">
+      <p class="text-sm text-gray-600">
+        Don't have an account? 
+        <a href="{% url 'users:register' %}" class="font-medium text-yellow-600 hover:text-yellow-500">
+          Register here
+        </a>
+      </p>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  // Nothing needed for email login
-</script>
 {% endblock %} 

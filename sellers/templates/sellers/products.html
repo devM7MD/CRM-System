@@ -1,49 +1,12 @@
-{% extends 'seller_base.html' %}
-{% load static %}
+{% extends 'base.html' %}
 
-{% block title %}Products Management{% endblock %}
+{% block title %}Products{% endblock %}
 
 {% block content %}
 <div class="py-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Products</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your products inventory.</p>
-        
-        {% if debug_message %}
-        <div class="mt-4 p-4 bg-green-100 text-green-700 rounded-lg">
-            Debug Message: {{ debug_message }}
-        </div>
-        {% endif %}
-        
-        {% if messages %}
-        <div class="mt-4">
-            {% for message in messages %}
-            <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-yellow-100 text-yellow-700{% endif %} rounded-lg">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-    
-    <!-- Quick Action Buttons -->
-    <div class="max-w-7xl mx-auto mt-6 px-4 sm:px-6 lg:px-8">
-        <div class="bg-yellow-400 dark:bg-yellow-600 shadow overflow-hidden sm:rounded-lg p-4">
-            <div class="flex justify-end space-x-4">
-                <a href="{% url 'sellers:order_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-gray-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    New Order
-                </a>
-                <a href="{% url 'sellers:create_sourcing_request' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-gray-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    New Sourcing Request
-                </a>
-            </div>
-        </div>
     </div>
     
     <!-- Create New Product Button -->
@@ -57,16 +20,6 @@
                     Create New Product
                 </a>
             </div>
-        </div>
-    </div>
-    
-    <!-- Debug Info -->
-    <div class="max-w-7xl mx-auto mt-6 px-4 sm:px-6 lg:px-8">
-        <div class="bg-blue-50 p-4 rounded-lg shadow">
-            <h3 class="text-lg font-medium text-blue-800">Debug Information</h3>
-            <p class="text-blue-600">Products Count: {{ products|length }}</p>
-            <p class="text-blue-600">User Role: {{ request.user.role }}</p>
-            <p class="text-blue-600">User ID: {{ request.user.id }}</p>
         </div>
     </div>
     

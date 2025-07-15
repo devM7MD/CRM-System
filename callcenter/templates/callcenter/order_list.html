@@ -10,12 +10,12 @@
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between">
             <h1 class="text-3xl font-bold text-white">Orders Management</h1>
             <div>
-                <a href="?export=csv" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
                     <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Export CSV
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -30,34 +30,35 @@
                         <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                         <select id="status" name="status" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
                             <option value="">All Statuses</option>
-                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-                            <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
-                            <option value="canceled" {% if status_filter == 'canceled' %}selected{% endif %}>Canceled</option>
-                            <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>Processing</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="canceled">Canceled</option>
+                            <option value="no_answer">No Answer</option>
                         </select>
                     </div>
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700">Date Range</label>
                         <select id="date" name="date" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-                            <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
-                            <option value="yesterday" {% if date_filter == 'yesterday' %}selected{% endif %}>Yesterday</option>
-                            <option value="last_7_days" {% if date_filter == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
-                            <option value="last_30_days" {% if date_filter == 'last_30_days' %}selected{% endif %}>Last 30 Days</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="last_7_days">Last 7 Days</option>
+                            <option value="last_30_days">Last 30 Days</option>
+                            <option value="custom">Custom Range</option>
                         </select>
                     </div>
                     <div>
                         <label for="agent" class="block text-sm font-medium text-gray-700">Agent</label>
                         <select id="agent" name="agent" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
                             <option value="">All Agents</option>
-                            {% for agent in agents %}
-                            <option value="{{ agent.id }}" {% if agent_filter == agent.id|stringformat:"i" %}selected{% endif %}>{{ agent.get_full_name }}</option>
-                            {% endfor %}
+                            <option value="1">Ahmed Ali</option>
+                            <option value="2">Sara Hassan</option>
+                            <option value="3">Mohamed Ibrahim</option>
                         </select>
                     </div>
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
                         <div class="mt-1 relative rounded-md shadow-sm">
-                            <input type="text" name="search" id="search" value="{{ search_query }}" class="focus:ring-yellow-500 focus:border-yellow-500 block w-full py-2 px-3 sm:text-sm border-gray-300 rounded-md" placeholder="Order ID or customer name">
+                            <input type="text" name="search" id="search" class="focus:ring-yellow-500 focus:border-yellow-500 block w-full py-2 px-3 sm:text-sm border-gray-300 rounded-md" placeholder="Order ID or customer name">
                             <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                 <button type="submit" class="text-gray-400 hover:text-gray-600">
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,7 +79,7 @@
                     Orders for Confirmation
                 </h3>
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                    {{ pending_count }} Orders Pending
+                    25 Orders Pending
                 </span>
             </div>
             <div>
@@ -109,62 +110,172 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        {% for order_data in orders %}
+                        <!-- Order Row 1 -->
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                #{{ order_data.order.order_code }}
+                                #ORD-1234
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                                        <span class="text-yellow-700 font-medium">{{ order_data.initials }}</span>
+                                        <span class="text-yellow-700 font-medium">AM</span>
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ order_data.order.customer.get_full_name }}
+                                            Ahmed Mohamed
                                         </div>
                                         <div class="text-sm text-gray-500">
-                                            {{ order_data.order.customer.phone }}
+                                            +20 123-456-7890
                                         </div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ order_data.order.date|date:"F j, Y" }}
+                                May 4, 2023
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ order_data.order.total_amount }} EGP
+                                1,250 EGP
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if order_data.order.status == 'pending' %}bg-yellow-100 text-yellow-800
-                                    {% elif order_data.order.status == 'confirmed' %}bg-green-100 text-green-800
-                                    {% elif order_data.order.status == 'canceled' %}bg-red-100 text-red-800
-                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
-                                    {{ order_data.order.status|title }}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pending
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ order_data.status_class }}">
-                                    {{ order_data.call_status }}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    No Answer (2)
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{% url 'callcenter:call_customer' order_data.order.id %}" class="text-yellow-600 hover:text-yellow-900 mr-3">View</a>
-                                {% if not order_data.is_completed and order_data.order.status != 'canceled' %}
-                                <a href="{% url 'callcenter:call_customer' order_data.order.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs transition-colors duration-200">Call Now</a>
-                                {% else %}
+                                <a href="#" class="text-yellow-600 hover:text-yellow-900 mr-3">View</a>
+                                <a href="#" class="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs transition-colors duration-200">Call Now</a>
+                            </td>
+                        </tr>
+                        
+                        <!-- Order Row 2 -->
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                #ORD-1235
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                        <span class="text-yellow-700 font-medium">NF</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Nada Farouk
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            +20 123-456-8901
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                May 4, 2023
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                850 EGP
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    Not Called
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="#" class="text-yellow-600 hover:text-yellow-900 mr-3">View</a>
+                                <a href="#" class="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs transition-colors duration-200">Call Now</a>
+                            </td>
+                        </tr>
+                        
+                        <!-- Order Row 3 -->
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                #ORD-1236
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                        <span class="text-yellow-700 font-medium">MK</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Mohamed Kamal
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            +20 123-789-4560
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                May 3, 2023
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                2,100 EGP
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Confirmed
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Successful
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="#" class="text-yellow-600 hover:text-yellow-900 mr-3">View</a>
                                 <a href="#" class="text-gray-400 cursor-not-allowed px-2 py-1 rounded text-xs border border-gray-300">Called</a>
-                                {% endif %}
                             </td>
                         </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
-                                No orders found matching your criteria
+                        
+                        <!-- Order Row 4 -->
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                #ORD-1237
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                        <span class="text-yellow-700 font-medium">HA</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Heba Ahmed
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            +20 123-555-7890
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                May 3, 2023
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                1,500 EGP
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Canceled
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Order Canceled
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="#" class="text-yellow-600 hover:text-yellow-900">View</a>
                             </td>
                         </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -172,14 +283,9 @@
                 <div class="flex items-center justify-between flex-col sm:flex-row">
                     <div>
                         <p class="text-sm text-gray-700">
-                            {% if orders %}
-                            Showing <span class="font-medium">{{ orders|length }}</span> orders
-                            {% else %}
-                            No orders found
-                            {% endif %}
+                            Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">25</span> results
                         </p>
                     </div>
-                    {% if orders|length > 0 %}
                     <div class="mt-3 sm:mt-0">
                         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                             <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
@@ -188,9 +294,27 @@
                                     <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                                 </svg>
                             </a>
-                            <span aria-current="page" class="z-10 bg-yellow-50 border-yellow-500 text-yellow-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                            <a href="#" aria-current="page" class="z-10 bg-yellow-50 border-yellow-500 text-yellow-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
                                 1
+                            </a>
+                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                2
+                            </a>
+                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                3
+                            </a>
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                ...
                             </span>
+                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                8
+                            </a>
+                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                9
+                            </a>
+                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                10
+                            </a>
                             <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                 <span class="sr-only">Next</span>
                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -199,7 +323,6 @@
                             </a>
                         </nav>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>

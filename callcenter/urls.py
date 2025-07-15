@@ -6,5 +6,4 @@ app_name = 'callcenter'
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('orders/', views.order_list, name='orders'),
-    path('call/<int:order_id>/', views.call_customer, name='call_customer'),
 ] 

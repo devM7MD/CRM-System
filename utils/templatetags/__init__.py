@@ -1,1 +1,0 @@
-"""Template tags for the CRM Fulfillment project."""
