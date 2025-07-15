@@ -1,0 +1,74 @@
+{% extends 'landing/base_landing.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Privacy Policy Header -->
+<section class="bg-yellow-500 text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl font-bold mb-4">{% trans "سياسة الخصوصية" %}</h1>
+        <p class="text-xl">{% trans "نلتزم بحماية خصوصية بياناتك الشخصية" %}</p>
+    </div>
+</section>
+
+<!-- Privacy Policy Content -->
+<section class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="prose prose-lg max-w-none">
+            <h2 class="text-2xl font-bold mb-4">{% trans "مقدمة" %}</h2>
+            <p>{% trans "تحترم شركة AS Fulfillment & Delivery Services خصوصيتك وتلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمعنا واستخدامنا لبياناتك الشخصية عند استخدامك لموقعنا الإلكتروني وخدماتنا." %}</p>
+            
+            <h2 class="text-2xl font-bold mb-4 mt-8">{% trans "البيانات التي نجمعها" %}</h2>
+            <p>{% trans "قد نقوم بجمع وتخزين ومعالجة أنواع مختلفة من البيانات الشخصية عنك، بما في ذلك:" %}</p>
+            <ul class="list-disc mr-6">
+                <li>{% trans "معلومات الاتصال (مثل الاسم، العنوان البريدي، رقم الهاتف، عنوان البريد الإلكتروني)" %}</li>
+                <li>{% trans "معلومات الحساب (مثل اسم المستخدم وكلمة المرور)" %}</li>
+                <li>{% trans "معلومات المعاملات (مثل تفاصيل الطلبات والمدفوعات)" %}</li>
+                <li>{% trans "معلومات التصفح (مثل عنوان IP، نوع المتصفح، نظام التشغيل)" %}</li>
+            </ul>
+            
+            <h2 class="text-2xl font-bold mb-4 mt-8">{% trans "كيفية استخدام بياناتك" %}</h2>
+            <p>{% trans "نستخدم بياناتك الشخصية للأغراض التالية:" %}</p>
+            <ul class="list-disc mr-6">
+                <li>{% trans "تقديم خدماتنا وإدارتها" %}</li>
+                <li>{% trans "معالجة طلباتك ومدفوعاتك" %}</li>
+                <li>{% trans "التواصل معك بشأن خدماتنا" %}</li>
+                <li>{% trans "تحسين موقعنا الإلكتروني وخدماتنا" %}</li>
+                <li>{% trans "الامتثال للالتزامات القانونية" %}</li>
+            </ul>
+            
+            <h2 class="text-2xl font-bold mb-4 mt-8">{% trans "مشاركة البيانات" %}</h2>
+            <p>{% trans "قد نشارك بياناتك الشخصية مع:" %}</p>
+            <ul class="list-disc mr-6">
+                <li>{% trans "مقدمي الخدمات الذين يساعدوننا في تقديم خدماتنا" %}</li>
+                <li>{% trans "شركاء الأعمال الذين يقدمون خدمات أو منتجات بالاشتراك معنا" %}</li>
+                <li>{% trans "السلطات القانونية عند الاقتضاء بموجب القانون" %}</li>
+            </ul>
+            
+            <h2 class="text-2xl font-bold mb-4 mt-8">{% trans "أمان البيانات" %}</h2>
+            <p>{% trans "نتخذ تدابير أمنية مناسبة لحماية بياناتك الشخصية من الفقدان أو الوصول غير المصرح به أو التغيير أو الإفصاح. ومع ذلك، لا يمكن ضمان أمان البيانات المرسلة عبر الإنترنت بشكل مطلق." %}</p>
+            
+            <h2 class="text-2xl font-bold mb-4 mt-8">{% trans "حقوقك" %}</h2>
+            <p>{% trans "تمتلك حقوقًا معينة فيما يتعلق ببياناتك الشخصية، بما في ذلك:" %}</p>
+            <ul class="list-disc mr-6">
+                <li>{% trans "الوصول إلى بياناتك الشخصية" %}</li>
+                <li>{% trans "تصحيح بياناتك غير الدقيقة" %}</li>
+                <li>{% trans "حذف بياناتك" %}</li>
+                <li>{% trans "تقييد معالجة بياناتك" %}</li>
+                <li>{% trans "نقل بياناتك" %}</li>
+                <li>{% trans "الاعتراض على معالجة بياناتك" %}</li>
+            </ul>
+            
+            <h2 class="text-2xl font-bold mb-4 mt-8">{% trans "التغييرات على سياسة الخصوصية" %}</h2>
+            <p>{% trans "قد نقوم بتحديث سياسة الخصوصية هذه من وقت لآخر. سيتم نشر أي تغييرات على هذه الصفحة وسيتم إخطارك بالتغييرات الجوهرية." %}</p>
+            
+            <h2 class="text-2xl font-bold mb-4 mt-8">{% trans "اتصل بنا" %}</h2>
+            <p>{% trans "إذا كانت لديك أي أسئلة حول سياسة الخصوصية هذه أو كيفية تعاملنا مع بياناتك الشخصية، يرجى الاتصال بنا على:" %}</p>
+            <p>{% trans "البريد الإلكتروني:" %} info@asfulfillment.com</p>
+            <p>{% trans "الهاتف:" %} +966 53 770 2332</p>
+        </div>
+    </div>
+</section>
+{% endblock %} 

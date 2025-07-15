@@ -1,0 +1,305 @@
+{% extends 'landing/base_landing.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Atlas Fulfillment & Delivery Services" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom animations that extend Tailwind */
+    .bg-gradient-yellow {
+        background-image: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    }
+    
+    .step-line {
+        position: absolute;
+        height: 2px;
+        background-color: #eab308;
+        top: 25px;
+        {% if LANGUAGE_CODE == 'ar' %}
+        right: 0;
+        left: 0;
+        {% else %}
+        left: 0;
+        right: 0;
+        {% endif %}
+        z-index: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .step-line {
+            display: none;
+        }
+    }
+    
+    /* Modern background pattern */
+    .bg-pattern {
+        background-color: #eab308;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    /* Truck silhouette */
+    .truck-container {
+        position: absolute;
+        {% if LANGUAGE_CODE == 'ar' %}
+        left: 5%;
+        {% else %}
+        right: 5%;
+        {% endif %}
+        top: 25%;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    .truck-silhouette {
+        width: 100%;
+        height: auto;
+    }
+    
+    @media (max-width: 768px) {
+        .truck-container {
+            display: none;
+        }
+    }
+    
+    /* Hero image */
+    .hero-image {
+        max-width: 450px;
+        height: auto;
+        filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.1));
+    }
+    
+    /* Step indicators */
+    .step-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #eab308;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 1rem;
+    }
+    
+    /* RTL Support */
+    [dir="rtl"] .hero-image {
+        transform: scaleX(-1);
+    }
+    
+    /* Service icons */
+    .service-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        background-color: #fff9e5;
+    }
+    
+    .yellow-circle {
+        background-color: #eab308;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    /* Custom hero icons */
+    .hero-icons-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .hero-icon-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1rem 0;
+    }
+    
+    .service-card {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .button-primary {
+        background-color: #eab308;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        display: inline-block;
+        transition: background-color 0.3s;
+    }
+    
+    .button-primary:hover {
+        background-color: #ca8a04;
+    }
+    
+    .wave-container {
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        padding-bottom: 60px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-pattern text-white relative overflow-hidden py-16 lg:py-24">
+    <div class="container mx-auto px-4 relative">
+        <div class="hero-content">
+            <div class="flex flex-col lg:flex-row items-center justify-between">
+                <div class="w-full text-center lg:text-left mb-8 lg:mb-0 z-10" data-aos="fade-right">
+                    <h1 class="text-4xl lg:text-5xl font-bold mb-6">{% trans "Atlas Fulfillment & Delivery Services" %}</h1>
+                    <p class="text-xl mb-8">{% trans "Your trusted partner from sourcing to perfect delivery" %}</p>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4 {% if LANGUAGE_CODE == 'ar' %}sm:space-x-reverse{% endif %}">
+                        <a href="{% url 'landing:services' %}" class="px-8 py-4 bg-white text-primary-500 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition-colors text-center">{% trans "Explore Services" %}</a>
+                        <a href="{% url 'users:register' %}" class="px-8 py-4 bg-primary-500 text-white font-semibold rounded-lg shadow-lg hover:bg-primary-600 transition-colors text-center">{% trans "Get Started" %}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wave SVG -->
+    <div class="wave-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#ffffff" fill-opacity="1" d="M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,202.7C672,213,768,203,864,170.7C960,139,1056,85,1152,80C1248,75,1344,117,1392,138.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- Welcome Section -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-primary-500 mb-4">{% trans "Welcome to Atlas Fulfillment" %}</h2>
+            <div class="max-w-3xl mx-auto">
+                <p class="text-gray-600 text-lg">
+                    {% trans "We understand that today's business world requires both innovation and flexibility, so we've designed our services to meet all your needs from importing to profit transfers." %}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Language Showcase -->
+        <div class="flex justify-center mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl">
+                <div class="bg-white rounded-lg shadow-lg p-8 border-t-4 border-primary-500" data-aos="fade-right">
+                    <div class="flex items-center mb-4">
+                        <img src="{% static 'img/atlas_logo.svg' %}" alt="Logo" class="w-10 h-10 mr-3">
+                        <h3 class="text-xl font-semibold">English</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Our multilingual platform makes it easy for businesses across the Middle East to manage their fulfillment needs in their preferred language.</p>
+                    <a href="{% url 'landing:switch_language' 'en' %}?next={{ request.path }}" class="text-primary-500 font-medium hover:underline flex items-center">
+                        <span>Switch to English</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-8 border-t-4 border-primary-500" data-aos="fade-left">
+                    <div class="flex items-center mb-4">
+                        <img src="{% static 'img/atlas_logo.svg' %}" alt="Logo" class="w-10 h-10 ml-3">
+                        <h3 class="text-xl font-semibold">العربية</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4 text-right">منصتنا متعددة اللغات تجعل من السهل على الشركات في جميع أنحاء الشرق الأوسط إدارة احتياجاتها اللوجستية باللغة التي يفضلونها.</p>
+                    <a href="{% url 'landing:switch_language' 'ar' %}?next={{ request.path }}" class="text-primary-500 font-medium hover:underline flex items-center justify-end">
+                        <i class="fas fa-arrow-left ml-2"></i>
+                        <span>التبديل إلى العربية</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Services Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="service-icon mb-6">
+                    <i class="fas fa-warehouse text-4xl text-primary-500"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4 text-center">{% trans "Warehousing" %}</h3>
+                <p class="text-gray-600 text-center mb-6">
+                    {% trans "State-of-the-art storage facilities with inventory management systems." %}
+                </p>
+                <div class="mt-auto text-center">
+                    <a href="{% url 'landing:services' %}" class="button-primary">{% trans "Learn More" %}</a>
+                </div>
+            </div>
+            
+            <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="service-icon mb-6">
+                    <i class="fas fa-truck text-4xl text-primary-500"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4 text-center">{% trans "Delivery" %}</h3>
+                <p class="text-gray-600 text-center mb-6">
+                    {% trans "Reliable and fast delivery services across the Middle East." %}
+                </p>
+                <div class="mt-auto text-center">
+                    <a href="{% url 'landing:services' %}" class="button-primary">{% trans "Learn More" %}</a>
+                </div>
+            </div>
+            
+            <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="service-icon mb-6">
+                    <i class="fas fa-headset text-4xl text-primary-500"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4 text-center">{% trans "Customer Support" %}</h3>
+                <p class="text-gray-600 text-center mb-6">
+                    {% trans "Dedicated call center for order confirmation and customer inquiries." %}
+                </p>
+                <div class="mt-auto text-center">
+                    <a href="{% url 'landing:services' %}" class="button-primary">{% trans "Learn More" %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-primary-500 py-16 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6" data-aos="fade-up">{% trans "Ready to Simplify Your E-commerce Logistics?" %}</h2>
+        <p class="text-xl mb-8 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+            {% trans "Join Atlas Fulfillment today and focus on growing your business while we handle the logistics." %}
+        </p>
+        <div data-aos="fade-up" data-aos-delay="200">
+            <a href="{% url 'users:register' %}" class="px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition-colors inline-block">{% trans "Create Your Account" %}</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Any additional page-specific JavaScript can go here
+</script>
+{% endblock %}

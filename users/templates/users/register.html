@@ -1,21 +1,463 @@
-{% extends 'base.html' %}
+{% extends 'auth_base.html' %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}Register{% endblock %}
+{% block title %}{% trans "Register" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags.png");}
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags@2x.png");}
+  }
+  
+  /* Custom styles for MINOP design */
+  .register-container {
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Background pattern */
+  .register-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f59e0b' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+    z-index: 0;
+  }
+  
+  .register-card {
+    width: 100%;
+    max-width: 42rem;
+    background-color: rgba(255, 255, 255, 0.98);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    padding: 2.5rem;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .register-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  .logo-container {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  
+  .logo-container::after {
+    content: "";
+    position: absolute;
+    bottom: -1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+    border-radius: 3px;
+  }
+  
+  .logo-text {
+    font-size: 2.25rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-top: 0.5rem;
+    letter-spacing: -0.5px;
+  }
+  
+  .logo-triangle {
+    color: #f59e0b;
+    font-size: 3rem;
+    display: inline-block;
+    filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3));
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .section-header {
+    padding-top: 1.25rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .section-header::before {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #f59e0b;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  
+  .section-header:hover::before {
+    width: 100px;
+  }
+  
+  .section-icon {
+    color: #f59e0b;
+    margin-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background-color: rgba(245, 158, 11, 0.1);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .section-header:hover .section-icon {
+    transform: scale(1.1);
+    background-color: rgba(245, 158, 11, 0.2);
+  }
+  
+  .section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+    transition: transform 0.3s ease;
+  }
+  
+  .section-header:hover .section-title {
+    transform: translateX(5px);
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #4b5563;
+    transition: color 0.2s ease;
+    font-size: 0.9rem;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .form-control:focus {
+    border-color: #f59e0b;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+    background-color: #fff;
+  }
+  
+  .form-control:focus + .form-label {
+    color: #f59e0b;
+  }
+  
+  .input-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus ~ .input-icon {
+    color: #f59e0b;
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    padding: 0.875rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(245, 158, 11, 0.25);
+  }
+  
+  .btn-primary::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s ease;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(213, 119, 6, 0.3);
+  }
+  
+  .btn-primary:hover::before {
+    left: 100%;
+  }
+  
+  .btn-primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(213, 119, 6, 0.3);
+  }
+  
+  .btn-file {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: white;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .btn-file:hover {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+    color: #f59e0b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .btn-file svg {
+    transition: transform 0.2s ease;
+  }
+  
+  .btn-file:hover svg {
+    transform: translateY(-2px);
+    color: #f59e0b;
+  }
+  
+  .file-name {
+    margin-left: 0.75rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    transition: color 0.2s ease;
+  }
+  
+  .btn-file:hover + .file-name {
+    color: #4b5563;
+  }
+  
+  .footer-text {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: #6b7280;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+  }
+  
+  .footer-link {
+    color: #f59e0b;
+    font-weight: 600;
+    text-decoration: none;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  .footer-link::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #f59e0b;
+    transition: width 0.3s ease;
+  }
+  
+  .footer-link:hover {
+    color: #d97706;
+  }
+  
+  .footer-link:hover::after {
+    width: 100%;
+  }
+  
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  
+  @media (min-width: 640px) {
+    .grid-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .error-text {
+    color: #dc2626;
+    font-size: 0.8rem;
+    margin-top: 0.375rem;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .error-text::before {
+    content: "⚠";
+    margin-right: 0.375rem;
+    font-size: 0.75rem;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Select2 custom styling */
+  .select2-container--classic .select2-selection--single {
+    height: 45px !important;
+    padding: 0.5rem 0.75rem;
+    border-color: #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .select2-container--classic.select2-container--focus .select2-selection--single {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15) !important;
+  }
+  
+  .select2-container--classic .select2-selection--single .select2-selection__rendered {
+    line-height: 28px !important;
+    color: #4b5563 !important;
+  }
+  
+  .select2-container--classic .select2-selection--single .select2-selection__arrow {
+    height: 43px !important;
+    transition: all 0.2s ease;
+  }
+  
+  .select2-container--classic .select2-selection--single:hover .select2-selection__arrow b {
+    border-color: #f59e0b transparent transparent transparent !important;
+  }
+  
+  .select2-container--classic .select2-results__option--highlighted[aria-selected] {
+    background-color: #f59e0b !important;
+  }
+  
+  .select2-container--classic .select2-dropdown {
+    border-color: #f59e0b !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Message alerts styling */
+  .rounded-md {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    animation: slideIn 0.4s ease;
+  }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Checkbox styling */
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.25rem;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  input[type="checkbox"]:checked {
+    background-color: #f59e0b;
+    border-color: #f59e0b;
+  }
+  
+  input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.75rem;
+  }
+  
+  input[type="checkbox"]:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    outline: none;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Create your account
+<div class="register-container">
+  <div class="register-card">
+    <div class="logo-container">
+      <div>
+        <span class="logo-triangle">▲</span>
+        <span class="logo-text">Atlas services</span>
+      </div>
+      <h2 class="mt-4 text-xl font-bold text-gray-900">
+        {% trans "Create Account" %}
       </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        Join CRM Fulfillment System
+      <p class="mt-2 text-sm text-gray-600">
+        {% trans "Join our platform and start managing your fulfillment" %}
       </p>
     </div>
 
     {% if messages %}
-    <div class="rounded-md bg-yellow-50 p-4">
+    <div class="rounded-md bg-yellow-50 p-4 mb-6 border-l-4 border-yellow-400">
       <div class="flex">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -24,7 +466,7 @@
         </div>
         <div class="ml-3">
           <h3 class="text-sm font-medium text-yellow-800">
-            Attention needed
+            {% trans "Attention needed" %}
           </h3>
           <div class="mt-2 text-sm text-yellow-700">
             <ul class="list-disc pl-5 space-y-1">
@@ -38,118 +480,195 @@
     </div>
     {% endif %}
     
-    <form class="mt-8 space-y-6" method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       
-      <div class="space-y-4">
+      <!-- Personal Information -->
+      <div class="section-header">
+        <span class="section-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+          </svg>
+        </span>
+        <h3 class="section-title">{% trans "Personal Information" %}</h3>
+      </div>
+      
+      <div class="grid-2">
         <!-- Full Name -->
-        <div>
-          <label for="id_full_name" class="block text-sm font-medium text-gray-700">Full Name</label>
-          <div class="mt-1">
-            <input id="id_full_name" name="full_name" type="text" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+        <div class="form-group">
+          <label for="id_full_name" class="form-label">{% trans "Full Name" %}</label>
+          <div class="relative">
+            <div class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <input id="id_full_name" name="full_name" type="text" required class="form-control" placeholder="{% trans 'Your full name' %}">
           </div>
           {% if form.full_name.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
+          <p class="error-text">{{ form.full_name.errors.0 }}</p>
           {% endif %}
         </div>
         
         <!-- Email -->
-        <div>
-          <label for="id_email" class="block text-sm font-medium text-gray-700">Email address</label>
-          <div class="mt-1">
-            <input id="id_email" name="email" type="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+        <div class="form-group">
+          <label for="id_email" class="form-label">{% trans "Email address" %}</label>
+          <div class="relative">
+            <div class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+              </svg>
+            </div>
+            <input id="id_email" name="email" type="email" required class="form-control" placeholder="{% trans 'Your email address' %}">
           </div>
           {% if form.email.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+          <p class="error-text">{{ form.email.errors.0 }}</p>
           {% endif %}
         </div>
-        
-        <!-- Phone -->
-        <div>
-          <label for="id_phone_number" class="block text-sm font-medium text-gray-700">Phone</label>
-          <div class="mt-1">
-            <input id="id_phone_number" name="phone_number" type="tel" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="+971501234567">
-          </div>
-          {% if form.phone_number.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
-          {% endif %}
+      </div>
+      
+      <!-- Phone -->
+      <div class="form-group">
+        <label for="id_phone_number" class="form-label">{% trans "Phone" %}</label>
+        <div class="relative">
+          <input id="id_phone_number" name="phone_number" type="tel" required class="form-control" placeholder="{% trans 'Enter your phone number' %}">
+          <input type="hidden" id="phone_country_code" name="phone_country_code">
         </div>
-        
+        {% if form.phone_number.errors %}
+        <p class="error-text">{{ form.phone_number.errors.0 }}</p>
+        {% endif %}
+      </div>
+      
+      <!-- Business Information -->
+      <div class="section-header">
+        <span class="section-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
+          </svg>
+        </span>
+        <h3 class="section-title">{% trans "Business Information" %}</h3>
+      </div>
+      
+      <div class="grid-2">
         <!-- Company Name -->
-        <div>
-          <label for="id_company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
-          <div class="mt-1">
-            <input id="id_company_name" name="company_name" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+        <div class="form-group">
+          <label for="id_company_name" class="form-label">{% trans "Company Name" %}</label>
+          <div class="relative">
+            <div class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <input id="id_company_name" name="company_name" type="text" class="form-control" placeholder="{% trans 'Your company name' %}">
           </div>
           {% if form.company_name.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.company_name.errors.0 }}</p>
+          <p class="error-text">{{ form.company_name.errors.0 }}</p>
           {% endif %}
         </div>
         
         <!-- Country -->
-        <div>
-          <label for="id_country" class="block text-sm font-medium text-gray-700">Country</label>
-          <div class="mt-1">
-            <input id="id_country" name="country" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+        <div class="form-group">
+          <label for="id_country" class="form-label">{% trans "Country" %}</label>
+          <div class="relative">
+            <select id="id_country" name="country" class="country-select form-control">
+              <option value="">{% trans "Select your country" %}</option>
+            </select>
           </div>
           {% if form.country.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.country.errors.0 }}</p>
+          <p class="error-text">{{ form.country.errors.0 }}</p>
           {% endif %}
         </div>
-        
-        <!-- Expected Daily Orders -->
-        <div>
-          <label for="id_expected_daily_orders" class="block text-sm font-medium text-gray-700">Expected Daily Orders</label>
-          <div class="mt-1">
-            <input id="id_expected_daily_orders" name="expected_daily_orders" type="number" min="0" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" value="0">
+      </div>
+      
+      <!-- Expected Daily Orders -->
+      <div class="form-group">
+        <label for="id_expected_daily_orders" class="form-label">{% trans "Expected Daily Orders" %}</label>
+        <div class="relative">
+          <div class="input-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+            </svg>
           </div>
-          {% if form.expected_daily_orders.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.expected_daily_orders.errors.0 }}</p>
-          {% endif %}
+          <input id="id_expected_daily_orders" name="expected_daily_orders" type="number" min="0" class="form-control" value="0" placeholder="{% trans 'Number of expected daily orders' %}">
         </div>
-        
-        <!-- Profile Image -->
-        <div>
-          <label for="id_profile_image" class="block text-sm font-medium text-gray-700">Profile Image (Optional)</label>
-          <div class="mt-1">
-            <input id="id_profile_image" name="profile_image" type="file" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+        {% if form.expected_daily_orders.errors %}
+        <p class="error-text">{{ form.expected_daily_orders.errors.0 }}</p>
+        {% endif %}
+      </div>
+      
+      <!-- Profile Image -->
+      <div class="form-group">
+        <label for="id_profile_image" class="form-label">{% trans "Profile Image (Optional)" %}</label>
+        <div class="flex items-center">
+          <div>
+            <input id="id_profile_image" name="profile_image" type="file" class="sr-only">
+            <label for="id_profile_image" class="btn-file">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+              {% trans "Choose file" %}
+            </label>
           </div>
-          {% if form.profile_image.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.profile_image.errors.0 }}</p>
-          {% endif %}
+          <p class="file-name" id="file-name">{% trans "No file selected" %}</p>
         </div>
-        
+        {% if form.profile_image.errors %}
+        <p class="error-text">{{ form.profile_image.errors.0 }}</p>
+        {% endif %}
+      </div>
+      
+      <!-- Account Security -->
+      <div class="section-header">
+        <span class="section-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+          </svg>
+        </span>
+        <h3 class="section-title">{% trans "Account Security" %}</h3>
+      </div>
+      
+      <div class="grid-2">
         <!-- Password -->
-        <div>
-          <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
-          <div class="mt-1">
-            <input id="id_password1" name="password1" type="password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+        <div class="form-group">
+          <label for="id_password1" class="form-label">{% trans "Password" %}</label>
+          <div class="relative">
+            <div class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <input id="id_password1" name="password1" type="password" required class="form-control" placeholder="{% trans 'Create a password' %}">
           </div>
           {% if form.password1.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+          <p class="error-text">{{ form.password1.errors.0 }}</p>
           {% endif %}
         </div>
         
         <!-- Confirm Password -->
-        <div>
-          <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <div class="mt-1">
-            <input id="id_password2" name="password2" type="password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+        <div class="form-group">
+          <label for="id_password2" class="form-label">{% trans "Confirm Password" %}</label>
+          <div class="relative">
+            <div class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <input id="id_password2" name="password2" type="password" required class="form-control" placeholder="{% trans 'Confirm your password' %}">
           </div>
           {% if form.password2.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+          <p class="error-text">{{ form.password2.errors.0 }}</p>
           {% endif %}
         </div>
       </div>
 
-      <div>
-        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-          Register
+      <div class="mt-8">
+        <button type="submit" class="btn-primary">
+          {% trans "Create Account" %}
         </button>
       </div>
       
       {% if form.non_field_errors %}
-      <div class="rounded-md bg-red-50 p-4">
+      <div class="rounded-md bg-red-50 p-4 mt-6 border-l-4 border-red-400">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -158,7 +677,7 @@
           </div>
           <div class="ml-3">
             <h3 class="text-sm font-medium text-red-800">
-              There were errors with your submission
+              {% trans "Registration failed" %}
             </h3>
             <div class="mt-2 text-sm text-red-700">
               <ul class="list-disc pl-5 space-y-1">
@@ -173,14 +692,81 @@
       {% endif %}
     </form>
     
-    <div class="text-center mt-4">
-      <p class="text-sm text-gray-600">
-        Already have an account? 
-        <a href="{% url 'users:login' %}" class="font-medium text-yellow-600 hover:text-yellow-500">
-          Sign in here
-        </a>
-      </p>
+    <div class="footer-text">
+      <span>{% trans "Already have an account?" %}</span>
+      <a href="{% url 'users:login' %}" class="footer-link">
+        {% trans "Sign in" %} →
+      </a>
     </div>
   </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/countries.js' %}"></script>
+<script src="{% static 'js/test-phone.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize intlTelInput for phone number
+    const phoneInput = window.intlTelInput(document.querySelector("#id_phone_number"), {
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js",
+      preferredCountries: ['ae', 'sa', 'us', 'gb'],
+      separateDialCode: true,
+      initialCountry: "auto",
+      geoIpLookup: function(callback) {
+        fetch("https://ipapi.co/json")
+          .then(function(res) { return res.json(); })
+          .then(function(data) { callback(data.country_code); })
+          .catch(function() { callback("ae"); }); // Default to UAE
+      },
+    });
+    
+    // Save the instance to window for testing
+    window.iti = phoneInput;
+    
+    // Populate the country dropdown
+    const countrySelect = document.querySelector("#id_country");
+    
+    // Initialize Select2 for country dropdown
+    $(document).ready(function() {
+      // Populate countries dropdown
+      countries.forEach(function(country) {
+        const option = new Option(country.name, country.name);
+        countrySelect.add(option);
+      });
+      
+      // Initialize Select2
+      $('#id_country').select2({
+        placeholder: "{% trans 'Select your country' %}",
+        allowClear: true,
+        theme: "classic"
+      });
+      
+      // Store country code on form submit
+      $('form').on('submit', function() {
+        document.getElementById('phone_country_code').value = phoneInput.getSelectedCountryData().dialCode;
+      });
+    });
+    
+    // Display selected filename
+    document.getElementById('id_profile_image').addEventListener('change', function(e) {
+      var fileName = e.target.files[0]?.name || '{% trans "No file selected" %}';
+      document.getElementById('file-name').textContent = fileName;
+    });
+    
+    // Add focus effects
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+      input.addEventListener('focus', function() {
+        this.style.borderColor = '#f59e0b';
+        this.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.1)';
+      });
+      input.addEventListener('blur', function() {
+        this.style.borderColor = '#e5e7eb';
+        this.style.boxShadow = 'none';
+      });
+    });
+  });
+</script>
 {% endblock %} 

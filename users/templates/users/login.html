@@ -1,80 +1,310 @@
-{% extends 'base.html' %}
+{% extends 'auth_base.html' %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}Login{% endblock %}
+{% block title %}{% trans "Login" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags.png");}
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags@2x.png");}
+  }
+  
+  /* Glass effect */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  }
+  
+  /* Gradient background */
+  .bg-gradient {
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  }
+  
+  /* Input focus animation */
+  .input-animated {
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+  }
+  
+  .input-animated:focus {
+    border-color: #f59e0b;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  }
+  
+  /* Label animation */
+  .label-animated {
+    transition: all 0.2s ease;
+    pointer-events: none;
+  }
+  
+  .input-animated:focus + .label-animated,
+  .input-animated:not(:placeholder-shown) + .label-animated {
+    transform: translateY(-1.5rem) scale(0.85);
+    color: #f59e0b;
+  }
+  
+  /* Button hover effect */
+  .btn-hover-effect {
+    transition: all 0.3s ease;
+    background: #f59e0b;
+  }
+  
+  .btn-hover-effect:hover {
+    background: #f59e0b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.4);
+  }
+  
+  /* Social button hover */
+  .social-btn {
+    transition: all 0.2s ease;
+  }
+  
+  .social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* RTL text support */
+  .rtl-text {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #f59e0b;
+    border-radius: 10px;
+  }
+  
+  /* Additional CSS improvements */
+  .divider-line {
+    height: 1px;
+    background-color: #f3f4f6;
+    width: 100%;
+  }
+  
+  .card-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .card-section:last-child {
+    border-bottom: none;
+  }
+  
+  .input-icon {
+    color: #f59e0b;
+    transition: all 0.2s ease;
+  }
+  
+  .input-animated:focus ~ .input-icon {
+    transform: scale(1.1);
+  }
+  
+  .form-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 9999px;
+    background-color: rgba(245, 158, 11, 0.1);
+    margin-bottom: 1rem;
+  }
+  
+  .form-header-icon span {
+    color: #f59e0b;
+    font-size: 1.875rem;
+    font-weight: 700;
+  }
+  
+  .form-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+  }
+  
+  .form-header h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 0.25rem;
+  }
+  
+  .form-header p {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .social-login-container {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+  
+  .register-link-container {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: rgba(249, 250, 251, 0.5);
+  }
+  
+  .register-link {
+    color: #f59e0b;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .register-link:hover {
+    color: #d97706;
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Sign in to your account
+<div class="bg-gradient min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+  <div class="glass-card w-full max-w-md rounded-2xl overflow-hidden shadow-lg">
+    <!-- Logo and Header -->
+    <div class="card-section form-header">
+      <div class="form-header-icon">
+        <span>▲</span>
+      </div>
+      <h1>Atlas services</h1>
+      <h2>
+        {% trans "Welcome Back" %}
       </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        CRM Fulfillment System
+      <p>
+        {% trans "Login to manage your fulfillment" %}
       </p>
     </div>
-    
+
+    <div class="divider-line"></div>
+
     {% if messages %}
-    <div class="rounded-md bg-yellow-50 p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">
-            Attention needed
-          </h3>
-          <div class="mt-2 text-sm text-yellow-700">
-            <ul class="list-disc pl-5 space-y-1">
-              {% for message in messages %}
-              <li>{{ message }}</li>
-              {% endfor %}
-            </ul>
+    <div class="card-section">
+      <div class="rounded-xl bg-amber-50 border-l-4 border-amber-400 p-4 animate-fade-in-down">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-amber-800">
+              {% trans "Attention needed" %}
+            </h3>
+            <div class="mt-2 text-sm text-amber-700">
+              <ul class="list-disc pl-5 space-y-1">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
     {% endif %}
     
-    <form class="mt-8 space-y-6" method="POST" action="{% url 'users:login' %}">
+    <form method="POST" class="card-section space-y-5">
       {% csrf_token %}
       
-      <div class="rounded-md shadow-sm -space-y-px">
-        <div>
-          <label for="id_email" class="sr-only">Email address</label>
-          <input id="id_email" name="email" type="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm" placeholder="Email address">
+      <!-- Email Field -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+          </svg>
         </div>
-        <div>
-          <label for="id_password" class="sr-only">Password</label>
-          <input id="id_password" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm" placeholder="Password">
-        </div>
+        <input id="id_email" name="email" type="email" required 
+               class="input-animated block w-full pl-10 pr-3 py-3 rounded-xl text-gray-900 placeholder-transparent focus:outline-none" 
+               placeholder=" ">
+        <label for="id_email" 
+               class="label-animated absolute top-3 left-10 text-gray-500">
+          {% trans "عنوان بريد إلكتروني" %}
+        </label>
+        {% if form.email.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+        {% endif %}
       </div>
-
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-          <label for="remember_me" class="ml-2 block text-sm text-gray-900">
-            Remember me
+      
+      <!-- Password Field -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="id_password" class="block text-sm font-medium rtl-text text-gray-700">
+            {% trans "كلمة المرور" %}
           </label>
-        </div>
-
-        <div class="text-sm">
-          <a href="#" class="font-medium text-yellow-600 hover:text-yellow-500">
-            Forgot your password?
+          <a href="#" class="text-xs font-medium text-amber-600 hover:text-amber-500 transition-colors">
+            {% trans "Forgot password?" %}
           </a>
         </div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <input id="id_password" name="password" type="password" required 
+                 class="input-animated block w-full pl-10 pr-3 py-3 rounded-xl text-gray-900 placeholder-transparent focus:outline-none" 
+                 placeholder=" ">
+          <label for="id_password" 
+                 class="label-animated absolute top-3 left-10 text-gray-500">
+            {% trans "Your password" %}
+          </label>
+        </div>
+        {% if form.password.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+        {% endif %}
+      </div>
+      
+      <!-- Remember Me -->
+      <div class="flex items-center">
+        <input id="id_remember_me" name="remember_me" type="checkbox" 
+               class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+        <label for="id_remember_me" class="ml-2 block text-sm text-gray-700">
+          {% trans "Remember me" %}
+        </label>
       </div>
 
+      <!-- Submit Button -->
       <div>
-        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-          Sign in
+        <button type="submit" 
+                class="btn-hover-effect group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white focus:outline-none">
+          <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+            <svg class="h-5 w-5 text-amber-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          {% trans "Sign in" %}
         </button>
       </div>
       
       {% if form.non_field_errors %}
-      <div class="rounded-md bg-red-50 p-4">
+      <div class="rounded-xl bg-red-50 p-4 border-l-4 border-red-400 animate-fade-in-down">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -83,7 +313,7 @@
           </div>
           <div class="ml-3">
             <h3 class="text-sm font-medium text-red-800">
-              There were errors with your submission
+              {% trans "Login failed" %}
             </h3>
             <div class="mt-2 text-sm text-red-700">
               <ul class="list-disc pl-5 space-y-1">
@@ -98,14 +328,48 @@
       {% endif %}
     </form>
     
-    <div class="text-center mt-4">
+    <!-- Divider -->
+    <div class="card-section">
+      <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200"></div>
+        </div>
+
+      </div>
+      
+      <!-- Social Login -->
+      <div class="social-login-container">
+
+      </div>
+    </div>
+    
+    <!-- Register Link -->
+    <div class="register-link-container">
       <p class="text-sm text-gray-600">
-        Don't have an account? 
-        <a href="{% url 'users:register' %}" class="font-medium text-yellow-600 hover:text-yellow-500">
-          Register here
+        {% trans "Don't have an account?" %}
+        <a href="{% url 'users:register' %}" class="font-medium text-amber-600 hover:text-amber-500 transition-colors">
+          {% trans "Create one now" %} →
         </a>
       </p>
     </div>
   </div>
 </div>
-{% endblock %} 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Add focus effects and animations
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set initial state for inputs that might have values (e.g. on form error)
+    const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
+    inputs.forEach(input => {
+      if (input.value) {
+        const label = input.nextElementSibling;
+        if (label && label.classList.contains('label-animated')) {
+          label.classList.add('transform', '-translate-y-6', 'scale-85', 'text-amber-500');
+        }
+      }
+    }); 
+  });
+</script>
+{% endblock %}
