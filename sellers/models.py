@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Sum
+from inventory.models import InventoryRecord
 
 class Seller(models.Model):
     user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='seller_profile')
@@ -30,6 +32,15 @@ class Product(models.Model):
     seller = models.ForeignKey('users.User', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def total_quantity(self):
+        total = InventoryRecord.objects.filter(product=self).aggregate(total=Sum('quantity'))['total']
+        return total or 0
+
+    @property
+    def available_quantity(self):
+        return self.total_quantity
 
 class SalesChannel(models.Model):
     name_en = models.CharField(max_length=100)

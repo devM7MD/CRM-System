@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Product, SalesChannel
+from sellers.models import Product, SalesChannel
 from orders.models import Order
 from users.models import User
 
@@ -17,7 +17,11 @@ def dashboard(request):
     if request.user.role == 'seller':
         products = Product.objects.filter(seller=request.user).order_by('-created_at')[:5]
         # Get all orders first, then calculate stats, then get recent ones
-        all_orders = Order.objects.filter(seller=request.user).order_by('-date')
+        seller_instance = getattr(request.user, 'seller_profile', None)
+        if seller_instance:
+            all_orders = Order.objects.filter(seller=seller_instance).order_by('-date')
+        else:
+            return render(request, 'dashboard/permission_denied.html')
     else:
         products = Product.objects.all().order_by('-created_at')[:5]
         all_orders = Order.objects.all().order_by('-date')
@@ -140,10 +144,13 @@ def product_edit(request, product_id):
 def order_list(request):
     """List orders for the seller."""
     if request.user.role == 'seller':
-        orders = Order.objects.filter(seller=request.user).order_by('-date')
+        seller_instance = getattr(request.user, 'seller_profile', None)
+        if seller_instance:
+            orders = Order.objects.filter(seller=seller_instance).order_by('-date')
+        else:
+            return render(request, 'dashboard/permission_denied.html')
     else:
         orders = Order.objects.all().order_by('-date')
-        
     return render(request, 'sellers/orders.html', {
         'orders': orders,
     })
