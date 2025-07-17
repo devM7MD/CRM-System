@@ -1,0 +1,546 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complete Delivery - {{ delivery.tracking_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .complete-delivery {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    
+    .complete-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .complete-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .complete-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .tracking-number {
+        font-family: 'Courier New', monospace;
+        color: #7f8c8d;
+        font-size: 1.2rem;
+    }
+    
+    .delivery-summary {
+        background: rgba(52, 152, 219, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .summary-item {
+        text-align: center;
+    }
+    
+    .summary-label {
+        font-weight: bold;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .summary-value {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .form-section h3 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .file-upload {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .file-upload input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+    
+    .file-upload-label {
+        display: block;
+        padding: 2rem;
+        border: 2px dashed #e0e0e0;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .file-upload-label:hover {
+        border-color: #3498db;
+        background: rgba(52, 152, 219, 0.05);
+    }
+    
+    .file-upload-label i {
+        font-size: 3rem;
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .signature-pad {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        background: white;
+        cursor: crosshair;
+        margin-bottom: 1rem;
+    }
+    
+    .signature-controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-signature {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-clear {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-clear:hover {
+        background: #c0392b;
+    }
+    
+    .rating-stars {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .star {
+        font-size: 2rem;
+        color: #e0e0e0;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    
+    .star:hover,
+    .star.active {
+        color: #f39c12;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-complete {
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(45deg, #27ae60, #229954);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn-complete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 10px;
+        margin-top: 1rem;
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .complete-delivery {
+            padding: 0.5rem;
+        }
+        
+        .complete-container {
+            padding: 1rem;
+        }
+        
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-complete {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="complete-delivery">
+    <div class="complete-container">
+        <!-- Header -->
+        <div class="complete-header">
+            <div class="complete-title">✅ Complete Delivery</div>
+            <div class="tracking-number">{{ delivery.tracking_number }}</div>
+        </div>
+
+        <!-- Delivery Summary -->
+        <div class="delivery-summary">
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Customer</div>
+                    <div class="summary-value">{{ delivery.order.customer_name }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Address</div>
+                    <div class="summary-value">{{ delivery.order.customer_address }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Order Amount</div>
+                    <div class="summary-value">AED {{ delivery.order.total_price }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Delivery Cost</div>
+                    <div class="summary-value">AED {{ delivery.delivery_cost }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complete Delivery Form -->
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Proof of Delivery -->
+            <div class="form-section">
+                <h3><i class="fas fa-camera"></i> Proof of Delivery</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Upload Delivery Photo</label>
+                    <div class="file-upload">
+                        <input type="file" name="proof_photo" id="proofPhoto" accept="image/*" capture="environment">
+                        <label for="proofPhoto" class="file-upload-label">
+                            <i class="fas fa-camera"></i>
+                            <div>Click to take photo or choose file</div>
+                            <small class="text-muted">Take a photo of the delivered package or customer</small>
+                        </label>
+                    </div>
+                    <img id="photoPreview" class="preview-image" alt="Preview">
+                </div>
+            </div>
+
+            <!-- Customer Signature -->
+            <div class="form-section">
+                <h3><i class="fas fa-signature"></i> Customer Signature</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Digital Signature</label>
+                    <div class="signature-controls">
+                        <button type="button" class="btn-signature btn-clear" onclick="clearSignature()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </div>
+                    <canvas id="signaturePad" class="signature-pad" width="400" height="200"></canvas>
+                    <input type="hidden" name="customer_signature" id="signatureData">
+                    <small class="text-muted">Have the customer sign above to confirm delivery</small>
+                </div>
+            </div>
+
+            <!-- Customer Feedback -->
+            <div class="form-section">
+                <h3><i class="fas fa-star"></i> Customer Feedback</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Customer Rating</label>
+                    <div class="rating-stars" id="ratingStars">
+                        <i class="fas fa-star star" data-rating="1"></i>
+                        <i class="fas fa-star star" data-rating="2"></i>
+                        <i class="fas fa-star star" data-rating="3"></i>
+                        <i class="fas fa-star star" data-rating="4"></i>
+                        <i class="fas fa-star star" data-rating="5"></i>
+                    </div>
+                    <input type="hidden" name="customer_rating" id="customerRating">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Customer Comments</label>
+                    <textarea name="customer_feedback" class="form-control" rows="3" placeholder="Any feedback from the customer..."></textarea>
+                </div>
+            </div>
+
+            <!-- Delivery Notes -->
+            <div class="form-section">
+                <h3><i class="fas fa-edit"></i> Delivery Notes</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea name="delivery_notes" class="form-control" rows="3" placeholder="Any additional notes about the delivery..."></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'delivery:order_detail' delivery.id %}" class="btn-complete btn-cancel">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-complete btn-submit">
+                    <i class="fas fa-check"></i>
+                    Complete Delivery
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Signature Pad
+let canvas = document.getElementById('signaturePad');
+let ctx = canvas.getContext('2d');
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+
+// Set canvas size
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    
+    // Set drawing style
+    ctx.strokeStyle = '#2c3e50';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Mouse events
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('mouseout', stopDrawing);
+
+// Touch events for mobile
+canvas.addEventListener('touchstart', startDrawingTouch);
+canvas.addEventListener('touchmove', drawTouch);
+canvas.addEventListener('touchend', stopDrawing);
+
+function startDrawing(e) {
+    isDrawing = true;
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+}
+
+function startDrawingTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    isDrawing = true;
+    [lastX, lastY] = [touch.clientX - rect.left, touch.clientY - rect.top];
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+}
+
+function drawTouch(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    
+    [lastX, lastY] = [x, y];
+}
+
+function stopDrawing() {
+    isDrawing = false;
+    // Save signature data
+    document.getElementById('signatureData').value = canvas.toDataURL();
+}
+
+function clearSignature() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('signatureData').value = '';
+}
+
+// Rating Stars
+const stars = document.querySelectorAll('.star');
+const ratingInput = document.getElementById('customerRating');
+
+stars.forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = this.dataset.rating;
+        ratingInput.value = rating;
+        
+        // Update star display
+        stars.forEach((s, index) => {
+            if (index < rating) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+    });
+    
+    star.addEventListener('mouseenter', function() {
+        const rating = this.dataset.rating;
+        stars.forEach((s, index) => {
+            if (index < rating) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+    });
+    
+    star.addEventListener('mouseleave', function() {
+        const currentRating = ratingInput.value;
+        stars.forEach((s, index) => {
+            if (index < currentRating) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+    });
+});
+
+// Photo Preview
+document.getElementById('proofPhoto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('photoPreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const signature = document.getElementById('signatureData').value;
+    const photo = document.getElementById('proofPhoto').files[0];
+    
+    if (!signature && !photo) {
+        e.preventDefault();
+        alert('Please provide either a signature or a photo as proof of delivery.');
+        return;
+    }
+});
+</script>
+{% endblock %} 

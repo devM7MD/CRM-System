@@ -14,8 +14,83 @@ class OrderForm(forms.ModelForm):
             'customer_phone', 'seller_phone', 'seller_email', 'store_link'
         ]
         widgets = {
-            'date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'order_code': forms.TextInput(attrs={
+                'class': 'form-input w-full bg-gray-50',
+                'readonly': 'readonly'
+            }),
+            'customer': forms.Select(attrs={
+                'class': 'form-input w-full'
+            }),
+            'product': forms.Select(attrs={
+                'class': 'form-input w-full product-select'
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'class': 'form-input w-full',
+                'min': '1',
+                'step': '1'
+            }),
+            'price_per_unit': forms.NumberInput(attrs={
+                'class': 'form-input w-full price-input',
+                'step': '0.01',
+                'min': '0'
+            }),
+            'seller': forms.Select(attrs={
+                'class': 'form-input w-full'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-input w-full'
+            }),
+            'customer_phone': forms.TextInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': '+1234567890'
+            }),
+            'seller_phone': forms.TextInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': '+1234567890'
+            }),
+            'seller_email': forms.EmailInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': 'seller@example.com'
+            }),
+            'store_link': forms.URLInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': 'https://store.example.com'
+            }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filter sellers based on user role
+        if user:
+            try:
+                from users.models import User
+                from sellers.models import Seller
+                
+                user_role = user.primary_role.name if user.primary_role else None
+                
+                if user_role == 'Seller':
+                    # Sellers can only see themselves
+                    self.fields['seller'].queryset = Seller.objects.filter(user=user)
+                    self.fields['seller'].initial = user.seller_profile if hasattr(user, 'seller_profile') else None
+                elif user_role in ['Super Admin', 'Admin', 'Manager']:
+                    # Admins and managers can see all sellers
+                    self.fields['seller'].queryset = Seller.objects.all()
+                else:
+                    # Other roles see all sellers
+                    self.fields['seller'].queryset = Seller.objects.all()
+            except ImportError:
+                # If roles app is not available, show all sellers
+                from sellers.models import Seller
+                self.fields['seller'].queryset = Seller.objects.all()
+        else:
+            # If no user provided, show all sellers
+            try:
+                from sellers.models import Seller
+                self.fields['seller'].queryset = Seller.objects.all()
+            except ImportError:
+                pass
 
     def clean(self):
         cleaned_data = super().clean()

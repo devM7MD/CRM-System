@@ -1,0 +1,435 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report Failed Delivery - {{ delivery.tracking_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .failed-delivery {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    
+    .failed-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .failed-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .failed-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 0.5rem;
+    }
+    
+    .tracking-number {
+        font-family: 'Courier New', monospace;
+        color: #7f8c8d;
+        font-size: 1.2rem;
+    }
+    
+    .delivery-summary {
+        background: rgba(231, 76, 60, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 5px solid #e74c3c;
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .summary-item {
+        text-align: center;
+    }
+    
+    .summary-label {
+        font-weight: bold;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .summary-value {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .form-section h3 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        background: white;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-select:focus {
+        outline: none;
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+    
+    .file-upload {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .file-upload input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+    
+    .file-upload-label {
+        display: block;
+        padding: 2rem;
+        border: 2px dashed #e0e0e0;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .file-upload-label:hover {
+        border-color: #e74c3c;
+        background: rgba(231, 76, 60, 0.05);
+    }
+    
+    .file-upload-label i {
+        font-size: 3rem;
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 10px;
+        margin-top: 1rem;
+        display: none;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-failed {
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn-failed:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .warning-box {
+        background: rgba(231, 76, 60, 0.1);
+        border: 2px solid #e74c3c;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .warning-box i {
+        font-size: 2rem;
+        color: #e74c3c;
+        margin-bottom: 0.5rem;
+    }
+    
+    .warning-text {
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    
+    @media (max-width: 768px) {
+        .failed-delivery {
+            padding: 0.5rem;
+        }
+        
+        .failed-container {
+            padding: 1rem;
+        }
+        
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-failed {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="failed-delivery">
+    <div class="failed-container">
+        <!-- Header -->
+        <div class="failed-header">
+            <div class="failed-title">❌ Report Failed Delivery</div>
+            <div class="tracking-number">{{ delivery.tracking_number }}</div>
+        </div>
+
+        <!-- Warning Box -->
+        <div class="warning-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div class="warning-text">Please provide detailed information about why the delivery failed</div>
+        </div>
+
+        <!-- Delivery Summary -->
+        <div class="delivery-summary">
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Customer</div>
+                    <div class="summary-value">{{ delivery.order.customer_name }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Address</div>
+                    <div class="summary-value">{{ delivery.order.customer_address }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Attempt Number</div>
+                    <div class="summary-value">{{ delivery.attempts.count|add:1 }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Current Time</div>
+                    <div class="summary-value" id="currentTime"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Failed Delivery Form -->
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Failure Reason -->
+            <div class="form-section">
+                <h3><i class="fas fa-exclamation-circle"></i> Failure Reason</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Primary Reason for Failure *</label>
+                    <select name="failure_reason" class="form-select" required>
+                        <option value="">Select a reason</option>
+                        <option value="customer_not_available">Customer Not Available</option>
+                        <option value="wrong_address">Wrong Address</option>
+                        <option value="customer_refused">Customer Refused Delivery</option>
+                        <option value="package_damaged">Package Damaged</option>
+                        <option value="weather_conditions">Weather Conditions</option>
+                        <option value="vehicle_breakdown">Vehicle Breakdown</option>
+                        <option value="traffic_delay">Traffic Delay</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Additional Details</label>
+                    <textarea name="notes" class="form-control" rows="3" placeholder="Provide more details about the failure..."></textarea>
+                </div>
+            </div>
+
+            <!-- Customer Feedback -->
+            <div class="form-section">
+                <h3><i class="fas fa-comment"></i> Customer Feedback</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Customer Comments</label>
+                    <textarea name="customer_feedback" class="form-control" rows="3" placeholder="What did the customer say? (if any)"></textarea>
+                </div>
+            </div>
+
+            <!-- Proof of Attempt -->
+            <div class="form-section">
+                <h3><i class="fas fa-camera"></i> Proof of Attempt</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Upload Photo (Optional)</label>
+                    <div class="file-upload">
+                        <input type="file" name="proof_image" id="proofImage" accept="image/*" capture="environment">
+                        <label for="proofImage" class="file-upload-label">
+                            <i class="fas fa-camera"></i>
+                            <div>Click to take photo or choose file</div>
+                            <small class="text-muted">Take a photo showing the failed delivery attempt</small>
+                        </label>
+                    </div>
+                    <img id="imagePreview" class="preview-image" alt="Preview">
+                </div>
+            </div>
+
+            <!-- Reschedule Options -->
+            <div class="form-section">
+                <h3><i class="fas fa-calendar"></i> Reschedule Options</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Next Attempt Date</label>
+                    <input type="datetime-local" name="next_attempt_date" class="form-control" min="{{ today|date:'Y-m-d' }}T00:00">
+                    <small class="text-muted">Leave empty if no reschedule is needed</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Special Instructions</label>
+                    <textarea name="special_instructions" class="form-control" rows="2" placeholder="Any special instructions for the next attempt..."></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'delivery:order_detail' delivery.id %}" class="btn-failed btn-cancel">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-failed btn-submit">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Report Failure
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update current time
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleString();
+    document.getElementById('currentTime').textContent = timeString;
+}
+
+updateTime();
+setInterval(updateTime, 1000);
+
+// Photo Preview
+document.getElementById('proofImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Set minimum date for next attempt to tomorrow
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+const tomorrowString = tomorrow.toISOString().slice(0, 16);
+document.querySelector('input[name="next_attempt_date"]').min = tomorrowString;
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const failureReason = document.querySelector('select[name="failure_reason"]').value;
+    
+    if (!failureReason) {
+        e.preventDefault();
+        alert('Please select a failure reason.');
+        return;
+    }
+    
+    // Confirm submission
+    if (!confirm('Are you sure you want to report this delivery as failed?')) {
+        e.preventDefault();
+        return;
+    }
+});
+</script>
+{% endblock %} 

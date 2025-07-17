@@ -22,31 +22,18 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
-        extra_fields.setdefault('role', 'super_admin')
         
         if extra_fields.get('is_staff') is not True:
             raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
         
-        return self.create_user(email, password, **extra_fields)
+        user = self.create_user(email, password, **extra_fields)
+        # Note: Roles will be assigned manually through admin interface
+        return user
 
 class User(AbstractUser, PermissionsMixin):
     """Custom user model for the CRM system with role-based access control."""
-    
-    ROLE_CHOICES = (
-        ('super_admin', _('Super Admin')),
-        ('admin', _('Admin')),
-        ('seller', _('Seller')),
-        ('stock_keeper', _('Stock Keeper')),
-        ('call_center_manager', _('Call Center Manager')),
-        ('call_center_agent', _('Call Center Agent')),
-        ('packaging', _('Packaging')),
-        ('delivery', _('Delivery')),
-        ('follow_up', _('Follow-up')),
-        ('accountant', _('Accountant')),
-        ('sourcing', _('Sourcing')),
-    )
     
     # Override username with email as primary identifier
     username = None
@@ -56,8 +43,7 @@ class User(AbstractUser, PermissionsMixin):
     full_name = models.CharField(_('full name'), max_length=150)
     phone_number = models.CharField(_('phone number'), max_length=20)
     
-    # Role and permissions
-    role = models.CharField(_('role'), max_length=30, choices=ROLE_CHOICES, default='seller')
+    # Role and permissions - now handled through UserRole model
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff status'), default=False)
     
@@ -95,9 +81,61 @@ class User(AbstractUser, PermissionsMixin):
     def get_short_name(self):
         return self.full_name.split()[0] if self.full_name else self.email
     
-    def has_role(self, role):
-        """Check if user has the specified role."""
-        return self.role == role
+    def get_initials(self):
+        """Get user initials for avatar display"""
+        if self.full_name:
+            names = self.full_name.split()
+            if len(names) >= 2:
+                return f"{names[0][0]}{names[-1][0]}".upper()
+            return names[0][0].upper()
+        return self.email[0].upper()
+    
+    @property
+    def primary_role(self):
+        """Get the user's primary role"""
+        try:
+            user_role = self.user_roles.filter(is_primary=True, is_active=True).first()
+            return user_role.role if user_role else None
+        except:
+            return None
+    
+    def get_primary_role(self):
+        """Get the user's primary role (legacy method)"""
+        return self.primary_role
+    
+    def get_all_roles(self):
+        """Get all active roles for the user"""
+        return [user_role.role for user_role in self.user_roles.filter(is_active=True)]
+    
+    def has_role(self, role_name):
+        """Check if user has the specified role"""
+        return self.user_roles.filter(role__name=role_name, is_active=True).exists()
+    
+    def has_permission(self, permission_codename, module=None):
+        """Check if user has the specified permission"""
+        from roles.models import Permission
+        
+        # Superusers have all permissions
+        if self.is_superuser:
+            return True
+        
+        # Check through user's roles
+        for user_role in self.user_roles.filter(is_active=True):
+            if user_role.role.role_permissions.filter(
+                permission__codename=permission_codename,
+                granted=True
+            ).exists():
+                if module is None or user_role.role.role_permissions.filter(
+                    permission__codename=permission_codename,
+                    permission__module=module,
+                    granted=True
+                ).exists():
+                    return True
+        return False
+    
+    def can_create_roles(self):
+        """Check if user can create roles (only super admin)"""
+        return self.has_role('Super Admin') or self.is_superuser
 
 class UserPermission(models.Model):
     """Model to store custom permissions for users."""

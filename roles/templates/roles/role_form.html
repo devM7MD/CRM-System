@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if role %}Edit Role{% else %}Create Role{% endif %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center py-6">
+                <a href="{% url 'roles:role_list' %}" class="mr-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </a>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        {% if role %}Edit Role{% else %}Create New Role{% endif %}
+                    </h1>
+                    <p class="mt-2 text-sm text-gray-600">
+                        {% if role %}Update role information and permissions{% else %}Define a new role for your system{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white shadow rounded-lg">
+            <form method="POST" class="space-y-6 p-6">
+                {% csrf_token %}
+                
+                <!-- Role Name -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">
+                        Role Name *
+                    </label>
+                    <input type="text" 
+                           name="name" 
+                           id="name" 
+                           value="{{ role.name|default:'' }}"
+                           required
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                           placeholder="Enter role name">
+                    <p class="mt-1 text-sm text-gray-500">
+                        Choose a descriptive name for this role (e.g., "Sales Manager", "Inventory Specialist")
+                    </p>
+                </div>
+
+                <!-- Role Type -->
+                <div>
+                    <label for="role_type" class="block text-sm font-medium text-gray-700">
+                        Role Type *
+                    </label>
+                    <select name="role_type" 
+                            id="role_type" 
+                            required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <option value="">Select a role type</option>
+                        {% for value, label in role_types %}
+                        <option value="{{ value }}" {% if role.role_type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Choose the appropriate role type from the predefined options
+                    </p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">
+                        Description
+                    </label>
+                    <textarea name="description" 
+                              id="description" 
+                              rows="4"
+                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              placeholder="Describe the responsibilities and scope of this role">{{ role.description|default:'' }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Provide a detailed description of what this role entails
+                    </p>
+                </div>
+
+                <!-- Active Status (only for editing) -->
+                {% if role %}
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           name="is_active" 
+                           id="is_active" 
+                           {% if role.is_active %}checked{% endif %}
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="is_active" class="ml-2 block text-sm text-gray-900">
+                        Active Role
+                    </label>
+                </div>
+                <p class="mt-1 text-sm text-gray-500">
+                    Inactive roles cannot be assigned to users
+                </p>
+                {% endif %}
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="{% url 'roles:role_list' %}" 
+                       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        {% if role %}Update Role{% else %}Create Role{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-blue-900 mb-4">
+                <i class="fas fa-info-circle mr-2"></i>
+                Role Management Guidelines
+            </h3>
+            <div class="space-y-3 text-sm text-blue-800">
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-2 text-blue-600"></i>
+                    <p>Only Super Admin users can create and manage roles</p>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-2 text-blue-600"></i>
+                    <p>Role names should be clear and descriptive</p>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-2 text-blue-600"></i>
+                    <p>Each role type has specific permissions and access levels</p>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-2 text-blue-600"></i>
+                    <p>Default roles cannot be deleted but can be modified</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

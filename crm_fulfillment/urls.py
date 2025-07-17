@@ -37,6 +37,8 @@ urlpatterns = [
     path('finance/', include('finance.urls')),
     path('followup/', include('followup.urls')),
     path('subscribers/', include('subscribers.urls', namespace='subscribers')),
+    path('roles/', include('roles.urls')),
+    path('bug-reports/', include('bug_reports.urls')),
     # Landing pages
     path('', include('landing.urls')),
     path('i18n/', include('django.conf.urls.i18n')),

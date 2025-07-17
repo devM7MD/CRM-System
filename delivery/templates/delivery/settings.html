@@ -1,0 +1,597 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delivery Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delivery-settings {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    
+    .settings-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .settings-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .settings-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .settings-subtitle {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+    
+    .settings-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .settings-section h3 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        background: white;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-select:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .availability-status {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .status-option {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .status-option:hover {
+        border-color: #3498db;
+        background: rgba(52, 152, 219, 0.05);
+    }
+    
+    .status-option.active {
+        border-color: #3498db;
+        background: rgba(52, 152, 219, 0.1);
+    }
+    
+    .status-option i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .status-available { color: #27ae60; }
+    .status-busy { color: #f39c12; }
+    .status-offline { color: #e74c3c; }
+    .status-break { color: #9b59b6; }
+    
+    .location-info {
+        background: rgba(52, 152, 219, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .location-coordinates {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .coordinate-input {
+        flex: 1;
+    }
+    
+    .location-button {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .location-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .location-button:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .device-info {
+        background: rgba(52, 152, 219, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .device-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+    }
+    
+    .device-item:last-child {
+        border-bottom: none;
+    }
+    
+    .device-label {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .device-value {
+        color: #7f8c8d;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-settings {
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .btn-save {
+        background: linear-gradient(45deg, #27ae60, #229954);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn-settings:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .success-message {
+        background: rgba(39, 174, 96, 0.1);
+        border: 2px solid #27ae60;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        color: #27ae60;
+        font-weight: bold;
+        display: none;
+    }
+    
+    .error-message {
+        background: rgba(231, 76, 60, 0.1);
+        border: 2px solid #e74c3c;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        color: #e74c3c;
+        font-weight: bold;
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .delivery-settings {
+            padding: 0.5rem;
+        }
+        
+        .settings-container {
+            padding: 1rem;
+        }
+        
+        .availability-status {
+            flex-direction: column;
+        }
+        
+        .location-coordinates {
+            flex-direction: column;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-settings {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delivery-settings">
+    <div class="settings-container">
+        <!-- Header -->
+        <div class="settings-header">
+            <div class="settings-title">⚙️ Delivery Settings</div>
+            <div class="settings-subtitle">
+                {% if courier %}
+                    {{ courier.user.get_full_name }} - {{ courier.employee_id }}
+                {% else %}
+                    Manage your delivery preferences
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div id="successMessage" class="success-message">
+            Settings updated successfully!
+        </div>
+        <div id="errorMessage" class="error-message">
+            Error updating settings. Please try again.
+        </div>
+
+        <form method="post" id="settingsForm">
+            {% csrf_token %}
+            
+            <!-- Availability Settings -->
+            <div class="settings-section">
+                <h3><i class="fas fa-toggle-on"></i> Availability Status</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Current Status</label>
+                    <div class="availability-status">
+                        <div class="status-option {% if courier.availability == 'available' %}active{% endif %}" data-status="available">
+                            <i class="fas fa-check-circle status-available"></i>
+                            <div>Available</div>
+                        </div>
+                        <div class="status-option {% if courier.availability == 'busy' %}active{% endif %}" data-status="busy">
+                            <i class="fas fa-clock status-busy"></i>
+                            <div>Busy</div>
+                        </div>
+                        <div class="status-option {% if courier.availability == 'break' %}active{% endif %}" data-status="break">
+                            <i class="fas fa-coffee status-break"></i>
+                            <div>On Break</div>
+                        </div>
+                        <div class="status-option {% if courier.availability == 'offline' %}active{% endif %}" data-status="offline">
+                            <i class="fas fa-times-circle status-offline"></i>
+                            <div>Offline</div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="availability" id="availabilityInput" value="{{ courier.availability }}">
+                </div>
+            </div>
+
+            <!-- Location Settings -->
+            <div class="settings-section">
+                <h3><i class="fas fa-map-marker-alt"></i> Location Settings</h3>
+                
+                <div class="location-info">
+                    <div class="location-coordinates">
+                        <div class="coordinate-input">
+                            <label class="form-label">Latitude</label>
+                            <input type="number" name="latitude" id="latitude" class="form-control" 
+                                   value="{{ courier.current_location_lat|default:'' }}" 
+                                   step="0.00000001" placeholder="25.2048">
+                        </div>
+                        <div class="coordinate-input">
+                            <label class="form-label">Longitude</label>
+                            <input type="number" name="longitude" id="longitude" class="form-control" 
+                                   value="{{ courier.current_location_lng|default:'' }}" 
+                                   step="0.00000001" placeholder="55.2708">
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="location-button" onclick="getCurrentLocation()" id="locationButton">
+                        <i class="fas fa-location-arrow"></i>
+                        Get Current Location
+                    </button>
+                </div>
+            </div>
+
+            <!-- Device Information -->
+            <div class="settings-section">
+                <h3><i class="fas fa-mobile-alt"></i> Device Information</h3>
+                
+                <div class="device-info">
+                    <div class="device-item">
+                        <span class="device-label">User Agent:</span>
+                        <span class="device-value" id="userAgent"></span>
+                    </div>
+                    <div class="device-item">
+                        <span class="device-label">Screen Resolution:</span>
+                        <span class="device-value" id="screenResolution"></span>
+                    </div>
+                    <div class="device-item">
+                        <span class="device-label">Battery Level:</span>
+                        <span class="device-value" id="batteryLevel">Checking...</span>
+                    </div>
+                    <div class="device-item">
+                        <span class="device-label">Connection Type:</span>
+                        <span class="device-value" id="connectionType">Checking...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences -->
+            <div class="settings-section">
+                <h3><i class="fas fa-cog"></i> Preferences</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Maximum Daily Deliveries</label>
+                    <input type="number" name="max_daily_deliveries" class="form-control" 
+                           value="{{ courier.max_daily_deliveries }}" min="1" max="100">
+                    <small class="text-muted">Maximum number of deliveries you can handle per day</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Auto-refresh Dashboard</label>
+                    <select name="auto_refresh" class="form-select">
+                        <option value="30">Every 30 seconds</option>
+                        <option value="60">Every 1 minute</option>
+                        <option value="300">Every 5 minutes</option>
+                        <option value="0">Disabled</option>
+                    </select>
+                    <small class="text-muted">How often to automatically refresh the dashboard</small>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'delivery:dashboard' %}" class="btn-settings btn-cancel">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-settings btn-save">
+                    <i class="fas fa-save"></i>
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Availability Status Selection
+document.querySelectorAll('.status-option').forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove active class from all options
+        document.querySelectorAll('.status-option').forEach(opt => opt.classList.remove('active'));
+        
+        // Add active class to clicked option
+        this.classList.add('active');
+        
+        // Update hidden input
+        document.getElementById('availabilityInput').value = this.dataset.status;
+    });
+});
+
+// Get Current Location
+function getCurrentLocation() {
+    const button = document.getElementById('locationButton');
+    const originalText = button.innerHTML;
+    
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+    
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                document.getElementById('latitude').value = lat.toFixed(8);
+                document.getElementById('longitude').value = lng.toFixed(8);
+                
+                button.innerHTML = '<i class="fas fa-check"></i> Location Updated!';
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }, 2000);
+            },
+            function(error) {
+                let errorMessage = 'Unknown error occurred';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'Location permission denied';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'Location information unavailable';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'Location request timed out';
+                        break;
+                }
+                
+                button.innerHTML = '<i class="fas fa-times"></i> Error: ' + errorMessage;
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }, 3000);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            }
+        );
+    } else {
+        button.innerHTML = '<i class="fas fa-times"></i> Geolocation not supported';
+        setTimeout(() => {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }, 3000);
+    }
+}
+
+// Device Information
+document.getElementById('userAgent').textContent = navigator.userAgent;
+document.getElementById('screenResolution').textContent = screen.width + 'x' + screen.height;
+
+// Battery Level
+if ('getBattery' in navigator) {
+    navigator.getBattery().then(battery => {
+        const updateBatteryLevel = () => {
+            const level = Math.round(battery.level * 100);
+            document.getElementById('batteryLevel').textContent = level + '%';
+        };
+        
+        updateBatteryLevel();
+        battery.addEventListener('levelchange', updateBatteryLevel);
+    });
+} else {
+    document.getElementById('batteryLevel').textContent = 'Not available';
+}
+
+// Connection Type
+if ('connection' in navigator) {
+    const updateConnectionType = () => {
+        const connection = navigator.connection;
+        let type = 'Unknown';
+        
+        if (connection.effectiveType) {
+            type = connection.effectiveType;
+        } else if (connection.type) {
+            type = connection.type;
+        }
+        
+        document.getElementById('connectionType').textContent = type;
+    };
+    
+    updateConnectionType();
+    navigator.connection.addEventListener('change', updateConnectionType);
+} else {
+    document.getElementById('connectionType').textContent = 'Not available';
+}
+
+// Form Submission
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('successMessage', 'Settings updated successfully!');
+        } else {
+            showMessage('errorMessage', data.error || 'Error updating settings');
+        }
+    })
+    .catch(error => {
+        showMessage('errorMessage', 'Error updating settings: ' + error.message);
+    });
+});
+
+function showMessage(elementId, message) {
+    const element = document.getElementById(elementId);
+    element.textContent = message;
+    element.style.display = 'block';
+    
+    setTimeout(() => {
+        element.style.display = 'none';
+    }, 5000);
+}
+</script>
+{% endblock %} 

@@ -410,12 +410,49 @@ class ProductForm(forms.ModelForm):
             'name_en', 'name_ar', 'code', 'selling_price', 'purchase_price',
             'image', 'description', 'product_link', 'seller'
         ]
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filter sellers based on user role
+        if user:
+            try:
+                from users.models import User
+                from roles.models import UserRole
+                
+                user_role = user.primary_role.name if user.primary_role else None
+                
+                if user_role == 'Seller':
+                    # Sellers can only see themselves
+                    self.fields['seller'].queryset = User.objects.filter(id=user.id)
+                    self.fields['seller'].initial = user
+                elif user_role in ['Super Admin', 'Admin', 'Manager']:
+                    # Admins and managers can see all sellers
+                    seller_users = User.objects.filter(
+                        user_roles__role__name='Seller',
+                        user_roles__is_active=True
+                    ).distinct()
+                    self.fields['seller'].queryset = seller_users
+                else:
+                    # Other roles see all users
+                    self.fields['seller'].queryset = User.objects.filter(is_active=True)
+            except ImportError:
+                # If roles app is not available, show all users
+                self.fields['seller'].queryset = User.objects.filter(is_active=True)
+        else:
+            # If no user provided, show all active users
+            try:
+                from users.models import User
+                self.fields['seller'].queryset = User.objects.filter(is_active=True)
+            except ImportError:
+                pass
 
 @login_required
 def add_product(request):
     """Add a new product to inventory."""
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
+        form = ProductForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Product added successfully!')
@@ -423,7 +460,7 @@ def add_product(request):
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        form = ProductForm()
+        form = ProductForm(user=request.user)
     context = {
         'form': form,
         'warehouses': Warehouse.objects.all(),

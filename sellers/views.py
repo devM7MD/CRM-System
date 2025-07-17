@@ -9,44 +9,24 @@ from users.models import User
 def dashboard(request):
     """Seller dashboard with stats and recent data."""
     # Only allow sellers to access this page
-    if request.user.role != 'seller' and request.user.role not in ['admin', 'super_admin']:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if not user_role or (user_role != 'Seller' and user_role not in ['Admin', 'Super Admin']):
         messages.error(request, "You don't have permission to access this page.")
         return redirect('dashboard:index')
-    
-    # Get recent products
-    if request.user.role == 'seller':
-        products = Product.objects.filter(seller=request.user).order_by('-created_at')[:5]
-        # Get all orders first, then calculate stats, then get recent ones
-        seller_instance = getattr(request.user, 'seller_profile', None)
-        if seller_instance:
-            all_orders = Order.objects.filter(seller=seller_instance).order_by('-date')
-        else:
-            return render(request, 'dashboard/permission_denied.html')
-    else:
-        products = Product.objects.all().order_by('-created_at')[:5]
-        all_orders = Order.objects.all().order_by('-date')
-    
-    # Order statistics - using all_orders instead of recent_orders for stats
+    seller_instance = getattr(request.user, 'seller_profile', None)
+    products = Product.objects.filter(seller=request.user).order_by('-created_at')[:5] if seller_instance else []
+    all_orders = Order.objects.filter(seller=seller_instance).order_by('-date') if seller_instance else []
     order_stats = {
-        'total': all_orders.count(),
-        'pending': all_orders.filter(status='pending').count(),
-        'delivered': all_orders.filter(status='delivered').count(),
-        'cancelled': all_orders.filter(status='cancelled').count(),
-    }
-    
-    # Get recent orders for display
-    recent_orders = all_orders[:5]
-    
-    # Calculate inventory statistics for the dashboard
-    if request.user.role == 'seller':
-        all_products = Product.objects.filter(seller=request.user)
-    else:
-        all_products = Product.objects.all()
-        
-    total_inventory = sum(product.total_quantity for product in all_products)
-    available_inventory = sum(product.available_quantity for product in all_products)
-    in_delivery_inventory = total_inventory - available_inventory
-    
+        'total': all_orders.count() if all_orders else 0,
+        'pending': all_orders.filter(status='pending').count() if all_orders else 0,
+        'delivered': all_orders.filter(status='delivered').count() if all_orders else 0,
+        'cancelled': all_orders.filter(status='cancelled').count() if all_orders else 0,
+    } if all_orders else {'total': 0, 'pending': 0, 'delivered': 0, 'cancelled': 0}
+    recent_orders = all_orders[:5] if all_orders else []
+    all_products = Product.objects.filter(seller=request.user) if seller_instance else []
+    total_inventory = sum(product.total_quantity for product in all_products) if all_products else 0
+    available_inventory = sum(product.available_quantity for product in all_products) if all_products else 0
+    in_delivery_inventory = total_inventory - available_inventory if all_products else 0
     return render(request, 'sellers/dashboard.html', {
         'products': products,
         'recent_orders': recent_orders,
@@ -59,7 +39,8 @@ def dashboard(request):
 @login_required
 def product_list(request):
     """List all products for the seller."""
-    if request.user.role == 'seller':
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller':
         products = Product.objects.filter(seller=request.user).order_by('-created_at')
     else:
         products = Product.objects.all().order_by('-created_at')
@@ -118,7 +99,8 @@ def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     # Check permissions
-    if request.user.role == 'seller' and product.seller != request.user:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller' and product.seller != request.user:
         messages.error(request, "You don't have permission to view this product.")
         return redirect('sellers:products')
         
@@ -132,7 +114,8 @@ def product_edit(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     # Check permissions
-    if request.user.role == 'seller' and product.seller != request.user:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller' and product.seller != request.user:
         messages.error(request, "You don't have permission to edit this product.")
         return redirect('sellers:products')
         
@@ -143,7 +126,8 @@ def product_edit(request, product_id):
 @login_required
 def order_list(request):
     """List orders for the seller."""
-    if request.user.role == 'seller':
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller':
         seller_instance = getattr(request.user, 'seller_profile', None)
         if seller_instance:
             orders = Order.objects.filter(seller=seller_instance).order_by('-date')
@@ -161,7 +145,8 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     
     # Check permissions
-    if request.user.role == 'seller' and order.seller != request.user:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller' and order.seller != request.user:
         messages.error(request, "You don't have permission to view this order.")
         return redirect('sellers:orders')
         
@@ -193,7 +178,8 @@ def sourcing_request_detail(request, request_id):
 def sales(request):
     """Seller sales overview and analytics."""
     # Only allow sellers to access this page
-    if request.user.role != 'seller' and request.user.role not in ['admin', 'super_admin']:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role != 'Seller' and user_role not in ['Admin', 'Super Admin']:
         messages.error(request, "You don't have permission to access this page.")
         return redirect('dashboard:index')
     
@@ -219,12 +205,13 @@ def sales(request):
 def inventory(request):
     """Show inventory management page for seller products."""
     # Only allow sellers to access this page
-    if request.user.role != 'seller' and request.user.role not in ['admin', 'super_admin']:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role != 'Seller' and user_role not in ['Admin', 'Super Admin']:
         messages.error(request, "You don't have permission to access this page.")
         return redirect('dashboard:index')
     
     # Get all products with inventory information
-    if request.user.role == 'seller':
+    if user_role == 'Seller':
         products = Product.objects.filter(seller=request.user).order_by('-created_at')
     else:
         products = Product.objects.all().order_by('-created_at')

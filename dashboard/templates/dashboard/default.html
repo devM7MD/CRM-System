@@ -3,229 +3,390 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="bg-gray-50">
-    <header class="bg-yellow-500 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold leading-tight text-white">Dashboard</h1>
-        </div>
-    </header>
-    <main class="bg-gray-100">
-        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <!-- User Welcome Card -->
-            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg mt-8 border-t-4 border-yellow-400">
-                <div class="px-4 py-5 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">
-                        Welcome, {{ user.full_name }}!
+<div class="w-full">
+    <!-- Beta Warning Banner -->
+    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 border-l-4 border-yellow-600 p-4 mb-6 animate-pulse">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-800 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">
+                        Beta Version Notice
                     </h3>
-                    <div class="mt-2 max-w-xl text-sm text-gray-500">
-                        <p>
-                            You are logged in as a {{ user.get_role_display }}. 
-                            Access the features you need using the navigation menu.
+                    <p class="text-sm text-yellow-700 mt-1">
+                        This is a beta version of Atlas Admin and may contain bugs. Please report any issues you encounter.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button type="button" onclick="openBugReportModal()" 
+                        class="bg-yellow-700 hover:bg-yellow-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                    <i class="fas fa-bug mr-2"></i>
+                    Report Bug
+                </button>
+                <button type="button" onclick="dismissBetaWarning()" 
+                        class="text-yellow-800 hover:text-yellow-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-gray-600 mt-1">Welcome back! Here's what's happening with your business today.</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Current Time</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-time"></p>
+                </div>
+                <div class="h-8 w-px bg-gray-300"></div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Today's Date</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-date"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Card -->
+    <div class="card mb-8 animate-fade-in">
+        <div class="card-header">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user-circle text-primary-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-900">Welcome back, {{ user.get_full_name }}!</h2>
+                        <p class="text-gray-600">
+                            You are logged in as a 
+                            {% if user.get_primary_role %}
+                                <span class="font-semibold text-primary-600">{{ user.get_primary_role.name }}</span>
+                            {% else %}
+                                <span class="font-semibold text-gray-500">User</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Last Login</p>
+                    <p class="text-sm font-medium text-gray-900">{{ user.last_login|date:"M d, Y H:i"|default:"First time login" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Orders Stats -->
+        <div class="dashboard-stat animate-slide-up">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-sm font-medium text-gray-600">Total Orders</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_orders|default:"0" }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            +12% from last month
                         </p>
                     </div>
                 </div>
             </div>
-            
-            <!-- Quick Stats -->
-            <div class="mt-8">
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    <!-- Active Tasks -->
-                    <div class="bg-gray-50 overflow-hidden shadow rounded-lg border-t-4 border-yellow-400">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">
-                                            Active Tasks
-                                        </dt>
-                                        <dd class="text-lg font-medium text-gray-900">
-                                            {{ active_tasks }}
-                                        </dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-100 px-5 py-3">
-                            <div class="text-sm">
-                                <a href="{% url 'dashboard:tasks' %}" class="font-medium text-yellow-600 hover:text-yellow-500">View details</a>
-                            </div>
-                        </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <a href="{% url 'orders:list' %}" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+                    View all orders <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Products Stats -->
+        <div class="dashboard-stat animate-slide-up">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-box"></i>
                     </div>
-                    
-                    <!-- Recent Activity -->
-                    <div class="bg-gray-50 overflow-hidden shadow rounded-lg border-t-4 border-yellow-400">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">
-                                            Recent Activity
-                                        </dt>
-                                        <dd class="text-lg font-medium text-gray-900">
-                                            {{ recent_activities_count }} actions
-                                        </dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-100 px-5 py-3">
-                            <div class="text-sm">
-                                <a href="{% url 'dashboard:activities' %}" class="font-medium text-yellow-600 hover:text-yellow-500">View details</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Notifications -->
-                    <div class="bg-gray-50 overflow-hidden shadow rounded-lg border-t-4 border-yellow-400">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">
-                                            Notifications
-                                        </dt>
-                                        <dd class="text-lg font-medium text-gray-900">
-                                            {{ unread_notifications }} unread
-                                        </dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-100 px-5 py-3">
-                            <div class="text-sm">
-                                <a href="{% url 'dashboard:alerts' %}" class="font-medium text-yellow-600 hover:text-yellow-500">View details</a>
-                            </div>
-                        </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-sm font-medium text-gray-600">Total Products</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_products|default:"0" }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            +5% from last month
+                        </p>
                     </div>
                 </div>
             </div>
-            
-            <!-- Quick Links -->
-            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg mt-8 border-t-4 border-yellow-500">
-                <div class="px-4 py-5 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">
-                        Quick Links
+            <div class="bg-gray-50 px-6 py-3">
+                <a href="{% url 'inventory:products' %}" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+                    View inventory <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Revenue Stats -->
+        <div class="dashboard-stat animate-slide-up">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-sm font-medium text-gray-600">Total Revenue</p>
+                        <p class="text-2xl font-bold text-gray-900">${{ total_revenue|default:"0"|floatformat:0 }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            +18% from last month
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <a href="{% url 'finance:sales_report' %}" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+                    View reports <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Customers Stats -->
+        <div class="dashboard-stat animate-slide-up">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-sm font-medium text-gray-600">Total Customers</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_customers|default:"0" }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            +8% from last month
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <a href="{% url 'users:list' %}" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+                    View customers <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions and Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Quick Actions -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-bolt mr-2 text-primary-500"></i>
+                    Quick Actions
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <a href="{% url 'orders:create' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-200">
+                                <i class="fas fa-plus text-primary-600 text-sm"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900 group-hover:text-primary-700">New Order</h4>
+                                <p class="text-xs text-gray-500">Create a new order</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'inventory:add_product' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-200">
+                                <i class="fas fa-box text-primary-600 text-sm"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900 group-hover:text-primary-700">Add Product</h4>
+                                <p class="text-xs text-gray-500">Add new product</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'users:profile' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-200">
+                                <i class="fas fa-user text-primary-600 text-sm"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900 group-hover:text-primary-700">Profile</h4>
+                                <p class="text-xs text-gray-500">Update profile</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'dashboard:reports' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-200">
+                                <i class="fas fa-chart-bar text-primary-600 text-sm"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900 group-hover:text-primary-700">Reports</h4>
+                                <p class="text-xs text-gray-500">View reports</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-history mr-2 text-primary-500"></i>
+                        Recent Activity
                     </h3>
-                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <a href="{% url 'users:profile' %}" class="relative block p-4 border border-gray-200 rounded-lg hover:border-yellow-500">
-                            <h3 class="text-base font-semibold text-gray-900">User Profile</h3>
-                            <p class="mt-1 text-sm text-gray-500">View and update your profile information</p>
-                        </a>
-                        <a href="{% url 'dashboard:help' %}" class="relative block p-4 border border-gray-200 rounded-lg hover:border-yellow-500">
-                            <h3 class="text-base font-semibold text-gray-900">Help Center</h3>
-                            <p class="mt-1 text-sm text-gray-500">Get help with using the CRM system</p>
-                        </a>
-                        <a href="{% url 'dashboard:reports' %}" class="relative block p-4 border border-gray-200 rounded-lg hover:border-yellow-500">
-                            <h3 class="text-base font-semibold text-gray-900">Recent Reports</h3>
-                            <p class="mt-1 text-sm text-gray-500">Access your most recent reports</p>
-                        </a>
-                    </div>
+                    <a href="{% url 'dashboard:activities' %}" class="text-sm text-primary-600 hover:text-primary-500">
+                        View all
+                    </a>
                 </div>
             </div>
-            
-            <!-- Recent Activity -->
-            <div class="bg-gray-50 shadow overflow-hidden sm:rounded-lg mt-8 border-t-4 border-yellow-500">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Activity</h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Your latest actions in the system.</p>
-                </div>
-                <div class="border-t border-gray-200">
-                    <ul role="list" class="divide-y divide-gray-200">
-                        {% for activity in recent_activities %}
-                        <li class="px-4 py-4 sm:px-6">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-yellow-600 truncate">{{ activity.description }}</p>
-                                <div class="ml-2 flex-shrink-0 flex">
-                                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if activity.is_today %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                                        {% if activity.is_today %}Today{% else %}{{ activity.timestamp|date:"M d, Y" }}{% endif %}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="mt-2 sm:flex sm:justify-between">
-                                <div class="sm:flex">
-                                    <p class="flex items-center text-sm text-gray-500">
-                                        <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                        </svg>
-                                        {{ activity.user.full_name }}
-                                    </p>
-                                </div>
-                                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                                    </svg>
-                                    <p>
-                                        <time datetime="{{ activity.timestamp|date:'c' }}">{{ activity.timestamp|date:"F d, Y \a\t g:i A" }}</time>
-                                    </p>
+            <div class="p-6">
+                <div class="flow-root">
+                    <ul class="-mb-8">
+                        {% for activity in recent_activities|slice:":5" %}
+                        <li>
+                            <div class="relative pb-8">
+                                {% if not forloop.last %}
+                                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                {% endif %}
+                                <div class="relative flex space-x-3">
+                                    <div>
+                                        <span class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center ring-8 ring-white">
+                                            <i class="fas fa-circle text-primary-600 text-xs"></i>
+                                        </span>
+                                    </div>
+                                    <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                        <div>
+                                            <p class="text-sm text-gray-500">{{ activity.description|default:"System activity" }}</p>
+                                        </div>
+                                        <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                            <time datetime="{{ activity.timestamp|date:'Y-m-d H:i' }}">{{ activity.timestamp|date:"M d, H:i"|default:"Now" }}</time>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </li>
                         {% empty %}
-                        <li class="px-4 py-4 sm:px-6 text-center text-gray-500">
-                            No recent activity found
+                        <li class="text-center py-8">
+                            <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">No recent activity</p>
                         </li>
                         {% endfor %}
                     </ul>
                 </div>
-                {% if recent_activities %}
-                <div class="border-t border-gray-200 px-4 py-4 sm:px-6 text-right bg-gray-100">
-                    <a href="{% url 'dashboard:activities' %}" class="font-medium text-yellow-600 hover:text-yellow-500">View all activity</a>
-                </div>
-                {% endif %}
             </div>
         </div>
-    </main>
-</div>
-{% endblock %}
+    </div>
 
-{% block scripts %}
+    <!-- System Status -->
+    <div class="card animate-fade-in">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-server mr-2 text-primary-500"></i>
+                System Status
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="flex items-center justify-center h-12 w-12 bg-green-100 rounded-lg mx-auto">
+                        <i class="fas fa-check text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="mt-2 text-sm font-medium text-gray-900">System Online</h4>
+                    <p class="text-xs text-gray-500">All services operational</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="flex items-center justify-center h-12 w-12 bg-blue-100 rounded-lg mx-auto">
+                        <i class="fas fa-database text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="mt-2 text-sm font-medium text-gray-900">Database</h4>
+                    <p class="text-xs text-gray-500">Connected and healthy</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="flex items-center justify-center h-12 w-12 bg-yellow-100 rounded-lg mx-auto">
+                        <i class="fas fa-shield-alt text-yellow-600 text-xl"></i>
+                    </div>
+                    <h4 class="mt-2 text-sm font-medium text-gray-900">Security</h4>
+                    <p class="text-xs text-gray-500">All systems secure</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Notification dropdown toggle
-    document.addEventListener('DOMContentLoaded', function() {
-        const notificationButton = document.querySelector('button[aria-label="Notifications"]');
-        const notificationDropdown = document.getElementById('notification-dropdown');
+document.addEventListener('DOMContentLoaded', function() {
+    // Update current time and date
+    function updateDateTime() {
+        const now = new Date();
         
-        if (notificationButton && notificationDropdown) {
-            notificationButton.addEventListener('click', function() {
-                notificationDropdown.classList.toggle('hidden');
+        // Update time
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+            timeElement.textContent = now.toLocaleTimeString('en-US', { 
+                hour12: true, 
+                hour: '2-digit', 
+                minute: '2-digit' 
             });
         }
         
-        // Profile dropdown toggle
-        const profileButton = document.getElementById('user-menu-button');
-        const profileDropdown = document.getElementById('user-menu');
-        
-        if (profileButton && profileDropdown) {
-            profileButton.addEventListener('click', function() {
-                profileDropdown.classList.toggle('hidden');
+        // Update date
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            dateElement.textContent = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
             });
         }
-        
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            if (notificationButton && notificationDropdown && !notificationButton.contains(event.target) && !notificationDropdown.contains(event.target)) {
-                notificationDropdown.classList.add('hidden');
-            }
-            
-            if (profileButton && profileDropdown && !profileButton.contains(event.target) && !profileDropdown.contains(event.target)) {
-                profileDropdown.classList.add('hidden');
-            }
+    }
+    
+    // Update immediately and then every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    
+    // Add hover effects to dashboard stats
+    const stats = document.querySelectorAll('.dashboard-stat');
+    stats.forEach(stat => {
+        stat.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        stat.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
         });
     });
+    
+    // Add click effects to quick action cards
+    const quickActions = document.querySelectorAll('.card a');
+    quickActions.forEach(action => {
+        action.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+    });
+});
 </script>
 {% endblock %} 

@@ -1,199 +1,947 @@
-{% extends "base.html" %}
-{% load i18n %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{% trans "Delivery Orders" %}{% endblock %}
+{% block title %}Delivery Orders{% endblock %}
 
-{% block header %}{% trans "Delivery Orders" %}{% endblock %}
+{% block extra_css %}
+<style>
+    .delivery-orders {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+    
+    .orders-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+    }
+    
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-subtitle {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stats-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-item {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        color: white;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-count {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filters-section {
+        background: rgba(52, 152, 219, 0.05);
+        border: 2px solid rgba(52, 152, 219, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .filters-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .filter-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+    
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-item label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+    
+    .filter-item select,
+    .filter-item input {
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        background: white;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .filter-item select:focus,
+    .filter-item input:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .search-box {
+        grid-column: 1 / -1;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
+        background: white;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .search-box input:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .btn-filter {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+    }
+    
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .orders-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-header {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .table-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .table th {
+        background: #f8f9fa;
+        border: none;
+        padding: 1.25rem 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .table td {
+        border: none;
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(52, 152, 219, 0.05);
+        transform: translateX(5px);
+    }
+    
+    .order-number {
+        font-weight: bold;
+        color: #2c3e50;
+        font-family: 'Courier New', monospace;
+        font-size: 1.1rem;
+    }
+    
+    .customer-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .customer-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1rem;
+    }
+    
+    .customer-phone {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+    
+    .customer-address {
+        color: #95a5a6;
+        font-size: 0.85rem;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        text-align: center;
+        min-width: 100px;
+    }
+    
+    .status-assigned { background: #f39c12; color: white; }
+    .status-accepted { background: #3498db; color: white; }
+    .status-picked_up { background: #e67e22; color: white; }
+    .status-in_transit { background: #9b59b6; color: white; }
+    .status-out_for_delivery { background: #34495e; color: white; }
+    .status-delivered { background: #27ae60; color: white; }
+    .status-failed { background: #e74c3c; color: white; }
+    .status-returned { background: #95a5a6; color: white; }
+    .status-cancelled { background: #7f8c8d; color: white; }
+    
+    .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .priority-urgent { background: #e74c3c; color: white; }
+    .priority-high { background: #f39c12; color: white; }
+    .priority-normal { background: #3498db; color: white; }
+    .priority-low { background: #95a5a6; color: white; }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .btn-view {
+        background: #3498db;
+        color: white;
+    }
+    
+    .btn-call {
+        background: #27ae60;
+        color: white;
+    }
+    
+    .btn-update {
+        background: #f39c12;
+        color: white;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #7f8c8d;
+    }
+    
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+        color: #bdc3c7;
+    }
+    
+    .empty-state-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state-message {
+        font-size: 1rem;
+        color: #7f8c8d;
+        margin-bottom: 2rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .btn-clear-filters {
+        background: linear-gradient(45deg, #f39c12, #e67e22);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .btn-clear-filters:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .page-link {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .page-link:hover {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+    
+    .page-link.active {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+    
+    @media (max-width: 768px) {
+        .delivery-orders {
+            padding: 1rem 0.5rem;
+        }
+        
+        .orders-container {
+            padding: 1rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .filter-group {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .table-responsive {
+            font-size: 0.8rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-action {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mx-auto">
-    <div class="flex flex-col lg:flex-row gap-6">
-        <!-- Orders List -->
-        <div class="w-full lg:w-2/3">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="p-4 flex justify-between items-center border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Orders List" %}</h3>
-                    <a href="{% url 'delivery:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
-                        <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
-                    </a>
-                </div>
-                
-                <div class="p-4">
-                    <!-- Filters -->
-                    <div class="mb-4 flex flex-wrap gap-2">
-                        <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "All Statuses" %}</option>
-                                <option>{% trans "In Transit" %}</option>
-                                <option>{% trans "Scheduled" %}</option>
-                                <option>{% trans "Delivered" %}</option>
-                                <option>{% trans "Failed" %}</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="relative">
-                            <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                <option>{% trans "Today" %}</option>
-                                <option>{% trans "Last 7 Days" %}</option>
-                                <option>{% trans "Last 30 Days" %}</option>
-                                <option>{% trans "All Time" %}</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="relative flex-grow">
-                            <input type="text" placeholder="{% trans 'Search by ID or Customer' %}" class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm">
-                        </div>
-                    </div>
-                    
-                    <!-- Orders Table -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order ID" %}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Customer" %}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Location" %}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <!-- This is just sample data - would be populated from the view -->
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-001</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Customer Name</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Dubai</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-15</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {% trans "In Transit" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-truck"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-002</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Another Customer</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Abu Dhabi</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-14</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            {% trans "Delivered" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-check"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">ORD-003</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">New Customer</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Sharjah</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2023-05-13</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            {% trans "Scheduled" %}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <div class="flex space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="text-blue-600 hover:text-blue-900">
-                                                <i class="fas fa-calendar-alt"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Pagination -->
-                    <div class="mt-4 flex items-center justify-between">
-                        <div class="text-sm text-gray-500">
-                            {% trans "Showing" %} <span class="font-medium">1</span> {% trans "to" %} <span class="font-medium">3</span> {% trans "of" %} <span class="font-medium">3</span> {% trans "results" %}
-                        </div>
-                        <div class="flex space-x-1">
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                {% trans "Previous" %}
-                            </a>
-                            <a href="#" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                {% trans "Next" %}
-                            </a>
-                        </div>
-                    </div>
-                </div>
+<div class="delivery-orders">
+    <div class="orders-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">🚚 Delivery Orders</h1>
+            <p class="page-subtitle">Manage and track your delivery assignments</p>
+            <div class="text-muted">
+                <small>Total Orders: {{ page_obj.paginator.count|default:"0" }}</small>
             </div>
         </div>
-        
-        <!-- Help sidebar -->
-        <div class="w-full lg:w-1/3">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="p-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Delivery Guide" %}</h3>
+
+        <!-- Statistics Summary -->
+        <div class="stats-summary">
+            {% for status, count in status_counts %}
+            <div class="stat-item">
+                <div class="stat-count">{{ count }}</div>
+                <div class="stat-label">{{ status|title }}</div>
+            </div>
+            {% empty %}
+            <div class="stat-item">
+                <div class="stat-count">0</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filters-header">
+                <i class="fas fa-filter"></i>
+                <span>Filter & Search Orders</span>
+            </div>
+            <form method="get" class="filter-group" id="filter-form">
+                <div class="search-box">
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="🔍 Search by tracking number, customer name, or phone..." class="form-control">
                 </div>
                 
-                <div class="p-4">
-                    <div class="flex flex-col items-center">
-                        <img src="{% static 'img/undraw_delivery_address_re_cjca.svg' %}" alt="{% trans 'Delivery Illustration' %}" class="max-h-48 mb-4">
-                        
-                        <div class="space-y-3 w-full text-sm">
-                            <div class="border border-gray-200 rounded-md p-3">
-                                <div class="font-medium text-gray-800 mb-1">
-                                    <i class="fas fa-info-circle text-primary-500 mr-2"></i>
-                                    {% trans "Delivery Process" %}
+                <div class="filter-item">
+                    <label>📊 Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="assigned" {% if status_filter == 'assigned' %}selected{% endif %}>Assigned</option>
+                        <option value="accepted" {% if status_filter == 'accepted' %}selected{% endif %}>Accepted</option>
+                        <option value="picked_up" {% if status_filter == 'picked_up' %}selected{% endif %}>Picked Up</option>
+                        <option value="in_transit" {% if status_filter == 'in_transit' %}selected{% endif %}>In Transit</option>
+                        <option value="out_for_delivery" {% if status_filter == 'out_for_delivery' %}selected{% endif %}>Out for Delivery</option>
+                        <option value="delivered" {% if status_filter == 'delivered' %}selected{% endif %}>Delivered</option>
+                        <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                        <option value="returned" {% if status_filter == 'returned' %}selected{% endif %}>Returned</option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label>⚡ Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="">All Priorities</option>
+                        <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %}>Urgent</option>
+                        <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
+                        <option value="normal" {% if priority_filter == 'normal' %}selected{% endif %}>Normal</option>
+                        <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label>📅 Date</label>
+                    <input type="date" name="date" value="{{ date_filter }}" class="form-control">
+                </div>
+                
+                <div class="filter-item">
+                    <label>🔄 Sort By</label>
+                    <select name="order_by" class="form-select">
+                        <option value="-assigned_at" {% if order_by == '-assigned_at' %}selected{% endif %}>Newest First</option>
+                        <option value="assigned_at" {% if order_by == 'assigned_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="estimated_delivery_time" {% if order_by == 'estimated_delivery_time' %}selected{% endif %}>Delivery Time</option>
+                        <option value="priority" {% if order_by == 'priority' %}selected{% endif %}>Priority</option>
+                        <option value="status" {% if order_by == 'status' %}selected{% endif %}>Status</option>
+                    </select>
+                </div>
+            </form>
+            
+            <div class="filter-actions">
+                <button type="submit" form="filter-form" class="btn-filter btn-primary">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                <a href="{% url 'delivery:order_list' %}" class="btn-filter btn-secondary">
+                    <i class="fas fa-times"></i> Clear All
+                </a>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="orders-table">
+            <div class="table-header">
+                <h3>📋 Orders List</h3>
+            </div>
+            
+            <div class="table-responsive">
+                {% if page_obj %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>📦 Tracking #</th>
+                            <th>👤 Customer</th>
+                            <th>📍 Address</th>
+                            <th>📊 Status</th>
+                            <th>⚡ Priority</th>
+                            <th>📅 Assigned</th>
+                            <th>⏰ Expected</th>
+                            <th>🔧 Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for delivery in page_obj %}
+                        <tr>
+                            <td>
+                                <div class="order-number">{{ delivery.tracking_number }}</div>
+                                <small class="text-muted">{{ delivery.order.order_number }}</small>
+                            </td>
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-name">{{ delivery.order.customer_name }}</div>
+                                    <div class="customer-phone">{{ delivery.order.customer_phone }}</div>
                                 </div>
-                                <p class="text-gray-600">
-                                    {% trans "Track deliveries in real-time and update their status as they progress. Ensure all delivery details are verified." %}
-                                </p>
-                            </div>
-                            
-                            <div class="border border-gray-200 rounded-md p-3">
-                                <div class="font-medium text-gray-800 mb-1">
-                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                                    {% trans "Need Help?" %}
+                            </td>
+                            <td>
+                                <div class="customer-address">{{ delivery.order.customer_address }}</div>
+                            </td>
+                            <td>
+                                <div class="status-badge status-{{ delivery.status }}">
+                                    {{ delivery.get_status_display }}
                                 </div>
-                                <p class="text-gray-600">
-                                    {% trans "For assistance with delivery management, contact the operations team or check the documentation." %}
-                                </p>
-                            </div>
-                            
-                            <div class="mt-4">
-                                <a href="#" class="block text-center w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
-                                    {% trans "View Documentation" %}
-                                </a>
-                            </div>
+                            </td>
+                            <td>
+                                <div class="priority-badge priority-{{ delivery.priority }}">
+                                    {{ delivery.get_priority_display }}
+                                </div>
+                            </td>
+                            <td>
+                                <div>{{ delivery.assigned_at|date:"M j, Y" }}</div>
+                                <small class="text-muted">{{ delivery.assigned_at|time:"H:i" }}</small>
+                            </td>
+                            <td>
+                                {% if delivery.estimated_delivery_time %}
+                                    <div>{{ delivery.estimated_delivery_time|date:"M j" }}</div>
+                                    <small class="text-muted">{{ delivery.estimated_delivery_time|time:"H:i" }}</small>
+                                {% else %}
+                                    <span class="text-muted">TBD</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'delivery:order_detail' delivery.id %}" class="btn-action btn-view">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="tel:{{ delivery.order.customer_phone }}" class="btn-action btn-call">
+                                        <i class="fas fa-phone"></i> Call
+                                    </a>
+                                    {% if delivery.status in 'assigned,accepted,picked_up' %}
+                                    <button class="btn-action btn-update" onclick="openUpdateModal({{ delivery.id }})">
+                                        <i class="fas fa-edit"></i> Update
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h4 class="empty-state-title">No Orders Found</h4>
+                    <p class="empty-state-message">
+                        No delivery orders match your current filters. Try adjusting your search criteria or check back later for new assignments.
+                    </p>
+                    <a href="{% url 'delivery:order_list' %}" class="btn-clear-filters">
+                        <i class="fas fa-refresh"></i> Clear Filters
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-container">
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" class="page-link">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" class="page-link">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="page-link active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" class="page-link">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" class="page-link">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(45deg, #3498db, #2980b9); color: white; border: none; border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title">
+                    <i class="fas fa-truck"></i> Update Delivery Status
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <form id="updateStatusForm">
+                    {% csrf_token %}
+                    <!-- Status Selection -->
+                    <div class="mb-4">
+                        <label for="newStatus" class="form-label fw-bold text-dark">
+                            <i class="fas fa-flag"></i> New Status
+                        </label>
+                        <select class="form-select form-select-lg" id="newStatus" name="status" required style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 0.75rem 1rem; font-size: 1rem; transition: all 0.3s ease;">
+                            <option value="">Select a new status...</option>
+                            <option value="accepted" class="status-option">
+                                <i class="fas fa-check-circle"></i> Accepted
+                            </option>
+                            <option value="picked_up" class="status-option">
+                                <i class="fas fa-box"></i> Picked Up
+                            </option>
+                            <option value="in_transit" class="status-option">
+                                <i class="fas fa-truck"></i> In Transit
+                            </option>
+                            <option value="out_for_delivery" class="status-option">
+                                <i class="fas fa-route"></i> Out for Delivery
+                            </option>
+                            <option value="delivered" class="status-option">
+                                <i class="fas fa-check-double"></i> Delivered
+                            </option>
+                            <option value="failed" class="status-option">
+                                <i class="fas fa-exclamation-triangle"></i> Failed
+                            </option>
+                        </select>
+                        <div class="form-text text-muted">
+                            <i class="fas fa-info-circle"></i> Choose the current status of this delivery
                         </div>
                     </div>
-                </div>
+                    
+                    <!-- Notes Field -->
+                    <div class="mb-4">
+                        <label for="notes" class="form-label fw-bold text-dark">
+                            <i class="fas fa-sticky-note"></i> Notes (Optional)
+                        </label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                placeholder="📝 Add any notes about this status change, customer feedback, or delivery details..."
+                                style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 1rem; font-size: 0.95rem; resize: vertical; transition: all 0.3s ease;"></textarea>
+                        <div class="form-text text-muted">
+                            <i class="fas fa-lightbulb"></i> Helpful for tracking delivery progress and customer communication
+                        </div>
+                    </div>
+                    
+                    <!-- Status Preview -->
+                    <div class="mb-4" id="statusPreview" style="display: none;">
+                        <label class="form-label fw-bold text-dark">
+                            <i class="fas fa-eye"></i> Status Preview
+                        </label>
+                        <div class="status-preview-card" style="background: rgba(52, 152, 219, 0.1); border: 2px solid rgba(52, 152, 219, 0.2); border-radius: 12px; padding: 1rem; text-align: center;">
+                            <div id="previewStatus" class="status-badge" style="display: inline-block; margin-bottom: 0.5rem;"></div>
+                            <div id="previewNotes" class="text-muted small"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="background: #f8f9fa; border: none; border-radius: 0 0 15px 15px; padding: 1.5rem 2rem;">
+                <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" 
+                        style="border-radius: 25px; padding: 0.75rem 2rem; font-weight: 600; border: 2px solid #95a5a6; background: #95a5a6; color: white; transition: all 0.3s ease;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" onclick="updateStatus()" 
+                        style="border-radius: 25px; padding: 0.75rem 2rem; font-weight: 600; background: linear-gradient(45deg, #3498db, #2980b9); border: none; transition: all 0.3s ease;">
+                    <i class="fas fa-save"></i> Update Status
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+let currentDeliveryId = null;
+
+function openUpdateModal(deliveryId) {
+    currentDeliveryId = deliveryId;
+    
+    // Reset form
+    document.getElementById('updateStatusForm').reset();
+    document.getElementById('statusPreview').style.display = 'none';
+    
+    // Clear any previous error states
+    clearErrorStates();
+    
+    $('#updateStatusModal').modal('show');
+}
+
+function updateStatus() {
+    const status = document.getElementById('newStatus').value;
+    const notes = document.getElementById('notes').value;
+    const updateBtn = document.querySelector('button[onclick="updateStatus()"]');
+    
+    if (!status) {
+        showError('Please select a status', 'newStatus');
+        return;
+    }
+    
+    // Show loading state
+    updateBtn.classList.add('btn-loading');
+    updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    updateBtn.disabled = true;
+    
+    fetch(`/delivery/update-status/${currentDeliveryId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: `status=${status}&notes=${encodeURIComponent(notes)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success state
+            updateBtn.classList.remove('btn-loading');
+            updateBtn.innerHTML = '<span class="success-checkmark">✓</span> Updated Successfully!';
+            updateBtn.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+            
+            // Close modal after delay
+            setTimeout(() => {
+                $('#updateStatusModal').modal('hide');
+                location.reload();
+            }, 1500);
+        } else {
+            showError('Error: ' + data.error, 'newStatus');
+            resetButton(updateBtn);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('An error occurred while updating the status. Please try again.', 'newStatus');
+        resetButton(updateBtn);
+    });
+}
+
+function showError(message, fieldId = null) {
+    // Remove any existing error messages
+    clearErrorStates();
+    
+    // Create error alert
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger mt-3';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Error:</strong> ${message}
+    `;
+    errorDiv.style.borderRadius = '12px';
+    errorDiv.style.border = '2px solid #e74c3c';
+    
+    // Insert error message
+    const form = document.getElementById('updateStatusForm');
+    form.appendChild(errorDiv);
+    
+    // Highlight field if specified
+    if (fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.style.borderColor = '#e74c3c';
+            field.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+        }
+    }
+    
+    // Auto-remove error after 5 seconds
+    setTimeout(() => {
+        if (errorDiv.parentNode) {
+            errorDiv.remove();
+        }
+    }, 5000);
+}
+
+function clearErrorStates() {
+    // Remove error messages
+    const errorAlerts = document.querySelectorAll('.alert-danger');
+    errorAlerts.forEach(alert => alert.remove());
+    
+    // Reset field styles
+    const fields = document.querySelectorAll('#updateStatusForm select, #updateStatusForm textarea');
+    fields.forEach(field => {
+        field.style.borderColor = '#e0e0e0';
+        field.style.boxShadow = 'none';
+    });
+}
+
+function resetButton(button) {
+    button.classList.remove('btn-loading');
+    button.innerHTML = '<i class="fas fa-save"></i> Update Status';
+    button.style.background = 'linear-gradient(45deg, #3498db, #2980b9)';
+    button.disabled = false;
+}
+
+// Status preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('newStatus');
+    const notesTextarea = document.getElementById('notes');
+    const previewDiv = document.getElementById('statusPreview');
+    const previewStatus = document.getElementById('previewStatus');
+    const previewNotes = document.getElementById('previewNotes');
+    
+    function updatePreview() {
+        const status = statusSelect.value;
+        const notes = notesTextarea.value;
+        
+        if (status) {
+            const statusText = statusSelect.options[statusSelect.selectedIndex].text;
+            previewStatus.innerHTML = `<span class="status-badge status-${status}">${statusText}</span>`;
+            previewNotes.textContent = notes || 'No notes added';
+            previewDiv.style.display = 'block';
+        } else {
+            previewDiv.style.display = 'none';
+        }
+    }
+    
+    statusSelect.addEventListener('change', updatePreview);
+    notesTextarea.addEventListener('input', updatePreview);
+    
+    // Auto-submit form when filters change
+    const filterForm = document.querySelector('.filter-group');
+    const inputs = filterForm.querySelectorAll('select, input[type="text"], input[type="date"]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            filterForm.closest('form').submit();
+        });
+    });
+    
+    // Modal event listeners
+    $('#updateStatusModal').on('hidden.bs.modal', function() {
+        clearErrorStates();
+        const updateBtn = document.querySelector('button[onclick="updateStatus()"]');
+        resetButton(updateBtn);
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && $('#updateStatusModal').hasClass('show')) {
+            $('#updateStatusModal').modal('hide');
+        }
+    });
+});
+</script>
 {% endblock %} 

@@ -17,21 +17,26 @@ from django.urls import reverse_lazy
 def order_list(request):
     """View for listing all orders based on user role."""
     # Different users see different sets of orders
-    if request.user.role == 'super_admin' or request.user.role == 'admin':
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    
+    # If user has no role, show all orders (default behavior)
+    if not user_role:
         orders = Order.objects.all().order_by('-created_at')
-    elif request.user.role == 'seller':
+    elif user_role in ['Super Admin', 'Admin']:
+        orders = Order.objects.all().order_by('-created_at')
+    elif user_role == 'Seller':
         orders = Order.objects.filter(seller=request.user).order_by('-created_at')
-    elif request.user.role in ['call_center_manager', 'call_center_agent']:
+    elif user_role in ['Call Center Manager', 'Call Center Agent']:
         # Call center sees pending and confirmed orders for follow-up
         orders = Order.objects.filter(
             status__in=['pending', 'confirmed', 'no_response', 'postponed']
         ).order_by('-created_at')
-    elif request.user.role == 'packaging':
+    elif user_role == 'Packaging':
         # Packaging team sees orders ready for packaging
         orders = Order.objects.filter(
             status__in=['ready_for_packaging', 'packaging_in_progress']
         ).order_by('-created_at')
-    elif request.user.role == 'delivery':
+    elif user_role == 'Delivery':
         # Delivery team sees orders ready for delivery and in delivery
         orders = Order.objects.filter(
             status__in=['ready_for_delivery', 'in_delivery', 'delivered', 'returned']
@@ -70,7 +75,8 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     
     # Check if user has permission to view this order
-    if request.user.role == 'seller' and order.seller != request.user:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller' and order.seller != request.user:
         messages.error(request, "You don't have permission to view this order.")
         return redirect('orders:order_list')
     
@@ -93,22 +99,23 @@ def order_detail(request, order_id):
 def create_order(request):
     """View for creating a new order."""
     # Only sellers and admins can create orders
-    if request.user.role not in ['seller', 'admin', 'super_admin', 'call_center_agent', 'call_center_manager']:
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role not in ['Seller', 'Admin', 'Super Admin', 'Call Center Agent', 'Call Center Manager']:
         messages.error(request, "You don't have permission to create orders.")
         return redirect('orders:order_list')
     
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        form = OrderForm(request.POST, user=request.user)
         formset = OrderItemFormSet(request.POST, prefix='items')
         
         if form.is_valid() and formset.is_valid():
             order = form.save(commit=False)
             
             # Set the seller based on user role
-            if request.user.role == 'seller':
+            if user_role == 'Seller':
                 order.seller = request.user
-            elif 'seller' in request.POST and request.user.role in ['admin', 'super_admin', 'call_center_agent', 'call_center_manager']:
-                order.seller = User.objects.get(id=request.POST['seller'])
+            elif form.cleaned_data.get('seller'):
+                order.seller = form.cleaned_data['seller']
             
             # Generate order code
             order.code = _generate_order_code()
@@ -139,16 +146,16 @@ def create_order(request):
             messages.success(request, f"Order {order.code} created successfully!")
             return redirect('orders:order_detail', order_id=order.id)
     else:
-        form = OrderForm()
+        form = OrderForm(user=request.user)
         formset = OrderItemFormSet(prefix='items')
     
     # Get available products based on user role
-    if request.user.role == 'seller':
+    if user_role == 'Seller':
         products = Product.objects.filter(seller=request.user)
         sellers = None
     else:
         products = Product.objects.all()
-        sellers = User.objects.filter(role='seller')
+        sellers = User.objects.filter(primary_role__name='Seller')
     
     return render(request, 'orders/create_order.html', {
         'form': form,
@@ -168,7 +175,7 @@ def update_order(request, order_id):
         return redirect('orders:order_list')
     
     if request.method == 'POST':
-        form = OrderForm(request.POST, instance=order)
+        form = OrderForm(request.POST, instance=order, user=request.user)
         formset = OrderItemFormSet(request.POST, instance=order, prefix='items')
         
         if form.is_valid() and formset.is_valid():
@@ -192,11 +199,12 @@ def update_order(request, order_id):
             messages.success(request, f"Order {order.code} updated successfully!")
             return redirect('orders:order_detail', order_id=order.id)
     else:
-        form = OrderForm(instance=order)
+        form = OrderForm(instance=order, user=request.user)
         formset = OrderItemFormSet(instance=order, prefix='items')
     
     # Get available products based on user role
-    if request.user.role == 'seller':
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller':
         products = Product.objects.filter(seller=request.user)
     else:
         products = Product.objects.all()
@@ -268,9 +276,10 @@ def update_order_status(request, order_id):
 def order_dashboard(request):
     """Dashboard with order metrics and charts."""
     # Different users see different metrics
-    if request.user.role == 'seller':
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller':
         orders = Order.objects.filter(seller=request.user)
-    elif request.user.role in ['super_admin', 'admin']:
+    elif user_role in ['Super Admin', 'Admin']:
         orders = Order.objects.all()
     else:
         orders = Order.objects.all()
@@ -291,40 +300,42 @@ def order_dashboard(request):
 # Helper functions
 def _can_edit_order(user, order):
     """Check if user can edit the order."""
+    user_role = user.primary_role.name if user.primary_role else None
     # Super admin and admin can edit any order
-    if user.role in ['super_admin', 'admin']:
+    if user_role in ['Super Admin', 'Admin']:
         return True
     
     # Seller can only edit their own orders in certain statuses
-    if user.role == 'seller' and order.seller == user:
+    if user_role == 'Seller' and order.seller == user:
         return order.status in ['pending', 'confirmed', 'no_response', 'postponed']
     
     # Call center agents can edit certain order statuses
-    if user.role in ['call_center_manager', 'call_center_agent']:
+    if user_role in ['Call Center Manager', 'Call Center Agent']:
         return order.status in ['pending', 'confirmed', 'no_response', 'postponed']
     
     return False
 
 def _can_update_status(user, order):
     """Check if user can update the order status."""
+    user_role = user.primary_role.name if user.primary_role else None
     # Super admin and admin can update any order status
-    if user.role in ['super_admin', 'admin']:
+    if user_role in ['Super Admin', 'Admin']:
         return True
     
     # Seller can update certain statuses of their own orders
-    if user.role == 'seller' and order.seller == user:
+    if user_role == 'Seller' and order.seller == user:
         return order.status in ['pending', 'confirmed', 'no_response', 'postponed', 'under_review', 'cancelled']
     
     # Call center can update confirmation statuses
-    if user.role in ['call_center_manager', 'call_center_agent']:
+    if user_role in ['Call Center Manager', 'Call Center Agent']:
         return order.status in ['pending', 'confirmed', 'no_response', 'postponed']
     
     # Packaging team can update packaging statuses
-    if user.role == 'packaging':
+    if user_role == 'Packaging':
         return order.status in ['ready_for_packaging', 'packaging_in_progress', 'ready_for_delivery']
     
     # Delivery team can update delivery statuses
-    if user.role == 'delivery':
+    if user_role == 'Delivery':
         return order.status in ['ready_for_delivery', 'in_delivery', 'delivered', 'returned']
     
     return False
@@ -353,39 +364,76 @@ class OrderListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Order.objects.all()
+        # Different users see different sets of orders
+        user_role = self.request.user.primary_role.name if self.request.user.primary_role else None
+        
+        # If user has no role, show all orders (default behavior)
+        if not user_role:
+            queryset = Order.objects.all().order_by('-date')
+        elif user_role in ['Super Admin', 'Admin']:
+            queryset = Order.objects.all().order_by('-date')
+        elif user_role == 'Seller':
+            queryset = Order.objects.filter(seller__user=self.request.user).order_by('-date')
+        elif user_role in ['Call Center Manager', 'Call Center Agent']:
+            # Call center sees pending and confirmed orders for follow-up
+            queryset = Order.objects.filter(
+                status__in=['pending', 'processing']
+            ).order_by('-date')
+        elif user_role == 'Packaging':
+            # Packaging team sees orders ready for packaging
+            queryset = Order.objects.filter(
+                status__in=['processing', 'shipped']
+            ).order_by('-date')
+        elif user_role == 'Delivery':
+            # Delivery team sees orders ready for delivery and in delivery
+            queryset = Order.objects.filter(
+                status__in=['shipped', 'delivered']
+            ).order_by('-date')
+        else:
+            # Other roles see all orders for reference
+            queryset = Order.objects.all().order_by('-date')
+
+        # Apply filters
         search_query = self.request.GET.get('search')
         status_filter = self.request.GET.get('status')
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
-        seller_filter = self.request.GET.get('seller')
 
         if search_query:
             queryset = queryset.filter(
                 Q(order_code__icontains=search_query) |
                 Q(customer__first_name__icontains=search_query) |
                 Q(customer__last_name__icontains=search_query) |
-                Q(product__name__icontains=search_query)
+                Q(customer_phone__icontains=search_query) |
+                Q(product__name__icontains=search_query) |
+                Q(seller__name__icontains=search_query) |
+                Q(seller__phone__icontains=search_query)
             )
 
         if status_filter:
             queryset = queryset.filter(status=status_filter)
 
         if date_from:
-            queryset = queryset.filter(date__gte=date_from)
+            queryset = queryset.filter(date__date__gte=date_from)
 
         if date_to:
-            queryset = queryset.filter(date__lte=date_to)
+            queryset = queryset.filter(date__date__lte=date_to)
 
-        if seller_filter:
-            queryset = queryset.filter(seller_id=seller_filter)
-
-        return queryset
+        return queryset.select_related('customer', 'product', 'seller', 'seller__user')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['status_choices'] = Order.STATUS_CHOICES
-        context['sellers'] = Order.objects.values_list('seller', flat=True).distinct()
+        
+        # Get search parameters for form persistence
+        context['search_query'] = self.request.GET.get('search', '')
+        context['status_filter'] = self.request.GET.get('status', '')
+        context['date_from'] = self.request.GET.get('date_from', '')
+        context['date_to'] = self.request.GET.get('date_to', '')
+        
+        # Get total count for display
+        context['total_orders'] = self.get_queryset().count()
+        
         return context
 
 class OrderDetailView(LoginRequiredMixin, DetailView):
@@ -396,12 +444,59 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 class OrderCreateView(LoginRequiredMixin, CreateView):
     model = Order
     form_class = OrderForm
-    template_name = 'orders/order_form.html'
+    template_name = 'orders/create_order.html'
     success_url = reverse_lazy('orders:list')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
-        messages.success(self.request, 'Order created successfully.')
+        order = form.save(commit=False)
+        
+        # Set the seller based on user role
+        user_role = self.request.user.primary_role.name if self.request.user.primary_role else None
+        if user_role == 'Seller':
+            # For sellers, set their seller profile
+            if hasattr(self.request.user, 'seller_profile'):
+                order.seller = self.request.user.seller_profile
+        elif form.cleaned_data.get('seller'):
+            order.seller = form.cleaned_data['seller']
+        
+        # Generate order code if not provided
+        if not order.order_code:
+            order.order_code = _generate_order_code()
+        
+        order.save()
+        
+        # Create audit log
+        from users.models import AuditLog
+        AuditLog.objects.create(
+            user=self.request.user,
+            action='create',
+            entity_type='Order',
+            entity_id=str(order.id),
+            description=f"Created new order {order.order_code}"
+        )
+        
+        messages.success(self.request, f"Order {order.order_code} created successfully!")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get available products based on user role
+        user_role = self.request.user.primary_role.name if self.request.user.primary_role else None
+        if user_role == 'Seller':
+            from products.models import Product
+            products = Product.objects.all()  # Sellers can see all products
+        else:
+            from products.models import Product
+            products = Product.objects.all()
+        
+        context['products'] = products
+        return context
 
 class OrderUpdateView(LoginRequiredMixin, UpdateView):
     model = Order

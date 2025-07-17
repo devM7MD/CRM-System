@@ -1,0 +1,541 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Performance Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .performance-dashboard {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    
+    .performance-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .performance-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .performance-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .performance-subtitle {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+    
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 5px solid #3498db;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-card.success {
+        border-left-color: #27ae60;
+    }
+    
+    .stat-card.warning {
+        border-left-color: #f39c12;
+    }
+    
+    .stat-card.danger {
+        border-left-color: #e74c3c;
+    }
+    
+    .stat-card.info {
+        border-left-color: #3498db;
+    }
+    
+    .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-change {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    .stat-change.positive {
+        color: #27ae60;
+    }
+    
+    .stat-change.negative {
+        color: #e74c3c;
+    }
+    
+    .chart-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .chart-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .chart-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+    
+    .daily-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .daily-stat {
+        background: rgba(52, 152, 219, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .daily-stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .daily-stat-label {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .performance-table {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table th {
+        background: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        font-weight: bold;
+        color: #2c3e50;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(52, 152, 219, 0.05);
+    }
+    
+    .success-rate {
+        font-weight: bold;
+    }
+    
+    .success-rate.high {
+        color: #27ae60;
+    }
+    
+    .success-rate.medium {
+        color: #f39c12;
+    }
+    
+    .success-rate.low {
+        color: #e74c3c;
+    }
+    
+    .date-range {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .date-input {
+        padding: 0.5rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .date-input:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+    
+    .btn-filter {
+        padding: 0.5rem 1rem;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .btn-filter:hover {
+        background: #2980b9;
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: #7f8c8d;
+    }
+    
+    .no-data i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .performance-dashboard {
+            padding: 0.5rem;
+        }
+        
+        .performance-container {
+            padding: 1rem;
+        }
+        
+        .stats-overview {
+            grid-template-columns: 1fr;
+        }
+        
+        .daily-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .chart-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .date-range {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="performance-dashboard">
+    <div class="performance-container">
+        <!-- Header -->
+        <div class="performance-header">
+            <div class="performance-title">📊 Performance Dashboard</div>
+            <div class="performance-subtitle">
+                {% if courier %}
+                    {{ courier.user.get_full_name }} - {{ start_date|date:"M j" }} to {{ end_date|date:"M j, Y" }}
+                {% else %}
+                    Team Performance Overview - {{ start_date|date:"M j" }} to {{ end_date|date:"M j, Y" }}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="date-range">
+            <input type="date" id="startDate" class="date-input" value="{{ start_date|date:'Y-m-d' }}">
+            <span>to</span>
+            <input type="date" id="endDate" class="date-input" value="{{ end_date|date:'Y-m-d' }}">
+            <button class="btn-filter" onclick="updateDateRange()">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-overview">
+            <div class="stat-card success">
+                <div class="stat-icon">📦</div>
+                <div class="stat-number">{{ total_deliveries }}</div>
+                <div class="stat-label">Total Deliveries</div>
+                <div class="stat-change positive">+{{ total_deliveries|add:"0" }} this period</div>
+            </div>
+            
+            <div class="stat-card info">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">{{ successful_deliveries }}</div>
+                <div class="stat-label">Successful</div>
+                <div class="stat-change positive">+{{ successful_deliveries|add:"0" }} this period</div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-icon">❌</div>
+                <div class="stat-number">{{ failed_deliveries }}</div>
+                <div class="stat-label">Failed</div>
+                <div class="stat-change negative">+{{ failed_deliveries|add:"0" }} this period</div>
+            </div>
+            
+            <div class="stat-card info">
+                <div class="stat-icon">📈</div>
+                <div class="stat-number">{{ success_rate }}%</div>
+                <div class="stat-label">Success Rate</div>
+                <div class="stat-change {% if success_rate >= 90 %}positive{% elif success_rate >= 75 %}warning{% else %}negative{% endif %}">
+                    {% if success_rate >= 90 %}Excellent{% elif success_rate >= 75 %}Good{% else %}Needs Improvement{% endif %}
+                </div>
+            </div>
+            
+            <div class="stat-card info">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-number">{{ rating }}/5.0</div>
+                <div class="stat-label">Average Rating</div>
+                <div class="stat-change {% if rating >= 4.5 %}positive{% elif rating >= 4.0 %}warning{% else %}negative{% endif %}">
+                    {% if rating >= 4.5 %}Excellent{% elif rating >= 4.0 %}Good{% else %}Needs Improvement{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Performance Chart -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    Daily Performance Trend
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Daily Statistics -->
+        <div class="daily-stats">
+            {% for stat in daily_stats %}
+            <div class="daily-stat">
+                <div class="daily-stat-number">{{ stat.total }}</div>
+                <div class="daily-stat-label">{{ stat.date|date:"M j" }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Performance Table -->
+        <div class="performance-table">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fas fa-table"></i>
+                    Detailed Performance Data
+                </div>
+            </div>
+            
+            {% if daily_stats %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Successful</th>
+                            <th>Failed</th>
+                            <th>Success Rate</th>
+                            <th>Avg Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in daily_stats %}
+                        <tr>
+                            <td>{{ stat.date|date:"M j, Y" }}</td>
+                            <td>{{ stat.total }}</td>
+                            <td>{{ stat.successful }}</td>
+                            <td>{{ stat.failed }}</td>
+                            <td>
+                                <span class="success-rate 
+                                    {% if stat.successful|add:stat.failed > 0 %}
+                                        {% if stat.successful|floatformat:0|add:0 >= 90 %}high
+                                        {% elif stat.successful|floatformat:0|add:0 >= 75 %}medium
+                                        {% else %}low{% endif %}
+                                    {% endif %}">
+                                    {% if stat.total > 0 %}
+                                        {{ stat.successful|floatformat:0|add:0 }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if stat.total > 0 %}
+                                    {{ stat.total|add:0 }} min
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="no-data">
+                <i class="fas fa-chart-bar"></i>
+                <h4>No Performance Data</h4>
+                <p>No performance data available for the selected period.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+
+const chartData = {
+    labels: [
+        {% for stat in daily_stats %}
+            '{{ stat.date|date:"M j" }}',
+        {% endfor %}
+    ],
+    datasets: [
+        {
+            label: 'Successful Deliveries',
+            data: [
+                {% for stat in daily_stats %}
+                    {{ stat.successful }},
+                {% endfor %}
+            ],
+            borderColor: '#27ae60',
+            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        },
+        {
+            label: 'Failed Deliveries',
+            data: [
+                {% for stat in daily_stats %}
+                    {{ stat.failed }},
+                {% endfor %}
+            ],
+            borderColor: '#e74c3c',
+            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }
+    ]
+};
+
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: chartData,
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Daily Delivery Performance'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Deliveries'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Date'
+                }
+            }
+        }
+    }
+});
+
+// Date Range Filter
+function updateDateRange() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (startDate && endDate) {
+        const url = new URL(window.location);
+        url.searchParams.set('start_date', startDate);
+        url.searchParams.set('end_date', endDate);
+        window.location.href = url.toString();
+    } else {
+        alert('Please select both start and end dates.');
+    }
+}
+
+// Auto-refresh every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %} 

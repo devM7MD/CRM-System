@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Role - {{ role.name }}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Delete Role</h1>
+                <p class="text-gray-600 mt-1">Confirm deletion of role "{{ role.name }}"</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'roles:role_detail' role.id %}" class="btn-secondary">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Role
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="card animate-fade-in">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+                Confirm Deletion
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                    Are you sure you want to delete "{{ role.name }}"?
+                </h3>
+                
+                <p class="text-sm text-gray-500 mb-6">
+                    This action cannot be undone. This will permanently delete the role and remove all associated permissions.
+                </p>
+                
+                <!-- Role Information -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                    <h4 class="font-medium text-gray-900 mb-2">Role Details:</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-500">Name:</span>
+                            <span class="font-medium text-gray-900">{{ role.name }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Type:</span>
+                            <span class="font-medium text-gray-900">{{ role.get_role_type_display }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Users with this role:</span>
+                            <span class="font-medium text-gray-900">{{ role.get_user_count }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Permissions:</span>
+                            <span class="font-medium text-gray-900">{{ role.role_permissions.count }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Warning -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Warning</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>All users with this role will lose access to associated permissions</li>
+                                    <li>This action cannot be undone</li>
+                                    <li>Consider deactivating the role instead of deleting it</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-center space-x-4">
+                    <a href="{% url 'roles:role_detail' role.id %}" class="btn-secondary">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-primary bg-red-600 hover:bg-red-700 border-red-600">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete Role
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

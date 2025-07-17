@@ -3,104 +3,385 @@
 {% load static %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">{% trans "Order Details" %}</h1>
-        <div class="flex space-x-4">
-            <a href="{% url 'orders:list' %}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
-                {% trans "Back to Orders" %}
-            </a>
-            <a href="{% url 'orders:update' order.pk %}" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
-                {% trans "Edit Order" %}
-            </a>
+<div class="main-content ml-64">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <nav class="flex" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="{% url 'dashboard:index' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-home mr-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <a href="{% url 'orders:list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                    Orders
+                                </a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <span class="text-sm font-medium text-gray-500">Order Details</span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">Order Details</h1>
+                <p class="text-gray-600 mt-1">View and manage order information</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'orders:list' %}" class="btn-secondary inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    {% trans "Back to Orders" %}
+                </a>
+                <a href="{% url 'orders:update' order.pk %}" class="btn-primary inline-flex items-center">
+                    <i class="fas fa-edit mr-2"></i>
+                    {% trans "Edit Order" %}
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Order Information -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Order Details -->
-            <div>
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Order Information" %}</h2>
-                <dl class="grid grid-cols-2 gap-4">
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Order Code" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.order_code }}</dd>
-
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Date" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.date|date:"Y-m-d H:i" }}</dd>
-
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Status" %}</dt>
-                    <dd class="text-sm">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
-                            {% elif order.status == 'shipped' %}bg-purple-100 text-purple-800
-                            {% elif order.status == 'delivered' %}bg-green-100 text-green-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
-                            {{ order.get_status_display }}
-                        </span>
-                    </dd>
-
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Total Price" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.total_price }}</dd>
-                </dl>
+    <!-- Order Status Banner -->
+    <div class="card mb-6 animate-fade-in">
+        <div class="card-header">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-primary-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-900">{{ order.order_code }}</h2>
+                        <p class="text-gray-600">Order placed on {{ order.date|date:"F d, Y at H:i" }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="status-badge 
+                        {% if order.status == 'pending' %}status-pending
+                        {% elif order.status == 'processing' %}status-processing
+                        {% elif order.status == 'shipped' %}status-shipped
+                        {% elif order.status == 'delivered' %}status-delivered
+                        {% else %}status-cancelled{% endif %}">
+                        <i class="fas fa-circle mr-1 text-xs"></i>
+                        {{ order.get_status_display }}
+                    </span>
+                    <div class="text-2xl font-bold text-gray-900 mt-2">
+                        ${{ order.total_price|floatformat:2 }}
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Product Details -->
-            <div>
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Product Information" %}</h2>
-                <dl class="grid grid-cols-2 gap-4">
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Product" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.product.name }}</dd>
+    <!-- Order Information Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Order Information Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-info-circle mr-2 text-primary-500"></i>
+                    {% trans "Order Information" %}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-hashtag text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Order Code</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ order.order_code }}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Date</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ order.date|date:"M d, Y H:i" }}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-dollar-sign text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Total Price</span>
+                        </div>
+                        <span class="text-lg font-bold text-primary-600">${{ order.total_price|floatformat:2 }}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Last Updated</span>
+                        </div>
+                        <span class="text-sm text-gray-600">{{ order.updated_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Quantity" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.quantity }}</dd>
-
-                    <dt class="text-sm font-medium text-gray-500">{% trans "Price Per Unit" %}</dt>
-                    <dd class="text-sm text-gray-900">{{ order.price_per_unit }}</dd>
-                </dl>
+        <!-- Product Information Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-box mr-2 text-primary-500"></i>
+                    {% trans "Product Information" %}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-tag text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Product</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">
+                            {% if order.product %}
+                                {{ order.product.name }}
+                            {% else %}
+                                <span class="text-gray-400">No product</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-sort-numeric-up text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Quantity</span>
+                        </div>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                            {{ order.quantity }}
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-dollar-sign text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Price Per Unit</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">${{ order.price_per_unit|floatformat:2 }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Customer and Seller Information -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Customer Details -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Customer Details" %}</h2>
-            <dl class="grid grid-cols-1 gap-4">
-                <dt class="text-sm font-medium text-gray-500">{% trans "Name" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.customer.get_full_name }}</dd>
-
-                <dt class="text-sm font-medium text-gray-500">{% trans "Phone" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.customer_phone }}</dd>
-            </dl>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Customer Details Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-user mr-2 text-primary-500"></i>
+                    {% trans "Customer Details" %}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-circle text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Name</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">
+                            {% if order.customer %}
+                                {{ order.customer.get_full_name }}
+                            {% else %}
+                                <span class="text-gray-400">No customer</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Phone</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">
+                            {% if order.customer_phone %}
+                                {{ order.customer_phone }}
+                            {% else %}
+                                <span class="text-gray-400">No phone</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Seller Details -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Seller Details" %}</h2>
-            <dl class="grid grid-cols-1 gap-4">
-                <dt class="text-sm font-medium text-gray-500">{% trans "Name" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.seller.name }}</dd>
+        <!-- Seller Details Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-store mr-2 text-primary-500"></i>
+                    {% trans "Seller Details" %}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-tie text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Name</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">
+                            {% if order.seller %}
+                                {{ order.seller.name }}
+                            {% else %}
+                                <span class="text-gray-400">No seller</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Phone</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">
+                            {% if order.seller_phone %}
+                                {{ order.seller_phone }}
+                            {% else %}
+                                <span class="text-gray-400">No phone</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Email</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">
+                            {% if order.seller_email %}
+                                {{ order.seller_email }}
+                            {% else %}
+                                <span class="text-gray-400">No email</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if order.store_link %}
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-link text-gray-400 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-500">Store Link</span>
+                        </div>
+                        <a href="{{ order.store_link }}" target="_blank" 
+                           class="text-primary-600 hover:text-primary-800 transition-colors duration-200">
+                            <i class="fas fa-external-link-alt mr-1"></i>
+                            {% trans "Visit Store" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <dt class="text-sm font-medium text-gray-500">{% trans "Phone" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.seller_phone }}</dd>
-
-                <dt class="text-sm font-medium text-gray-500">{% trans "Email" %}</dt>
-                <dd class="text-sm text-gray-900">{{ order.seller_email }}</dd>
-
-                {% if order.store_link %}
-                <dt class="text-sm font-medium text-gray-500">{% trans "Store Link" %}</dt>
-                <dd class="text-sm text-gray-900">
-                    <a href="{{ order.store_link }}" target="_blank" class="text-yellow-600 hover:text-yellow-800">
-                        {% trans "Visit Store" %}
-                    </a>
-                </dd>
-                {% endif %}
-            </dl>
+    <!-- Order Timeline -->
+    <div class="card mt-6 animate-fade-in">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-history mr-2 text-primary-500"></i>
+                Order Timeline
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="flow-root">
+                <ul class="-mb-8">
+                    <li>
+                        <div class="relative pb-8">
+                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                            <div class="relative flex space-x-3">
+                                <div>
+                                    <span class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center ring-8 ring-white">
+                                        <i class="fas fa-shopping-cart text-primary-600 text-sm"></i>
+                                    </span>
+                                </div>
+                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Order created</p>
+                                    </div>
+                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                        <time datetime="{{ order.date|date:'Y-m-d H:i' }}">{{ order.date|date:"M d, H:i" }}</time>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    {% if order.status != 'pending' %}
+                    <li>
+                        <div class="relative pb-8">
+                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                            <div class="relative flex space-x-3">
+                                <div>
+                                    <span class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center ring-8 ring-white">
+                                        <i class="fas fa-cog text-blue-600 text-sm"></i>
+                                    </span>
+                                </div>
+                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Order processing</p>
+                                    </div>
+                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                        <time datetime="{{ order.updated_at|date:'Y-m-d H:i' }}">{{ order.updated_at|date:"M d, H:i" }}</time>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endif %}
+                    
+                    {% if order.status == 'delivered' %}
+                    <li>
+                        <div class="relative">
+                            <div class="relative flex space-x-3">
+                                <div>
+                                    <span class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center ring-8 ring-white">
+                                        <i class="fas fa-check text-green-600 text-sm"></i>
+                                    </span>
+                                </div>
+                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Order delivered</p>
+                                    </div>
+                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                        <time datetime="{{ order.updated_at|date:'Y-m-d H:i' }}">{{ order.updated_at|date:"M d, H:i" }}</time>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scrolling to page
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
 {% endblock %} 

@@ -1,285 +1,423 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Create New Order{% endblock %}
+{% block title %}{% trans "Create New Order" %}{% endblock %}
 
 {% block content %}
-<div class="py-10">
-    <header>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold leading-tight text-gray-900">Create New Order</h1>
-        </div>
-    </header>
-    <main>
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div class="px-4 py-5 border-b border-gray-200 sm:px-6 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Order Information</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the order details below</p>
-                    </div>
-                    <a href="{% url 'orders:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                        <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-                        </svg>
-                        Back to Order List
-                    </a>
-                </div>
-                <form method="post" action="{% url 'orders:create_order' %}">
-                    {% csrf_token %}
-                    <div class="px-4 py-5 sm:p-6">
-                        <!-- Customer Information -->
-                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                            <div class="sm:col-span-3">
-                                <label for="id_customer_name" class="block text-sm font-medium text-gray-700">Customer Name</label>
-                                <div class="mt-1">
-                                    {{ form.customer_name }}
-                                </div>
-                                {% if form.customer_name.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.customer_name.errors.0 }}</p>
-                                {% endif %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <nav class="flex" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="{% url 'dashboard:index' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-home mr-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <a href="{% url 'orders:list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">Orders</a>
                             </div>
-
-                            <div class="sm:col-span-3">
-                                <label for="id_customer_phone" class="block text-sm font-medium text-gray-700">Customer Phone</label>
-                                <div class="mt-1">
-                                    {{ form.customer_phone }}
-                                </div>
-                                {% if form.customer_phone.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.customer_phone.errors.0 }}</p>
-                                {% endif %}
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <span class="text-sm font-medium text-gray-500">Create Order</span>
                             </div>
-
-                            <div class="sm:col-span-3">
-                                <label for="id_customer_email" class="block text-sm font-medium text-gray-700">Customer Email</label>
-                                <div class="mt-1">
-                                    {{ form.customer_email }}
-                                </div>
-                                {% if form.customer_email.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.customer_email.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-
-                            <div class="sm:col-span-3">
-                                <label for="id_delivery_address" class="block text-sm font-medium text-gray-700">Delivery Address</label>
-                                <div class="mt-1">
-                                    {{ form.delivery_address }}
-                                </div>
-                                {% if form.delivery_address.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.delivery_address.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-
-                            <div class="sm:col-span-3">
-                                <label for="id_status" class="block text-sm font-medium text-gray-700">Status</label>
-                                <div class="mt-1">
-                                    {{ form.status }}
-                                </div>
-                                {% if form.status.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.status.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-
-                            {% if user.role == 'super_admin' or user.role == 'admin' %}
-                            <div class="sm:col-span-3">
-                                <label for="id_seller" class="block text-sm font-medium text-gray-700">Seller</label>
-                                <div class="mt-1">
-                                    <select name="seller" id="id_seller" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                        {% for seller in sellers %}
-                                        <option value="{{ seller.id }}">{{ seller.get_full_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <div class="sm:col-span-6">
-                                <label for="id_notes" class="block text-sm font-medium text-gray-700">Notes</label>
-                                <div class="mt-1">
-                                    {{ form.notes }}
-                                </div>
-                                {% if form.notes.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Order Items -->
-                        <div class="mt-10">
-                            <h3 class="text-lg font-medium text-gray-900 mb-5">Order Items</h3>
-                            <div id="items-container">
-                                {{ formset.management_form }}
-                                {% for item_form in formset %}
-                                <div class="order-item border border-gray-200 rounded-md p-4 mb-4">
-                                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                                        {{ item_form.id }}
-                                        
-                                        <div class="sm:col-span-3">
-                                            <label for="{{ item_form.product.id_for_label }}" class="block text-sm font-medium text-gray-700">Product</label>
-                                            <div class="mt-1">
-                                                <select name="{{ item_form.product.html_name }}" id="{{ item_form.product.id_for_label }}" class="product-select shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                                    <option value="">---------</option>
-                                                    {% for product in products %}
-                                                    <option value="{{ product.id }}" data-price="{{ product.selling_price }}">{{ product.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            {% if item_form.product.errors %}
-                                            <p class="mt-2 text-sm text-red-600">{{ item_form.product.errors.0 }}</p>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="sm:col-span-1">
-                                            <label for="{{ item_form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700">Quantity</label>
-                                            <div class="mt-1">
-                                                {{ item_form.quantity }}
-                                            </div>
-                                            {% if item_form.quantity.errors %}
-                                            <p class="mt-2 text-sm text-red-600">{{ item_form.quantity.errors.0 }}</p>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="sm:col-span-1">
-                                            <label for="{{ item_form.price.id_for_label }}" class="block text-sm font-medium text-gray-700">Price</label>
-                                            <div class="mt-1">
-                                                {{ item_form.price }}
-                                            </div>
-                                            {% if item_form.price.errors %}
-                                            <p class="mt-2 text-sm text-red-600">{{ item_form.price.errors.0 }}</p>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="sm:col-span-1 flex items-end">
-                                            <button type="button" class="remove-item text-red-600 hover:text-red-900">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-
-                            <div class="mt-2">
-                                <button type="button" id="add-item" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
-                                    <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Add Item
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                            Create Order
-                        </button>
-                    </div>
-                </form>
+                        </li>
+                    </ol>
+                </nav>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">{% trans "Create New Order" %}</h1>
+                <p class="text-gray-600 mt-1">{% trans "Add a new order to the system" %}</p>
             </div>
-        </div>
-    </main>
-</div>
-
-<!-- Empty form for cloning -->
-<div id="empty-form" class="hidden">
-    <div class="order-item border border-gray-200 rounded-md p-4 mb-4">
-        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            {{ formset.empty_form.id }}
-            
-            <div class="sm:col-span-3">
-                <label for="{{ formset.empty_form.product.id_for_label }}" class="block text-sm font-medium text-gray-700">Product</label>
-                <div class="mt-1">
-                    <select name="{{ formset.empty_form.product.html_name }}" id="{{ formset.empty_form.product.id_for_label }}" class="product-select shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                        <option value="">---------</option>
-                        {% for product in products %}
-                        <option value="{{ product.id }}" data-price="{{ product.selling_price }}">{{ product.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-            <div class="sm:col-span-1">
-                <label for="{{ formset.empty_form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700">Quantity</label>
-                <div class="mt-1">
-                    {{ formset.empty_form.quantity }}
-                </div>
-            </div>
-
-            <div class="sm:col-span-1">
-                <label for="{{ formset.empty_form.price.id_for_label }}" class="block text-sm font-medium text-gray-700">Price</label>
-                <div class="mt-1">
-                    {{ formset.empty_form.price }}
-                </div>
-            </div>
-
-            <div class="sm:col-span-1 flex items-end">
-                <button type="button" class="remove-item text-red-600 hover:text-red-900">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
+            <div class="flex space-x-3">
+                <a href="{% url 'orders:list' %}" class="btn-secondary inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    {% trans "Back to Orders" %}
+                </a>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
 
-{% block scripts %}
+    <!-- Main Form -->
+    <form method="post" id="order-form" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Order Information Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-primary-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Order Information" %}</h3>
+                        <p class="text-sm text-gray-600">{% trans "Basic order details and customer information" %}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Order Code -->
+                    <div class="col-span-1">
+                        <label for="{{ form.order_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-hashtag mr-2 text-primary-500"></i>
+                            {% trans "Order Code" %}
+                        </label>
+                        <div class="relative">
+                            <input type="text" name="{{ form.order_code.name }}" 
+                                   value="{{ form.order_code.value|default:'' }}" 
+                                   id="{{ form.order_code.id_for_label }}"
+                                   class="form-input w-full bg-gray-50" 
+                                   readonly>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">{% trans "Auto-generated order code" %}</p>
+                    </div>
+
+                    <!-- Customer -->
+                    <div class="col-span-1">
+                        <label for="{{ form.customer.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-primary-500"></i>
+                            {% trans "Customer" %}
+                        </label>
+                        <select name="{{ form.customer.name }}" id="{{ form.customer.id_for_label }}" class="form-input w-full">
+                            <option value="">{% trans "Select Customer" %}</option>
+                            {% for choice in form.customer.field.choices %}
+                                {% if choice.0 %}
+                                    <option value="{{ choice.0 }}" {% if form.customer.value == choice.0 %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% if form.customer.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.customer.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-span-1">
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-info-circle mr-2 text-primary-500"></i>
+                            {% trans "Status" %}
+                        </label>
+                        <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}" class="form-input w-full">
+                            {% for choice in form.status.field.choices %}
+                                <option value="{{ choice.0 }}" {% if form.status.value == choice.0 %}selected{% endif %}>
+                                    {{ choice.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.status.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Customer Phone -->
+                    <div class="col-span-1">
+                        <label for="{{ form.customer_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone mr-2 text-primary-500"></i>
+                            {% trans "Customer Phone" %}
+                        </label>
+                        <input type="tel" name="{{ form.customer_phone.name }}" 
+                               value="{{ form.customer_phone.value|default:'' }}" 
+                               id="{{ form.customer_phone.id_for_label }}"
+                               class="form-input w-full" 
+                               placeholder="+1234567890">
+                        {% if form.customer_phone.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.customer_phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Seller -->
+                    <div class="col-span-1">
+                        <label for="{{ form.seller.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-store mr-2 text-primary-500"></i>
+                            {% trans "Seller" %}
+                        </label>
+                        <select name="{{ form.seller.name }}" id="{{ form.seller.id_for_label }}" class="form-input w-full">
+                            <option value="">{% trans "Select Seller" %}</option>
+                            {% for choice in form.seller.field.choices %}
+                                {% if choice.0 %}
+                                    <option value="{{ choice.0 }}" {% if form.seller.value == choice.0 %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% if form.seller.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.seller.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Seller Phone -->
+                    <div class="col-span-1">
+                        <label for="{{ form.seller_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone mr-2 text-primary-500"></i>
+                            {% trans "Seller Phone" %}
+                        </label>
+                        <input type="tel" name="{{ form.seller_phone.name }}" 
+                               value="{{ form.seller_phone.value|default:'' }}" 
+                               id="{{ form.seller_phone.id_for_label }}"
+                               class="form-input w-full" 
+                               placeholder="+1234567890">
+                        {% if form.seller_phone.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.seller_phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Seller Email -->
+                    <div class="col-span-1">
+                        <label for="{{ form.seller_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2 text-primary-500"></i>
+                            {% trans "Seller Email" %}
+                        </label>
+                        <input type="email" name="{{ form.seller_email.name }}" 
+                               value="{{ form.seller_email.value|default:'' }}" 
+                               id="{{ form.seller_email.id_for_label }}"
+                               class="form-input w-full" 
+                               placeholder="seller@example.com">
+                        {% if form.seller_email.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.seller_email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Store Link -->
+                    <div class="col-span-1 md:col-span-2">
+                        <label for="{{ form.store_link.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-link mr-2 text-primary-500"></i>
+                            {% trans "Store Link" %}
+                        </label>
+                        <input type="url" name="{{ form.store_link.name }}" 
+                               value="{{ form.store_link.value|default:'' }}" 
+                               id="{{ form.store_link.id_for_label }}"
+                               class="form-input w-full" 
+                               placeholder="https://store.example.com">
+                        {% if form.store_link.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.store_link.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Information Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-box text-primary-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">{% trans "Product Information" %}</h3>
+                            <p class="text-sm text-gray-600">{% trans "Product details and pricing" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Product -->
+                    <div class="col-span-1">
+                        <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-box mr-2 text-primary-500"></i>
+                            {% trans "Product" %}
+                        </label>
+                        <select name="{{ form.product.name }}" id="{{ form.product.id_for_label }}" class="form-input w-full product-select">
+                            <option value="">{% trans "Select Product" %}</option>
+                            {% for choice in form.product.field.choices %}
+                                {% if choice.0 %}
+                                    <option value="{{ choice.0 }}" 
+                                            data-price="{{ choice.0|default:0 }}" 
+                                            {% if form.product.value == choice.0 %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% if form.product.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.product.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-span-1">
+                        <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-sort-numeric-up mr-2 text-primary-500"></i>
+                            {% trans "Quantity" %}
+                        </label>
+                        <div class="relative">
+                            <input type="number" name="{{ form.quantity.name }}" 
+                                   value="{{ form.quantity.value|default:1 }}" 
+                                   id="{{ form.quantity.id_for_label }}"
+                                   class="form-input w-full" 
+                                   min="1" 
+                                   step="1">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <div class="flex flex-col">
+                                    <button type="button" class="quantity-up text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-chevron-up text-xs"></i>
+                                    </button>
+                                    <button type="button" class="quantity-down text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% if form.quantity.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.quantity.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Price Per Unit -->
+                    <div class="col-span-1">
+                        <label for="{{ form.price_per_unit.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-dollar-sign mr-2 text-primary-500"></i>
+                            {% trans "Price Per Unit" %}
+                        </label>
+                        <div class="relative">
+                            <input type="number" name="{{ form.price_per_unit.name }}" 
+                                   value="{{ form.price_per_unit.value|default:0 }}" 
+                                   id="{{ form.price_per_unit.id_for_label }}"
+                                   class="form-input w-full price-input" 
+                                   step="0.01" 
+                                   min="0">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <span class="text-gray-500 text-sm">$</span>
+                            </div>
+                        </div>
+                        {% if form.price_per_unit.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.price_per_unit.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Total Price Display -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-calculator text-primary-500 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-700">{% trans "Total Price:" %}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold text-primary-600" id="total-price">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+            <a href="{% url 'orders:list' %}" class="btn-secondary">
+                <i class="fas fa-times mr-2"></i>
+                {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="btn-primary" id="submit-btn">
+                <i class="fas fa-save mr-2"></i>
+                {% trans "Create Order" %}
+            </button>
+        </div>
+    </form>
+</div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add new item functionality
-        const addItemBtn = document.getElementById('add-item');
-        const itemsContainer = document.getElementById('items-container');
-        const emptyForm = document.getElementById('empty-form').firstElementChild.cloneNode(true);
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('order-form');
+    const productSelect = document.getElementById('{{ form.product.id_for_label }}');
+    const quantityInput = document.getElementById('{{ form.quantity.id_for_label }}');
+    const priceInput = document.getElementById('{{ form.price_per_unit.id_for_label }}');
+    const totalPriceDisplay = document.getElementById('total-price');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Calculate total price
+    function calculateTotal() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        const total = quantity * price;
+        totalPriceDisplay.textContent = `$${total.toFixed(2)}`;
+    }
+
+    // Update price when product is selected
+    productSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            // You can fetch the price from the server or use data attributes
+            // For now, we'll keep the current price input value
+            calculateTotal();
+        }
+    });
+
+    // Update total when quantity or price changes
+    quantityInput.addEventListener('input', calculateTotal);
+    priceInput.addEventListener('input', calculateTotal);
+
+    // Quantity up/down buttons
+    document.querySelectorAll('.quantity-up').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = this.closest('.relative').querySelector('input');
+            input.value = parseInt(input.value || 0) + 1;
+            calculateTotal();
+        });
+    });
+
+    document.querySelectorAll('.quantity-down').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = this.closest('.relative').querySelector('input');
+            const newValue = parseInt(input.value || 0) - 1;
+            if (newValue >= 1) {
+                input.value = newValue;
+                calculateTotal();
+            }
+        });
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        submitBtn.innerHTML = '<div class="loading mr-2"></div>Creating Order...';
+        submitBtn.disabled = true;
         
-        // Get the total forms
-        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+        // Validate required fields
+        const requiredFields = ['customer', 'product', 'seller'];
+        let isValid = true;
         
-        addItemBtn.addEventListener('click', function() {
-            // Clone the empty form
-            const newForm = emptyForm.cloneNode(true);
-            
-            // Update form index
-            const formCount = parseInt(totalForms.value);
-            newForm.innerHTML = newForm.innerHTML.replace(/__prefix__/g, formCount);
-            
-            // Increment total forms
-            totalForms.value = formCount + 1;
-            
-            // Add to container
-            itemsContainer.appendChild(newForm);
-            
-            // Setup event listeners
-            setupEventListeners();
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(`id_${fieldName}`);
+            if (field && !field.value) {
+                field.classList.add('border-red-500');
+                isValid = false;
+            } else if (field) {
+                field.classList.remove('border-red-500');
+            }
         });
         
-        // Remove item functionality
-        function setupEventListeners() {
-            document.querySelectorAll('.remove-item').forEach(button => {
-                button.addEventListener('click', function() {
-                    const itemDiv = this.closest('.order-item');
-                    itemDiv.remove();
-                });
-            });
-            
-            document.querySelectorAll('.product-select').forEach(select => {
-                select.addEventListener('change', function() {
-                    const priceInput = this.closest('.order-item').querySelector('input[name$="-price"]');
-                    const selectedOption = this.options[this.selectedIndex];
-                    if (selectedOption.value) {
-                        priceInput.value = selectedOption.getAttribute('data-price');
-                    } else {
-                        priceInput.value = '';
-                    }
-                });
-            });
+        if (!isValid) {
+            e.preventDefault();
+            submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Create Order';
+            submitBtn.disabled = false;
+            alert('Please fill in all required fields.');
+            return;
         }
-        
-        // Initial setup
-        setupEventListeners();
     });
+
+    // Initialize total calculation
+    calculateTotal();
+});
 </script>
 {% endblock %} 

@@ -6,50 +6,68 @@ from datetime import timedelta
 from users.models import AuditLog
 from finance.models import Payment
 from django.db.models import Sum
+from products.models import Product
+from orders.models import Order
 
 User = get_user_model()
 
 @login_required
 def index(request):
     """Main dashboard view that changes based on user role."""
-    if request.user.role == 'super_admin':
+    primary_role = request.user.get_primary_role()
+    role_name = primary_role.name if primary_role else 'user'
+
+    if role_name == 'Super Admin' or request.user.is_superuser:
         total_sales = Payment.objects.filter(payment_status='completed').aggregate(total=Sum('amount'))['total'] or 0
+        active_users_count = User.objects.filter(is_active=True).count()
+        # TODO: Replace with real alerts count if alerts model exists
+        alerts_count = 0
+        recent_activities = get_recent_activities(request.user)
         return render(request, 'dashboard/super_admin.html', {
-            'active_users_count': User.objects.filter(is_active=True).count(),
-            'alerts_count': 0,  # Replace with real alerts count if available
+            'active_users_count': active_users_count,
+            'alerts_count': alerts_count,
             'total_sales': f"AED {total_sales:,.0f}",
-            'recent_activities': get_recent_activities(request.user)
+            'recent_activities': recent_activities
         })
-    elif request.user.role == 'seller':
-        # Redirect to seller dashboard
+    elif role_name == 'Seller':
+        seller_instance = getattr(request.user, 'seller_profile', None)
+        products = Product.objects.filter(seller=request.user).order_by('-created_at')[:5] if seller_instance else []
+        all_orders = Order.objects.filter(seller=seller_instance).order_by('-date') if seller_instance else []
+        order_stats = {
+            'total': all_orders.count() if all_orders else 0,
+            'pending': all_orders.filter(status='pending').count() if all_orders else 0,
+            'delivered': all_orders.filter(status='delivered').count() if all_orders else 0,
+            'cancelled': all_orders.filter(status='cancelled').count() if all_orders else 0,
+        } if all_orders else {'total': 0, 'pending': 0, 'delivered': 0, 'cancelled': 0}
+        recent_orders = all_orders[:5] if all_orders else []
+        all_products = Product.objects.filter(seller=request.user) if seller_instance else []
+        total_inventory = sum(product.total_quantity for product in all_products) if all_products else 0
+        available_inventory = sum(product.available_quantity for product in all_products) if all_products else 0
+        in_delivery_inventory = total_inventory - available_inventory if all_products else 0
+        # Sourcing requests (if model exists)
+        sourcing_requests_count = 0
+        pending_requests = 0
+        approved_requests = 0
         return render(request, 'sellers/dashboard.html', {
-            'total_sales': "AED 42,651",  # Placeholder until connected to finance app
-            'orders_count': 152,  # Placeholder until connected to orders app
-            'completed_orders': 87,  # Placeholder
-            'processing_orders': 53,  # Placeholder
-            'cancelled_orders': 12,  # Placeholder
-            'total_inventory': 534,  # Placeholder until connected to inventory app
-            'available_inventory': 478,  # Placeholder
-            'in_delivery_inventory': 56,  # Placeholder
-            'sourcing_requests_count': 18,  # Placeholder until connected to sourcing app
-            'pending_requests': 5,  # Placeholder
-            'approved_requests': 13,  # Placeholder
-            'products': [],  # Will be replaced with actual products
-            'recent_orders': []  # Will be replaced with actual orders
+            'total_sales': f"AED {order_stats['delivered'] * 1000:,.0f}" if order_stats['delivered'] else 'AED 0',
+            'orders_count': order_stats['total'],
+            'completed_orders': order_stats['delivered'],
+            'processing_orders': order_stats['pending'],
+            'cancelled_orders': order_stats['cancelled'],
+            'total_inventory': total_inventory,
+            'available_inventory': available_inventory,
+            'in_delivery_inventory': in_delivery_inventory,
+            'sourcing_requests_count': sourcing_requests_count,
+            'pending_requests': pending_requests,
+            'approved_requests': approved_requests,
+            'products': products,
+            'recent_orders': recent_orders
         })
     else:
-        # Generic dashboard for other roles
         today = timezone.now().date()
-        
-        # Get recent activities for the user
         recent_activities = get_recent_activities(request.user)
-        
-        # Count unread notifications - placeholder until notification model is created
         unread_notifications = get_unread_notifications_count(request.user)
-        
-        # Get active tasks - placeholder until tasks model is created
         active_tasks = get_active_tasks_count(request.user)
-        
         return render(request, 'dashboard/default.html', {
             'user': request.user,
             'active_tasks': active_tasks,
@@ -71,7 +89,11 @@ def alerts(request):
 @login_required
 def settings(request):
     """System settings view."""
-    if request.user.role not in ['super_admin', 'admin']:
+    # Check if user has admin or super admin role
+    primary_role = request.user.get_primary_role()
+    role_name = primary_role.name if primary_role else ''
+    
+    if role_name not in ['Super Admin', 'Admin'] and not request.user.is_superuser:
         # Redirect to a permission denied page
         return render(request, 'dashboard/permission_denied.html')
     
@@ -80,7 +102,11 @@ def settings(request):
 @login_required
 def system_status(request):
     """System status and health view."""
-    if request.user.role not in ['super_admin', 'admin']:
+    # Check if user has admin or super admin role
+    primary_role = request.user.get_primary_role()
+    role_name = primary_role.name if primary_role else ''
+    
+    if role_name not in ['Super Admin', 'Admin'] and not request.user.is_superuser:
         # Redirect to a permission denied page
         return render(request, 'dashboard/permission_denied.html')
     
@@ -122,9 +148,8 @@ def tasks(request):
 @login_required
 def reports(request):
     """View user reports."""
-    # Placeholder until reports model is created
+    # TODO: Replace with real reports if available
     reports = []
-    
     return render(request, 'dashboard/reports.html', {
         'reports': reports
     })

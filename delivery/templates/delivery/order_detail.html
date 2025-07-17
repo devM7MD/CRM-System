@@ -1,0 +1,579 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delivery Detail - {{ delivery.tracking_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delivery-detail {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    
+    .detail-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .tracking-info {
+        flex: 1;
+    }
+    
+    .tracking-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+        font-family: 'Courier New', monospace;
+        margin-bottom: 0.5rem;
+    }
+    
+    .order-number {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+    
+    .status-display {
+        text-align: right;
+    }
+    
+    .status-badge {
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-align: center;
+        min-width: 150px;
+    }
+    
+    .status-assigned { background: #f39c12; color: white; }
+    .status-accepted { background: #3498db; color: white; }
+    .status-picked_up { background: #e67e22; color: white; }
+    .status-in_transit { background: #9b59b6; color: white; }
+    .status-out_for_delivery { background: #34495e; color: white; }
+    .status-delivered { background: #27ae60; color: white; }
+    .status-failed { background: #e74c3c; color: white; }
+    .status-returned { background: #95a5a6; color: white; }
+    .status-cancelled { background: #7f8c8d; color: white; }
+    
+    .priority-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+    
+    .priority-urgent { background: #e74c3c; color: white; }
+    .priority-high { background: #f39c12; color: white; }
+    .priority-normal { background: #3498db; color: white; }
+    .priority-low { background: #95a5a6; color: white; }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #3498db;
+    }
+    
+    .info-card h4 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: bold;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+    
+    .info-value {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-action {
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .btn-directions {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+    }
+    
+    .btn-call {
+        background: linear-gradient(45deg, #27ae60, #229954);
+        color: white;
+    }
+    
+    .btn-complete {
+        background: linear-gradient(45deg, #f39c12, #e67e22);
+        color: white;
+    }
+    
+    .btn-failed {
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        color: white;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .history-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .history-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+    }
+    
+    .history-item:last-child {
+        border-bottom: none;
+    }
+    
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        width: 2px;
+        height: 100%;
+        background: #e0e0e0;
+        transform: translateY(-50%);
+    }
+    
+    .history-item:last-child::before {
+        display: none;
+    }
+    
+    .history-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #3498db;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .history-content {
+        flex: 1;
+    }
+    
+    .history-status {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+    }
+    
+    .history-time {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+    
+    .history-notes {
+        color: #95a5a6;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+    
+    .proof-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .proof-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .proof-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #27ae60;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+    
+    .proof-info {
+        flex: 1;
+    }
+    
+    .proof-type {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .proof-time {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 2rem;
+        color: #7f8c8d;
+    }
+    
+    .no-data i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .delivery-detail {
+            padding: 0.5rem;
+        }
+        
+        .detail-container {
+            padding: 1rem;
+        }
+        
+        .detail-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .status-display {
+            text-align: left;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-action {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delivery-detail">
+    <div class="detail-container">
+        <!-- Header -->
+        <div class="detail-header">
+            <div class="tracking-info">
+                <div class="tracking-number">{{ delivery.tracking_number }}</div>
+                <div class="order-number">Order: {{ delivery.order.order_number }}</div>
+            </div>
+            <div class="status-display">
+                <div class="status-badge status-{{ delivery.status }}">
+                    {{ delivery.get_status_display }}
+                </div>
+                <div class="priority-badge priority-{{ delivery.priority }}">
+                    {{ delivery.get_priority_display }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        {% if delivery.status in 'assigned,accepted,picked_up,out_for_delivery' %}
+        <div class="action-buttons">
+            <a href="#" class="btn-action btn-directions" onclick="getDirections()">
+                <i class="fas fa-map"></i>
+                Get Directions
+            </a>
+            <a href="tel:{{ delivery.order.customer_phone }}" class="btn-action btn-call">
+                <i class="fas fa-phone"></i>
+                Call Customer
+            </a>
+            {% if delivery.status == 'out_for_delivery' %}
+            <a href="{% url 'delivery:complete_delivery' delivery.id %}" class="btn-action btn-complete">
+                <i class="fas fa-check"></i>
+                Mark Delivered
+            </a>
+            <a href="{% url 'delivery:failed_delivery' delivery.id %}" class="btn-action btn-failed">
+                <i class="fas fa-times"></i>
+                Report Failed
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Information Grid -->
+        <div class="info-grid">
+            <!-- Customer Information -->
+            <div class="info-card">
+                <h4><i class="fas fa-user"></i> Customer Information</h4>
+                <div class="info-item">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">{{ delivery.order.customer_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value">
+                        <a href="tel:{{ delivery.order.customer_phone }}">{{ delivery.order.customer_phone }}</a>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Address:</span>
+                    <span class="info-value">{{ delivery.order.customer_address }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ delivery.order.customer_email|default:"Not provided" }}</span>
+                </div>
+            </div>
+
+            <!-- Delivery Information -->
+            <div class="info-card">
+                <h4><i class="fas fa-truck"></i> Delivery Information</h4>
+                <div class="info-item">
+                    <span class="info-label">Company:</span>
+                    <span class="info-value">{{ delivery.delivery_company.name_en }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Cost:</span>
+                    <span class="info-value">AED {{ delivery.delivery_cost }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Assigned:</span>
+                    <span class="info-value">{{ delivery.assigned_at|date:"M j, Y H:i" }}</span>
+                </div>
+                {% if delivery.estimated_delivery_time %}
+                <div class="info-item">
+                    <span class="info-label">Expected:</span>
+                    <span class="info-value">{{ delivery.estimated_delivery_time|date:"M j, Y H:i" }}</span>
+                </div>
+                {% endif %}
+                {% if delivery.delivered_at %}
+                <div class="info-item">
+                    <span class="info-label">Delivered:</span>
+                    <span class="info-value">{{ delivery.delivered_at|date:"M j, Y H:i" }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Order Information -->
+            <div class="info-card">
+                <h4><i class="fas fa-box"></i> Order Information</h4>
+                <div class="info-item">
+                    <span class="info-label">Order Number:</span>
+                    <span class="info-value">{{ delivery.order.order_number }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Total Amount:</span>
+                    <span class="info-value">AED {{ delivery.order.total_price }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Payment Method:</span>
+                    <span class="info-value">{{ delivery.order.get_payment_method_display }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Order Date:</span>
+                    <span class="info-value">{{ delivery.order.created_at|date:"M j, Y" }}</span>
+                </div>
+            </div>
+
+            <!-- Courier Information -->
+            {% if delivery.courier %}
+            <div class="info-card">
+                <h4><i class="fas fa-user-tie"></i> Courier Information</h4>
+                <div class="info-item">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">{{ delivery.courier.user.get_full_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Employee ID:</span>
+                    <span class="info-value">{{ delivery.courier.employee_id }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value">
+                        <a href="tel:{{ delivery.courier.phone_number }}">{{ delivery.courier.phone_number }}</a>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Rating:</span>
+                    <span class="info-value">{{ delivery.courier.rating }}/5.0</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Status History -->
+        <div class="history-section">
+            <h4><i class="fas fa-history"></i> Status History</h4>
+            {% if status_history %}
+                {% for history in status_history %}
+                <div class="history-item">
+                    <div class="history-icon">
+                        <i class="fas fa-circle"></i>
+                    </div>
+                    <div class="history-content">
+                        <div class="history-status">{{ history.get_status_display }}</div>
+                        <div class="history-time">{{ history.timestamp|date:"M j, Y H:i" }}</div>
+                        {% if history.notes %}
+                        <div class="history-notes">{{ history.notes }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-data">
+                    <i class="fas fa-history"></i>
+                    <h5>No Status History</h5>
+                    <p>No status changes have been recorded yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Delivery Proof -->
+        <div class="proof-section">
+            <h4><i class="fas fa-camera"></i> Delivery Proof</h4>
+            {% if proofs %}
+                {% for proof in proofs %}
+                <div class="proof-item">
+                    <div class="proof-icon">
+                        <i class="fas fa-{% if proof.proof_type == 'photo' %}camera{% elif proof.proof_type == 'signature' %}signature{% elif proof.proof_type == 'barcode' %}barcode{% else %}check{% endif %}"></i>
+                    </div>
+                    <div class="proof-info">
+                        <div class="proof-type">{{ proof.get_proof_type_display }}</div>
+                        <div class="proof-time">{{ proof.capture_time|date:"M j, Y H:i" }}</div>
+                    </div>
+                    {% if proof.verified %}
+                    <div class="badge bg-success">Verified</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-data">
+                    <i class="fas fa-camera"></i>
+                    <h5>No Proof of Delivery</h5>
+                    <p>No delivery proof has been uploaded yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-4">
+            <a href="{% url 'delivery:order_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Orders
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getDirections() {
+    const address = "{{ delivery.order.customer_address }}";
+    const encodedAddress = encodeURIComponent(address);
+    
+    // Try to get current location first
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const url = `https://www.google.com/maps/dir/${lat},${lng}/${encodedAddress}`;
+                window.open(url, '_blank');
+            },
+            function(error) {
+                // If location access denied, just open with address
+                const url = `https://www.google.com/maps/search/${encodedAddress}`;
+                window.open(url, '_blank');
+            }
+        );
+    } else {
+        // Fallback to just address search
+        const url = `https://www.google.com/maps/search/${encodedAddress}`;
+        window.open(url, '_blank');
+    }
+}
+</script>
+{% endblock %} 

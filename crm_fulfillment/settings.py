@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'landing',
     'products',
     'subscribers',
+    'roles',
+    'bug_reports',
 ]
 
 
@@ -181,3 +183,6 @@ LOGOUT_REDIRECT_URL = 'users:login'
 
 # Add this setting to define if the default language should have a prefix in URLs
 PREFIX_DEFAULT_LANGUAGE = False
+
+# Site URL for generating absolute URLs (used in bug reports)
+SITE_URL = 'http://127.0.0.1:8000'  # Change this to your production domain

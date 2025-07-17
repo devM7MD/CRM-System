@@ -1,26 +1,26 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
+from .forms import LoginForm, RegisterForm, UserCreationForm, UserChangeForm, PasswordChangeForm
 from .models import User, AuditLog
-from .forms import UserCreationForm, UserChangeForm, LoginForm, RegisterForm
 
 def login_view(request):
-    """User login view."""
+    """Log in a user."""
     if request.user.is_authenticated:
         return redirect('dashboard:index')
     
     if request.method == 'POST':
-        form = LoginForm(data=request.POST)
+        form = LoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, email=email, password=password)
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = User.objects.filter(email=email).first()
             
-            if user is not None:
+            if user and user.check_password(password) and user.is_active:
                 login(request, user)
+                
                 # Log the login action
                 AuditLog.objects.create(
                     user=user,
@@ -97,7 +97,7 @@ def register_view(request):
     return render(request, 'users/register.html', {'form': form})
 
 @login_required
-@user_passes_test(lambda u: u.role in ['super_admin', 'admin'])
+@user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
 def user_list(request):
     """List all users (admin only)."""
     users = User.objects.all().order_by('-date_joined')
@@ -105,16 +105,16 @@ def user_list(request):
     # Filter by role if requested
     role = request.GET.get('role', '')
     if role:
-        users = users.filter(role=role)
+        # Filter users by role using the new role system
+        users = users.filter(user_roles__role__name=role)
     
     return render(request, 'users/list.html', {
         'users': users,
         'role_filter': role,
-        'role_choices': User.ROLE_CHOICES
     })
 
 @login_required
-@user_passes_test(lambda u: u.role in ['super_admin', 'admin'])
+@user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
 def user_create(request):
     """Create a new user (admin only)."""
     if request.method == 'POST':
@@ -141,7 +141,7 @@ def user_create(request):
     return render(request, 'users/create.html', {'form': form})
 
 @login_required
-@user_passes_test(lambda u: u.role in ['super_admin', 'admin'])
+@user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
 def user_edit(request, user_id):
     """Edit an existing user (admin only)."""
     user = get_object_or_404(User, id=user_id)
@@ -170,7 +170,7 @@ def user_edit(request, user_id):
     return render(request, 'users/edit.html', {'form': form, 'user_obj': user})
 
 @login_required
-@user_passes_test(lambda u: u.role in ['super_admin', 'admin'])
+@user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
 def user_detail(request, user_id):
     """View user details (admin only)."""
     user = get_object_or_404(User, id=user_id)

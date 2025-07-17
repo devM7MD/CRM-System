@@ -50,7 +50,6 @@ class RegisterForm(forms.ModelForm):
         # Save the provided password in hashed format
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
-        user.role = 'seller'  # Default role for new registrations
         if commit:
             user.save()
         return user
@@ -65,18 +64,32 @@ class UserCreationForm(BaseUserCreationForm):
         label="Password confirmation",
         widget=forms.PasswordInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'})
     )
+    primary_role = forms.ModelChoiceField(
+        queryset=None,
+        required=False,
+        empty_label="Select a role",
+        widget=forms.Select(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'})
+    )
     
     class Meta:
         model = User
-        fields = ('email', 'full_name', 'phone_number', 'role', 'is_active', 'profile_image')
+        fields = ('email', 'full_name', 'phone_number', 'is_active', 'profile_image')
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
             'full_name': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
             'phone_number': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'role': forms.Select(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded'}),
             'profile_image': forms.FileInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            from roles.models import Role
+            self.fields['primary_role'].queryset = Role.objects.filter(is_active=True).order_by('name')
+        except ImportError:
+            # If roles app is not available, hide the field
+            del self.fields['primary_role']
     
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -90,21 +103,88 @@ class UserCreationForm(BaseUserCreationForm):
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
+            
+            # Handle role assignment
+            if 'primary_role' in self.cleaned_data and self.cleaned_data['primary_role']:
+                try:
+                    from roles.models import UserRole
+                    new_role = self.cleaned_data['primary_role']
+                    
+                    # Create user role
+                    UserRole.objects.create(
+                        user=user,
+                        role=new_role,
+                        is_primary=True,
+                        is_active=True
+                    )
+                except ImportError:
+                    pass
+        
         return user
 
 class UserChangeForm(forms.ModelForm):
     """Form for user updates."""
+    primary_role = forms.ModelChoiceField(
+        queryset=None,
+        required=False,
+        empty_label="Select a role",
+        widget=forms.Select(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'})
+    )
+    
     class Meta:
         model = User
-        fields = ('email', 'full_name', 'phone_number', 'role', 'is_active', 'profile_image')
+        fields = ('email', 'full_name', 'phone_number', 'is_active', 'profile_image')
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
             'full_name': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
             'phone_number': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'role': forms.Select(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded'}),
             'profile_image': forms.FileInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            from roles.models import Role
+            self.fields['primary_role'].queryset = Role.objects.filter(is_active=True).order_by('name')
+            
+            # Set initial value for primary_role
+            if self.instance.pk:
+                primary_role = self.instance.primary_role
+                if primary_role:
+                    self.fields['primary_role'].initial = primary_role
+        except ImportError:
+            # If roles app is not available, hide the field
+            del self.fields['primary_role']
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            
+            # Handle role assignment
+            if 'primary_role' in self.cleaned_data and self.cleaned_data['primary_role']:
+                try:
+                    from roles.models import UserRole
+                    new_role = self.cleaned_data['primary_role']
+                    
+                    # Remove existing primary role
+                    UserRole.objects.filter(user=user, is_primary=True).update(is_primary=False)
+                    
+                    # Create or update user role
+                    user_role, created = UserRole.objects.get_or_create(
+                        user=user,
+                        role=new_role,
+                        defaults={'is_primary': True, 'is_active': True}
+                    )
+                    if not created:
+                        user_role.is_primary = True
+                        user_role.is_active = True
+                        user_role.save()
+                except ImportError:
+                    pass
+        
+        return user
 
 class PasswordChangeForm(DjangoPasswordChangeForm):
     """Form for changing user password."""
