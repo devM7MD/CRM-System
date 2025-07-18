@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Quality Control" %}{% endblock %}
+
+{% block header %}{% trans "Quality Control" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="mb-4">
+        <a href="{% url 'packaging:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Pending Quality Checks -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Pending Quality Checks" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    {% if pending_checks %}
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Package" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Packager" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Completed" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for package in pending_checks %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ package.barcode }}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ package.order.order_code }}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                            {% if package.packager %}
+                                                {{ package.packager.get_full_name }}
+                                            {% else %}
+                                                {% trans "Not assigned" %}
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ package.packaging_completed|date:"M j, Y H:i" }}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <a href="{% url 'packaging:perform_quality_check' package.id %}" class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-clipboard-check mr-1"></i> {% trans "Check" %}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-check-circle text-green-500 text-4xl mb-4"></i>
+                            <p class="text-gray-500">{% trans "No pending quality checks at the moment." %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Recent Quality Checks -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Recent Quality Checks" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    {% if recent_checks %}
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Package" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Check Type" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Result" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Checker" %}</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for check in recent_checks %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ check.packaging_record.barcode }}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ check.get_check_type_display }}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            {% if check.result == 'pass' %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    {% trans "Pass" %}
+                                                </span>
+                                            {% elif check.result == 'fail' %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    {% trans "Fail" %}
+                                                </span>
+                                            {% else %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    {% trans "Conditional" %}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ check.checker.get_full_name }}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ check.checked_at|date:"M j, Y H:i" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-clipboard-list text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500">{% trans "No quality checks performed yet." %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quality Control Stats -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Quality Statistics" %}</h3>
+                </div>
+                
+                <div class="p-4 space-y-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600">{{ pending_checks|length }}</div>
+                        <div class="text-sm text-gray-600">{% trans "Pending Checks" %}</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">{{ recent_checks|length }}</div>
+                        <div class="text-sm text-gray-600">{% trans "Total Checks" %}</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-yellow-600">95%</div>
+                        <div class="text-sm text-gray-600">{% trans "Pass Rate" %}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quality Guidelines -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Quality Guidelines" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Package is properly sealed and secure" %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "All items are included and undamaged" %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Address label is clear and correct" %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Tracking number is generated" %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Package weight and dimensions are recorded" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Quick Actions" %}</h3>
+                </div>
+                
+                <div class="p-4 space-y-3">
+                    <button class="w-full flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i> {% trans "Export Report" %}
+                    </button>
+                    
+                    <button class="w-full flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                        <i class="fas fa-chart-bar mr-2"></i> {% trans "View Analytics" %}
+                    </button>
+                    
+                    <button class="w-full flex items-center justify-center px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors">
+                        <i class="fas fa-cog mr-2"></i> {% trans "Settings" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

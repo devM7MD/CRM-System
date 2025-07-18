@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Assign Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="bg-white">
+    <!-- Page Header -->
+    <div class="bg-yellow-500 shadow-lg border-t-4 border-yellow-400">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'callcenter:manager_order_list' %}" class="text-white hover:text-yellow-100">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </a>
+                    <h1 class="text-3xl font-bold text-white">Assign Order #{{ order.id }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-3xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Order Summary -->
+        <div class="bg-white shadow sm:rounded-lg border border-gray-200 mb-6">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Order Summary</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Customer</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ order.customer.get_full_name|default:"No Customer" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ order.customer_phone }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Current Status</dt>
+                        <dd class="mt-1">
+                            {% if order.status == 'confirmed' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Confirmed
+                                </span>
+                            {% elif order.status == 'pending_confirmation' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Pending Confirmation
+                                </span>
+                            {% elif order.status == 'cancelled' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Cancelled
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    {{ order.status|title }}
+                                </span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Total Amount</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ order.total_price|floatformat:2 }} AED</dd>
+                    </div>
+                    {% if order.customer_address %}
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Delivery Address</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ order.customer_address }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if order.notes %}
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Order Notes</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ order.notes }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <!-- Current Assignment -->
+        {% for assignment in order.assignments.all %}
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Current Assignment</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p><strong>Agent:</strong> {{ assignment.agent.get_full_name|default:assignment.agent.username }}</p>
+                        <p><strong>Priority:</strong> {{ assignment.priority_level|title }}</p>
+                        <p><strong>Assigned:</strong> {{ assignment.assignment_date|date:"M d, Y H:i" }}</p>
+                        {% if assignment.manager_notes %}
+                        <p><strong>Notes:</strong> {{ assignment.manager_notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Assignment Form -->
+        <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Assign to Agent</h3>
+            </div>
+            <form method="POST" class="px-4 py-5 sm:p-6">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label for="agent" class="block text-sm font-medium text-gray-700">Select Agent *</label>
+                        <select id="agent" name="agent" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                            <option value="">Choose an agent...</option>
+                            {% for agent in agents %}
+                            <option value="{{ agent.id }}">
+                                {{ agent.get_full_name|default:agent.username }}
+                                {% if agent.email %} ({{ agent.email }}){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Select the agent who will handle this order</p>
+                    </div>
+
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700">Priority Level</label>
+                        <select id="priority" name="priority" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
+                            <option value="low">Low - Standard processing</option>
+                            <option value="medium" selected>Medium - Normal priority</option>
+                            <option value="high">High - Urgent attention needed</option>
+                            <option value="urgent">Urgent - Immediate action required</option>
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Set the priority level for this assignment</p>
+                    </div>
+
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-700">Manager Notes</label>
+                        <textarea id="notes" name="notes" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="Add any specific instructions, context, or notes for the agent..."></textarea>
+                        <p class="mt-1 text-sm text-gray-500">Optional notes that will be visible to the assigned agent</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <a href="{% url 'callcenter:manager_order_list' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md transition-colors duration-150">
+                        Cancel
+                    </a>
+                    <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-150">
+                        {% if order.assignments.all %}Reassign Order{% else %}Assign Order{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

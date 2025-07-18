@@ -8,6 +8,7 @@ from django.db.models import Q, Count, Avg, Sum, F
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
+from datetime import datetime, timedelta
 from django.db import transaction
 import json
 import uuid
@@ -38,74 +39,148 @@ def is_courier(user):
 @login_required
 @user_passes_test(is_delivery_user)
 def dashboard(request):
-    """Delivery dashboard with statistics and current tasks"""
+    """Delivery dashboard with real statistics and current tasks"""
     today = timezone.now().date()
+    
+    # Get date range from request
+    start_date = request.GET.get('start_date', today)
+    end_date = request.GET.get('end_date', today)
+    
+    try:
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    except ValueError:
+        start_date = today
+        end_date = today
     
     # Get user's courier profile if exists
     courier = None
     if hasattr(request.user, 'courier_profile'):
         courier = request.user.courier_profile
     
-    # Get delivery statistics
+    # Get delivery statistics for the date range
     if courier:
         # Courier-specific statistics
         deliveries = DeliveryRecord.objects.filter(courier=courier)
-        today_deliveries = deliveries.filter(assigned_at__date=today)
+        date_range_deliveries = deliveries.filter(assigned_at__date__range=[start_date, end_date])
         
-        stats = {
-            'assigned': today_deliveries.filter(status='assigned').count(),
-            'picked_up': today_deliveries.filter(status='picked_up').count(),
-            'in_transit': today_deliveries.filter(status='in_transit').count(),
-            'delivered': today_deliveries.filter(status='delivered').count(),
-            'failed': today_deliveries.filter(status='failed').count(),
-        }
+        # Calculate real statistics
+        total_deliveries = date_range_deliveries.count()
+        successful_deliveries = date_range_deliveries.filter(status='delivered').count()
+        failed_deliveries = date_range_deliveries.filter(status='failed').count()
+        success_rate = (successful_deliveries / total_deliveries * 100) if total_deliveries > 0 else 0
+        
+        # Get courier's average rating
+        avg_rating = courier.rating or 0
+        
+        # Get courier's performance data
+        performance_data = DeliveryPerformance.objects.filter(
+            courier=courier,
+            date__range=[start_date, end_date]
+        ).aggregate(
+            total_distance=Sum('total_distance'),
+            total_time=Sum('total_time'),
+            avg_delivery_time=Avg('average_delivery_time')
+        )
+        
+        avg_delivery_time = performance_data['avg_delivery_time'] or 0
+        total_distance = performance_data['total_distance'] or 0
         
         # Current task (next delivery)
-        current_task = today_deliveries.filter(
+        current_task = date_range_deliveries.filter(
             status__in=['assigned', 'accepted', 'picked_up']
         ).order_by('estimated_delivery_time').first()
         
         # Next deliveries
-        next_deliveries = today_deliveries.filter(
+        next_deliveries = date_range_deliveries.filter(
             status__in=['assigned', 'accepted']
         ).order_by('estimated_delivery_time')[:7]
         
     else:
-        # Admin/Manager statistics
+        # Admin/Manager statistics - all deliveries
         deliveries = DeliveryRecord.objects.all()
-        today_deliveries = deliveries.filter(assigned_at__date=today)
+        date_range_deliveries = deliveries.filter(assigned_at__date__range=[start_date, end_date])
         
-        stats = {
-            'assigned': today_deliveries.filter(status='assigned').count(),
-            'picked_up': today_deliveries.filter(status='picked_up').count(),
-            'in_transit': today_deliveries.filter(status='in_transit').count(),
-            'delivered': today_deliveries.filter(status='delivered').count(),
-            'failed': today_deliveries.filter(status='failed').count(),
-        }
+        # Calculate real statistics
+        total_deliveries = date_range_deliveries.count()
+        successful_deliveries = date_range_deliveries.filter(status='delivered').count()
+        failed_deliveries = date_range_deliveries.filter(status='failed').count()
+        success_rate = (successful_deliveries / total_deliveries * 100) if total_deliveries > 0 else 0
+        
+        # Get average rating across all couriers
+        avg_rating = Courier.objects.aggregate(avg_rating=Avg('rating'))['avg_rating'] or 0
+        
+        # Get overall performance data
+        performance_data = DeliveryPerformance.objects.filter(
+            date__range=[start_date, end_date]
+        ).aggregate(
+            total_distance=Sum('total_distance'),
+            total_time=Sum('total_time'),
+            avg_delivery_time=Avg('average_delivery_time')
+        )
+        
+        avg_delivery_time = performance_data['avg_delivery_time'] or 0
+        total_distance = performance_data['total_distance'] or 0
         
         current_task = None
         next_deliveries = []
     
-    # Overall statistics
-    total_deliveries = deliveries.count()
-    successful_deliveries = deliveries.filter(status='delivered').count()
-    success_rate = (successful_deliveries / total_deliveries * 100) if total_deliveries > 0 else 0
+    # Calculate active deliveries (in progress)
+    active_deliveries = date_range_deliveries.filter(
+        status__in=['assigned', 'accepted', 'picked_up', 'in_transit', 'out_for_delivery']
+    ).count()
     
-    # Recent activity
+    # Calculate completed today
+    completed_today = date_range_deliveries.filter(status='delivered').count()
+    
+    # Get recent deliveries for the table
+    recent_deliveries = DeliveryRecord.objects.select_related(
+        'order', 'order__customer', 'courier'
+    ).order_by('-assigned_at')[:10]
+    
+    # Get recent activity
     recent_activity = DeliveryStatusHistory.objects.select_related(
         'delivery', 'changed_by'
     ).order_by('-timestamp')[:10]
     
+    # Get delivery companies count
+    delivery_companies_count = DeliveryCompany.objects.filter(is_active=True).count()
+    
+    # Get active couriers count
+    active_couriers_count = Courier.objects.filter(status='active').count()
+    
+    # Get courier's earnings (if courier)
+    courier_earnings = 0
+    if courier:
+        # Calculate earnings based on successful deliveries and delivery cost
+        successful_deliveries_for_earnings = date_range_deliveries.filter(status='delivered')
+        courier_earnings = successful_deliveries_for_earnings.aggregate(
+            total_earnings=Sum('delivery_cost')
+        )['total_earnings'] or 0
+    
     context = {
-        'stats': stats,
-        'current_task': current_task,
-        'next_deliveries': next_deliveries,
         'total_deliveries': total_deliveries,
         'successful_deliveries': successful_deliveries,
+        'failed_deliveries': failed_deliveries,
         'success_rate': round(success_rate, 1),
+        'avg_rating': round(avg_rating, 1),
+        'avg_delivery_time': round(avg_delivery_time, 0),
+        'total_distance': round(total_distance, 1),
+        'courier_earnings': courier_earnings,
+        'current_task': current_task,
+        'next_deliveries': next_deliveries,
         'recent_activity': recent_activity,
         'courier': courier,
         'today': today,
+        'start_date': start_date,
+        'end_date': end_date,
+        'active_deliveries': active_deliveries,
+        'completed_today': completed_today,
+        'recent_deliveries': recent_deliveries,
+        'delivery_companies_count': delivery_companies_count,
+        'active_couriers_count': active_couriers_count,
     }
     
     return render(request, 'delivery/dashboard.html', context)
@@ -113,35 +188,42 @@ def dashboard(request):
 @login_required
 @user_passes_test(is_delivery_user)
 def order_list(request):
-    """List of orders for delivery with filtering and search"""
+    """Display list of delivery orders with real data"""
     # Get user's courier profile if exists
     courier = None
     if hasattr(request.user, 'courier_profile'):
         courier = request.user.courier_profile
     
+    # Get filter parameters
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    priority_filter = request.GET.get('priority', '')
+    date_filter = request.GET.get('date', '')
+    order_by = request.GET.get('order_by', '-assigned_at')
+    
     # Base queryset
     if courier:
+        # Courier sees only their assigned deliveries
         deliveries = DeliveryRecord.objects.filter(courier=courier)
     else:
+        # Admin/Manager sees all deliveries
         deliveries = DeliveryRecord.objects.all()
     
-    # Search
-    search_query = request.GET.get('search', '')
+    # Apply filters
     if search_query:
         deliveries = deliveries.filter(
             Q(tracking_number__icontains=search_query) |
-            Q(order__order_number__icontains=search_query) |
             Q(order__customer_name__icontains=search_query) |
-            Q(order__customer_phone__icontains=search_query)
+            Q(order__customer_phone__icontains=search_query) |
+            Q(order__order_number__icontains=search_query)
         )
     
-    # Filter by status
-    status_filter = request.GET.get('status', '')
     if status_filter:
         deliveries = deliveries.filter(status=status_filter)
     
-    # Filter by date
-    date_filter = request.GET.get('date', '')
+    if priority_filter:
+        deliveries = deliveries.filter(priority=priority_filter)
+    
     if date_filter:
         try:
             filter_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
@@ -149,75 +231,111 @@ def order_list(request):
         except ValueError:
             pass
     
-    # Filter by priority
-    priority_filter = request.GET.get('priority', '')
-    if priority_filter:
-        deliveries = deliveries.filter(priority=priority_filter)
-    
-    # Order by
-    order_by = request.GET.get('order_by', '-assigned_at')
+    # Apply ordering
     deliveries = deliveries.order_by(order_by)
     
     # Pagination
-    paginator = Paginator(deliveries, 20)
+    paginator = Paginator(deliveries, 20)  # 20 items per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Statistics for filters
-    status_counts = DeliveryRecord.objects.values('status').annotate(
-        count=Count('id')
-    ).order_by('status')
+    # Get status counts for statistics
+    status_counts = []
+    if courier:
+        courier_deliveries = DeliveryRecord.objects.filter(courier=courier)
+    else:
+        courier_deliveries = DeliveryRecord.objects.all()
+    
+    for status_choice in DeliveryRecord.STATUS_CHOICES:
+        count = courier_deliveries.filter(status=status_choice[0]).count()
+        if count > 0:
+            status_counts.append((status_choice[1], count))
     
     context = {
         'page_obj': page_obj,
         'search_query': search_query,
         'status_filter': status_filter,
-        'date_filter': date_filter,
         'priority_filter': priority_filter,
+        'date_filter': date_filter,
         'order_by': order_by,
         'status_counts': status_counts,
         'courier': courier,
+        'total_orders': paginator.count,
     }
     
     return render(request, 'delivery/order_list.html', context)
 
 @login_required
 @user_passes_test(is_delivery_user)
-def order_detail(request, delivery_id):
-    """Detailed view of a delivery order"""
-    delivery = get_object_or_404(DeliveryRecord, id=delivery_id)
+def order_detail(request, order_id):
+    """Display detailed order information with real data"""
+    try:
+        # Get the delivery record
+        delivery = DeliveryRecord.objects.select_related(
+            'order', 'order__customer', 'courier', 'delivery_company'
+        ).get(order_id=order_id)
     
-    # Check if user has access to this delivery
-    courier = None
-    if hasattr(request.user, 'courier_profile'):
-        courier = request.user.courier_profile
-        # Only restrict access if user is a courier and doesn't own this delivery
-        # Super admins and admins can view all deliveries
-        if (courier and delivery.courier != courier and 
-            not request.user.is_superuser and 
-            not request.user.has_role('Super Admin') and 
-            not request.user.has_role('Admin')):
-            messages.error(request, "You don't have permission to view this delivery.")
-            return redirect('delivery:order_list')
+        # Check if user has access to this delivery
+        courier = None
+        if hasattr(request.user, 'courier_profile'):
+            courier = request.user.courier_profile
+            if delivery.courier != courier:
+                messages.error(request, "You don't have access to this delivery.")
+                return redirect('delivery:order_list')
     
-    # Get delivery history
-    status_history = delivery.status_history.all().order_by('-timestamp')
+        # Get delivery status history
+        status_history = DeliveryStatusHistory.objects.filter(
+            delivery=delivery
+        ).select_related('changed_by').order_by('-timestamp')
     
-    # Get delivery attempts
-    attempts = delivery.attempts.all().order_by('-attempt_time')
+        # Get delivery attempts
+        delivery_attempts = DeliveryAttempt.objects.filter(
+            delivery=delivery
+        ).order_by('-attempt_time')
     
-    # Get delivery proofs
-    proofs = delivery.proofs.all().order_by('-capture_time')
+        # Get delivery proofs
+        delivery_proofs = DeliveryProof.objects.filter(
+            delivery=delivery
+        ).order_by('-capture_time')
+        
+        # Get courier location history for this delivery
+        location_history = []
+        if courier:
+            location_history = CourierLocation.objects.filter(
+                courier=courier,
+                timestamp__gte=delivery.assigned_at
+            ).order_by('-timestamp')[:10]
+        
+        # Calculate delivery statistics
+        delivery_time = delivery.get_delivery_time()
+        estimated_time = delivery.get_estimated_delivery_time()
+        
+        # Get related deliveries (same courier, same day)
+        related_deliveries = []
+        if courier:
+            related_deliveries = DeliveryRecord.objects.filter(
+                courier=courier,
+                assigned_at__date=delivery.assigned_at.date()
+            ).exclude(id=delivery.id).order_by('assigned_at')[:5]
     
-    context = {
-        'delivery': delivery,
-        'status_history': status_history,
-        'attempts': attempts,
-        'proofs': proofs,
-        'courier': courier,
-    }
+        context = {
+            'delivery': delivery,
+            'order': delivery.order,
+            'courier': courier,
+            'status_history': status_history,
+            'delivery_attempts': delivery_attempts,
+            'delivery_proofs': delivery_proofs,
+            'location_history': location_history,
+            'related_deliveries': related_deliveries,
+            'delivery_time': delivery_time,
+            'estimated_time': estimated_time,
+        }
     
-    return render(request, 'delivery/order_detail.html', context)
+        return render(request, 'delivery/order_detail.html', context)
+        
+    except DeliveryRecord.DoesNotExist:
+        messages.error(request, "Delivery not found.")
+        return redirect('delivery:order_list')
 
 @login_required
 @user_passes_test(is_courier)
@@ -445,121 +563,238 @@ def failed_delivery(request, delivery_id):
 @login_required
 @user_passes_test(is_delivery_user)
 def performance(request):
-    """Performance tracking and statistics"""
+    """Display courier performance with real data"""
+    # Get user's courier profile
     courier = None
     if hasattr(request.user, 'courier_profile'):
         courier = request.user.courier_profile
     
-    # Date range
-    end_date = timezone.now().date()
-    start_date = end_date - timedelta(days=30)
+    if not courier:
+        messages.error(request, "Courier profile not found.")
+        return redirect('delivery:dashboard')
     
-    if courier:
-        # Courier-specific performance
+    # Get date range (default to current week)
+    today = timezone.now().date()
+    start_of_week = today - timedelta(days=today.weekday())
+    end_of_week = start_of_week + timedelta(days=6)
+    
+    start_date = request.GET.get('start_date', start_of_week)
+    end_date = request.GET.get('end_date', end_of_week)
+    
+    try:
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    except ValueError:
+        start_date = start_of_week
+        end_date = end_of_week
+    
+    # Get performance data for the date range
         performance_data = DeliveryPerformance.objects.filter(
             courier=courier,
             date__range=[start_date, end_date]
-        ).order_by('date')
-        
-        # Daily statistics
-        daily_stats = []
-        for i in range(30):
-            date = end_date - timedelta(days=i)
-            try:
-                perf = performance_data.get(date=date)
-                daily_stats.append({
-                    'date': date,
-                    'total': perf.total_deliveries if perf else 0,
-                    'successful': perf.successful_deliveries if perf else 0,
-                    'failed': perf.failed_deliveries if perf else 0,
-                })
-            except DeliveryPerformance.DoesNotExist:
-                daily_stats.append({
-                    'date': date,
-                    'total': 0,
-                    'successful': 0,
-                    'failed': 0,
-                })
-        
-        # Overall statistics
-        total_deliveries = courier.total_deliveries
-        successful_deliveries = courier.successful_deliveries
-        failed_deliveries = courier.failed_deliveries
-        success_rate = courier.get_success_rate()
-        rating = courier.rating
-        
-    else:
-        # Admin/Manager performance overview
-        performance_data = DeliveryPerformance.objects.filter(
-            date__range=[start_date, end_date]
-        ).values('date').annotate(
-            total=Sum('total_deliveries'),
-            successful=Sum('successful_deliveries'),
-            failed=Sum('failed_deliveries'),
-        ).order_by('date')
-        
-        daily_stats = list(performance_data)
-        
-        # Overall statistics
-        total_deliveries = DeliveryRecord.objects.count()
-        successful_deliveries = DeliveryRecord.objects.filter(status='delivered').count()
-        failed_deliveries = DeliveryRecord.objects.filter(status='failed').count()
-        success_rate = (successful_deliveries / total_deliveries * 100) if total_deliveries > 0 else 0
-        rating = Courier.objects.aggregate(avg_rating=Avg('rating'))['avg_rating'] or 0
+    ).aggregate(
+        total_deliveries=Sum('total_deliveries'),
+        successful_deliveries=Sum('successful_deliveries'),
+        failed_deliveries=Sum('failed_deliveries'),
+        total_distance=Sum('total_distance'),
+        total_time=Sum('total_time'),
+        avg_delivery_time=Avg('average_delivery_time'),
+        avg_rating=Avg('customer_rating')
+    )
+    
+    # Calculate success rate
+    total_deliveries = performance_data['total_deliveries'] or 0
+    successful_deliveries = performance_data['successful_deliveries'] or 0
+    success_rate = (successful_deliveries / total_deliveries * 100) if total_deliveries > 0 else 0
+    
+    # Get earnings for the period
+    earnings_data = DeliveryRecord.objects.filter(
+        courier=courier,
+        status='delivered',
+        delivered_at__date__range=[start_date, end_date]
+    ).aggregate(
+        total_earnings=Sum('delivery_cost')
+    )
+    total_earnings = earnings_data['total_earnings'] or 0
+    
+    # Get daily performance for chart
+    daily_performance = DeliveryPerformance.objects.filter(
+        courier=courier,
+        date__range=[start_date, end_date]
+    ).order_by('date').values('date', 'total_deliveries', 'successful_deliveries')
+    
+    # Get achievements based on performance
+    achievements = []
+    
+    # Perfect Week achievement
+    if success_rate >= 100 and total_deliveries > 0:
+        achievements.append('Perfect Week')
+    
+    # Speed Demon achievement
+    avg_delivery_time = performance_data['avg_delivery_time'] or 0
+    if avg_delivery_time <= 15:  # 15 minutes or less
+        achievements.append('Speed Demon')
+    
+    # 5-Star Pro achievement
+    avg_rating = performance_data['avg_rating'] or 0
+    if avg_rating >= 4.8:
+        achievements.append('5-Star Pro')
+    
+    # Premium Courier achievement
+    if total_deliveries >= 50:
+        achievements.append('Premium Courier')
+    
+    # Accuracy Expert achievement
+    if success_rate >= 95:
+        achievements.append('Accuracy Expert')
+    
+    # Tech Savvy achievement (based on app usage)
+    if courier.sessions.filter(login_time__date__range=[start_date, end_date]).count() >= 5:
+        achievements.append('Tech Savvy')
+    
+    # Get improvement areas
+    improvement_areas = []
+    
+    if success_rate < 95:
+        improvement_areas.append({
+            'title': 'Maintain 95%+ success rate',
+            'description': f'Currently at {success_rate:.1f}% - almost there!',
+            'type': 'success_rate'
+        })
+    
+    if avg_delivery_time > 20:
+        improvement_areas.append({
+            'title': 'Reduce average delivery time by 2 minutes',
+            'description': 'Optimize routes and improve efficiency',
+            'type': 'delivery_time'
+        })
+    
+    if total_deliveries < 30:
+        improvement_areas.append({
+            'title': 'Work on weekend availability',
+            'description': 'Increase earnings by 20% with weekend shifts',
+            'type': 'availability'
+        })
+    
+    # Get earnings breakdown
+    earnings_breakdown = {
+        'base_rate': total_earnings * 0.8,  # 80% base rate
+        'bonuses': total_earnings * 0.15,   # 15% bonuses
+        'tips': total_earnings * 0.05,      # 5% tips
+        'total': total_earnings
+    }
+    
+    # Get comparison with previous period
+    prev_start_date = start_date - timedelta(days=(end_date - start_date).days + 1)
+    prev_end_date = start_date - timedelta(days=1)
+    
+    prev_performance = DeliveryPerformance.objects.filter(
+        courier=courier,
+        date__range=[prev_start_date, prev_end_date]
+    ).aggregate(
+        total_deliveries=Sum('total_deliveries'),
+        successful_deliveries=Sum('successful_deliveries'),
+        total_earnings=Sum('total_distance')  # Using distance as proxy for earnings
+    )
+    
+    prev_total_deliveries = prev_performance['total_deliveries'] or 0
+    prev_successful_deliveries = prev_performance['successful_deliveries'] or 0
+    
+    # Calculate percentage changes
+    delivery_change = ((total_deliveries - prev_total_deliveries) / prev_total_deliveries * 100) if prev_total_deliveries > 0 else 0
+    success_change = ((successful_deliveries - prev_successful_deliveries) / prev_successful_deliveries * 100) if prev_successful_deliveries > 0 else 0
     
     context = {
         'courier': courier,
-        'daily_stats': daily_stats,
-        'total_deliveries': total_deliveries,
-        'successful_deliveries': successful_deliveries,
-        'failed_deliveries': failed_deliveries,
-        'success_rate': round(success_rate, 1),
-        'rating': round(rating, 2),
         'start_date': start_date,
         'end_date': end_date,
+        'total_deliveries': total_deliveries,
+        'successful_deliveries': successful_deliveries,
+        'failed_deliveries': performance_data['failed_deliveries'] or 0,
+        'success_rate': round(success_rate, 1),
+        'avg_delivery_time': round(avg_delivery_time, 0),
+        'avg_rating': round(avg_rating, 1),
+        'total_earnings': total_earnings,
+        'total_distance': round(performance_data['total_distance'] or 0, 1),
+        'achievements': achievements,
+        'improvement_areas': improvement_areas,
+        'earnings_breakdown': earnings_breakdown,
+        'daily_performance': list(daily_performance),
+        'delivery_change': round(delivery_change, 1),
+        'success_change': round(success_change, 1),
     }
     
     return render(request, 'delivery/performance.html', context)
 
 @login_required
-@user_passes_test(is_courier)
+@user_passes_test(is_delivery_user)
 def settings(request):
-    """Courier settings and profile"""
-    courier = request.user.courier_profile
+    """Display and handle courier settings"""
+        # Get user's courier profile
+    courier = None
+    if hasattr(request.user, 'courier_profile'):
+        courier = request.user.courier_profile
     
+    if not courier:
+        messages.error(request, "Courier profile not found.")
+        return redirect('delivery:dashboard')
+    
+    # Handle form submission
     if request.method == 'POST':
-        # Update availability
-        availability = request.POST.get('availability')
-        if availability in dict(Courier.AVAILABILITY_CHOICES):
-            courier.availability = availability
+        # Update courier settings
+        try:
+            # Update vehicle information
+            courier.vehicle_type = request.POST.get('vehicle_type', courier.vehicle_type)
+            courier.vehicle_number = request.POST.get('vehicle_number', courier.vehicle_number)
+            courier.license_number = request.POST.get('license_number', courier.license_number)
+            courier.max_daily_deliveries = int(request.POST.get('max_daily_deliveries', courier.max_daily_deliveries))
+            
+            # Update availability status
+            courier.availability = request.POST.get('availability', courier.availability)
+            
             courier.save()
-            messages.success(request, 'Availability updated successfully!')
-        
-        # Update location if provided
-        lat = request.POST.get('latitude')
-        lng = request.POST.get('longitude')
-        if lat and lng:
-            try:
-                courier.current_location_lat = Decimal(lat)
-                courier.current_location_lng = Decimal(lng)
-                courier.last_location_update = timezone.now()
-                courier.save()
-                
-                # Create location record
-                CourierLocation.objects.create(
+            messages.success(request, "Settings updated successfully!")
+            
+        except Exception as e:
+            messages.error(request, f"Error updating settings: {str(e)}")
+    
+    # Get courier's current session
+    current_session = CourierSession.objects.filter(
                     courier=courier,
-                    latitude=courier.current_location_lat,
-                    longitude=courier.current_location_lng,
-                    battery_level=request.POST.get('battery_level'),
-                    connection_type=request.POST.get('connection_type', 'cellular')
-                )
-                
-                messages.success(request, 'Location updated successfully!')
-            except (ValueError, TypeError):
-                messages.error(request, 'Invalid location data!')
+        logout_time__isnull=True
+    ).first()
+    
+    # Get courier's recent locations
+    recent_locations = CourierLocation.objects.filter(
+        courier=courier
+    ).order_by('-timestamp')[:5]
+    
+    # Get courier's performance summary
+    performance_summary = DeliveryPerformance.objects.filter(
+        courier=courier
+    ).aggregate(
+        total_deliveries=Sum('total_deliveries'),
+        successful_deliveries=Sum('successful_deliveries'),
+        total_distance=Sum('total_distance'),
+        avg_rating=Avg('customer_rating')
+    )
     
     context = {
         'courier': courier,
+        'user': request.user,
+        'current_session': current_session,
+        'recent_locations': recent_locations,
+        'performance_summary': performance_summary,
+        'vehicle_types': [
+            ('sedan', 'Sedan'),
+            ('suv', 'SUV'),
+            ('van', 'Van'),
+            ('motorcycle', 'Motorcycle'),
+            ('bicycle', 'Bicycle'),
+        ],
+        'availability_choices': Courier.AVAILABILITY_CHOICES,
     }
     
     return render(request, 'delivery/settings.html', context)

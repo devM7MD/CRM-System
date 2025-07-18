@@ -1,129 +1,217 @@
 from django.core.management.base import BaseCommand
+from django.contrib.auth import get_user_model
 from django.utils import timezone
-from delivery.models import DeliveryRecord, DeliveryCompany, Courier
+from delivery.models import (
+    DeliveryCompany, Courier, DeliveryRecord, DeliveryPerformance,
+    DeliveryStatusHistory, CourierSession, CourierLocation
+)
 from orders.models import Order
-from users.models import User
-from datetime import timedelta
+from decimal import Decimal
 import random
+from datetime import timedelta
+
+User = get_user_model()
 
 class Command(BaseCommand):
     help = 'Create sample delivery data for testing'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--couriers',
+            type=int,
+            default=5,
+            help='Number of couriers to create'
+        )
+        parser.add_argument(
+            '--deliveries',
+            type=int,
+            default=50,
+            help='Number of deliveries to create'
+        )
+
     def handle(self, *args, **options):
         self.stdout.write('Creating sample delivery data...')
         
-        # Get or create delivery company
+        # Create delivery company
         company, created = DeliveryCompany.objects.get_or_create(
-            name_en='Atlas Express Delivery',
+            name_en="Atlas Express Delivery",
+            name_ar="أطلس إكسبريس للتوصيل",
             defaults={
-                'name_ar': 'أطلس إكسبريس للتوصيل',
-                'base_cost': 25.0,
+                'base_cost': Decimal('15.00'),
                 'is_active': True
             }
         )
+        
         if created:
             self.stdout.write(f'Created delivery company: {company.name_en}')
         
-        # Get or create courier
-        courier_user, created = User.objects.get_or_create(
-            email='courier@atlas.com',
-            defaults={
-                'full_name': 'Mohammed Ali',
-                'phone_number': '+971507654321',
-                'is_active': True
-            }
-        )
+        # Create couriers
+        couriers = []
+        for i in range(options['couriers']):
+            # Create user for courier
+            user, created = User.objects.get_or_create(
+                email=f'courier{i+1}@atlas.com',
+                defaults={
+                    'full_name': f'Courier {i+1}',
+                    'phone_number': f'+97150{random.randint(1000000, 9999999)}',
+                    'is_active': True
+                }
+            )
+            
+            if created:
+                user.set_password('password123')
+                user.save()
+            
+            # Create courier profile
+            courier, created = Courier.objects.get_or_create(
+                user=user,
+                defaults={
+                    'employee_id': f'EMP{i+1:03d}',
+                    'delivery_company': company,
+                    'phone_number': f'+97150{random.randint(1000000, 9999999)}',
+                    'vehicle_type': random.choice(['sedan', 'suv', 'van', 'motorcycle']),
+                    'vehicle_number': f'DXB-{random.randint(1000, 9999)}',
+                    'license_number': f'LIC{random.randint(100000, 999999)}',
+                    'status': 'active',
+                    'availability': random.choice(['available', 'busy', 'offline']),
+                    'max_daily_deliveries': random.randint(30, 80),
+                    'rating': Decimal(str(random.uniform(3.5, 5.0))),
+                    'total_deliveries': random.randint(50, 500),
+                    'successful_deliveries': 0,
+                    'failed_deliveries': 0,
+                }
+            )
+            
+            if created:
+                # Set realistic delivery statistics
+                total = courier.total_deliveries
+                successful = random.randint(int(total * 0.85), int(total * 0.98))  # 85-98% success rate
+                failed = total - successful
+                
+                courier.successful_deliveries = successful
+                courier.failed_deliveries = failed
+                courier.save()
+                self.stdout.write(f'Created courier: {courier.user.get_full_name()}')
+            
+            couriers.append(courier)
         
-        courier, created = Courier.objects.get_or_create(
-            user=courier_user,
-            defaults={
-                'company': company,
-                'vehicle_type': 'motorcycle',
-                'vehicle_number': 'DXB-1234',
-                'availability': 'available',
-                'rating': 4.8,
-                'total_deliveries': 0,
-                'successful_deliveries': 0,
-                'failed_deliveries': 0
-            }
-        )
-        if created:
-            self.stdout.write(f'Created courier: {courier.user.full_name}')
-        
-        # Get existing orders
-        orders = Order.objects.all()[:10]  # Get first 10 orders
-        
-        if not orders:
+        # Create delivery records
+        orders = Order.objects.all()
+        if not orders.exists():
             self.stdout.write('No orders found. Please create some orders first.')
             return
         
-        # Create delivery records
-        statuses = ['assigned', 'accepted', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'failed']
-        priorities = ['urgent', 'high', 'normal', 'low']
-        
-        for i, order in enumerate(orders):
-            # Skip if delivery already exists
+        deliveries_created = 0
+        for i in range(options['deliveries']):
+            order = random.choice(orders)
+            
+            # Check if delivery already exists for this order
             if DeliveryRecord.objects.filter(order=order).exists():
                 continue
             
-            status = random.choice(statuses)
-            priority = random.choice(priorities)
+            courier = random.choice(couriers)
+            status = random.choice(['assigned', 'accepted', 'picked_up', 'delivered', 'failed'])
             
-            # Calculate dates
-            assigned_at = timezone.now() - timedelta(days=random.randint(0, 7))
-            estimated_delivery = assigned_at + timedelta(hours=random.randint(2, 24))
-            
-            # Set delivery times based on status
-            accepted_at = None
-            picked_up_at = None
-            delivered_at = None
-            failed_at = None
-            
-            if status in ['accepted', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'failed']:
-                accepted_at = assigned_at + timedelta(minutes=random.randint(5, 30))
-            
-            if status in ['picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'failed']:
-                picked_up_at = accepted_at + timedelta(minutes=random.randint(15, 60))
-            
-            if status == 'delivered':
-                delivered_at = picked_up_at + timedelta(hours=random.randint(1, 4))
-            elif status == 'failed':
-                failed_at = picked_up_at + timedelta(hours=random.randint(1, 3))
-            
+            # Create delivery record
             delivery = DeliveryRecord.objects.create(
                 order=order,
+                delivery_company=company,
                 courier=courier,
-                tracking_number=f'TRK-{timezone.now().strftime("%Y%m%d")}-{i+1:03d}',
+                tracking_number=f'TRK{random.randint(100000, 999999)}',
                 status=status,
-                priority=priority,
-                assigned_at=assigned_at,
-                accepted_at=accepted_at,
-                picked_up_at=picked_up_at,
-                delivered_at=delivered_at,
-                failed_at=failed_at,
-                estimated_delivery_time=estimated_delivery,
-                delivery_cost=random.uniform(15.0, 50.0),
-                delivery_notes=f'Sample delivery note for order {order.order_number}',
-                customer_signature='Sample Signature' if status == 'delivered' else '',
-                customer_rating=random.randint(3, 5) if status == 'delivered' else None,
-                customer_feedback='Great service!' if status == 'delivered' else ''
+                priority=random.choice(['low', 'normal', 'high', 'urgent']),
+                delivery_cost=Decimal(str(random.uniform(10.0, 50.0))),
+                delivery_notes=f'Sample delivery note {i+1}',
             )
             
-            self.stdout.write(f'Created delivery: {delivery.tracking_number} - {status}')
+            # Set timestamps based on status
+            now = timezone.now()
+            if status in ['accepted', 'picked_up', 'delivered', 'failed']:
+                delivery.accepted_at = now - timedelta(hours=random.randint(1, 6))
+            
+            if status in ['picked_up', 'delivered', 'failed']:
+                delivery.picked_up_at = delivery.accepted_at + timedelta(minutes=random.randint(10, 30))
+            
+            if status in ['delivered', 'failed']:
+                delivery.delivered_at = delivery.picked_up_at + timedelta(minutes=random.randint(15, 60))
+            
+            if status == 'failed':
+                delivery.failed_at = delivery.picked_up_at + timedelta(minutes=random.randint(15, 60))
+            
+            delivery.save()
+            
+            # Create status history
+            DeliveryStatusHistory.objects.create(
+                delivery=delivery,
+                status=status,
+                changed_by=courier.user,
+                notes=f'Status changed to {status}',
+                timestamp=delivery.assigned_at
+            )
+            
+            deliveries_created += 1
         
-        # Update courier statistics
-        total_deliveries = DeliveryRecord.objects.filter(courier=courier).count()
-        successful_deliveries = DeliveryRecord.objects.filter(courier=courier, status='delivered').count()
-        failed_deliveries = DeliveryRecord.objects.filter(courier=courier, status='failed').count()
+        # Create performance records
+        for courier in couriers:
+            for i in range(30):  # Last 30 days
+                date = timezone.now().date() - timedelta(days=i)
+                
+                # Get deliveries for this date
+                daily_deliveries = DeliveryRecord.objects.filter(
+                    courier=courier,
+                    assigned_at__date=date
+                )
+                
+                if daily_deliveries.exists():
+                    total_deliveries = daily_deliveries.count()
+                    successful_deliveries = daily_deliveries.filter(status='delivered').count()
+                    failed_deliveries = daily_deliveries.filter(status='failed').count()
+                    
+                    # Create performance record
+                    DeliveryPerformance.objects.get_or_create(
+                        courier=courier,
+                        date=date,
+                        defaults={
+                            'total_deliveries': total_deliveries,
+                            'successful_deliveries': successful_deliveries,
+                            'failed_deliveries': failed_deliveries,
+                            'total_distance': Decimal(str(random.uniform(50.0, 200.0))),
+                            'total_time': random.randint(300, 1200),  # minutes
+                            'average_delivery_time': random.randint(15, 45),
+                            'customer_rating': Decimal(str(random.uniform(3.5, 5.0))),
+                        }
+                    )
         
-        courier.total_deliveries = total_deliveries
-        courier.successful_deliveries = successful_deliveries
-        courier.failed_deliveries = failed_deliveries
-        courier.save()
+        # Create courier sessions
+        for courier in couriers:
+            # Create current session
+            CourierSession.objects.get_or_create(
+                courier=courier,
+                logout_time__isnull=True,
+                defaults={
+                    'login_time': timezone.now() - timedelta(hours=random.randint(1, 8)),
+                    'status': random.choice(['active', 'break']),
+                    'device_info': 'Sample Device Info',
+                    'ip_address': '192.168.1.100',
+                }
+            )
+            
+            # Create some location records
+            for i in range(10):
+                CourierLocation.objects.create(
+                    courier=courier,
+                    latitude=Decimal(str(25.2048 + random.uniform(-0.1, 0.1))),  # Dubai area
+                    longitude=Decimal(str(55.2708 + random.uniform(-0.1, 0.1))),
+                    accuracy=Decimal(str(random.uniform(5.0, 50.0))),
+                    battery_level=random.randint(20, 100),
+                    connection_type=random.choice(['wifi', 'cellular']),
+                    speed=Decimal(str(random.uniform(0.0, 60.0))),
+                    heading=Decimal(str(random.uniform(0.0, 360.0))),
+                    timestamp=timezone.now() - timedelta(minutes=i*30)
+                )
         
         self.stdout.write(
             self.style.SUCCESS(
-                f'Successfully created {DeliveryRecord.objects.count()} delivery records!'
+                f'Successfully created {len(couriers)} couriers and {deliveries_created} deliveries'
             )
-        )
-        self.stdout.write(f'Courier statistics: {total_deliveries} total, {successful_deliveries} successful, {failed_deliveries} failed') 
+        ) 

@@ -1,541 +1,389 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Performance Dashboard{% endblock %}
-
-{% block extra_css %}
-<style>
-    .performance-dashboard {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 1rem;
-    }
-    
-    .performance-container {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-    
-    .performance-header {
-        text-align: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f0f0f0;
-    }
-    
-    .performance-title {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-    
-    .performance-subtitle {
-        color: #7f8c8d;
-        font-size: 1.1rem;
-    }
-    
-    .stats-overview {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-    
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-left: 5px solid #3498db;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    }
-    
-    .stat-card.success {
-        border-left-color: #27ae60;
-    }
-    
-    .stat-card.warning {
-        border-left-color: #f39c12;
-    }
-    
-    .stat-card.danger {
-        border-left-color: #e74c3c;
-    }
-    
-    .stat-card.info {
-        border-left-color: #3498db;
-    }
-    
-    .stat-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.8;
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-    
-    .stat-label {
-        font-size: 1rem;
-        color: #7f8c8d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .stat-change {
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-    }
-    
-    .stat-change.positive {
-        color: #27ae60;
-    }
-    
-    .stat-change.negative {
-        color: #e74c3c;
-    }
-    
-    .chart-section {
-        background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-    }
-    
-    .chart-header {
-        display: flex;
-        justify-content: between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    
-    .chart-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .chart-container {
-        height: 300px;
-        position: relative;
-    }
-    
-    .daily-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-    
-    .daily-stat {
-        background: rgba(52, 152, 219, 0.1);
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
-    }
-    
-    .daily-stat-number {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #2c3e50;
-    }
-    
-    .daily-stat-label {
-        font-size: 0.8rem;
-        color: #7f8c8d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .performance-table {
-        background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .table th {
-        background: #f8f9fa;
-        padding: 1rem;
-        text-align: left;
-        font-weight: bold;
-        color: #2c3e50;
-        border-bottom: 2px solid #e0e0e0;
-    }
-    
-    .table td {
-        padding: 1rem;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .table tbody tr:hover {
-        background: rgba(52, 152, 219, 0.05);
-    }
-    
-    .success-rate {
-        font-weight: bold;
-    }
-    
-    .success-rate.high {
-        color: #27ae60;
-    }
-    
-    .success-rate.medium {
-        color: #f39c12;
-    }
-    
-    .success-rate.low {
-        color: #e74c3c;
-    }
-    
-    .date-range {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    
-    .date-input {
-        padding: 0.5rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 0.9rem;
-    }
-    
-    .date-input:focus {
-        outline: none;
-        border-color: #3498db;
-    }
-    
-    .btn-filter {
-        padding: 0.5rem 1rem;
-        background: #3498db;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-    
-    .btn-filter:hover {
-        background: #2980b9;
-    }
-    
-    .no-data {
-        text-align: center;
-        padding: 3rem;
-        color: #7f8c8d;
-    }
-    
-    .no-data i {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-    
-    @media (max-width: 768px) {
-        .performance-dashboard {
-            padding: 0.5rem;
-        }
-        
-        .performance-container {
-            padding: 1rem;
-        }
-        
-        .stats-overview {
-            grid-template-columns: 1fr;
-        }
-        
-        .daily-stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .chart-header {
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .date-range {
-            flex-direction: column;
-            align-items: stretch;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}{% trans "My Performance Dashboard" %}{% endblock %}
 
 {% block content %}
-<div class="performance-dashboard">
-    <div class="performance-container">
-        <!-- Header -->
-        <div class="performance-header">
-            <div class="performance-title">📊 Performance Dashboard</div>
-            <div class="performance-subtitle">
-                {% if courier %}
-                    {{ courier.user.get_full_name }} - {{ start_date|date:"M j" }} to {{ end_date|date:"M j, Y" }}
-                {% else %}
-                    Team Performance Overview - {{ start_date|date:"M j" }} to {{ end_date|date:"M j, Y" }}
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Date Range Filter -->
-        <div class="date-range">
-            <input type="date" id="startDate" class="date-input" value="{{ start_date|date:'Y-m-d' }}">
-            <span>to</span>
-            <input type="date" id="endDate" class="date-input" value="{{ end_date|date:'Y-m-d' }}">
-            <button class="btn-filter" onclick="updateDateRange()">
-                <i class="fas fa-filter"></i> Filter
-            </button>
-        </div>
-
-        <!-- Statistics Overview -->
-        <div class="stats-overview">
-            <div class="stat-card success">
-                <div class="stat-icon">📦</div>
-                <div class="stat-number">{{ total_deliveries }}</div>
-                <div class="stat-label">Total Deliveries</div>
-                <div class="stat-change positive">+{{ total_deliveries|add:"0" }} this period</div>
-            </div>
-            
-            <div class="stat-card info">
-                <div class="stat-icon">✅</div>
-                <div class="stat-number">{{ successful_deliveries }}</div>
-                <div class="stat-label">Successful</div>
-                <div class="stat-change positive">+{{ successful_deliveries|add:"0" }} this period</div>
-            </div>
-            
-            <div class="stat-card warning">
-                <div class="stat-icon">❌</div>
-                <div class="stat-number">{{ failed_deliveries }}</div>
-                <div class="stat-label">Failed</div>
-                <div class="stat-change negative">+{{ failed_deliveries|add:"0" }} this period</div>
-            </div>
-            
-            <div class="stat-card info">
-                <div class="stat-icon">📈</div>
-                <div class="stat-number">{{ success_rate }}%</div>
-                <div class="stat-label">Success Rate</div>
-                <div class="stat-change {% if success_rate >= 90 %}positive{% elif success_rate >= 75 %}warning{% else %}negative{% endif %}">
-                    {% if success_rate >= 90 %}Excellent{% elif success_rate >= 75 %}Good{% else %}Needs Improvement{% endif %}
+<div class="w-full">
+    <!-- Beta Warning Banner -->
+    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 border-l-4 border-yellow-600 p-4 mb-6 animate-pulse">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-800 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">
+                        Beta Version Notice
+                    </h3>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        This is a beta version and may have some bugs.
+                    </p>
                 </div>
             </div>
-            
-            <div class="stat-card info">
-                <div class="stat-icon">⭐</div>
-                <div class="stat-number">{{ rating }}/5.0</div>
-                <div class="stat-label">Average Rating</div>
-                <div class="stat-change {% if rating >= 4.5 %}positive{% elif rating >= 4.0 %}warning{% else %}negative{% endif %}">
-                    {% if rating >= 4.5 %}Excellent{% elif rating >= 4.0 %}Good{% else %}Needs Improvement{% endif %}
+            <div class="flex items-center space-x-3">
+                <button type="button" onclick="openBugReportModal()" 
+                        class="bg-yellow-700 hover:bg-yellow-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                    <i class="fas fa-bug mr-2"></i>
+                    Report Bug
+                </button>
+                <button type="button" onclick="dismissBetaWarning()" 
+                        class="text-yellow-800 hover:text-yellow-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <!-- Navigation Bar -->
+    <div class="bg-white shadow-sm rounded-lg mb-6">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'delivery:dashboard' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i>
+                    <span>{% trans "Dashboard" %}</span>
+                </a>
+                <a href="{% url 'delivery:order_list' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-list mr-2"></i>
+                    <span>{% trans "Orders" %}</span>
+                </a>
+                <a href="{% url 'delivery:performance' %}" class="flex items-center text-primary-600 font-medium">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    <span>{% trans "Performance" %}</span>
+                </a>
+                <a href="{% url 'delivery:settings' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-cog mr-2"></i>
+                    <span>{% trans "Settings" %}</span>
+                </a>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">{% trans "Current Time" %}</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-time"></p>
+                </div>
+                <div class="h-8 w-px bg-gray-300"></div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">{% trans "Today's Date" %}</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-date"></p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Daily Performance Chart -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <div class="chart-title">
-                    <i class="fas fa-chart-line"></i>
-                    Daily Performance Trend
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="performanceChart"></canvas>
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-chart-line text-primary-600 mr-3"></i>
+                    {% trans "My Performance Dashboard" %}
+                </h1>
+                <p class="text-gray-600 mt-1">{% trans "Track your delivery performance and achievements" %}</p>
             </div>
         </div>
+    </div>
 
-        <!-- Daily Statistics -->
-        <div class="daily-stats">
-            {% for stat in daily_stats %}
-            <div class="daily-stat">
-                <div class="daily-stat-number">{{ stat.total }}</div>
-                <div class="daily-stat-label">{{ stat.date|date:"M j" }}</div>
-            </div>
-            {% endfor %}
+    <!-- This Week Overview -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-calendar-week mr-2 text-primary-500"></i>
+                {% trans "This Week Overview" %}
+            </h3>
         </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <!-- Delivered -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-gray-900">{{ successful_deliveries|default:"0" }}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Delivered" %}</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +{{ delivery_change|default:"0" }}% {% trans "from last week" %}
+                    </p>
+                </div>
 
-        <!-- Performance Table -->
-        <div class="performance-table">
-            <div class="chart-header">
-                <div class="chart-title">
-                    <i class="fas fa-table"></i>
-                    Detailed Performance Data
+                <!-- Success Rate -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-percentage text-blue-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-gray-900">{{ success_rate|default:"0" }}%</h4>
+                    <p class="text-sm text-gray-600">{% trans "Success Rate" %}</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +{{ success_change|default:"0" }}% {% trans "from last week" %}
+                    </p>
+                </div>
+
+                <!-- Average Time -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-gray-900">{{ avg_delivery_time|default:"0" }} {% trans "min" %}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Avg Time" %}</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-down mr-1"></i>
+                        -3min {% trans "from last week" %}
+                    </p>
+                </div>
+
+                <!-- Earnings -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-dollar-sign text-purple-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-gray-900">AED {{ total_earnings|default:"0" }}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Earnings" %}</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +15% {% trans "from last week" %}
+                    </p>
+                </div>
+
+                <!-- Rating -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-star text-orange-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-gray-900">{{ avg_rating|default:"0" }}⭐</h4>
+                    <p class="text-sm text-gray-600">{% trans "Rating" %}</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +0.2 {% trans "from last week" %}
+                    </p>
                 </div>
             </div>
-            
-            {% if daily_stats %}
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Total</th>
-                            <th>Successful</th>
-                            <th>Failed</th>
-                            <th>Success Rate</th>
-                            <th>Avg Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in daily_stats %}
-                        <tr>
-                            <td>{{ stat.date|date:"M j, Y" }}</td>
-                            <td>{{ stat.total }}</td>
-                            <td>{{ stat.successful }}</td>
-                            <td>{{ stat.failed }}</td>
-                            <td>
-                                <span class="success-rate 
-                                    {% if stat.successful|add:stat.failed > 0 %}
-                                        {% if stat.successful|floatformat:0|add:0 >= 90 %}high
-                                        {% elif stat.successful|floatformat:0|add:0 >= 75 %}medium
-                                        {% else %}low{% endif %}
-                                    {% endif %}">
-                                    {% if stat.total > 0 %}
-                                        {{ stat.successful|floatformat:0|add:0 }}%
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </span>
-                            </td>
-                            <td>
-                                {% if stat.total > 0 %}
-                                    {{ stat.total|add:0 }} min
-                                {% else %}
-                                    N/A
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        </div>
+    </div>
+
+    <!-- Daily Performance Chart -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-chart-area mr-2 text-primary-500"></i>
+                {% trans "Daily Performance Chart" %}
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <div class="text-center text-gray-500">
+                    <i class="fas fa-chart-line text-4xl mb-4"></i>
+                    <p>{% trans "Performance chart will be displayed here" %}</p>
+                    <p class="text-sm mt-2">{% trans "Showing delivery trends over the past 7 days" %}</p>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Achievements & Badges -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-trophy mr-2 text-primary-500"></i>
+                {% trans "Achievements & Badges" %}
+            </h3>
+        </div>
+        <div class="p-6">
+            {% if achievements %}
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {% for achievement in achievements %}
+                        {% if achievement == "Perfect Week" %}
+                            <div class="text-center p-4 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-lg">
+                                <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-trophy text-white"></i>
+                                </div>
+                                <p class="text-sm font-medium text-gray-800">{% trans "Perfect Week" %}</p>
+                            </div>
+                        {% elif achievement == "Speed Demon" %}
+                            <div class="text-center p-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg">
+                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-rocket text-white"></i>
+                                </div>
+                                <p class="text-sm font-medium text-gray-800">{% trans "Speed Demon" %}</p>
+                            </div>
+                        {% elif achievement == "5-Star Pro" %}
+                            <div class="text-center p-4 bg-gradient-to-br from-green-100 to-green-200 rounded-lg">
+                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-star text-white"></i>
+                                </div>
+                                <p class="text-sm font-medium text-gray-800">{% trans "5-Star Pro" %}</p>
+                            </div>
+                        {% elif achievement == "Premium Courier" %}
+                            <div class="text-center p-4 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg">
+                                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-gem text-white"></i>
+                                </div>
+                                <p class="text-sm font-medium text-gray-800">{% trans "Premium Courier" %}</p>
+                            </div>
+                        {% elif achievement == "Accuracy Expert" %}
+                            <div class="text-center p-4 bg-gradient-to-br from-red-100 to-red-200 rounded-lg">
+                                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-bullseye text-white"></i>
+                                </div>
+                                <p class="text-sm font-medium text-gray-800">{% trans "Accuracy Expert" %}</p>
+                            </div>
+                        {% elif achievement == "Tech Savvy" %}
+                            <div class="text-center p-4 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-lg">
+                                <div class="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-mobile-alt text-white"></i>
+                                </div>
+                                <p class="text-sm font-medium text-gray-800">{% trans "Tech Savvy" %}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             {% else %}
-            <div class="no-data">
-                <i class="fas fa-chart-bar"></i>
-                <h4>No Performance Data</h4>
-                <p>No performance data available for the selected period.</p>
-            </div>
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-trophy text-gray-400 text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">{% trans "No Achievements Yet" %}</h4>
+                    <p class="text-gray-500">{% trans "Keep up the great work! Achievements will appear here as you meet performance goals." %}</p>
+                </div>
             {% endif %}
         </div>
     </div>
+
+    <!-- Improvement Areas -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-lightbulb mr-2 text-primary-500"></i>
+                {% trans "Improvement Areas" %}
+            </h3>
+        </div>
+        <div class="p-6">
+            {% if improvement_areas %}
+                <div class="space-y-4">
+                    {% for area in improvement_areas %}
+                        {% if area.type == "success_rate" %}
+                            <div class="flex items-center p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
+                                <i class="fas fa-percentage text-green-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ area.title }}</p>
+                                    <p class="text-sm text-gray-600">{{ area.description }}</p>
+                                </div>
+                            </div>
+                        {% elif area.type == "delivery_time" %}
+                            <div class="flex items-center p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                                <i class="fas fa-clock text-blue-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ area.title }}</p>
+                                    <p class="text-sm text-gray-600">{{ area.description }}</p>
+                                </div>
+                            </div>
+                        {% elif area.type == "availability" %}
+                            <div class="flex items-center p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                                <i class="fas fa-calendar text-yellow-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ area.title }}</p>
+                                    <p class="text-sm text-gray-600">{{ area.description }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">{% trans "Excellent Performance!" %}</h4>
+                    <p class="text-gray-500">{% trans "You're meeting all your performance goals. Keep up the great work!" %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Earnings Breakdown -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-money-bill-wave mr-2 text-primary-500"></i>
+                {% trans "Earnings Breakdown" %}
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <h4 class="text-lg font-semibold text-gray-800">AED {{ earnings_breakdown.base_rate|floatformat:2 }}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Base Rate" %}</p>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <h4 class="text-lg font-semibold text-green-800">AED {{ earnings_breakdown.bonuses|floatformat:2 }}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Bonuses" %}</p>
+                </div>
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <h4 class="text-lg font-semibold text-blue-800">AED {{ earnings_breakdown.tips|floatformat:2 }}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Tips" %}</p>
+                </div>
+                <div class="text-center p-4 bg-primary-50 rounded-lg">
+                    <h4 class="text-lg font-semibold text-primary-800">AED {{ earnings_breakdown.total|floatformat:2 }}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Total" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a href="#" class="card hover:shadow-lg transition-all duration-300 animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-bar text-primary-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{% trans "Detailed Report" %}</h3>
+                <p class="text-gray-600">{% trans "View comprehensive performance analytics" %}</p>
+            </div>
+        </a>
+
+        <a href="#" class="card hover:shadow-lg transition-all duration-300 animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-credit-card text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{% trans "Payment History" %}</h3>
+                <p class="text-gray-600">{% trans "Track your earnings and payment history" %}</p>
+            </div>
+        </a>
+    </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Performance Chart
-const ctx = document.getElementById('performanceChart').getContext('2d');
-
-const chartData = {
-    labels: [
-        {% for stat in daily_stats %}
-            '{{ stat.date|date:"M j" }}',
-        {% endfor %}
-    ],
-    datasets: [
-        {
-            label: 'Successful Deliveries',
-            data: [
-                {% for stat in daily_stats %}
-                    {{ stat.successful }},
-                {% endfor %}
-            ],
-            borderColor: '#27ae60',
-            backgroundColor: 'rgba(39, 174, 96, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4
-        },
-        {
-            label: 'Failed Deliveries',
-            data: [
-                {% for stat in daily_stats %}
-                    {{ stat.failed }},
-                {% endfor %}
-            ],
-            borderColor: '#e74c3c',
-            backgroundColor: 'rgba(231, 76, 60, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4
-        }
-    ]
-};
-
-const performanceChart = new Chart(ctx, {
-    type: 'line',
-    data: chartData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Daily Delivery Performance'
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Number of Deliveries'
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Date'
-                }
-            }
-        }
-    }
-});
-
-// Date Range Filter
-function updateDateRange() {
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+// Update current time and date
+function updateDateTime() {
+    const now = new Date();
+    const timeElement = document.getElementById('current-time');
+    const dateElement = document.getElementById('current-date');
     
-    if (startDate && endDate) {
-        const url = new URL(window.location);
-        url.searchParams.set('start_date', startDate);
-        url.searchParams.set('end_date', endDate);
-        window.location.href = url.toString();
-    } else {
-        alert('Please select both start and end dates.');
+    if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString();
+    }
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString();
     }
 }
 
-// Auto-refresh every 5 minutes
-setInterval(function() {
-    location.reload();
-}, 300000);
+// Update every second
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// Beta warning functions
+function openBugReportModal() {
+    alert('Bug report feature coming soon!');
+}
+
+function dismissBetaWarning() {
+    const warning = document.querySelector('.bg-gradient-to-r.from-yellow-400');
+    if (warning) {
+        warning.style.display = 'none';
+    }
+}
 </script>
 {% endblock %} 

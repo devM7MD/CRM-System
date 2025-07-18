@@ -7,7 +7,7 @@ urlpatterns = [
     # Main delivery views
     path('', views.dashboard, name='dashboard'),
     path('orders/', views.order_list, name='order_list'),
-    path('orders/<uuid:delivery_id>/', views.order_detail, name='order_detail'),
+    path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
     path('orders/<uuid:delivery_id>/update-status/', views.update_status, name='update_status'),
     path('orders/<uuid:delivery_id>/complete/', views.complete_delivery, name='complete_delivery'),
     path('orders/<uuid:delivery_id>/failed/', views.failed_delivery, name='failed_delivery'),

@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Materials Management" %}{% endblock %}
+
+{% block header %}{% trans "Materials Management" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="mb-4">
+        <a href="{% url 'packaging:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+        </a>
+    </div>
+    
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="rounded-full bg-blue-100 p-3 mr-4">
+                    <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ total_materials }}</h3>
+                    <p class="text-gray-500 text-sm">{% trans "Total Materials" %}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="rounded-full bg-yellow-100 p-3 mr-4">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ low_stock_materials|length }}</h3>
+                    <p class="text-gray-500 text-sm">{% trans "Low Stock Alerts" %}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="rounded-full bg-green-100 p-3 mr-4">
+                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">${{ total_value|floatformat:2 }}</h3>
+                    <p class="text-gray-500 text-sm">{% trans "Total Inventory Value" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Low Stock Alerts -->
+        <div class="bg-white rounded-lg shadow-md p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">{% trans "Low Stock Alerts" %}</h3>
+                <span class="text-sm text-red-600 font-medium">{{ low_stock_materials|length }} {% trans "items" %}</span>
+            </div>
+            
+            {% if low_stock_materials %}
+                <div class="space-y-3">
+                    {% for material in low_stock_materials %}
+                    <div class="flex justify-between items-center p-3 border border-red-200 rounded bg-red-50">
+                        <div>
+                            <h4 class="font-medium text-gray-900">{{ material.name }}</h4>
+                            <p class="text-sm text-gray-600">{{ material.get_material_type_display }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-red-600">{{ material.current_stock }} / {{ material.min_stock_level }}</p>
+                            <p class="text-xs text-gray-500">{{ material.unit }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-check-circle text-green-500 text-4xl mb-4"></i>
+                    <p class="text-gray-500">{% trans "No low stock alerts at the moment." %}</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Out of Stock -->
+        <div class="bg-white rounded-lg shadow-md p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">{% trans "Out of Stock" %}</h3>
+                <span class="text-sm text-red-600 font-medium">{{ out_of_stock_materials|length }} {% trans "items" %}</span>
+            </div>
+            
+            {% if out_of_stock_materials %}
+                <div class="space-y-3">
+                    {% for material in out_of_stock_materials %}
+                    <div class="flex justify-between items-center p-3 border border-red-300 rounded bg-red-100">
+                        <div>
+                            <h4 class="font-medium text-gray-900">{{ material.name }}</h4>
+                            <p class="text-sm text-gray-600">{{ material.get_material_type_display }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-red-600">0 {{ material.unit }}</p>
+                            <p class="text-xs text-gray-500">{% trans "Out of Stock" %}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-check-circle text-green-500 text-4xl mb-4"></i>
+                    <p class="text-gray-500">{% trans "All materials are in stock." %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Material Usage Statistics -->
+    <div class="bg-white rounded-lg shadow-md p-5 mt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Most Used Materials" %}</h3>
+        
+        {% if material_usage %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Material" %}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Type" %}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Current Stock" %}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Usage Count" %}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Total Value" %}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for usage in material_usage %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ usage.material.name }}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                {{ usage.material.get_material_type_display }}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                {{ usage.material.current_stock }} {{ usage.material.unit }}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                {{ usage.usage_count }}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                ${{ usage.total_cost|floatformat:2 }}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                {% if usage.material.current_stock == 0 %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        {% trans "Out of Stock" %}
+                                    </span>
+                                {% elif usage.material.is_low_stock %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        {% trans "Low Stock" %}
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        {% trans "In Stock" %}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-box-open text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500">{% trans "No material usage data available." %}</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Supplier Information -->
+    {% if supplier_stats %}
+    <div class="bg-white rounded-lg shadow-md p-5 mt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Supplier Overview" %}</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for supplier in supplier_stats %}
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 mb-2">{{ supplier.name }}</h4>
+                <div class="space-y-1 text-sm">
+                    <p class="text-gray-600">{% trans "Materials" %}: <span class="font-medium">{{ supplier.materials_count }}</span></p>
+                    <p class="text-gray-600">{% trans "Total Items" %}: <span class="font-medium">{{ supplier.total_items }}</span></p>
+                    <p class="text-gray-600">{% trans "Value" %}: <span class="font-medium">${{ supplier.total_value|floatformat:2 }}</span></p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-md p-5 mt-6">
+        <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Quick Actions" %}</h3>
+            <div class="flex space-x-2">
+                <a href="{% url 'packaging:materials_inventory' %}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-list mr-2"></i> {% trans "View All Materials" %}
+                </a>
+                <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i> {% trans "Add Material" %}
+                </button>
+                <button class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors">
+                    <i class="fas fa-download mr-2"></i> {% trans "Export Report" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

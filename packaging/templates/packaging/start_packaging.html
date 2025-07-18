@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Start Packaging" %} - {{ order.order_code }}{% endblock %}
+
+{% block header %}{% trans "Start Packaging" %} - {{ order.order_code }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="mb-4">
+        <a href="{% url 'packaging:order_detail' order.id %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Order Details" %}
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Start Packaging Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Start Packaging Process" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="package_type" class="block text-sm font-medium text-gray-700">{% trans "Package Type" %}</label>
+                                <select name="package_type" id="package_type" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                                    <option value="box">{% trans "Box" %}</option>
+                                    <option value="envelope">{% trans "Envelope" %}</option>
+                                    <option value="polybag">{% trans "Polybag" %}</option>
+                                    <option value="tube">{% trans "Tube" %}</option>
+                                    <option value="custom">{% trans "Custom" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="estimated_weight" class="block text-sm font-medium text-gray-700">{% trans "Estimated Weight (kg)" %}</label>
+                                <input type="number" name="estimated_weight" id="estimated_weight" step="0.01" min="0" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="0.5">
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label for="dimensions" class="block text-sm font-medium text-gray-700">{% trans "Dimensions (L x W x H cm)" %}</label>
+                                <input type="text" name="dimensions" id="dimensions" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="20 x 15 x 10">
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label for="notes" class="block text-sm font-medium text-gray-700">{% trans "Packaging Notes" %}</label>
+                                <textarea name="notes" id="notes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="{% trans 'Any special packaging requirements or notes...' %}"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <a href="{% url 'packaging:order_detail' order.id %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                                {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+                                <i class="fas fa-box mr-2"></i> {% trans "Start Packaging" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Information -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Order Information" %}</h3>
+                </div>
+                
+                <div class="p-4 space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Order Code" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ order.order_code }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Customer" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {% if order.customer %}
+                                {{ order.customer.get_full_name }}
+                            {% else %}
+                                {{ order.customer_phone|default:"No Customer" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Quantity" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ order.quantity }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Total Amount" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">${{ order.total_amount|floatformat:2 }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Shipping Address" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ order.shipping_address|default:"N/A" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Available Materials -->
+            {% if materials %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Available Materials" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="space-y-2">
+                        {% for material in materials %}
+                        <div class="flex justify-between items-center p-2 border border-gray-200 rounded">
+                            <div>
+                                <span class="text-sm font-medium text-gray-900">{{ material.name }}</span>
+                                <span class="text-xs text-gray-500 ml-2">{{ material.material_type }}</span>
+                            </div>
+                            <span class="text-sm text-gray-600">{{ material.current_stock }} {{ material.unit }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Packaging Tips -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Packaging Tips" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Choose the appropriate package type based on item size and fragility." %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-weight-hanging text-green-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Accurately measure and weigh the package for shipping calculations." %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-shield-alt text-yellow-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Use appropriate protective materials for fragile items." %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-tag text-purple-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Ensure all labels and tracking information are clearly visible." %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

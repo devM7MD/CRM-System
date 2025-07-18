@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Packaging Report" %}{% endblock %}
+
+{% block header %}{% trans "Packaging Performance Report" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="mb-4">
+        <a href="{% url 'packaging:dashboard' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Dashboard" %}
+        </a>
+    </div>
+    
+    <!-- Date Filter -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Report Period" %}</h3>
+            <div class="flex space-x-2">
+                <a href="?date_filter=today" class="px-3 py-1 rounded text-sm {% if date_filter == 'today' %}bg-primary-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    {% trans "Today" %}
+                </a>
+                <a href="?date_filter=week" class="px-3 py-1 rounded text-sm {% if date_filter == 'week' %}bg-primary-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    {% trans "Last 7 Days" %}
+                </a>
+                <a href="?date_filter=month" class="px-3 py-1 rounded text-sm {% if date_filter == 'month' %}bg-primary-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    {% trans "Last 30 Days" %}
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="rounded-full bg-green-100 p-3 mr-4">
+                    <i class="fas fa-box text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ total_completed }}</h3>
+                    <p class="text-gray-500 text-sm">{% trans "Packages Completed" %}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="rounded-full bg-blue-100 p-3 mr-4">
+                    <i class="fas fa-clock text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ avg_duration }} min</h3>
+                    <p class="text-gray-500 text-sm">{% trans "Avg Duration" %}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="rounded-full bg-yellow-100 p-3 mr-4">
+                    <i class="fas fa-clipboard-check text-yellow-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ total_checks }}</h3>
+                    <p class="text-gray-500 text-sm">{% trans "Quality Checks" %}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="rounded-full bg-purple-100 p-3 mr-4">
+                    <i class="fas fa-percentage text-purple-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ pass_rate }}%</h3>
+                    <p class="text-gray-500 text-sm">{% trans "Pass Rate" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Quality Check Breakdown -->
+        <div class="bg-white rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Quality Check Results" %}</h3>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between items-center p-3 bg-green-50 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                        <span class="text-gray-700">{% trans "Passed" %}</span>
+                    </div>
+                    <span class="font-semibold text-green-600">{{ passed_checks }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-3 bg-yellow-50 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                        <span class="text-gray-700">{% trans "Conditional" %}</span>
+                    </div>
+                    <span class="font-semibold text-yellow-600">{{ conditional_checks }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-3 bg-red-50 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-times-circle text-red-600 mr-2"></i>
+                        <span class="text-gray-700">{% trans "Failed" %}</span>
+                    </div>
+                    <span class="font-semibold text-red-600">{{ failed_checks }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Daily Activity Chart -->
+        <div class="bg-white rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Daily Activity" %}</h3>
+            
+            <div class="space-y-3">
+                {% for stat in daily_stats %}
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">{{ stat.date|date:"M j" }}</span>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-box text-blue-500 mr-1"></i>
+                            <span class="text-sm font-medium">{{ stat.completed }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clipboard-check text-green-500 mr-1"></i>
+                            <span class="text-sm font-medium">{{ stat.checks }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Packager Performance -->
+    {% if packager_stats %}
+    <div class="bg-white rounded-lg shadow-md p-5 mt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Packager Performance" %}</h3>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Packager" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Packages Completed" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Avg Duration" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Performance" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for stat in packager_stats %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ stat.packager.get_full_name }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {{ stat.packages_completed }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {{ stat.avg_duration|floatformat:1 }} min
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                            {% if stat.avg_duration <= 15 %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    {% trans "Excellent" %}
+                                </span>
+                            {% elif stat.avg_duration <= 25 %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    {% trans "Good" %}
+                                </span>
+                            {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    {% trans "Needs Improvement" %}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Export Options -->
+    <div class="bg-white rounded-lg shadow-md p-5 mt-6">
+        <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Export Report" %}</h3>
+            <div class="flex space-x-2">
+                <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                    <i class="fas fa-download mr-2"></i> {% trans "Export PDF" %}
+                </button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-file-excel mr-2"></i> {% trans "Export Excel" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

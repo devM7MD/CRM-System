@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Stock Keeper Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Beta Warning Banner -->
+    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 border-l-4 border-yellow-600 p-4 mb-6 animate-pulse">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-800 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">
+                        Beta Version Notice
+                    </h3>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        This is a beta version and may have some bugs.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button type="button" onclick="openBugReportModal()" 
+                        class="bg-yellow-700 hover:bg-yellow-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                    <i class="fas fa-bug mr-2"></i>
+                    Report Bug
+                </button>
+                <button type="button" onclick="dismissBetaWarning()" 
+                        class="text-yellow-800 hover:text-yellow-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="bg-white shadow-sm rounded-lg mb-6">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'stock_keeper:dashboard' %}" class="flex items-center text-primary-600 font-medium">
+                    <i class="fas fa-home mr-2"></i>
+                    <span>{% trans "Dashboard" %}</span>
+                </a>
+                <a href="{% url 'stock_keeper:warehouse_list' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-warehouse mr-2"></i>
+                    <span>{% trans "Warehouses" %}</span>
+                </a>
+                <a href="{% url 'stock_keeper:receive_stock' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-box mr-2"></i>
+                    <span>{% trans "Receive Stock" %}</span>
+                </a>
+                <a href="{% url 'stock_keeper:ship_orders' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-shipping-fast mr-2"></i>
+                    <span>{% trans "Ship Orders" %}</span>
+                </a>
+                <a href="{% url 'stock_keeper:transfer_stock' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-exchange-alt mr-2"></i>
+                    <span>{% trans "Transfer" %}</span>
+                </a>
+                <a href="{% url 'stock_keeper:barcode_scanner' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-barcode mr-2"></i>
+                    <span>{% trans "Scanner" %}</span>
+                </a>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">{% trans "Current Time" %}</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-time"></p>
+                </div>
+                <div class="h-8 w-px bg-gray-300"></div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">{% trans "Today's Date" %}</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-date"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-warehouse text-primary-600 mr-3"></i>
+                    {% trans "Stock Keeper Dashboard" %} - {{ warehouse.name }}
+                </h1>
+                <p class="text-gray-600 mt-1">{% trans "Welcome back" %}, {{ user.get_full_name }}! {% trans "Shift" %}: {{ session.shift_start|date:"H:i" }} - {% trans "Active" %}</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-circle text-green-500 mr-2"></i>
+                    {% trans "Active Session" %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Pending Tasks -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tasks text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Pending Tasks" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ pending_tasks|default:"0" }}</p>
+                <p class="text-sm text-orange-600 mt-1">
+                    <i class="fas fa-clock mr-1"></i>
+                    {% trans "items" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Stock Alerts -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Stock Alerts" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ stock_alerts|default:"0" }}</p>
+                <p class="text-sm text-red-600 mt-1">
+                    <i class="fas fa-exclamation mr-1"></i>
+                    {% trans "urgent" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Completed Today -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Completed" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ completed_today|default:"0" }}</p>
+                <p class="text-sm text-green-600 mt-1">
+                    <i class="fas fa-check mr-1"></i>
+                    {% trans "today" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Total Items -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Total Items" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_items|default:"0" }}</p>
+                <p class="text-sm text-blue-600 mt-1">
+                    <i class="fas fa-warehouse mr-1"></i>
+                    {% trans "in stock" %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-bolt mr-2 text-primary-500"></i>
+                {% trans "Quick Actions" %}
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="{% url 'stock_keeper:receive_stock' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-8 w-8 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-200">
+                            <i class="fas fa-box text-primary-600 text-sm"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900 group-hover:text-primary-600">{% trans "Receive Stock" %}</p>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'stock_keeper:ship_orders' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
+                            <i class="fas fa-shipping-fast text-green-600 text-sm"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900 group-hover:text-green-600">{% trans "Ship Orders" %}</p>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'stock_keeper:transfer_stock' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
+                            <i class="fas fa-exchange-alt text-blue-600 text-sm"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900 group-hover:text-blue-600">{% trans "Transfer" %}</p>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'stock_keeper:barcode_scanner' %}" class="group relative block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
+                            <i class="fas fa-barcode text-purple-600 text-sm"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900 group-hover:text-purple-600">{% trans "Scan Item" %}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Urgent Alerts and Pending Tasks -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Urgent Alerts -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+                    {% trans "Urgent Alerts" %}
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if urgent_alerts %}
+                    <div class="space-y-4">
+                        {% for alert in urgent_alerts %}
+                        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation text-red-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ alert.product.name_en }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ alert.alert_type|title }} • {{ alert.priority|title }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <a href="{% url 'stock_keeper:resolve_alert' alert.id %}" 
+                                   class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
+                                    {% trans "Resolve" %}
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
+                        <p class="text-gray-500">{% trans "No urgent alerts" %}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pending Tasks -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-clock mr-2 text-orange-500"></i>
+                    {% trans "Pending Tasks" %} ({{ pending_tasks|default:"0" }})
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if pending_movements %}
+                    <div class="space-y-4">
+                        {% for movement in pending_movements %}
+                        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg border-l-4 border-orange-400">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-box text-orange-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ movement.product.name_en }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ movement.movement_type|title }} • {{ movement.quantity }} {% trans "units" %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                    {{ movement.status|title }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
+                        <p class="text-gray-500">{% trans "No pending tasks" %}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-history mr-2 text-primary-500"></i>
+                {% trans "Recent Activities" %}
+            </h3>
+        </div>
+        <div class="p-6">
+            {% if recent_activities %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Type" %}</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Product" %}</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Quantity" %}</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Time" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for activity in recent_activities %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                                        {{ activity.movement_type|title }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ activity.product.name_en }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ activity.quantity }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                    {% if activity.status == 'completed' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            {% trans "Completed" %}
+                                        </span>
+                                    {% elif activity.status == 'pending' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            {% trans "Pending" %}
+                                        </span>
+                                    {% else %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            {{ activity.status|title }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ activity.processed_at|date:"H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-inbox text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">{% trans "No recent activities" %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Update current time and date
+function updateDateTime() {
+    const now = new Date();
+    const timeElement = document.getElementById('current-time');
+    const dateElement = document.getElementById('current-date');
+    
+    if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString();
+    }
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString();
+    }
+}
+
+// Update every second
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// Beta warning functions
+function openBugReportModal() {
+    // Implement bug report modal
+    alert('Bug report feature coming soon!');
+}
+
+function dismissBetaWarning() {
+    const banner = document.querySelector('.bg-gradient-to-r.from-yellow-400');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+}
+</script>
+{% endblock %} 

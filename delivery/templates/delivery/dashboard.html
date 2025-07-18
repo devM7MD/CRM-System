@@ -2,125 +2,310 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Delivery Dashboard" %}{% endblock %}
-
-{% block header %}{% trans "Delivery Dashboard" %}{% endblock %}
+{% block title %}{% trans "Performance Dashboard" %}{% endblock %}
 
 {% block content %}
-<div class="container mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Active Deliveries -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden dashboard-stat hover:shadow-lg transition-all duration-300">
-            <div class="p-4 flex items-center">
-                <div class="rounded-full bg-primary-100 p-3 mr-4">
-                    <i class="fas fa-truck text-primary-600 text-xl"></i>
+<div class="w-full">
+    <!-- Beta Warning Banner -->
+    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 border-l-4 border-yellow-600 p-4 mb-6 animate-pulse">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-800 text-xl"></i>
                 </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Active Deliveries" %}</h3>
-                    <p class="text-gray-500">{{ active_deliveries|default:"0" }} {% trans "deliveries in progress" %}</p>
-                </div>
-            </div>
-            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="#" class="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center">
-                    {% trans "View Deliveries" %}
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Completed Today -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden dashboard-stat hover:shadow-lg transition-all duration-300">
-            <div class="p-4 flex items-center">
-                <div class="rounded-full bg-green-100 p-3 mr-4">
-                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Completed Today" %}</h3>
-                    <p class="text-gray-500">{{ completed_today|default:"0" }} {% trans "deliveries completed" %}</p>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">
+                        Beta Version Notice
+                    </h3>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        This is a beta version and may have some bugs.
+                    </p>
                 </div>
             </div>
-            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="#" class="text-green-600 hover:text-green-700 font-medium text-sm inline-flex items-center">
-                    {% trans "View Report" %}
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Delivery Agents -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden dashboard-stat hover:shadow-lg transition-all duration-300">
-            <div class="p-4 flex items-center">
-                <div class="rounded-full bg-blue-100 p-3 mr-4">
-                    <i class="fas fa-user-friends text-blue-600 text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Delivery Agents" %}</h3>
-                    <p class="text-gray-500">{% trans "Manage agents and routes" %}</p>
-                </div>
-            </div>
-            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="#" class="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center">
-                    {% trans "Manage Agents" %}
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </a>
+            <div class="flex items-center space-x-3">
+                <button type="button" onclick="openBugReportModal()" 
+                        class="bg-yellow-700 hover:bg-yellow-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                    <i class="fas fa-bug mr-2"></i>
+                    Report Bug
+                </button>
+                <button type="button" onclick="dismissBetaWarning()" 
+                        class="text-yellow-800 hover:text-yellow-900">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
     </div>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Delivery Tracking -->
-        <div class="bg-white rounded-lg shadow-md p-5">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">{% trans "Recent Deliveries" %}</h3>
-                <a href="#" class="text-primary-600 hover:text-primary-700 text-sm font-medium">{% trans "View All" %}</a>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order ID" %}</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Customer" %}</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Location" %}</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        {% if orders %}
-                            {% for order in orders %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ order.order_code }}</td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ order.customer.get_full_name }}</td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ order.seller.store_link }}</td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        {{ order.get_status_display }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="4" class="text-center py-4 text-gray-500">No orders found.</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Delivery Illustration -->
-        <div class="bg-white rounded-lg shadow-md p-5 flex flex-col justify-center items-center">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 self-start">{% trans "Delivery Process" %}</h3>
-            <img src="{% static 'img/undraw_delivery_address_re_cjca.svg' %}" alt="{% trans 'Delivery Illustration' %}" class="max-h-56 w-auto">
-            <div class="mt-6 text-center">
-                <h4 class="font-medium text-gray-800">{% trans "Efficient Delivery Management" %}</h4>
-                <p class="text-gray-500 mt-2">{% trans "Track and manage your deliveries in real-time with our advanced logistics system." %}</p>
-                <a href="#" class="mt-4 inline-block px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
-                    {% trans "Learn More" %}
+
+    <!-- Page Header -->
+    <!-- Navigation Bar -->
+    <div class="bg-white shadow-sm rounded-lg mb-6">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'delivery:dashboard' %}" class="flex items-center text-primary-600 font-medium">
+                    <i class="fas fa-home mr-2"></i>
+                    <span>{% trans "Dashboard" %}</span>
+                </a>
+                <a href="{% url 'delivery:order_list' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-list mr-2"></i>
+                    <span>{% trans "Orders" %}</span>
+                </a>
+                <a href="{% url 'delivery:performance' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    <span>{% trans "Performance" %}</span>
+                </a>
+                <a href="{% url 'delivery:settings' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-cog mr-2"></i>
+                    <span>{% trans "Settings" %}</span>
                 </a>
             </div>
+            <div class="flex items-center space-x-3">
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">{% trans "Current Time" %}</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-time"></p>
+                </div>
+                <div class="h-8 w-px bg-gray-300"></div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">{% trans "Today's Date" %}</p>
+                    <p class="text-lg font-semibold text-gray-900" id="current-date"></p>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-chart-bar text-primary-600 mr-3"></i>
+                    {% trans "Performance Dashboard" %}
+                </h1>
+                <p class="text-gray-600 mt-1">{% trans "Team Performance Overview" %} - {{ today|date:"M d" }} to {{ today|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter Section -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-calendar text-primary-600"></i>
+                        <span class="text-sm font-medium text-gray-700">{% trans "Date Range" %}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="date" id="start-date" value="{{ today|date:'Y-m-d' }}" 
+                               class="form-input text-sm border-gray-300 rounded-lg">
+                        <span class="text-gray-500">{% trans "to" %}</span>
+                        <input type="date" id="end-date" value="{{ today|date:'Y-m-d' }}" 
+                               class="form-input text-sm border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <button type="button" onclick="applyDateFilter()" 
+                        class="btn-primary flex items-center space-x-2">
+                    <i class="fas fa-filter"></i>
+                    <span>{% trans "Filter" %}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <!-- Total Deliveries -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-box text-amber-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Total Deliveries" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_deliveries|default:"0" }}</p>
+                <p class="text-sm text-green-600 mt-1">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    +{{ total_deliveries|default:"0" }} {% trans "this period" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Successful Deliveries -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Successful" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ successful_deliveries|default:"0" }}</p>
+                <p class="text-sm text-green-600 mt-1">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    +{{ successful_deliveries|default:"0" }} {% trans "this period" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Failed Deliveries -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-times text-pink-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Failed" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_deliveries|add:"-"|add:successful_deliveries|default:"0" }}</p>
+                <p class="text-sm text-red-600 mt-1">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    +{{ total_deliveries|add:"-"|add:successful_deliveries|default:"0" }} {% trans "this period" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Success Rate" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ success_rate|default:"0" }}%</p>
+                <p class="text-sm text-red-600 mt-1">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    {% trans "Needs Improvement" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Average Rating -->
+        <div class="card animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Average Rating" %}</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">0/5.0</p>
+                <p class="text-sm text-red-600 mt-1">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    {% trans "Needs Improvement" %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Performance Trend -->
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-chart-line mr-2 text-primary-500"></i>
+                {% trans "Daily Performance Trend" %}
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <div class="text-center text-gray-500">
+                    <i class="fas fa-chart-area text-4xl mb-4"></i>
+                    <p>{% trans "Performance chart will be displayed here" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <a href="{% url 'delivery:order_list' %}" class="card hover:shadow-lg transition-all duration-300 animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-list text-primary-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{% trans "View All Orders" %}</h3>
+                <p class="text-gray-600">{% trans "Manage and track all delivery assignments" %}</p>
+            </div>
+        </a>
+
+        <a href="{% url 'delivery:performance' %}" class="card hover:shadow-lg transition-all duration-300 animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-bar text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{% trans "Detailed Reports" %}</h3>
+                <p class="text-gray-600">{% trans "View comprehensive performance analytics" %}</p>
+            </div>
+        </a>
+
+        <a href="{% url 'delivery:settings' %}" class="card hover:shadow-lg transition-all duration-300 animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-cog text-blue-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{% trans "Settings" %}</h3>
+                <p class="text-gray-600">{% trans "Configure delivery preferences and notifications" %}</p>
+            </div>
+        </a>
     </div>
 </div>
+
+<script>
+// Update current time and date
+function updateDateTime() {
+    const now = new Date();
+    const timeElement = document.getElementById('current-time');
+    const dateElement = document.getElementById('current-date');
+    
+    if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString();
+    }
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString();
+    }
+}
+
+// Update every second
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// Date filter functionality
+function applyDateFilter() {
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    
+    // Redirect with date parameters
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('start_date', startDate);
+    currentUrl.searchParams.set('end_date', endDate);
+    window.location.href = currentUrl.toString();
+}
+
+// Beta warning functions
+function openBugReportModal() {
+    // Implement bug report modal
+    alert('Bug report feature coming soon!');
+}
+
+function dismissBetaWarning() {
+    const warning = document.querySelector('.bg-gradient-to-r.from-yellow-400');
+    if (warning) {
+        warning.style.display = 'none';
+    }
+}
+
+// Initialize date inputs with current date if not set
+document.addEventListener('DOMContentLoaded', function() {
+    const startDate = document.getElementById('start-date');
+    const endDate = document.getElementById('end-date');
+    
+    if (!startDate.value) {
+        startDate.value = new Date().toISOString().split('T')[0];
+    }
+    if (!endDate.value) {
+        endDate.value = new Date().toISOString().split('T')[0];
+    }
+});
+</script>
 {% endblock %} 

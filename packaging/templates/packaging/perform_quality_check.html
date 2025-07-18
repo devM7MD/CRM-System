@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Quality Check" %} - {{ packaging_record.barcode }}{% endblock %}
+
+{% block header %}{% trans "Quality Check" %} - {{ packaging_record.barcode }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="mb-4">
+        <a href="{% url 'packaging:quality_control' %}" class="text-sm px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-1"></i> {% trans "Back to Quality Control" %}
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Quality Check Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Perform Quality Check" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="check_type" class="block text-sm font-medium text-gray-700">{% trans "Check Type" %}</label>
+                                <select name="check_type" id="check_type" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" required>
+                                    <option value="">{% trans "Select check type" %}</option>
+                                    <option value="visual">{% trans "Visual Inspection" %}</option>
+                                    <option value="weight">{% trans "Weight Verification" %}</option>
+                                    <option value="dimensions">{% trans "Dimensions Check" %}</option>
+                                    <option value="label">{% trans "Label Verification" %}</option>
+                                    <option value="seal">{% trans "Seal Integrity" %}</option>
+                                    <option value="other">{% trans "Other" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="result" class="block text-sm font-medium text-gray-700">{% trans "Result" %}</label>
+                                <select name="result" id="result" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" required>
+                                    <option value="">{% trans "Select result" %}</option>
+                                    <option value="pass">{% trans "Pass" %}</option>
+                                    <option value="fail">{% trans "Fail" %}</option>
+                                    <option value="conditional">{% trans "Conditional Pass" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label for="notes" class="block text-sm font-medium text-gray-700">{% trans "Notes" %}</label>
+                                <textarea name="notes" id="notes" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="{% trans 'Enter detailed notes about the quality check...' %}"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <a href="{% url 'packaging:quality_control' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                                {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-clipboard-check mr-2"></i> {% trans "Submit Check" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Package Information -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Package Information" %}</h3>
+                </div>
+                
+                <div class="p-4 space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Barcode" %}</label>
+                        <p class="mt-1 text-sm text-gray-900 font-mono">{{ packaging_record.barcode }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Order" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ packaging_record.order.order_code }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Package Type" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ packaging_record.get_package_type_display }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Packager" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {% if packaging_record.packager %}
+                                {{ packaging_record.packager.get_full_name }}
+                            {% else %}
+                                {% trans "Not assigned" %}
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Packaging Completed" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ packaging_record.packaging_completed|date:"F j, Y H:i" }}</p>
+                    </div>
+                    
+                    {% if packaging_record.package_weight %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Weight" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ packaging_record.package_weight }} kg</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if packaging_record.dimensions %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{% trans "Dimensions" %}</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ packaging_record.dimensions }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quality Checklist -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Quality Checklist" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-start">
+                            <input type="checkbox" id="check1" class="mt-1 mr-2">
+                            <label for="check1" class="text-gray-600">{% trans "Package is properly sealed and secure" %}</label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="check2" class="mt-1 mr-2">
+                            <label for="check2" class="text-gray-600">{% trans "All items are included and undamaged" %}</label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="check3" class="mt-1 mr-2">
+                            <label for="check3" class="text-gray-600">{% trans "Address label is clear and correct" %}</label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="check4" class="mt-1 mr-2">
+                            <label for="check4" class="text-gray-600">{% trans "Tracking number is generated" %}</label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="check5" class="mt-1 mr-2">
+                            <label for="check5" class="text-gray-600">{% trans "Package weight and dimensions are recorded" %}</label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="check6" class="mt-1 mr-2">
+                            <label for="check6" class="text-gray-600">{% trans "Materials used are documented" %}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quality Standards -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">{% trans "Quality Standards" %}</h3>
+                </div>
+                
+                <div class="p-4">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "All packages must pass visual inspection" %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Failed packages must be repackaged" %}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <p class="text-gray-600">{% trans "Passed packages proceed to shipping" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

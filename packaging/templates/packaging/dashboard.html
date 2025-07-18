@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="#" class="text-green-600 hover:text-green-700 font-medium text-sm inline-flex items-center">
+                <a href="{% url 'packaging:packaging_report' %}" class="text-green-600 hover:text-green-700 font-medium text-sm inline-flex items-center">
                     {% trans "View Report" %}
                     <i class="fas fa-arrow-right ml-2"></i>
                 </a>
@@ -59,7 +59,7 @@
                 </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="#" class="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center">
+                <a href="{% url 'packaging:materials_management' %}" class="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center">
                     {% trans "Manage Materials" %}
                     <i class="fas fa-arrow-right ml-2"></i>
                 </a>
