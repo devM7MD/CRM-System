@@ -40,10 +40,10 @@
                 </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="#" class="text-green-600 hover:text-green-700 font-medium text-sm inline-flex items-center">
+                <button onclick="openReportModal()" class="text-green-600 hover:text-green-700 font-medium text-sm inline-flex items-center">
                     {% trans "View Report" %}
                     <i class="fas fa-arrow-right ml-2"></i>
-                </a>
+                </button>
             </div>
         </div>
         
@@ -59,10 +59,10 @@
                 </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="#" class="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center">
+                <button onclick="openFeedbackModal()" class="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center">
                     {% trans "View Feedback" %}
                     <i class="fas fa-arrow-right ml-2"></i>
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -86,37 +86,46 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <!-- Sample data - would be dynamically loaded -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">ORD-001</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Customer Name</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">May 15, 2023</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    {% trans "Pending" %}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">ORD-002</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Another Customer</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">May 16, 2023</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    {% trans "Pending" %}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">ORD-003</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">New Customer</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">May 14, 2023</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    {% trans "Completed" %}
-                                </span>
-                            </td>
-                        </tr>
+                        {% if recent_followups %}
+                            {% for followup in recent_followups %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ followup.order.order_code }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ followup.order.customer_phone }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                    {% if followup.scheduled_for %}
+                                        {{ followup.scheduled_for|date:"M d, Y" }}
+                                    {% else %}
+                                        {% trans "Not scheduled" %}
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                    {% if followup.status == 'pending' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            {% trans "Pending" %}
+                                        </span>
+                                    {% elif followup.status == 'in_progress' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            {% trans "In Progress" %}
+                                        </span>
+                                    {% elif followup.status == 'completed' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            {% trans "Completed" %}
+                                        </span>
+                                    {% elif followup.status == 'cancelled' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            {% trans "Cancelled" %}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="px-4 py-3 text-sm text-gray-500 text-center">
+                                    {% trans "No follow-up records found." %}
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -129,11 +138,263 @@
             <div class="mt-6 text-center">
                 <h4 class="font-medium text-gray-800">{% trans "Effective Follow-up Process" %}</h4>
                 <p class="text-gray-500 mt-2">{% trans "Our follow-up system helps you track customer satisfaction and address any post-delivery issues promptly." %}</p>
-                <a href="#" class="mt-4 inline-block px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
+                <button onclick="openDocumentationModal()" class="mt-4 inline-block px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition-colors">
                     {% trans "Learn More" %}
-                </a>
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Report Modal -->
+<div id="reportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">{% trans "Follow-up Completion Report" %}</h3>
+                <button onclick="closeReportModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-green-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                        <div>
+                            <p class="text-sm text-gray-600">{% trans "Completed Today" %}</p>
+                            <p class="text-lg font-semibold text-gray-800">{{ completed_today|default:"0" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar-week text-blue-600 text-xl mr-3"></i>
+                        <div>
+                            <p class="text-sm text-gray-600">{% trans "This Week" %}</p>
+                            <p class="text-lg font-semibold text-gray-800">{{ completed_this_week|default:"0" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Completed -->
+            <div class="max-h-64 overflow-y-auto">
+                <h4 class="font-medium text-gray-800 mb-3">{% trans "Recent Completed Follow-ups" %}</h4>
+                {% if recent_completed %}
+                    {% for followup in recent_completed %}
+                    <div class="border border-gray-200 rounded-md p-3 mb-2">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ followup.order.order_code }}</p>
+                                <p class="text-sm text-gray-500">{{ followup.order.customer_phone }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-600">{{ followup.agent.first_name }} {{ followup.agent.last_name }}</p>
+                                <p class="text-xs text-gray-400">{{ followup.completed_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">{% trans "No completed follow-ups found." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">{% trans "Customer Feedback & Satisfaction" %}</h3>
+                <button onclick="closeFeedbackModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Average Rating -->
+            <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-star text-blue-600 text-xl mr-3"></i>
+                    <div>
+                        <p class="text-sm text-gray-600">{% trans "Average Rating" %}</p>
+                        <p class="text-lg font-semibold text-gray-800">{{ avg_rating|default:"0.0" }}/5.0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Feedback -->
+            <div class="max-h-64 overflow-y-auto">
+                <h4 class="font-medium text-gray-800 mb-3">{% trans "Recent Customer Feedback" %}</h4>
+                {% if recent_feedback %}
+                    {% for feedback in recent_feedback %}
+                    <div class="border border-gray-200 rounded-md p-3 mb-2">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ feedback.order.order_code }}</p>
+                                <p class="text-sm text-gray-500">{{ feedback.order.customer_phone }}</p>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="flex mr-2">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= feedback.rating %}
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-gray-300 text-sm"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="text-sm text-gray-600">{{ feedback.rating }}/5</span>
+                            </div>
+                        </div>
+                        {% if feedback.comments %}
+                            <p class="text-sm text-gray-700">{{ feedback.comments }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">{% trans "No feedback available." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Documentation Modal -->
+<div id="documentationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">{% trans "Follow-up System Documentation" %}</h3>
+                <button onclick="closeDocumentationModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="max-h-96 overflow-y-auto">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">{% trans "What is Customer Follow-up?" %}</h4>
+                        <p class="text-sm text-gray-600">
+                            {% trans "Customer follow-up is the process of contacting customers after their order has been delivered to ensure satisfaction, address any issues, and gather feedback for service improvement." %}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">{% trans "Follow-up Process Steps" %}</h4>
+                        <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                            <li>{% trans "Review delivered orders that need follow-up" %}</li>
+                            <li>{% trans "Contact customer via phone or email" %}</li>
+                            <li>{% trans "Ask about delivery experience and product satisfaction" %}</li>
+                            <li>{% trans "Address any concerns or issues immediately" %}</li>
+                            <li>{% trans "Document feedback and update follow-up status" %}</li>
+                            <li>{% trans "Escalate issues to relevant departments if needed" %}</li>
+                        </ol>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">{% trans "Follow-up Status Types" %}</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center">
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs mr-2">{% trans "Pending" %}</span>
+                                <span class="text-gray-600">{% trans "Follow-up scheduled but not yet started" %}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs mr-2">{% trans "In Progress" %}</span>
+                                <span class="text-gray-600">{% trans "Follow-up call/contact in progress" %}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs mr-2">{% trans "Completed" %}</span>
+                                <span class="text-gray-600">{% trans "Follow-up successfully completed" %}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs mr-2">{% trans "Cancelled" %}</span>
+                                <span class="text-gray-600">{% trans "Follow-up cancelled or not possible" %}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">{% trans "Best Practices" %}</h4>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>{% trans "Always be polite and professional" %}</li>
+                            <li>{% trans "Listen actively to customer concerns" %}</li>
+                            <li>{% trans "Take detailed notes of all interactions" %}</li>
+                            <li>{% trans "Follow up within 24-48 hours of delivery" %}</li>
+                            <li>{% trans "Escalate urgent issues immediately" %}</li>
+                            <li>{% trans "Use positive language and show empathy" %}</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">{% trans "Common Customer Issues" %}</h4>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>{% trans "Product quality concerns" %}</li>
+                            <li>{% trans "Delivery timing issues" %}</li>
+                            <li>{% trans "Missing or damaged items" %}</li>
+                            <li>{% trans "Billing or payment questions" %}</li>
+                            <li>{% trans "Return or exchange requests" %}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openReportModal() {
+    document.getElementById('reportModal').classList.remove('hidden');
+}
+
+function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
+}
+
+function openFeedbackModal() {
+    document.getElementById('feedbackModal').classList.remove('hidden');
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+}
+
+function openDocumentationModal() {
+    document.getElementById('documentationModal').classList.remove('hidden');
+}
+
+function closeDocumentationModal() {
+    document.getElementById('documentationModal').classList.add('hidden');
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const reportModal = document.getElementById('reportModal');
+    const feedbackModal = document.getElementById('feedbackModal');
+    const documentationModal = document.getElementById('documentationModal');
+    
+    if (event.target === reportModal) {
+        closeReportModal();
+    }
+    if (event.target === feedbackModal) {
+        closeFeedbackModal();
+    }
+    if (event.target === documentationModal) {
+        closeDocumentationModal();
+    }
+}
+
+// Close modals with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeReportModal();
+        closeFeedbackModal();
+        closeDocumentationModal();
+    }
+});
+</script>
 {% endblock %} 

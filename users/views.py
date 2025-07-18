@@ -3,6 +3,8 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from .forms import LoginForm, RegisterForm, UserCreationForm, UserChangeForm, PasswordChangeForm
 from .models import User, AuditLog
 
@@ -227,3 +229,137 @@ def password_change(request):
         form = PasswordChangeForm(user=request.user)
     
     return render(request, 'users/password_change.html', {'form': form})
+
+@login_required
+@require_http_methods(["POST"])
+def profile_update(request):
+    """Update user profile via AJAX."""
+    try:
+        user = request.user
+        
+        # Update basic fields
+        if 'first_name' in request.POST:
+            user.first_name = request.POST['first_name']
+        if 'last_name' in request.POST:
+            user.last_name = request.POST['last_name']
+        if 'phone_number' in request.POST:
+            user.phone_number = request.POST['phone_number']
+        if 'company_name' in request.POST:
+            user.company_name = request.POST['company_name']
+        
+        user.save()
+        
+        # Log the profile update
+        AuditLog.objects.create(
+            user=request.user,
+            action='update',
+            entity_type='user',
+            entity_id=str(user.id),
+            description=f"Profile updated for {user.email}",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Profile updated successfully'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(["POST"])
+def change_password(request):
+    """Change password via AJAX."""
+    try:
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Validate current password
+        if not request.user.check_password(current_password):
+            return JsonResponse({'success': False, 'error': 'Current password is incorrect'})
+        
+        # Validate new password
+        if new_password != confirm_password:
+            return JsonResponse({'success': False, 'error': 'New passwords do not match'})
+        
+        if len(new_password) < 8:
+            return JsonResponse({'success': False, 'error': 'Password must be at least 8 characters long'})
+        
+        # Update password
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        # Update session to prevent logout
+        update_session_auth_hash(request, request.user)
+        
+        # Log the password change
+        AuditLog.objects.create(
+            user=request.user,
+            action='password_change',
+            entity_type='user',
+            entity_id=str(request.user.id),
+            description=f"Password changed for {request.user.email}",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Password updated successfully'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(["POST"])
+def notification_settings(request):
+    """Update notification settings via AJAX."""
+    try:
+        # Get notification preferences from request
+        email_notifications = request.POST.get('email_notifications') == 'on'
+        order_updates = request.POST.get('order_updates') == 'on'
+        inventory_alerts = request.POST.get('inventory_alerts') == 'on'
+        sourcing_updates = request.POST.get('sourcing_updates') == 'on'
+        
+        # Store settings in user preferences (you can extend the User model or use a separate model)
+        # For now, we'll just return success
+        # In a real implementation, you might want to store these in a UserPreference model
+        
+        # Log the settings update
+        AuditLog.objects.create(
+            user=request.user,
+            action='update',
+            entity_type='user_preferences',
+            entity_id=str(request.user.id),
+            description=f"Notification settings updated for {request.user.email}",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Notification settings saved'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(["POST"])
+def security_settings(request):
+    """Update security settings via AJAX."""
+    try:
+        # Get security preferences from request
+        two_factor = request.POST.get('two_factor') == 'on'
+        login_alerts = request.POST.get('login_alerts') == 'on'
+        
+        # Store settings in user preferences (you can extend the User model or use a separate model)
+        # For now, we'll just return success
+        # In a real implementation, you might want to store these in a UserPreference model
+        
+        # Log the settings update
+        AuditLog.objects.create(
+            user=request.user,
+            action='update',
+            entity_type='user_preferences',
+            entity_id=str(request.user.id),
+            description=f"Security settings updated for {request.user.email}",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Security settings saved'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

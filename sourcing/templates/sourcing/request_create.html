@@ -15,47 +15,40 @@
     <!-- Form -->
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="px-4 py-5 sm:p-6">
                     <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                         <!-- Request Type -->
                         <div class="sm:col-span-3">
-                            <label for="request_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Request Type</label>
+                            <label for="{{ form.request_type.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Request Type</label>
                             <div class="mt-1">
-                                <select id="request_type" name="request_type" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
-                                    <option value="">Select a request type</option>
-                                    <option value="new_supplier">New Supplier</option>
-                                    <option value="replenishment">Inventory Replenishment</option>
-                                    <option value="new_product">New Product Sourcing</option>
-                                    <option value="sample">Sample Request</option>
-                                </select>
+                                {{ form.request_type }}
+                                {% if form.request_type.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.request_type.errors.0 }}</p>
+                                {% endif %}
                             </div>
                         </div>
 
                         <!-- Priority -->
                         <div class="sm:col-span-3">
-                            <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
+                            <label for="{{ form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
                             <div class="mt-1">
-                                <select id="priority" name="priority" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
-                                    <option value="low">Low</option>
-                                    <option value="medium" selected>Medium</option>
-                                    <option value="high">High</option>
-                                    <option value="urgent">Urgent</option>
-                                </select>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.priority.errors.0 }}</p>
+                                {% endif %}
                             </div>
                         </div>
 
                         <!-- Product Selection -->
                         <div class="sm:col-span-6" id="product_selection_container">
-                            <label for="product" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Product</label>
+                            <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Product</label>
                             <div class="mt-1">
-                                <select id="product" name="product" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                    <option value="">Select a product</option>
-                                    {% for product in products %}
-                                    <option value="{{ product.id }}">{{ product.name }} ({{ product.code }})</option>
-                                    {% endfor %}
-                                </select>
+                                {{ form.product }}
+                                {% if form.product.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.product.errors.0 }}</p>
+                                {% endif %}
                             </div>
                             <p class="mt-2 text-sm text-gray-500">For inventory replenishment or sample requests.</p>
                         </div>
@@ -69,61 +62,63 @@
                         </div>
 
                         <!-- New Product Name -->
-                        <div class="sm:col-span-3 hidden" id="new_product_name_container">
-                            <label for="new_product_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Name</label>
+                        <div class="sm:col-span-6 hidden" id="new_product_name_container">
+                            <label for="{{ form.new_product_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Name</label>
                             <div class="mt-1">
-                                <input type="text" name="new_product_name" id="new_product_name" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                            </div>
-                        </div>
-
-                        <!-- New Product Category -->
-                        <div class="sm:col-span-3 hidden" id="new_product_category_container">
-                            <label for="new_product_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                            <div class="mt-1">
-                                <select id="new_product_category" name="new_product_category" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                    <option value="">Select a category</option>
-                                    {% for category in categories %}
-                                    <option value="{{ category.id }}">{{ category.name }}</option>
-                                    {% endfor %}
-                                </select>
+                                {{ form.new_product_name }}
+                                {% if form.new_product_name.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.new_product_name.errors.0 }}</p>
+                                {% endif %}
                             </div>
                         </div>
 
                         <!-- Quantity -->
                         <div class="sm:col-span-2">
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
+                            <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
                             <div class="mt-1">
-                                <input type="number" name="quantity" id="quantity" min="1" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                                {{ form.quantity }}
+                                {% if form.quantity.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.quantity.errors.0 }}</p>
+                                {% endif %}
                             </div>
                         </div>
 
                         <!-- Target Date -->
                         <div class="sm:col-span-2">
-                            <label for="target_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Date</label>
+                            <label for="{{ form.target_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Date</label>
                             <div class="mt-1">
-                                <input type="date" name="target_date" id="target_date" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                                {{ form.target_date }}
+                                {% if form.target_date.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.target_date.errors.0 }}</p>
+                                {% endif %}
                             </div>
                         </div>
 
                         <!-- Budget -->
                         <div class="sm:col-span-2">
-                            <label for="budget" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Budget (AED)</label>
+                            <label for="{{ form.budget.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Budget (AED)</label>
                             <div class="mt-1">
-                                <input type="number" name="budget" id="budget" min="0" step="0.01" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                {{ form.budget }}
+                                {% if form.budget.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.budget.errors.0 }}</p>
+                                {% endif %}
                             </div>
                         </div>
 
                         <!-- Notes -->
                         <div class="sm:col-span-6">
-                            <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+                            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
                             <div class="mt-1">
-                                <textarea id="notes" name="notes" rows="4" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Add any additional specifications, requirements, or notes..."></textarea>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                                {% endif %}
                             </div>
                         </div>
 
                         <!-- Upload References -->
                         <div class="sm:col-span-6">
-                            <label for="references" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reference Images or Documents</label>
+                            <label for="{{ form.references.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reference Images or Documents</label>
                             <div class="mt-1">
                                 <input type="file" name="references" id="references" multiple class="sr-only">
                                 <label for="references" class="cursor-pointer block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium leading-4 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
@@ -162,33 +157,32 @@
         targetDate.setDate(today.getDate() + 14);
         
         const formattedDate = targetDate.toISOString().substring(0, 10);
-        document.getElementById('target_date').value = formattedDate;
+        document.getElementById('{{ form.target_date.id_for_label }}').value = formattedDate;
     });
 
     // Show/hide fields based on request type
-    document.getElementById('request_type').addEventListener('change', function() {
+    document.getElementById('{{ form.request_type.id_for_label }}').addEventListener('change', function() {
         const requestType = this.value;
         const productSelection = document.getElementById('product_selection_container');
         const newProductContainer = document.getElementById('new_product_container');
         const newProductNameContainer = document.getElementById('new_product_name_container');
-        const newProductCategoryContainer = document.getElementById('new_product_category_container');
         
         if (requestType === 'new_product') {
             productSelection.classList.add('hidden');
             newProductContainer.classList.remove('hidden');
             newProductNameContainer.classList.remove('hidden');
-            newProductCategoryContainer.classList.remove('hidden');
-            document.getElementById('product').removeAttribute('required');
-            document.getElementById('new_product_name').setAttribute('required', 'required');
-            document.getElementById('new_product_category').setAttribute('required', 'required');
+            document.getElementById('{{ form.product.id_for_label }}').removeAttribute('required');
+            document.getElementById('{{ form.new_product_name.id_for_label }}').setAttribute('required', 'required');
         } else {
             productSelection.classList.remove('hidden');
             newProductContainer.classList.add('hidden');
             newProductNameContainer.classList.add('hidden');
-            newProductCategoryContainer.classList.add('hidden');
-            document.getElementById('product').setAttribute('required', 'required');
-            document.getElementById('new_product_name').removeAttribute('required');
-            document.getElementById('new_product_category').removeAttribute('required');
+            if (requestType === 'replenishment' || requestType === 'sample') {
+                document.getElementById('{{ form.product.id_for_label }}').setAttribute('required', 'required');
+            } else {
+                document.getElementById('{{ form.product.id_for_label }}').removeAttribute('required');
+            }
+            document.getElementById('{{ form.new_product_name.id_for_label }}').removeAttribute('required');
         }
     });
 </script>

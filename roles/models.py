@@ -10,16 +10,7 @@ class Role(models.Model):
     
     ROLE_TYPES = (
         ('super_admin', _('Super Admin')),
-        ('admin', _('Admin')),
         ('seller', _('Seller')),
-        ('livreur', _('Livreur')),
-        ('accountant', _('Accountant')),
-        ('stock_manager', _('Stock Manager')),
-        ('teleconsultant', _('Teleconsultant')),
-        ('callcenter_manager', _('Call Center Manager')),
-        ('unreached', _('Unreached Teleconsultant')),
-        ('whatsapp', _('WhatsApp')),
-        ('sourcing', _('Sourcing')),
     )
     
     name = models.CharField(_('Role Name'), max_length=100, unique=True)
@@ -27,6 +18,7 @@ class Role(models.Model):
     description = models.TextField(_('Description'), blank=True, null=True)
     is_active = models.BooleanField(_('Active'), default=True)
     is_default = models.BooleanField(_('Default Role'), default=False)
+    is_protected = models.BooleanField(_('Protected Role'), default=False, help_text=_('Protected roles cannot be deleted'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
@@ -56,6 +48,15 @@ class Role(models.Model):
     def get_permission_count(self):
         """Get the number of permissions for this role"""
         return self.role_permissions.filter(granted=True).count()
+    
+    def delete(self, *args, **kwargs):
+        """Override delete to prevent deletion of protected roles"""
+        if self.is_protected:
+            raise models.ProtectedError(
+                f"Cannot delete protected role '{self.name}'. This role is required by the system.",
+                self
+            )
+        super().delete(*args, **kwargs)
 
 class Permission(models.Model):
     """Permission model for granular access control"""

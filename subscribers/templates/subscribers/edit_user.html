@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit User - Atlas Fulfillment{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Edit User</h1>
+                    <p class="text-lg text-gray-600">Update information for {{ user.full_name }}</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'subscribers:view_details' user.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                        <i class="fas fa-eye mr-2"></i>
+                        View Details
+                    </a>
+                    <a href="{% url 'subscribers:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-user-edit text-yellow-500 mr-3"></i>
+                    User Information
+                </h3>
+            </div>
+            
+            <form method="post" class="p-6">
+                {% csrf_token %}
+                
+                <!-- User Profile Section -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user mr-2 text-yellow-500"></i>
+                                Full Name *
+                            </label>
+                            <input type="text" id="full_name" name="full_name" value="{{ user.full_name }}" required
+                                   class="form-input w-full" 
+                                   placeholder="Enter full name">
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-envelope mr-2 text-yellow-500"></i>
+                                Email Address *
+                            </label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required
+                                   class="form-input w-full" 
+                                   placeholder="Enter email address">
+                        </div>
+                        
+                        <div>
+                            <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-phone mr-2 text-yellow-500"></i>
+                                Phone Number
+                            </label>
+                            <input type="tel" id="phone_number" name="phone_number" value="{{ user.phone_number|default:'' }}"
+                                   class="form-input w-full" 
+                                   placeholder="Enter phone number">
+                        </div>
+                        
+                        <div>
+                            <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-building mr-2 text-yellow-500"></i>
+                                Company Name
+                            </label>
+                            <input type="text" id="company_name" name="company_name" value="{{ user.company_name|default:'' }}"
+                                   class="form-input w-full" 
+                                   placeholder="Enter company name">
+                        </div>
+                        
+                        <div>
+                            <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt mr-2 text-yellow-500"></i>
+                                Country
+                            </label>
+                            <input type="text" id="country" name="country" value="{{ user.country|default:'' }}"
+                                   class="form-input w-full" 
+                                   placeholder="Enter country">
+                        </div>
+                        
+                        <div>
+                            <label for="is_active" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-circle mr-2 text-yellow-500"></i>
+                                Account Status
+                            </label>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="is_active" name="is_active" 
+                                       {% if user.is_active %}checked{% endif %}
+                                       class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+                                <label for="is_active" class="ml-2 text-sm text-gray-700">
+                                    Active Account
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Roles Section -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">User Roles</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        {% if user.user_roles.all %}
+                            <div class="space-y-3">
+                                {% for user_role in user.user_roles.all %}
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 rounded-full 
+                                            {% if user_role.is_primary %}bg-yellow-500{% else %}bg-gray-400{% endif %} mr-3"></div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">{{ user_role.role.name }}</p>
+                                            <p class="text-sm text-gray-500">{{ user_role.role.description|default:"No description" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        {% if user_role.is_primary %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Primary
+                                        </span>
+                                        {% endif %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                            {% if user_role.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                            {% if user_role.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Role management is handled through the Roles section. Contact an administrator to modify user roles.
+                            </p>
+                        {% else %}
+                            <div class="text-center py-6">
+                                <i class="fas fa-user-slash text-3xl text-gray-300 mb-3"></i>
+                                <h3 class="text-lg font-medium text-gray-900">No roles assigned</h3>
+                                <p class="text-gray-500">This user doesn't have any roles assigned yet.</p>
+                                <a href="{% url 'roles:assign_user_role' user.id %}" class="inline-flex items-center px-4 py-2 mt-3 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Assign Role
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Account Information Section -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Account Information</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date Joined</label>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <i class="fas fa-calendar text-gray-400 mr-3"></i>
+                                <span class="text-gray-900">{{ user.date_joined|date:"F d, Y" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Last Login</label>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <i class="fas fa-sign-in-alt text-gray-400 mr-3"></i>
+                                <span class="text-gray-900">{{ user.last_login|date:"F d, Y H:i"|default:"Never" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <a href="{% url 'subscribers:view_details' user.id %}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="mt-8 bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-tools text-yellow-500 mr-3"></i>
+                    Quick Actions
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="toggleUserStatus()" class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+                        <i class="fas fa-power-off mr-2"></i>
+                        {% if user.is_active %}Deactivate{% else %}Activate{% endif %} User
+                    </button>
+                    
+                    <a href="{% url 'subscribers:delete_user' user.id %}" class="flex items-center justify-center px-4 py-3 border border-red-300 rounded-lg text-red-700 bg-white hover:bg-red-50 transition-colors duration-200">
+                        <i class="fas fa-trash mr-2"></i>
+                        Delete User
+                    </a>
+                    
+                    <a href="{% url 'users:detail' user.id %}" class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+                        <i class="fas fa-eye mr-2"></i>
+                        View Full Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleUserStatus() {
+        const userId = {{ user.id }};
+        
+        fetch(`/subscribers/user/${userId}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error updating user status', 'error');
+        });
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+{% endblock %} 

@@ -59,24 +59,101 @@ def role_list(request):
 def role_create(request):
     """Create a new role"""
     if request.method == 'POST':
+        # Handle AJAX form submission
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            try:
+                name = request.POST.get('name')
+                role_type = request.POST.get('role_type')
+                description = request.POST.get('description', '')
+                is_active = request.POST.get('is_active') == 'on'
+                is_default = request.POST.get('is_default') == 'on'
+                is_protected = request.POST.get('is_protected') == 'on'
+                
+                # Debug logging
+                print(f"Creating role: name={name}, type={role_type}, active={is_active}, default={is_default}, protected={is_protected}")
+                
+                if not name or not role_type:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Role name and type are required.'
+                    })
+                
+                # Check if role name already exists
+                if Role.objects.filter(name=name).exists():
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'A role with this name already exists.'
+                    })
+                
+                # Validate role type
+                valid_role_types = [choice[0] for choice in Role.ROLE_TYPES]
+                if role_type not in valid_role_types:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Invalid role type. Valid types are: {", ".join(valid_role_types)}'
+                    })
+                
+                # Create the role
+                role = Role.objects.create(
+                    name=name,
+                    role_type=role_type,
+                    description=description,
+                    is_active=is_active,
+                    is_default=is_default,
+                    is_protected=is_protected,
+                    created_by=request.user
+                )
+                
+                # Create audit log
+                RoleAuditLog.objects.create(
+                    action='role_created',
+                    user=request.user,
+                    role=role,
+                    description=f'Role "{role.name}" was created by {request.user.get_full_name()}',
+                    ip_address=request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Role "{role.name}" created successfully!',
+                    'role_id': role.id
+                })
+                
+            except Exception as e:
+                import traceback
+                print(f"Error creating role: {str(e)}")
+                print(traceback.format_exc())
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Error creating role: {str(e)}'
+                })
+        
+        # Handle regular form submission (fallback)
         name = request.POST.get('name')
         role_type = request.POST.get('role_type')
         description = request.POST.get('description', '')
+        is_active = request.POST.get('is_active') == 'on'
+        is_default = request.POST.get('is_default') == 'on'
+        is_protected = request.POST.get('is_protected') == 'on'
         
         if not name or not role_type:
             messages.error(request, 'Role name and type are required.')
-            return redirect('roles:role_create')
+            return redirect('roles:role_list')
         
         # Check if role name already exists
         if Role.objects.filter(name=name).exists():
             messages.error(request, 'A role with this name already exists.')
-            return redirect('roles:role_create')
+            return redirect('roles:role_list')
         
         try:
             role = Role.objects.create(
                 name=name,
                 role_type=role_type,
                 description=description,
+                is_active=is_active,
+                is_default=is_default,
+                is_protected=is_protected,
                 created_by=request.user
             )
             
@@ -95,8 +172,9 @@ def role_create(request):
             
         except Exception as e:
             messages.error(request, f'Error creating role: {str(e)}')
-            return redirect('roles:role_create')
+            return redirect('roles:role_list')
     
+    # GET request - show form page (for non-JS users)
     context = {
         'role_types': Role.ROLE_TYPES,
     }
@@ -160,7 +238,10 @@ def role_detail(request, role_id):
     """View role details and permissions"""
     role = get_object_or_404(Role, id=role_id)
     role_permissions = role.role_permissions.all().order_by('permission__module', 'permission__permission_type')
-    users_with_role = role.users.filter(is_active=True)
+    
+    # Get users with this role through UserRole relationship
+    user_roles = role.users.all().select_related('user').filter(user__is_active=True)
+    users_with_role = [user_role.user for user_role in user_roles]
     
     # Get all available permissions for this role
     all_permissions = Permission.objects.filter(is_active=True).order_by('module', 'permission_type')
@@ -178,6 +259,11 @@ def role_detail(request, role_id):
 def role_delete(request, role_id):
     """Delete a role"""
     role = get_object_or_404(Role, id=role_id)
+    
+    # Check if role is protected
+    if role.is_protected:
+        messages.error(request, f'Cannot delete protected role "{role.name}". This role is required by the system.')
+        return redirect('roles:role_detail', role_id=role_id)
     
     if request.method == 'POST':
         try:

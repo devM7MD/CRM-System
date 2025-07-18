@@ -13,4 +13,10 @@ urlpatterns = [
     path('detail/<int:user_id>/', views.user_detail, name='detail'),
     path('profile/', views.profile, name='profile'),
     path('password-change/', views.password_change, name='password_change'),
+    
+    # AJAX endpoints for profile management
+    path('profile/update/', views.profile_update, name='profile_update'),
+    path('profile/change-password/', views.change_password, name='change_password'),
+    path('profile/notification-settings/', views.notification_settings, name='notification_settings'),
+    path('profile/security-settings/', views.security_settings, name='security_settings'),
 ] 

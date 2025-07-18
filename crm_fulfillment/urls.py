@@ -38,6 +38,7 @@ urlpatterns = [
     path('followup/', include('followup.urls')),
     path('subscribers/', include('subscribers.urls', namespace='subscribers')),
     path('roles/', include('roles.urls')),
+    path('settings/', include('settings.urls')),
     path('bug-reports/', include('bug_reports.urls')),
     # Landing pages
     path('', include('landing.urls')),

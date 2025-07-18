@@ -1,55 +1,67 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Sourcing Requests{% endblock %}
+{% block title %}Sourcing Requests - Atlas Fulfillment{% endblock %}
 
 {% block content %}
-<div class="bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- Page Header -->
-    <div class="bg-amber-600 dark:bg-amber-700 shadow-lg border-t-4 border-amber-500">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-white">Sourcing Requests</h1>
-            <a href="{% url 'sellers:create_sourcing_request' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                New Sourcing Request
-            </a>
+    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 shadow-lg">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-white mb-2">Sourcing Requests</h1>
+                    <p class="text-yellow-100">Manage your product sourcing and supplier requests</p>
+                </div>
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                    <button onclick="openCreateRequestModal()" class="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg transition-all duration-200 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        + New Sourcing Request
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Filter Requests</h3>
-                <div class="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-4">
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Filter Section -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mb-8">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Filter Requests</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label for="filter-status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                        <select id="filter-status" name="status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
-                            <option value="all">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select class="form-select w-full">
+                            <option>All Status</option>
+                            <option>Draft</option>
+                            <option>Submitted</option>
+                            <option>Under Review</option>
+                            <option>Approved</option>
+                            <option>Rejected</option>
+                            <option>In Progress</option>
+                            <option>Completed</option>
                         </select>
                     </div>
                     <div>
-                        <label for="filter-priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
-                        <select id="filter-priority" name="priority" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
-                            <option value="all">All Priorities</option>
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                            <option value="urgent">Urgent</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                        <select class="form-select w-full">
+                            <option>All Priorities</option>
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                            <option>Urgent</option>
                         </select>
                     </div>
                     <div>
-                        <label for="filter-search" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <input type="text" name="search" id="filter-search" class="focus:ring-amber-500 focus:border-amber-500 block w-full pr-10 sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded-md" placeholder="Product name or ID...">
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        <div class="relative">
+                            <input type="text" class="form-input w-full pr-10" placeholder="Product name or ID...">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                 <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
@@ -57,123 +69,135 @@
                         </div>
                     </div>
                     <div class="flex items-end">
-                        <button type="button" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+                        <button class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200">
                             Apply Filters
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Sourcing Requests Table -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col">
-            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div class="shadow overflow-hidden border border-gray-200 dark:border-gray-700 sm:rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-amber-50 dark:bg-amber-900">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">Request ID</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">Product</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">Quantity</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">Date</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">Priority</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                {% for request in sourcing_requests %}
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ request.request_code }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                {% if request.product.image %}
-                                                <img class="h-10 w-10 rounded-md object-cover" src="{{ request.product.image.url }}" alt="{{ request.product.name }}">
-                                                {% else %}
-                                                <div class="h-10 w-10 rounded-md bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ request.product.name }}</div>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ request.product.code }}</div>
-                                            </div>
+        <!-- Sourcing Requests Table -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gradient-to-r from-yellow-500 to-yellow-600">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Request ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Product</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Quantity</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Priority</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for request in sourcing_requests %}
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ request.request_number }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        {% if request.product.image %}
+                                        <img class="h-10 w-10 rounded-lg object-cover border border-gray-200" src="{{ request.product.image.url }}" alt="{{ request.product_name }}">
+                                        {% else %}
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border border-gray-200">
+                                            <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ request.quantity }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ request.created_at|date:"M d, Y" }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {% if request.priority == 'urgent' %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Urgent
-                                        </span>
-                                        {% elif request.priority == 'high' %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                            High
-                                        </span>
-                                        {% elif request.priority == 'medium' %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">
-                                            Medium
-                                        </span>
-                                        {% else %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Low
-                                        </span>
                                         {% endif %}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {% if request.status == 'completed' %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Completed
-                                        </span>
-                                        {% elif request.status == 'processing' %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            Processing
-                                        </span>
-                                        {% elif request.status == 'approved' %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">
-                                            Approved
-                                        </span>
-                                        {% elif request.status == 'rejected' %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Rejected
-                                        </span>
-                                        {% else %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">
-                                            Pending
-                                        </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{% url 'sellers:sourcing_request_detail' request.id %}" class="text-amber-600 hover:text-amber-900 mr-3">View</a>
-                                        {% if request.status == 'pending' %}
-                                        <button class="text-red-600 hover:text-red-900">Cancel</button>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">No sourcing requests found.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ request.product_name }}</div>
+                                        <div class="text-sm text-gray-500">{{ request.source_country }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ request.carton_quantity }} cartons</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ request.created_at|date:"M d, Y" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if request.priority == 'urgent' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Urgent
+                                </span>
+                                {% elif request.priority == 'high' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                    High
+                                </span>
+                                {% elif request.priority == 'medium' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Medium
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Low
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if request.status == 'completed' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Completed
+                                </span>
+                                {% elif request.status == 'in_progress' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    In Progress
+                                </span>
+                                {% elif request.status == 'approved' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Approved
+                                </span>
+                                {% elif request.status == 'rejected' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Rejected
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    {{ request.status|title }}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'sellers:sourcing_request_detail' request.id %}" class="text-yellow-600 hover:text-yellow-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if request.status == 'draft' or request.status == 'submitted' %}
+                                    <button onclick="cancelRequest({{ request.id }})" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <svg class="h-12 w-12 text-gray-300 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-2">No sourcing requests found</h3>
+                                    <p class="text-gray-500 mb-4">Start by creating your first sourcing request.</p>
+                                    <button onclick="openCreateRequestModal()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200">
+                                        <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Create Your First Request
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
 
-    <!-- Pagination -->
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between">
+        <!-- Pagination -->
+        <div class="mt-8 flex items-center justify-between">
             <div class="flex-1 flex justify-between sm:hidden">
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Previous
@@ -184,13 +208,13 @@
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <p class="text-sm text-gray-700">
                         Showing
                         <span class="font-medium">1</span>
                         to
                         <span class="font-medium">10</span>
                         of
-                        <span class="font-medium">{{ sourcing_requests.count }}</span>
+                        <span class="font-medium">{{ sourcing_requests.count|default:0 }}</span>
                         results
                     </p>
                 </div>
@@ -202,7 +226,7 @@
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                             </svg>
                         </a>
-                        <a href="#" aria-current="page" class="z-10 bg-amber-50 border-amber-500 text-amber-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                        <a href="#" aria-current="page" class="z-10 bg-yellow-50 border-yellow-500 text-yellow-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
                             1
                         </a>
                         <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
@@ -223,4 +247,265 @@
         </div>
     </div>
 </div>
+
+<!-- Create Sourcing Request Modal -->
+<div id="createRequestModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+        <div class="flex items-center justify-between border-b pb-4 mb-6">
+            <h2 class="text-2xl font-bold text-yellow-700 flex items-center">
+                <i class="fas fa-search mr-3"></i>
+                Create New Sourcing Request
+            </h2>
+            <button onclick="closeCreateRequestModal()" class="text-gray-400 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <form id="createRequestForm" onsubmit="event.preventDefault(); submitSourcingRequest();">
+            {% csrf_token %}
+            
+            <!-- Request Type -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Request Type *</label>
+                <select name="request_type" id="request_type" required class="form-select w-full" onchange="toggleRequestType()">
+                    <option value="">Select a request type</option>
+                    <option value="replenishment">Inventory Replenishment</option>
+                    <option value="new_product">New Product Sourcing</option>
+                    <option value="sample">Sample Request</option>
+                    <option value="custom">Custom Order</option>
+                </select>
+            </div>
+
+            <!-- Product Selection (for existing products) -->
+            <div id="product_selection_container" class="mb-6 hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Product</label>
+                <select name="product" id="product" class="form-select w-full">
+                    <option value="">Select a product</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name_en|default:product.name_ar }} ({{ product.code }})</option>
+                    {% endfor %}
+                </select>
+                <p class="mt-2 text-sm text-gray-500">For inventory replenishment or sample requests.</p>
+            </div>
+
+            <!-- New Product Details (initially hidden) -->
+            <div id="new_product_container" class="hidden">
+                <div class="mb-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">New Product Details</h3>
+                    <p class="text-sm text-gray-500">Provide details of the new product you want to source.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                        <input type="text" name="new_product_name" id="new_product_name" class="form-input w-full" placeholder="Enter product name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <input type="text" name="new_product_category" id="new_product_category" class="form-input w-full" placeholder="Enter category">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea name="new_product_description" id="new_product_description" rows="3" class="form-input w-full" placeholder="Product description..."></textarea>
+                </div>
+            </div>
+
+            <!-- Request Details -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Request Details</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantity (Cartons) *</label>
+                        <input type="number" name="carton_quantity" id="carton_quantity" min="1" required class="form-input w-full" placeholder="Enter quantity">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Priority *</label>
+                        <select name="priority" id="priority" required class="form-select w-full">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target Date *</label>
+                        <input type="date" name="target_date" id="target_date" required class="form-input w-full">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Source Country *</label>
+                        <input type="text" name="source_country" id="source_country" required class="form-input w-full" placeholder="e.g., China, Turkey">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Destination Country *</label>
+                        <input type="text" name="destination_country" id="destination_country" required class="form-input w-full" placeholder="e.g., UAE">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Budget (AED)</label>
+                        <input type="number" name="budget" id="budget" min="0" step="0.01" class="form-input w-full" placeholder="Enter budget">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Finance Source</label>
+                        <select name="finance_source" id="finance_source" class="form-select w-full">
+                            <option value="self_financed">Self Financed</option>
+                            <option value="seller">Seller Account</option>
+                            <option value="company">Company Account</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <textarea name="notes" id="notes" rows="4" class="form-input w-full" placeholder="Add any additional specifications, requirements, or notes..."></textarea>
+            </div>
+
+            <!-- File Upload -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Reference Files</label>
+                <input type="file" name="references" id="references" multiple class="form-input w-full" accept="image/*,.pdf,.doc,.docx">
+                <p class="mt-2 text-sm text-gray-500">Upload any reference images or documents (Optional).</p>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeCreateRequestModal()" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
+                <button type="submit" class="btn-primary" id="submit-request-btn">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- End Create Sourcing Request Modal -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Modal Functions
+    function openCreateRequestModal() {
+        document.getElementById('createRequestModal').classList.remove('hidden');
+        setDefaultTargetDate();
+    }
+
+    function closeCreateRequestModal() {
+        document.getElementById('createRequestModal').classList.add('hidden');
+        document.getElementById('createRequestForm').reset();
+        resetFormVisibility();
+    }
+
+    function setDefaultTargetDate() {
+        const today = new Date();
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + 14);
+        const formattedDate = targetDate.toISOString().substring(0, 10);
+        document.getElementById('target_date').value = formattedDate;
+    }
+
+    function toggleRequestType() {
+        const requestType = document.getElementById('request_type').value;
+        const productSelection = document.getElementById('product_selection_container');
+        const newProductContainer = document.getElementById('new_product_container');
+        
+        if (requestType === 'new_product' || requestType === 'custom') {
+            productSelection.classList.add('hidden');
+            newProductContainer.classList.remove('hidden');
+            document.getElementById('product').removeAttribute('required');
+            document.getElementById('new_product_name').setAttribute('required', 'required');
+        } else if (requestType === 'replenishment' || requestType === 'sample') {
+            productSelection.classList.remove('hidden');
+            newProductContainer.classList.add('hidden');
+            document.getElementById('product').setAttribute('required', 'required');
+            document.getElementById('new_product_name').removeAttribute('required');
+        } else {
+            resetFormVisibility();
+        }
+    }
+
+    function resetFormVisibility() {
+        document.getElementById('product_selection_container').classList.add('hidden');
+        document.getElementById('new_product_container').classList.add('hidden');
+        document.getElementById('product').removeAttribute('required');
+        document.getElementById('new_product_name').removeAttribute('required');
+    }
+
+    function submitSourcingRequest() {
+        const form = document.getElementById('createRequestForm');
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submit-request-btn');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+        
+        fetch('{% url "sellers:sourcing_request_create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeCreateRequestModal();
+                showNotification('Sourcing request created successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.error || 'Error creating sourcing request', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error creating sourcing request', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Request';
+        });
+    }
+
+    function cancelRequest(requestId) {
+        if (confirm('Are you sure you want to cancel this sourcing request?')) {
+            // Add cancel functionality here
+            showNotification('Request cancelled successfully!', 'success');
+        }
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('fixed')) {
+            e.target.classList.add('hidden');
+        }
+    });
+</script>
 {% endblock %} 

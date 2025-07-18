@@ -10,13 +10,13 @@
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-white">Seller Dashboard</h1>
             <div class="flex space-x-4">
-                <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 focus:outline-none">
+                <button onclick="openNewOrderModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     New Order
                 </button>
-                <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
+                <button onclick="openNewSourcingRequestModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
@@ -180,7 +180,7 @@
                     <p class="mt-1 max-w-2xl text-sm text-gray-500">A list of all your products with inventory status.</p>
                 </div>
                 <div>
-                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none">
+                    <button onclick="openAddProductModal()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
@@ -246,7 +246,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <a href="{% url 'sellers:product_detail' product.id %}" class="text-yellow-600 hover:text-yellow-900 mr-3">View</a>
                                     <a href="{% url 'sellers:product_edit' product.id %}" class="text-yellow-600 hover:text-yellow-900 mr-3">Edit</a>
-                                    <a href="{% url 'sellers:create_sourcing_request' %}?product={{ product.id }}" class="text-yellow-600 hover:text-yellow-900">Order More</a>
+                                    <a href="{% url 'sellers:sourcing_request_create' %}?product={{ product.id }}" class="text-yellow-600 hover:text-yellow-900">Order More</a>
                                 </td>
                             </tr>
                             {% empty %}
@@ -332,6 +332,316 @@
         </div>
     </div>
 </div>
+
+<!-- Add Product Modal -->
+<div id="addProductModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex items-center justify-between border-b pb-4 mb-4">
+            <h2 class="text-xl font-bold text-yellow-700 flex items-center">
+                <i class="fas fa-box-open mr-2"></i>
+                Add New Product
+            </h2>
+            <button onclick="closeAddProductModal()" class="text-gray-400 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <form id="addProductForm" enctype="multipart/form-data" onsubmit="event.preventDefault(); submitAddProduct();">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Name (English) *</label>
+                    <input type="text" name="name" required class="form-input w-full" placeholder="Enter product name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Name (Arabic)</label>
+                    <input type="text" name="name_ar" class="form-input w-full" placeholder="Enter Arabic name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">SKU/Product Code *</label>
+                    <input type="text" name="code" required class="form-input w-full" placeholder="Enter SKU or code">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Selling Price (AED) *</label>
+                    <input type="number" name="selling_price" required class="form-input w-full" placeholder="Enter price">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cost Price (AED)</label>
+                    <input type="number" name="cost_price" class="form-input w-full" placeholder="Enter cost price">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Link</label>
+                    <input type="url" name="product_link" class="form-input w-full" placeholder="Enter product link">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea name="description" rows="2" class="form-input w-full" placeholder="Product description..."></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+                    <input type="file" name="image" id="product-image" accept="image/*" class="form-input w-full">
+                    <div id="image-preview" class="mt-2"></div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeAddProductModal()" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
+                <button type="submit" class="btn-primary" id="submit-product-btn">
+                    <i class="fas fa-plus mr-2"></i>Add Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- End Add Product Modal -->
+
+<!-- New Order Modal -->
+<div id="newOrderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Create New Order</h3>
+                        <p class="text-sm text-gray-600">Add a new customer order</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeNewOrderModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <form id="newOrderForm" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- Customer Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="customer-name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-yellow-500"></i>
+                            Customer Name *
+                        </label>
+                        <input type="text" id="customer-name" name="customer_name" required
+                               class="form-input w-full" 
+                               placeholder="Enter customer name">
+                    </div>
+                    <div>
+                        <label for="customer-phone" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone mr-2 text-yellow-500"></i>
+                            Phone Number *
+                        </label>
+                        <input type="tel" id="customer-phone" name="customer_phone" required
+                               class="form-input w-full" 
+                               placeholder="+971 50 123 4567">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="customer-email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2 text-yellow-500"></i>
+                        Email Address
+                    </label>
+                    <input type="email" id="customer-email" name="customer_email"
+                           class="form-input w-full" 
+                           placeholder="customer@example.com">
+                </div>
+
+                <div>
+                    <label for="customer-address" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt mr-2 text-yellow-500"></i>
+                        Delivery Address *
+                    </label>
+                    <textarea id="customer-address" name="customer_address" rows="3" required
+                              class="form-input w-full resize-none" 
+                              placeholder="Enter complete delivery address..."></textarea>
+                </div>
+
+                <!-- Order Items -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-boxes mr-2 text-yellow-500"></i>
+                        Order Items *
+                    </label>
+                    <div id="order-items" class="space-y-3">
+                        <div class="order-item flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                            <select name="product_ids[]" class="form-input flex-1" required>
+                                <option value="">Select Product</option>
+                                {% for product in products %}
+                                <option value="{{ product.id }}">{{ product.name }} - {{ product.code }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="number" name="quantities[]" min="1" value="1" 
+                                   class="form-input w-20" placeholder="Qty" required>
+                            <button type="button" onclick="removeOrderItem(this)" 
+                                    class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addOrderItem()" 
+                            class="mt-2 text-sm text-yellow-600 hover:text-yellow-700">
+                        <i class="fas fa-plus mr-1"></i> Add Another Item
+                    </button>
+                </div>
+
+                <!-- Order Notes -->
+                <div>
+                    <label for="order-notes" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-sticky-note mr-2 text-yellow-500"></i>
+                        Order Notes
+                    </label>
+                    <textarea id="order-notes" name="notes" rows="2"
+                              class="form-input w-full resize-none" 
+                              placeholder="Any special instructions or notes..."></textarea>
+                </div>
+            </form>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeNewOrderModal()" 
+                        class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="submitNewOrder()" 
+                        class="btn-primary" id="submit-order-btn">
+                    <i class="fas fa-check mr-2"></i>
+                    Create Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Sourcing Request Modal -->
+<div id="newSourcingRequestModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-globe text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">New Sourcing Request</h3>
+                        <p class="text-sm text-gray-600">Request to source new products</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeNewSourcingRequestModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <form id="newSourcingRequestForm" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- Product Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="sourcing-product-name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tag mr-2 text-yellow-500"></i>
+                            Product Name *
+                        </label>
+                        <input type="text" id="sourcing-product-name" name="product_name" required
+                               class="form-input w-full" 
+                               placeholder="Enter product name">
+                    </div>
+                    <div>
+                        <label for="sourcing-quantity" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-boxes mr-2 text-yellow-500"></i>
+                            Quantity Needed *
+                        </label>
+                        <input type="number" id="sourcing-quantity" name="quantity" min="1" required
+                               class="form-input w-full" 
+                               placeholder="Enter quantity">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="sourcing-target-price" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-dollar-sign mr-2 text-yellow-500"></i>
+                            Target Price (AED)
+                        </label>
+                        <input type="number" id="sourcing-target-price" name="target_price" step="0.01"
+                               class="form-input w-full" 
+                               placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="sourcing-urgency" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-clock mr-2 text-yellow-500"></i>
+                            Urgency Level
+                        </label>
+                        <select id="sourcing-urgency" name="urgency" class="form-input w-full">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Product Description -->
+                <div>
+                    <label for="sourcing-description" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-align-left mr-2 text-yellow-500"></i>
+                        Product Description *
+                    </label>
+                    <textarea id="sourcing-description" name="description" rows="3" required
+                              class="form-input w-full resize-none" 
+                              placeholder="Describe the product you need to source..."></textarea>
+                </div>
+
+                <!-- Supplier Information -->
+                <div>
+                    <label for="sourcing-supplier" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-building mr-2 text-yellow-500"></i>
+                        Preferred Supplier (Optional)
+                    </label>
+                    <input type="text" id="sourcing-supplier" name="preferred_supplier"
+                           class="form-input w-full" 
+                           placeholder="Enter supplier name if you have a preference">
+                </div>
+
+                <!-- Additional Requirements -->
+                <div>
+                    <label for="sourcing-requirements" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-list-check mr-2 text-yellow-500"></i>
+                        Additional Requirements
+                    </label>
+                    <textarea id="sourcing-requirements" name="additional_requirements" rows="2"
+                              class="form-input w-full resize-none" 
+                              placeholder="Any specific requirements, certifications, or specifications..."></textarea>
+                </div>
+            </form>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeNewSourcingRequestModal()" 
+                        class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="submitNewSourcingRequest()" 
+                        class="btn-primary" id="submit-sourcing-btn">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Submit Request
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -418,6 +728,236 @@
                 }
             }
         });
+    });
+
+    // Modal Functions
+    function openAddProductModal() {
+        document.getElementById('addProductModal').classList.remove('hidden');
+    }
+
+    function closeAddProductModal() {
+        document.getElementById('addProductModal').classList.add('hidden');
+        document.getElementById('addProductForm').reset();
+        document.getElementById('image-preview').innerHTML = '';
+    }
+
+    function openNewOrderModal() {
+        document.getElementById('newOrderModal').classList.remove('hidden');
+    }
+
+    function closeNewOrderModal() {
+        document.getElementById('newOrderModal').classList.add('hidden');
+        document.getElementById('newOrderForm').reset();
+        // Reset order items to just one
+        const orderItems = document.getElementById('order-items');
+        orderItems.innerHTML = `
+            <div class="order-item flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                <select name="product_ids[]" class="form-input flex-1" required>
+                    <option value="">Select Product</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }} - {{ product.code }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="quantities[]" min="1" value="1" 
+                       class="form-input w-20" placeholder="Qty" required>
+                <button type="button" onclick="removeOrderItem(this)" 
+                        class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    function openNewSourcingRequestModal() {
+        document.getElementById('newSourcingRequestModal').classList.remove('hidden');
+    }
+
+    function closeNewSourcingRequestModal() {
+        document.getElementById('newSourcingRequestModal').classList.add('hidden');
+        document.getElementById('newSourcingRequestForm').reset();
+    }
+
+    // Form Submission Functions
+    function submitAddProduct() {
+        const form = document.getElementById('addProductForm');
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submit-product-btn');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
+        
+        fetch('{% url "sellers:product_create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeAddProductModal();
+                // Show success message
+                showNotification('Product added successfully!', 'success');
+                // Reload page to show new product
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.error || 'Error adding product', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error adding product', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>Add Product';
+        });
+    }
+
+    function submitNewOrder() {
+        const form = document.getElementById('newOrderForm');
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submit-order-btn');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+        
+        fetch('{% url "orders:create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeNewOrderModal();
+                showNotification('Order created successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.error || 'Error creating order', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error creating order', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Create Order';
+        });
+    }
+
+    function submitNewSourcingRequest() {
+        const form = document.getElementById('newSourcingRequestForm');
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submit-sourcing-btn');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+        
+        fetch('{% url "sellers:sourcing_request_create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeNewSourcingRequestModal();
+                showNotification('Sourcing request submitted successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.error || 'Error submitting request', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error submitting request', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Request';
+        });
+    }
+
+    // Helper Functions
+    function addOrderItem() {
+        const orderItems = document.getElementById('order-items');
+        const newItem = document.createElement('div');
+        newItem.className = 'order-item flex items-center space-x-3 p-3 border border-gray-200 rounded-lg';
+        newItem.innerHTML = `
+            <select name="product_ids[]" class="form-input flex-1" required>
+                <option value="">Select Product</option>
+                {% for product in products %}
+                <option value="{{ product.id }}">{{ product.name }} - {{ product.code }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="quantities[]" min="1" value="1" 
+                   class="form-input w-20" placeholder="Qty" required>
+            <button type="button" onclick="removeOrderItem(this)" 
+                    class="text-red-500 hover:text-red-700">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        orderItems.appendChild(newItem);
+    }
+
+    function removeOrderItem(button) {
+        const orderItems = document.getElementById('order-items');
+        if (orderItems.children.length > 1) {
+            button.closest('.order-item').remove();
+        }
+    }
+
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Image preview for product form
+    document.getElementById('product-image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('image-preview');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg border">
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.innerHTML = '';
+        }
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('fixed')) {
+            e.target.classList.add('hidden');
+        }
     });
 </script>
 {% endblock %} 

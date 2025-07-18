@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% trans "Atlas Admin" %}{% endblock %}</title>
+    <title>{% block title %}{% trans "Atlas Fulfillment" %}{% endblock %}</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -127,7 +127,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             min-height: calc(100vh - 64px);
             background: transparent;
-            padding: 2rem;
+            padding: 0;
             margin-left: 0;
             width: 100%;
         }
@@ -136,7 +136,7 @@
             .main-content {
                 margin-left: 16rem; /* 256px = 16rem */
                 width: calc(100% - 16rem);
-        }
+            }
         }
         
         /* Loading Animation */
@@ -519,119 +519,128 @@
     <nav class="header-nav text-gray-900 shadow-sm py-2">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                    <button id="sidebar-toggle" class="mr-4 p-2 rounded hover:bg-gray-100 focus:outline-none lg:hidden">
-                        <i class="fas fa-bars"></i>
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="mr-4 p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 lg:hidden transition-colors duration-200">
+                        <i class="fas fa-bars text-gray-600"></i>
                     </button>
                     <a href="{% url 'dashboard:index' %}" class="flex items-center logo-container">
-                        <picture>
-                            {% comment %} <source srcset="{% static 'img/atlas_logo1231.svg' %}" type="image/svg+xml"> {% endcomment %}
-                            <img src="" alt="{% trans 'Atlas Admin' %}" class="h-full">
-                        </picture>
-                    </a>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
+                                <i class="fas fa-shipping-fast text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xl font-bold text-gray-900">Atlas Fulfillment</div>
+                                <div class="text-xs text-gray-500">Admin Panel</div>
+                            </div>
                         </div>
+                    </a>
+                </div>
                 
-                <div class="flex items-center">
-                            <!-- Language Switcher -->
-                    <div class="mr-3">
+                <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="relative">
                         <form action="{% url 'set_language' %}" method="post" class="inline-block">
-                                {% csrf_token %}
+                            {% csrf_token %}
                             <input name="next" type="hidden" value="{{ request.path }}"/>
-                            <select name="language" onchange="this.form.submit()" class="bg-gray-100 text-gray-700 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
-                                    {% get_current_language as CURRENT_LANGUAGE %}
+                            <select name="language" onchange="this.form.submit()" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors duration-200">
+                                {% get_current_language as CURRENT_LANGUAGE %}
                                 {% get_available_languages as LANGUAGES %}
                                 {% for lang_code, lang_name in LANGUAGES %}
-                                        <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                                    <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
                                         {{ lang_name }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </form>
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
                     </div>
                     
-                    <div class="hidden md:block">
-                        <div class="ml-4 flex items-center">
-                            <button id="notif-dropdown-button" class="p-2 rounded hover:bg-gray-100 focus:outline-none relative">
-                                <i class="fas fa-bell text-gray-600"></i>
-                                {% if unread_notifications_count > 0 %}
-                                <span class="absolute top-0 right-0 flex h-3 w-3">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                                    </span>
-                                {% endif %}
-                                </button>
-                            <div id="notif-dropdown" class="hidden absolute mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-20 top-14 right-24">
-                                <div class="py-2">
-                                    <div class="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-                                        <h3 class="text-sm font-semibold text-gray-700">{% trans "Notifications" %}</h3>
-                                        <a href="#" class="text-xs text-blue-500 hover:text-blue-600">{% trans "Mark all as read" %}</a>
-                                    </div>
-                                    <div class="max-h-60 overflow-y-auto">
-                                        {% if user_notifications %}
-                                            {% for notification in user_notifications|slice:":5" %}
-                                            <a href="{{ notification.get_absolute_url }}" class="block px-4 py-2 hover:bg-gray-100 {% if not notification.is_read %}bg-gray-50{% endif %}">
-                                                <div class="flex items-start">
-                                                    <div class="flex-shrink-0 mr-3">
-                                                        <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                                            <i class="fas fa-bell text-blue-500"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-sm font-medium text-gray-900">{{ notification.title }}</p>
-                                                        <p class="text-xs text-gray-500">{{ notification.message|truncatechars:60 }}</p>
-                                                        <p class="text-xs text-gray-400 mt-1">{{ notification.created_at|timesince }} {% trans "ago" %}</p>
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button id="notif-dropdown-button" class="p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors duration-200 relative">
+                            <i class="fas fa-bell text-gray-600 text-lg"></i>
+                            {% if unread_notifications_count > 0 %}
+                            <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-xs text-white items-center justify-center font-medium">{{ unread_notifications_count }}</span>
+                            </span>
+                            {% endif %}
+                        </button>
+                        <div id="notif-dropdown" class="hidden absolute mt-2 w-80 bg-white rounded-xl shadow-xl overflow-hidden z-20 top-14 right-0 border border-gray-200">
+                            <div class="py-2">
+                                <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                                    <h3 class="text-sm font-semibold text-gray-700">{% trans "Notifications" %}</h3>
+                                    <a href="#" class="text-xs text-yellow-600 hover:text-yellow-700 font-medium">{% trans "Mark all as read" %}</a>
+                                </div>
+                                <div class="max-h-60 overflow-y-auto">
+                                    {% if user_notifications %}
+                                        {% for notification in user_notifications|slice:":5" %}
+                                        <a href="{{ notification.get_absolute_url }}" class="block px-4 py-3 hover:bg-gray-50 {% if not notification.is_read %}bg-yellow-50{% endif %} transition-colors duration-200">
+                                            <div class="flex items-start">
+                                                <div class="flex-shrink-0 mr-3">
+                                                    <div class="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                                                        <i class="fas fa-bell text-yellow-600 text-sm"></i>
                                                     </div>
                                                 </div>
-                                            </a>
-                                            {% endfor %}
-                                        {% else %}
-                                            <div class="px-4 py-6 text-center text-gray-500">
-                                                <i class="fas fa-bell-slash text-2xl mb-2"></i>
-                                                <p class="text-sm">{% trans "No notifications yet" %}</p>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate">{{ notification.title }}</p>
+                                                    <p class="text-xs text-gray-500 mt-1">{{ notification.message|truncatechars:60 }}</p>
+                                                    <p class="text-xs text-gray-400 mt-1">{{ notification.created_at|timesince }} {% trans "ago" %}</p>
+                                                </div>
                                             </div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="border-t border-gray-200 py-2 px-4 text-center">
-                                        <a href="#" class="text-xs text-blue-500 hover:text-blue-600">{% trans "View all notifications" %}</a>
-                                    </div>
-                                </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                    <div class="ml-3 relative">
-                                <div>
-                            <button type="button" id="user-menu-button" class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500" aria-expanded="false" aria-haspopup="true">
-                                <span class="sr-only">{% trans "Open user menu" %}</span>
-                                <span class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
-                                        {% if user.profile_image %}
-                                    <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" class="h-8 w-8 rounded-full">
-                                        {% else %}
-                                    <span class="text-lg font-medium">{{ user.get_initials }}</span>
-                                        {% endif %}
-                                </span>
-                                <span class="ml-2 hidden md:block text-gray-700">{{ user.get_short_name }}</span>
-                                <i class="fas fa-chevron-down ml-1 text-xs text-gray-500"></i>
-                                    </button>
-                                </div>
-                                
-                        <div id="user-menu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                            <div class="py-1" role="none">
-                                <div class="block px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                                    <div class="font-medium">{{ user.get_full_name }}</div>
-                                    <div class="text-xs text-gray-500">{{ user.email }}</div>
-                                    {% if user.get_primary_role %}
-                                    <div class="text-xs text-blue-600 font-medium">{{ user.get_primary_role.name }}</div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="px-4 py-8 text-center text-gray-500">
+                                            <i class="fas fa-bell-slash text-3xl mb-3 text-gray-300"></i>
+                                            <p class="text-sm">{% trans "No notifications yet" %}</p>
+                                        </div>
                                     {% endif %}
                                 </div>
-                                <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">
-                                    <i class="fas fa-user mr-2"></i> {% trans "Your Profile" %}
+                                <div class="border-t border-gray-200 py-3 px-4 text-center bg-gray-50">
+                                    <a href="#" class="text-xs text-yellow-600 hover:text-yellow-700 font-medium">{% trans "View all notifications" %}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button type="button" id="user-menu-button" class="flex items-center max-w-xs text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200 hover:bg-gray-100 px-3 py-2" aria-expanded="false" aria-haspopup="true">
+                            <span class="sr-only">{% trans "Open user menu" %}</span>
+                            <div class="h-8 w-8 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center text-white shadow-lg">
+                                {% if user.profile_image %}
+                                    <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" class="h-8 w-8 rounded-full object-cover">
+                                {% else %}
+                                    <span class="text-sm font-medium">{{ user.get_initials }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3 text-left">
+                                <div class="text-sm font-medium text-gray-900">{{ user.get_short_name }}</div>
+                                {% if user.get_primary_role %}
+                                <div class="text-xs text-gray-500">{{ user.get_primary_role.name }}</div>
+                                {% endif %}
+                            </div>
+                            <i class="fas fa-chevron-down ml-2 text-xs text-gray-500"></i>
+                        </button>
+                        
+                        <div id="user-menu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50 border border-gray-200" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                            <div class="py-2" role="none">
+                                <div class="block px-4 py-3 text-sm text-gray-700 border-b border-gray-100 bg-gray-50">
+                                    <div class="font-medium text-gray-900">{{ user.get_full_name }}</div>
+                                    <div class="text-xs text-gray-500">{{ user.email }}</div>
+                                    {% if user.get_primary_role %}
+                                    <div class="text-xs text-yellow-600 font-medium mt-1">{{ user.get_primary_role.name }}</div>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'users:profile' %}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" role="menuitem" tabindex="-1">
+                                    <i class="fas fa-user mr-3 text-gray-400"></i> {% trans "Your Profile" %}
                                 </a>
-                                <a href="{% url 'dashboard:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">
-                                    <i class="fas fa-cog mr-2"></i> {% trans "Settings" %}
+                                <a href="{% url 'dashboard:settings' %}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" role="menuitem" tabindex="-1">
+                                    <i class="fas fa-cog mr-3 text-gray-400"></i> {% trans "Settings" %}
                                 </a>
-                                <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">
-                                    <i class="fas fa-sign-out-alt mr-2"></i> {% trans "Sign out" %}
+                                <div class="border-t border-gray-100"></div>
+                                <a href="{% url 'users:logout' %}" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200" role="menuitem" tabindex="-1">
+                                    <i class="fas fa-sign-out-alt mr-3"></i> {% trans "Sign out" %}
                                 </a>
                             </div>
                         </div>
@@ -643,12 +652,12 @@
 
     <div class="flex min-h-screen page-container">
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar text-white w-64 lg:w-64 fixed h-full z-10 left-0 shadow hidden lg:block">
+        <div id="sidebar" class="sidebar text-white w-64 lg:w-64 fixed h-full z-10 left-0 shadow lg:block">
             <div class="overflow-y-auto h-full p-4">
                 <!-- Role Display at Top -->
                 <div class="mb-6 pb-4 border-b border-gray-600">
                     <div class="text-center">
-                        <h2 class="text-xl font-bold text-yellow-400 mb-1">Atlas</h2>
+                        <h2 class="text-xl font-bold text-yellow-400 mb-1">Atlas Fulfillment</h2>
                         {% if user.get_primary_role %}
                         <p class="text-sm text-gray-300">{{ user.get_primary_role.name }}</p>
                         {% else %}
@@ -772,7 +781,7 @@
         <!-- Main content -->
         <main class="main-content flex-1 bg-white lg:ml-64">
             <div class="py-6 content-wrapper">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+                <div class="w-full">
                     <!-- Content -->
                         {% block content %}{% endblock %}
                 </div>

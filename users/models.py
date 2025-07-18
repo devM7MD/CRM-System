@@ -15,6 +15,10 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+        
+        # Automatically assign Seller role to new users
+        self._assign_default_role(user, 'Seller')
+        
         return user
     
     def create_superuser(self, email, password=None, **extra_fields):
@@ -29,8 +33,32 @@ class UserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_superuser=True.'))
         
         user = self.create_user(email, password, **extra_fields)
-        # Note: Roles will be assigned manually through admin interface
+        
+        # Automatically assign Super Admin role to superusers
+        self._assign_default_role(user, 'Super Admin')
+        
         return user
+    
+    def _assign_default_role(self, user, role_name):
+        """Assign a default role to a user"""
+        try:
+            from roles.models import Role, UserRole
+            
+            # Get the role
+            role = Role.objects.filter(name=role_name, is_active=True).first()
+            if role:
+                # Check if user already has this role
+                if not UserRole.objects.filter(user=user, role=role).exists():
+                    # Assign the role as primary
+                    UserRole.objects.create(
+                        user=user,
+                        role=role,
+                        is_primary=True,
+                        is_active=True
+                    )
+                    print(f"Assigned {role_name} role to {user.email}")
+        except Exception as e:
+            print(f"Error assigning role {role_name} to {user.email}: {e}")
 
 class User(AbstractUser, PermissionsMixin):
     """Custom user model for the CRM system with role-based access control."""

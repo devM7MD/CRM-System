@@ -13,4 +13,5 @@ urlpatterns = [
     path('settings/', views.settings, name='settings'),
     path('system-status/', views.system_status, name='system_status'),
     path('activity/<int:activity_id>/', views.activity_detail, name='activity_detail'),
+    path('audit-log/', views.audit_log, name='audit_log'),
 ] 

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Avg, Q, F
 from django.utils import timezone
+from django.core.paginator import Paginator
 from datetime import datetime, timedelta
 import json
 from .models import Payment
@@ -14,157 +15,167 @@ from sellers.models import Seller
 @login_required
 def dashboard(request):
     """Finance dashboard with real data."""
+    # Calculate financial metrics
     total_revenue = Payment.objects.filter(payment_status='completed').aggregate(total=Sum('amount'))['total'] or 0
-    # No Expense model, so set expenses to 0 for now
-    total_expenses = 0
+    total_expenses = 0  # No Expense model, so set expenses to 0 for now
     net_profit = total_revenue - total_expenses
     pending_payments = Payment.objects.filter(payment_status='pending').count()
-    recent_payments = Payment.objects.order_by('-payment_date')[:5]
+    
+    # Recent payments
+    recent_payments = Payment.objects.select_related('order', 'order__customer').order_by('-payment_date')[:5]
+    
+    # Payment method distribution
+    payment_methods = Payment.objects.values('payment_method').annotate(count=Count('payment_method'))
+    
+    # Monthly revenue trend (last 6 months)
+    monthly_revenue = []
+    for i in range(6):
+        month_start = timezone.now().replace(day=1) - timedelta(days=30*i)
+        month_end = month_start.replace(day=28) + timedelta(days=4)
+        month_end = month_end.replace(day=1) - timedelta(days=1)
+        
+        revenue = Payment.objects.filter(
+            payment_status='completed',
+            payment_date__gte=month_start,
+            payment_date__lte=month_end
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        monthly_revenue.append({
+            'month': month_start.strftime('%B %Y'),
+            'revenue': float(revenue)
+        })
+    
     context = {
         'total_revenue': total_revenue,
         'total_expenses': total_expenses,
         'net_profit': net_profit,
         'pending_payments': pending_payments,
         'recent_payments': recent_payments,
+        'payment_methods': payment_methods,
+        'monthly_revenue': monthly_revenue,
     }
     return render(request, 'finance/dashboard.html', context)
 
 @login_required
 def payment_list(request):
-    """List of payments."""
-    return render(request, 'finance/payment_list.html')
+    """List of payments with filtering and pagination."""
+    # Get filter parameters
+    status_filter = request.GET.get('status', '')
+    payment_method_filter = request.GET.get('payment_method', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    search_query = request.GET.get('search', '')
+    
+    # Base queryset
+    payments = Payment.objects.select_related('order', 'order__customer').order_by('-payment_date')
+    
+    # Apply filters
+    if status_filter:
+        payments = payments.filter(payment_status=status_filter)
+    
+    if payment_method_filter:
+        payments = payments.filter(payment_method=payment_method_filter)
+    
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__gte=date_from_obj)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__lte=date_to_obj)
+        except ValueError:
+            pass
+    
+    if search_query:
+        payments = payments.filter(
+            Q(order__order_code__icontains=search_query) |
+            Q(order__customer__full_name__icontains=search_query) |
+            Q(transaction_id__icontains=search_query) |
+            Q(notes__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(payments, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get filter options
+    status_choices = Payment.PAYMENT_STATUS
+    payment_method_choices = Payment.PAYMENT_METHODS
+    
+    context = {
+        'page_obj': page_obj,
+        'status_choices': status_choices,
+        'payment_method_choices': payment_method_choices,
+        'current_status': status_filter,
+        'current_payment_method': payment_method_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'finance/payment_list.html', context)
 
 @login_required
 def sales_report(request):
-    """Sales reports and analytics with real data."""
-    # Get date range from request or default to this month
-    date_range = request.GET.get('date_range', 'this_month')
+    """Sales report with analytics."""
+    # Get date range from request
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
     
-    # Calculate date filters
-    today = timezone.now().date()
-    if date_range == 'today':
-        start_date = today
-        end_date = today
-    elif date_range == 'yesterday':
-        start_date = today - timedelta(days=1)
-        end_date = start_date
-    elif date_range == 'this_week':
-        start_date = today - timedelta(days=today.weekday())
-        end_date = today
-    elif date_range == 'last_week':
-        start_date = today - timedelta(days=today.weekday() + 7)
-        end_date = start_date + timedelta(days=6)
-    elif date_range == 'this_month':
-        start_date = today.replace(day=1)
-        end_date = today
-    elif date_range == 'last_month':
-        last_month = today.replace(day=1) - timedelta(days=1)
-        start_date = last_month.replace(day=1)
-        end_date = today.replace(day=1) - timedelta(days=1)
-    elif date_range == 'this_year':
-        start_date = today.replace(month=1, day=1)
-        end_date = today
-    else:
-        start_date = today.replace(day=1)
-        end_date = today
-
-    # Get real data from database
-    orders_in_period = Order.objects.filter(
-        date__date__gte=start_date,
-        date__date__lte=end_date
-    )
+    # Base queryset
+    payments = Payment.objects.filter(payment_status='completed')
     
-    # Calculate KPIs using actual database fields
-    total_sales = orders_in_period.aggregate(
-        total=Sum(F('quantity') * F('price_per_unit'))
-    )['total'] or 0
-    total_orders = orders_in_period.count()
-    avg_order_value = orders_in_period.aggregate(
-        avg=Avg(F('quantity') * F('price_per_unit'))
-    )['avg'] or 0
+    # Apply date filters
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__gte=date_from_obj)
+        except ValueError:
+            pass
     
-    # Calculate previous period for comparison
-    period_days = (end_date - start_date).days + 1
-    prev_start_date = start_date - timedelta(days=period_days)
-    prev_end_date = start_date - timedelta(days=1)
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__lte=date_to_obj)
+        except ValueError:
+            pass
     
-    prev_orders = Order.objects.filter(
-        date__date__gte=prev_start_date,
-        date__date__lte=prev_end_date
-    )
-    prev_total_sales = prev_orders.aggregate(
-        total=Sum(F('quantity') * F('price_per_unit'))
-    )['total'] or 0
-    prev_total_orders = prev_orders.count()
-    prev_avg_order_value = prev_orders.aggregate(
-        avg=Avg(F('quantity') * F('price_per_unit'))
-    )['avg'] or 0
+    # Calculate metrics
+    total_sales = payments.aggregate(total=Sum('amount'))['total'] or 0
+    total_orders = payments.values('order').distinct().count()
+    avg_order_value = total_sales / total_orders if total_orders > 0 else 0
     
-    # Calculate percentage changes
-    sales_change = ((total_sales - prev_total_sales) / prev_total_sales * 100) if prev_total_sales > 0 else 0
-    orders_change = ((total_orders - prev_total_orders) / prev_total_orders * 100) if prev_total_orders > 0 else 0
-    avg_order_change = ((avg_order_value - prev_avg_order_value) / prev_avg_order_value * 100) if prev_avg_order_value > 0 else 0
+    # Payment method breakdown
+    payment_method_breakdown = payments.values('payment_method').annotate(
+        total=Sum('amount'),
+        count=Count('id')
+    ).order_by('-total')
     
-    # Get top selling products using the correct Product model
-    top_products = Product.objects.annotate(
-        total_sold=Sum('orders__quantity'),
-        total_revenue=Sum(F('orders__quantity') * F('orders__price_per_unit'))
-    ).filter(
-        orders__date__date__gte=start_date,
-        orders__date__date__lte=end_date
-    ).order_by('-total_sold')[:5]
+    # Daily sales trend (last 30 days)
+    daily_sales = []
+    for i in range(30):
+        date = timezone.now().date() - timedelta(days=i)
+        daily_total = payments.filter(payment_date__date=date).aggregate(total=Sum('amount'))['total'] or 0
+        daily_sales.append({
+            'date': date.strftime('%Y-%m-%d'),
+            'total': float(daily_total)
+        })
     
-    # Get sales by category (using product name as category for now)
-    sales_by_category = Product.objects.filter(
-        orders__date__date__gte=start_date,
-        orders__date__date__lte=end_date
-    ).values('name').annotate(
-        total_sales=Sum('orders__quantity')
-    ).order_by('-total_sales')
-    
-    # Prepare chart data
-    category_labels = [item['name'] for item in sales_by_category]
-    category_data = [item['total_sales'] for item in sales_by_category]
-    
-    # Get monthly sales data for trend chart
-    monthly_sales = []
-    monthly_labels = []
-    for i in range(6, -1, -1):
-        month_start = today.replace(day=1) - timedelta(days=i*30)
-        month_end = (month_start.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-        
-        month_sales = Order.objects.filter(
-            date__date__gte=month_start,
-            date__date__lte=month_end
-        ).aggregate(
-            total=Sum(F('quantity') * F('price_per_unit'))
-        )['total'] or 0
-        
-        monthly_sales.append(float(month_sales))
-        monthly_labels.append(month_start.strftime('%b'))
-    
-    # Get all products and sellers for filters
-    all_products = Product.objects.all()
-    all_sellers = Seller.objects.all()
+    daily_sales.reverse()  # Show oldest first
     
     context = {
         'total_sales': total_sales,
         'total_orders': total_orders,
         'avg_order_value': avg_order_value,
-        'sales_change': sales_change,
-        'orders_change': orders_change,
-        'avg_order_change': avg_order_change,
-        'top_products': top_products,
-        'sales_by_category': sales_by_category,
-        'category_labels': json.dumps(category_labels),
-        'category_data': json.dumps(category_data),
-        'monthly_sales': json.dumps(monthly_sales),
-        'monthly_labels': json.dumps(monthly_labels),
-        'all_products': all_products,
-        'all_sellers': all_sellers,
-        'date_range': date_range,
-        'start_date': start_date,
-        'end_date': end_date,
+        'payment_method_breakdown': payment_method_breakdown,
+        'daily_sales': daily_sales,
+        'date_from': date_from,
+        'date_to': date_to,
     }
     
     return render(request, 'finance/sales_report.html', context)

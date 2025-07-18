@@ -49,7 +49,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 <a href="{% url 'sellers:product_detail' product.id %}" class="text-yellow-600 hover:text-yellow-900 mr-3">View</a>
                                 <a href="{% url 'sellers:product_edit' product.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                <a href="{% url 'sellers:create_sourcing_request' %}?product={{ product.id }}" class="text-green-600 hover:text-green-900">Order More</a>
+                                <a href="{% url 'sellers:sourcing_request_create' %}?product={{ product.id }}" class="text-green-600 hover:text-green-900">Order More</a>
                             </td>
                         </tr>
                         {% empty %}

@@ -25,6 +25,6 @@ urlpatterns = [
     
     # Sourcing request URLs
     path('sourcing-requests/', views.sourcing_request_list, name='sourcing_requests'),
-    path('sourcing-requests/create/', views.sourcing_request_create, name='create_sourcing_request'),
+    path('sourcing-requests/create/', views.sourcing_request_create, name='sourcing_request_create'),
     path('sourcing-requests/<int:request_id>/', views.sourcing_request_detail, name='sourcing_request_detail'),
 ] 

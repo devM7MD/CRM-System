@@ -1,109 +1,235 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}User Profile{% endblock %}
+{% block title %}Your Profile - Atlas Fulfillment{% endblock %}
 
 {% block content %}
-<div class="py-10">
-    <header>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold leading-tight text-gray-900 dark:text-white">Your Profile</h1>
-        </div>
-    </header>
-    <main>
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Profile Information -->
-            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-8">
-                <div class="px-4 py-5 sm:px-6 flex justify-between">
-                    <div>
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Profile Information</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Personal details and account information.</p>
-                    </div>
-                    <div>
-                        <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                            Edit Profile
-                        </a>
-                    </div>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Your Profile</h1>
+                    <p class="text-lg text-gray-600">Manage your account settings and preferences</p>
                 </div>
-                <div class="border-t border-gray-200 dark:border-gray-700">
-                    <dl>
-                        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Full name</dt>
-                            <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user.full_name }}</dd>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Email address</dt>
-                            <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user.email }}</dd>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Role</dt>
-                            <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user.get_role_display }}</dd>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Phone number</dt>
-                            <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user.phone|default:"Not provided" }}</dd>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Account created</dt>
-                            <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user.date_joined|date:"F d, Y" }}</dd>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Last login</dt>
-                            <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{{ user.last_login|date:"F d, Y H:i" }}</dd>
-                        </div>
-                    </dl>
+                <div class="flex items-center space-x-3">
+                    <button onclick="openEditProfileModal()" class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Profile
+                    </button>
                 </div>
             </div>
-            
-            <!-- Account Security -->
-            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-8">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Account Security</h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Manage your password and account security settings.</p>
-                </div>
-                <div class="border-t border-gray-200 dark:border-gray-700">
-                    <div class="px-4 py-5 sm:p-6">
-                        <div class="space-y-6">
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Profile Card -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <!-- Profile Header -->
+                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-8 text-center">
+                        <div class="mb-4">
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" class="w-24 h-24 rounded-full mx-auto border-4 border-white shadow-lg object-cover">
+                            {% else %}
+                                <div class="w-24 h-24 rounded-full mx-auto border-4 border-white shadow-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+                                    <span class="text-3xl font-bold text-white">{{ user.get_initials }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-1">{{ user.get_full_name }}</h2>
+                        <p class="text-yellow-100">{{ user.email }}</p>
+                    </div>
+
+                    <!-- Profile Stats -->
+                    <div class="px-6 py-4 bg-gray-50">
+                        <div class="grid grid-cols-2 gap-4 text-center">
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900 dark:text-white">Change Password</h4>
-                                <div class="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
-                                    <div>
-                                        <label for="current_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
-                                        <div class="mt-1">
-                                            <input type="password" id="current_password" name="current_password" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
-                                        </div>
-                                    </div>
-                                    <div></div>
-                                    <div>
-                                        <label for="new_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
-                                        <div class="mt-1">
-                                            <input type="password" id="new_password" name="new_password" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm New Password</label>
-                                        <div class="mt-1">
-                                            <input type="password" id="confirm_password" name="confirm_password" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
-                                        </div>
+                                <div class="text-2xl font-bold text-gray-900">{{ user.date_joined|date:"M Y" }}</div>
+                                <div class="text-sm text-gray-500">Member Since</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-gray-900">{{ user.last_login|date:"M d" }}</div>
+                                <div class="text-sm text-gray-500">Last Login</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button onclick="openChangePasswordModal()" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                                <div class="flex-shrink-0 w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-key text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Change Password</div>
+                                    <div class="text-sm text-gray-500">Update your account password</div>
+                                </div>
+                            </button>
+                            
+                            <button onclick="openNotificationSettingsModal()" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                                <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-bell text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Notification Settings</div>
+                                    <div class="text-sm text-gray-500">Manage your preferences</div>
+                                </div>
+                            </button>
+                            
+                            <button onclick="openSecuritySettingsModal()" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                                <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-shield-alt text-green-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Security Settings</div>
+                                    <div class="text-sm text-gray-500">Two-factor authentication</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Personal Information -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-user-circle text-yellow-500 mr-3"></i>
+                            Personal Information
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-user text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900 font-medium">{{ user.get_full_name }}</span>
                                     </div>
                                 </div>
-                                <div class="mt-5">
-                                    <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                                        Update Password
-                                    </button>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-envelope text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">{{ user.email }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-phone text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">{{ user.phone_number|default:"Not provided" }}</span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
-                                <h4 class="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h4>
-                                <div class="mt-4">
-                                    <div class="flex items-start">
-                                        <div class="flex items-center h-5">
-                                            <input id="two_factor" name="two_factor" type="checkbox" class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-user-tag text-gray-400 mr-3"></i>
+                                        <div class="flex items-center">
+                                            {% if user.user_roles.all %}
+                                                {% for user_role in user.user_roles.all %}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mr-2">
+                                                        {{ user_role.role.name }}
+                                                        {% if user_role.is_primary %}
+                                                            <span class="ml-1 text-yellow-600">•</span>
+                                                        {% endif %}
+                                                    </span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-gray-500">No role assigned</span>
+                                            {% endif %}
                                         </div>
-                                        <div class="ml-3 text-sm">
-                                            <label for="two_factor" class="font-medium text-gray-700 dark:text-gray-300">Enable Two-Factor Authentication</label>
-                                            <p class="text-gray-500 dark:text-gray-400">Add an extra layer of security to your account.</p>
-                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-building text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">{{ user.company_name|default:"Not specified" }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Account Status</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-circle text-green-500 mr-3"></i>
+                                        <span class="text-gray-900">
+                                            {% if user.is_active %}
+                                                <span class="text-green-600 font-medium">Active</span>
+                                            {% else %}
+                                                <span class="text-red-600 font-medium">Inactive</span>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Activity -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-chart-line text-yellow-500 mr-3"></i>
+                            Account Activity
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
+                                    <div>
+                                        <div class="text-sm font-medium text-blue-900">Account Created</div>
+                                        <div class="text-2xl font-bold text-blue-600">{{ user.date_joined|date:"M d, Y" }}</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-calendar-plus text-white"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
+                                    <div>
+                                        <div class="text-sm font-medium text-green-900">Last Login</div>
+                                        <div class="text-2xl font-bold text-green-600">{{ user.last_login|date:"M d, Y" }}</div>
+                                        <div class="text-sm text-green-700">{{ user.last_login|date:"H:i" }}</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-sign-in-alt text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+                                    <div>
+                                        <div class="text-sm font-medium text-purple-900">Login Count</div>
+                                        <div class="text-2xl font-bold text-purple-600">{{ user.login_count|default:"0" }}</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-chart-bar text-white"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg">
+                                    <div>
+                                        <div class="text-sm font-medium text-orange-900">Days Active</div>
+                                        <div class="text-2xl font-bold text-orange-600">{{ user.date_joined|timesince }}</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-clock text-white"></i>
                                     </div>
                                 </div>
                             </div>
@@ -111,54 +237,449 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Notification Preferences -->
-            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-8">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Notification Preferences</h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Manage how you receive notifications.</p>
-                </div>
-                <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:p-6">
-                    <fieldset>
-                        <legend class="text-base font-medium text-gray-900 dark:text-white">By Email</legend>
-                        <div class="mt-4 space-y-4">
-                            <div class="flex items-start">
-                                <div class="flex items-center h-5">
-                                    <input id="comments" name="comments" type="checkbox" checked class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="comments" class="font-medium text-gray-700 dark:text-gray-300">Order Updates</label>
-                                    <p class="text-gray-500 dark:text-gray-400">Get notified when an order status changes.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex items-center h-5">
-                                    <input id="inventory" name="inventory" type="checkbox" checked class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="inventory" class="font-medium text-gray-700 dark:text-gray-300">Inventory Alerts</label>
-                                    <p class="text-gray-500 dark:text-gray-400">Get notified when inventory levels are low.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex items-center h-5">
-                                    <input id="sourcing" name="sourcing" type="checkbox" checked class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="sourcing" class="font-medium text-gray-700 dark:text-gray-300">Sourcing Requests</label>
-                                    <p class="text-gray-500 dark:text-gray-400">Get notified when there are updates to sourcing requests.</p>
-                                </div>
-                            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user-edit text-yellow-600"></i>
                         </div>
-                    </fieldset>
-                    <div class="mt-6">
-                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                            Save Preferences
-                        </button>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Edit Profile</h3>
+                        <p class="text-sm text-gray-600">Update your personal information</p>
                     </div>
                 </div>
+                <button type="button" onclick="closeEditProfileModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="editProfileForm" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit-first-name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                        <input type="text" id="edit-first-name" name="first_name" value="{{ user.first_name }}"
+                               class="form-input w-full" required>
+                    </div>
+                    <div>
+                        <label for="edit-last-name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                        <input type="text" id="edit-last-name" name="last_name" value="{{ user.last_name }}"
+                               class="form-input w-full" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="edit-phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <input type="tel" id="edit-phone" name="phone_number" value="{{ user.phone_number }}"
+                           class="form-input w-full">
+                </div>
+                
+                <div>
+                    <label for="edit-company" class="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                    <input type="text" id="edit-company" name="company_name" value="{{ user.company_name }}"
+                           class="form-input w-full">
+                </div>
+            </form>
+
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeEditProfileModal()" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="submitEditProfile()" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Changes
+                </button>
             </div>
         </div>
-    </main>
+    </div>
 </div>
+
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-key text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Change Password</h3>
+                        <p class="text-sm text-gray-600">Update your account password</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeChangePasswordModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="changePasswordForm" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="current-password" class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                    <input type="password" id="current-password" name="current_password" required
+                           class="form-input w-full">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="new-password" class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                        <input type="password" id="new-password" name="new_password" required
+                               class="form-input w-full">
+                    </div>
+                    <div>
+                        <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm_password" required
+                               class="form-input w-full">
+                    </div>
+                </div>
+            </form>
+
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeChangePasswordModal()" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="submitChangePassword()" class="btn-primary">
+                    <i class="fas fa-key mr-2"></i>
+                    Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Settings Modal -->
+<div id="notificationSettingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-bell text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Notification Settings</h3>
+                        <p class="text-sm text-gray-600">Manage your notification preferences</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeNotificationSettingsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="notificationSettingsForm" class="space-y-4">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="email-notifications" name="email_notifications" type="checkbox" checked
+                                   class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label for="email-notifications" class="font-medium text-gray-700">Email Notifications</label>
+                            <p class="text-sm text-gray-500">Receive notifications via email</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="order-updates" name="order_updates" type="checkbox" checked
+                                   class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label for="order-updates" class="font-medium text-gray-700">Order Updates</label>
+                            <p class="text-sm text-gray-500">Get notified when order status changes</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="inventory-alerts" name="inventory_alerts" type="checkbox" checked
+                                   class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label for="inventory-alerts" class="font-medium text-gray-700">Inventory Alerts</label>
+                            <p class="text-sm text-gray-500">Get notified when inventory levels are low</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="sourcing-updates" name="sourcing_updates" type="checkbox" checked
+                                   class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label for="sourcing-updates" class="font-medium text-gray-700">Sourcing Updates</label>
+                            <p class="text-sm text-gray-500">Get notified about sourcing request updates</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeNotificationSettingsModal()" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="submitNotificationSettings()" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Preferences
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security Settings Modal -->
+<div id="securitySettingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Security Settings</h3>
+                        <p class="text-sm text-gray-600">Manage your account security</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeSecuritySettingsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="securitySettingsForm" class="space-y-4">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="two-factor" name="two_factor" type="checkbox"
+                                   class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label for="two-factor" class="font-medium text-gray-700">Two-Factor Authentication</label>
+                            <p class="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="login-alerts" name="login_alerts" type="checkbox" checked
+                                   class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label for="login-alerts" class="font-medium text-gray-700">Login Alerts</label>
+                            <p class="text-sm text-gray-500">Get notified of new login attempts</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeSecuritySettingsModal()" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="submitSecuritySettings()" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Modal Functions
+    function openEditProfileModal() {
+        document.getElementById('editProfileModal').classList.remove('hidden');
+    }
+
+    function closeEditProfileModal() {
+        document.getElementById('editProfileModal').classList.add('hidden');
+    }
+
+    function openChangePasswordModal() {
+        document.getElementById('changePasswordModal').classList.remove('hidden');
+    }
+
+    function closeChangePasswordModal() {
+        document.getElementById('changePasswordModal').classList.add('hidden');
+        document.getElementById('changePasswordForm').reset();
+    }
+
+    function openNotificationSettingsModal() {
+        document.getElementById('notificationSettingsModal').classList.remove('hidden');
+    }
+
+    function closeNotificationSettingsModal() {
+        document.getElementById('notificationSettingsModal').classList.add('hidden');
+    }
+
+    function openSecuritySettingsModal() {
+        document.getElementById('securitySettingsModal').classList.remove('hidden');
+    }
+
+    function closeSecuritySettingsModal() {
+        document.getElementById('securitySettingsModal').classList.add('hidden');
+    }
+
+    // Form Submission Functions
+    function submitEditProfile() {
+        const form = document.getElementById('editProfileForm');
+        const formData = new FormData(form);
+        
+        fetch('{% url "users:profile_update" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeEditProfileModal();
+                showNotification('Profile updated successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.error || 'Error updating profile', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error updating profile', 'error');
+        });
+    }
+
+    function submitChangePassword() {
+        const form = document.getElementById('changePasswordForm');
+        const formData = new FormData(form);
+        
+        if (formData.get('new_password') !== formData.get('confirm_password')) {
+            showNotification('New passwords do not match', 'error');
+            return;
+        }
+        
+        fetch('{% url "users:change_password" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeChangePasswordModal();
+                showNotification('Password updated successfully!', 'success');
+            } else {
+                showNotification(data.error || 'Error updating password', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error updating password', 'error');
+        });
+    }
+
+    function submitNotificationSettings() {
+        const form = document.getElementById('notificationSettingsForm');
+        const formData = new FormData(form);
+        
+        fetch('{% url "users:notification_settings" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeNotificationSettingsModal();
+                showNotification('Notification settings saved!', 'success');
+            } else {
+                showNotification(data.error || 'Error saving settings', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error saving settings', 'error');
+        });
+    }
+
+    function submitSecuritySettings() {
+        const form = document.getElementById('securitySettingsForm');
+        const formData = new FormData(form);
+        
+        fetch('{% url "users:security_settings" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeSecuritySettingsModal();
+                showNotification('Security settings saved!', 'success');
+            } else {
+                showNotification(data.error || 'Error saving settings', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error saving settings', 'error');
+        });
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('fixed')) {
+            e.target.classList.add('hidden');
+        }
+    });
+</script>
 {% endblock %} 

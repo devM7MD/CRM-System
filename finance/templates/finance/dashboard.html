@@ -3,223 +3,246 @@
 {% block title %}Finance Dashboard{% endblock %}
 
 {% block content %}
-<div class="bg-white">
+<div class="bg-gray-50 dark:bg-gray-900">
     <!-- Page Header -->
-    <div class="bg-yellow-500 shadow-lg border-t-4 border-yellow-400">
+    <div class="bg-amber-600 dark:bg-amber-700 shadow-lg border-t-4 border-amber-500">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold text-white">Finance Dashboard</h1>
         </div>
     </div>
-    <main>
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Stats -->
-            <div class="mt-8">
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    <!-- Total Revenue -->
-                    <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                                        <dd class="text-lg font-medium text-gray-900">${{ total_revenue }}</dd>
-                                    </dl>
-                                </div>
+
+    <!-- Stats Cards -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Total Revenue -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
                             </div>
                         </div>
-                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
-                            <div class="text-sm">
-                                <a href="{% url 'finance:sales' %}" class="font-medium text-yellow-600 hover:text-yellow-500">View details</a>
-                            </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Revenue</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">${{ total_revenue|floatformat:2 }}</dd>
+                            </dl>
                         </div>
                     </div>
-
-                    <!-- Expenses -->
-                    <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-red-500 rounded-md p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
-                                        <dd class="text-lg font-medium text-gray-900">${{ total_expenses }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
-                            <div class="text-sm">
-                                <a href="#" class="font-medium text-yellow-600 hover:text-yellow-500">View details</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Profit -->
-                    <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Net Profit</dt>
-                                        <dd class="text-lg font-medium text-gray-900">${{ net_profit }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
-                            <div class="text-sm">
-                                <a href="#" class="font-medium text-yellow-600 hover:text-yellow-500">View details</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pending Payments -->
-                    <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Payments</dt>
-                                        <dd class="text-lg font-medium text-gray-900">{{ pending_payments }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
-                            <div class="text-sm">
-                                <a href="{% url 'finance:payments' %}" class="font-medium text-yellow-600 hover:text-yellow-500">View details</a>
-                            </div>
-                        </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+                    <div class="text-sm">
+                        <a href="{% url 'finance:payments' %}" class="font-medium text-amber-600 hover:text-amber-700 transition-colors duration-200">View details</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Revenue Chart -->
-            <div class="mt-8">
-                <div class="bg-white shadow rounded-lg p-6 border border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Revenue vs Expenses</h3>
-                    <canvas id="revenueChart" height="300"></canvas>
+            <!-- Total Expenses -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Expenses</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">${{ total_expenses|floatformat:2 }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-amber-600 hover:text-amber-700 transition-colors duration-200">View details</a>
+                    </div>
                 </div>
             </div>
 
-            <!-- Recent Payments -->
-            <div class="mt-8">
-                <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
-                    <div class="px-4 py-5 sm:px-6 flex justify-between items-center border-b border-gray-200">
-                        <div>
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Payments</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Last 5 payment records</p>
+            <!-- Net Profit -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
                         </div>
-                        <div>
-                            <a href="{% url 'finance:payments' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none">
-                                View All
-                            </a>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Net Profit</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">${{ net_profit|floatformat:2 }}</dd>
+                            </dl>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-yellow-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Order ID</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Amount</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Payment Method</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                {% for payment in recent_payments %}
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ payment.order.order_code }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ payment.amount }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ payment.get_payment_method_display }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if payment.payment_status == 'completed' %}bg-green-100 text-green-800{% elif payment.payment_status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
-                                            {{ payment.get_payment_status_display }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ payment.payment_date|date:"m/d/Y" }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center text-gray-400 py-4">No recent payments found.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+                    <div class="text-sm">
+                        <a href="{% url 'finance:sales' %}" class="font-medium text-amber-600 hover:text-amber-700 transition-colors duration-200">View details</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Payments -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Pending Payments</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">{{ pending_payments }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+                    <div class="text-sm">
+                        <a href="{% url 'finance:payments' %}?status=pending" class="font-medium text-amber-600 hover:text-amber-700 transition-colors duration-200">View details</a>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-</div>
-{% endblock %}
+    </div>
 
-{% block scripts %}
+    <!-- Charts and Recent Activity -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Monthly Revenue Chart -->
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Monthly Revenue Trend</h3>
+                    <div class="mt-4 h-64">
+                        <canvas id="revenueChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method Distribution -->
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Payment Methods</h3>
+                    <div class="mt-4 space-y-4">
+                        {% for method in payment_methods %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full bg-amber-500 mr-3"></div>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ method.payment_method|title }}</span>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ method.count }} payments</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Payments -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Recent Payments</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Latest payment transactions</p>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700">
+                <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for payment in recent_payments %}
+                    <li class="px-4 py-4 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ payment.order.order_code }} - {{ payment.order.customer.full_name|default:"N/A" }}
+                                    </div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ payment.get_payment_method_display }} • {{ payment.payment_date|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">${{ payment.amount|floatformat:2 }}</span>
+                                <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                    {% if payment.payment_status == 'completed' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                    {% elif payment.payment_status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                    {% elif payment.payment_status == 'failed' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                    {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200{% endif %}">
+                                    {{ payment.get_payment_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="px-4 py-4 sm:px-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                        No recent payments found.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        const salesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                datasets: [
-                    {
-                        label: 'Revenue',
-                        data: [4200, 3800, 5100, 4900, 6200],
-                        backgroundColor: 'rgba(234, 179, 8, 0.7)',
-                    },
-                    {
-                        label: 'Expenses',
-                        data: [3200, 2800, 4100, 3900, 5200],
-                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Amount ($)'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Month'
-                        }
+// Monthly Revenue Chart
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const revenueData = {{ monthly_revenue|safe }};
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: revenueData.map(item => item.month),
+        datasets: [{
+            label: 'Revenue',
+            data: revenueData.map(item => item.revenue),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
                     }
                 }
             }
-        });
-    });
+        }
+    }
+});
 </script>
 {% endblock %} 

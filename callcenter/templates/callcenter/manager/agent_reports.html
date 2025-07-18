@@ -235,7 +235,9 @@
                             <dt class="text-sm font-medium text-gray-500">Confirmation Rate</dt>
                             <dd class="text-sm text-gray-900">
                                 {% if team_summary.total_calls and team_summary.total_calls > 0 %}
-                                    {{ team_summary.total_confirmed|default:0|multiply:100|divide:team_summary.total_calls|floatformat:1 }}%
+                                    {% widthratio team_summary.total_confirmed|default:0 1 100 as confirmed_percent %}
+                                    {% widthratio confirmed_percent team_summary.total_calls 1 as final_rate %}
+                                    {{ final_rate|floatformat:1 }}%
                                 {% else %}
                                     0%
                                 {% endif %}
@@ -245,7 +247,9 @@
                             <dt class="text-sm font-medium text-gray-500">Cancellation Rate</dt>
                             <dd class="text-sm text-gray-900">
                                 {% if team_summary.total_calls and team_summary.total_calls > 0 %}
-                                    {{ team_summary.total_cancelled|default:0|multiply:100|divide:team_summary.total_calls|floatformat:1 }}%
+                                    {% widthratio team_summary.total_cancelled|default:0 1 100 as cancelled_percent %}
+                                    {% widthratio cancelled_percent team_summary.total_calls 1 as final_rate %}
+                                    {{ final_rate|floatformat:1 }}%
                                 {% else %}
                                     0%
                                 {% endif %}

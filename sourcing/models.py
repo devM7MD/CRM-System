@@ -13,6 +13,7 @@ class Supplier(models.Model):
     phone = models.CharField(_('phone'), max_length=20, blank=True, null=True)
     address = models.TextField(_('address'), blank=True, null=True)
     country = models.CharField(_('country'), max_length=100)
+    category = models.CharField(_('category'), max_length=50, default='General')
     
     # Rating and quality metrics
     quality_score = models.DecimalField(_('quality score'), max_digits=3, decimal_places=1, default=0.0)
@@ -66,12 +67,16 @@ class SourcingRequest(models.Model):
     )
     
     PRIORITY_CHOICES = (
-        ('normal', _('Normal')),
+        ('low', _('Low')),
+        ('medium', _('Medium')),
+        ('high', _('High')),
         ('urgent', _('Urgent')),
-        ('critical', _('Critical')),
     )
     
     FINANCE_SOURCE_CHOICES = (
+        ('self_financed', _('Self Financed')),
+        ('bank_loan', _('Bank Loan')),
+        ('investor', _('Investor')),
         ('seller', _('Seller Account')),
         ('company', _('Company Account')),
     )

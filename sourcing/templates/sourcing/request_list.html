@@ -9,12 +9,12 @@
     <div class="bg-amber-600 dark:bg-amber-700 shadow-lg border-t-4 border-amber-500">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-white">Sourcing Requests</h1>
-            <a href="{% url 'sourcing:create_request' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+            <button onclick="openCreateModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 New Request
-            </a>
+            </button>
         </div>
     </div>
 
@@ -85,37 +85,27 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                {% for request in sourcing_requests %}
+                                {% for request in page_obj %}
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ request.request_code }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ request.request_number }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
-                                                {% if request.product.image %}
-                                                <img class="h-10 w-10 rounded-md object-cover" src="{{ request.product.image.url }}" alt="{{ request.product.name }}">
-                                                {% else %}
                                                 <div class="h-10 w-10 rounded-md bg-amber-100 dark:bg-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400">
                                                     <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
                                                 </div>
-                                                {% endif %}
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {% if request.product %}
-                                                    {{ request.product.name }}
-                                                    {% else %}
-                                                    {{ request.new_product_name|default:"New Product" }}
-                                                    {% endif %}
-                                                </div>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ request.quantity }} units</div>
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ request.product_name }}</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ request.carton_quantity }} cartons</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900 dark:text-white">{{ request.created_by.full_name }}</div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ request.created_by.role|title }}</div>
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ request.seller.first_name }} {{ request.seller.last_name }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ request.seller.email }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ request.created_at|date:"M d, Y" }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -142,9 +132,9 @@
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             Completed
                                         </span>
-                                        {% elif request.status == 'processing' %}
+                                        {% elif request.status == 'in_progress' %}
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            Processing
+                                            In Progress
                                         </span>
                                         {% elif request.status == 'approved' %}
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
@@ -154,15 +144,31 @@
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                             Rejected
                                         </span>
+                                        {% elif request.status == 'submitted' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Submitted
+                                        </span>
+                                        {% elif request.status == 'under_review' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                            Under Review
+                                        </span>
+                                        {% elif request.status == 'cancelled' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            Cancelled
+                                        </span>
+                                        {% elif request.status == 'draft' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600">
+                                            Draft
+                                        </span>
                                         {% else %}
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">
-                                            Pending
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            {{ request.status|title }}
                                         </span>
                                         {% endif %}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="{% url 'sourcing:request_detail' request.id %}" class="text-amber-600 hover:text-amber-900 transition-colors duration-200 mr-3">View</a>
-                                        {% if request.status == 'pending' %}
+                                        {% if request.status == 'submitted' %}
                                         <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200 mr-3">Approve</button>
                                         <button class="text-red-600 hover:text-red-900 transition-colors duration-200">Reject</button>
                                         {% endif %}
@@ -182,55 +188,549 @@
     </div>
 
     <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between">
             <div class="flex-1 flex justify-between sm:hidden">
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Previous
                 </a>
-                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Next
                 </a>
+                {% endif %}
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                     <p class="text-sm text-gray-700 dark:text-gray-300">
                         Showing
-                        <span class="font-medium">1</span>
+                        <span class="font-medium">{{ page_obj.start_index }}</span>
                         to
-                        <span class="font-medium">10</span>
+                        <span class="font-medium">{{ page_obj.end_index }}</span>
                         of
-                        <span class="font-medium">{{ sourcing_requests.count|default:"0" }}</span>
+                        <span class="font-medium">{{ page_obj.paginator.count }}</span>
                         results
                     </p>
                 </div>
                 <div>
                     <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                             <span class="sr-only">Previous</span>
                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                             </svg>
                         </a>
-                        <a href="#" aria-current="page" class="z-10 bg-amber-50 border-amber-500 text-amber-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            1
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            2
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            3
-                        </a>
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <span class="z-10 bg-amber-50 border-amber-500 text-amber-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                {{ num }}
+                            </span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                {{ num }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                             <span class="sr-only">Next</span>
                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                             </svg>
                         </a>
+                        {% endif %}
                     </nav>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
+
+<!-- Create Request Modal -->
+<div id="createRequestModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 backdrop-blur-sm">
+    <div class="relative top-10 mx-auto p-0 border-0 w-11/12 max-w-5xl shadow-2xl rounded-2xl bg-white dark:bg-gray-800 transform transition-all duration-300 ease-out">
+        <div class="mt-0">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-t-2xl">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-2xl font-bold text-white">Create Sourcing Request</h3>
+                        <p class="text-yellow-100 text-sm">Fill in the details below to submit your request</p>
+                    </div>
+                </div>
+                <button onclick="closeCreateModal()" class="text-white hover:text-yellow-200 transition-colors duration-200 p-2 rounded-full hover:bg-white hover:bg-opacity-20">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="max-h-96 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+                <form id="createRequestForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Request Type and Priority Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="space-y-2">
+                            <label for="request_type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                Request Type
+                            </label>
+                            <select id="request_type" name="request_type" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200" required>
+                                <option value="">Select a request type</option>
+                                <option value="new_supplier">New Supplier</option>
+                                <option value="replenishment">Inventory Replenishment</option>
+                                <option value="new_product">New Product Sourcing</option>
+                                <option value="sample">Sample Request</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="priority" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                                Priority Level
+                            </label>
+                            <select id="priority" name="priority" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200" required>
+                                <option value="low">Low Priority</option>
+                                <option value="medium" selected>Medium Priority</option>
+                                <option value="high">High Priority</option>
+                                <option value="urgent">Urgent Priority</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Product Selection -->
+                    <div class="mb-6" id="product_selection_container">
+                        <div class="space-y-2">
+                            <label for="product" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                                Select Product
+                            </label>
+                            <select id="product" name="product" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200">
+                                <option value="">Select a product</option>
+                                {% for product in products %}
+                                <option value="{{ product.id }}">{{ product.name_en }} ({{ product.code }})</option>
+                                {% endfor %}
+                            </select>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                For inventory replenishment or sample requests.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- New Product Info (initially hidden) -->
+                    <div class="mb-6 hidden" id="new_product_container">
+                        <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                            <div class="flex items-center mb-3">
+                                <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-100">New Product Details</h4>
+                            </div>
+                            <p class="text-sm text-blue-700 dark:text-blue-300">Provide details of the new product you want to source.</p>
+                        </div>
+                    </div>
+
+                    <!-- New Product Name -->
+                    <div class="mb-6 hidden" id="new_product_name_container">
+                        <div class="space-y-2">
+                            <label for="new_product_name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                Product Name
+                            </label>
+                            <input type="text" name="new_product_name" id="new_product_name" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter new product name">
+                        </div>
+                    </div>
+
+                    <!-- Quantity, Target Date, and Budget Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="space-y-2">
+                            <label for="quantity" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                </svg>
+                                Quantity
+                            </label>
+                            <input type="number" name="quantity" id="quantity" min="1" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200" required placeholder="Enter quantity">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="target_date" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Target Date
+                            </label>
+                            <input type="date" name="target_date" id="target_date" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200" required>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="budget" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                </svg>
+                                Budget (AED)
+                            </label>
+                            <input type="number" name="budget" id="budget" min="0" step="0.01" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter budget in AED">
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-6">
+                        <div class="space-y-2">
+                            <label for="notes" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Additional Notes
+                            </label>
+                            <textarea id="notes" name="notes" rows="4" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white transition-all duration-200 resize-none" placeholder="Add any additional specifications, requirements, or notes..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Upload References -->
+                    <div class="mb-6">
+                        <div class="space-y-2">
+                            <label for="references" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                <svg class="h-4 w-4 mr-2 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                                Reference Files
+                            </label>
+                            <div class="relative">
+                                <input type="file" name="references" id="references" class="sr-only">
+                                <label for="references" class="cursor-pointer block w-full px-4 py-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center hover:border-yellow-400 dark:hover:border-yellow-500 transition-all duration-200 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <div class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Reference Files</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Click to browse or drag and drop</div>
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">Supports: Images, PDFs, Documents</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Upload any reference images or documents (Optional).
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl">
+                <button onclick="closeCreateModal()" class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 mr-3">
+                    <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel
+                </button>
+                <button onclick="submitRequest()" class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105">
+                    <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Submit Request
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set default target date to 14 days from now
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + 14);
+        
+        const formattedDate = targetDate.toISOString().substring(0, 10);
+        document.getElementById('target_date').value = formattedDate;
+    });
+
+    // Modal functions with improved animations
+    function openCreateModal() {
+        const modal = document.getElementById('createRequestModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex', 'items-center', 'justify-center');
+        document.body.style.overflow = 'hidden';
+        
+        // Add entrance animation
+        const modalContent = modal.querySelector('.relative');
+        modalContent.style.transform = 'scale(0.9) translateY(-20px)';
+        modalContent.style.opacity = '0';
+        
+        setTimeout(() => {
+            modalContent.style.transform = 'scale(1) translateY(0)';
+            modalContent.style.opacity = '1';
+        }, 10);
+    }
+
+    function closeCreateModal() {
+        const modal = document.getElementById('createRequestModal');
+        const modalContent = modal.querySelector('.relative');
+        
+        // Add exit animation
+        modalContent.style.transform = 'scale(0.9) translateY(-20px)';
+        modalContent.style.opacity = '0';
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex', 'items-center', 'justify-center');
+            document.body.style.overflow = 'auto';
+            modalContent.style.transform = '';
+            modalContent.style.opacity = '';
+            
+            // Reset form
+            document.getElementById('createRequestForm').reset();
+            
+            // Reset dynamic fields
+            document.getElementById('product_selection_container').classList.remove('hidden');
+            document.getElementById('new_product_container').classList.add('hidden');
+            document.getElementById('new_product_name_container').classList.add('hidden');
+            
+            // Reset validation states
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300', 'dark:border-gray-600');
+            });
+        }, 200);
+    }
+
+    // Show/hide fields based on request type with smooth transitions
+    document.addEventListener('DOMContentLoaded', function() {
+        const requestTypeSelect = document.getElementById('request_type');
+        if (requestTypeSelect) {
+            requestTypeSelect.addEventListener('change', function() {
+                const requestType = this.value;
+                const productSelection = document.getElementById('product_selection_container');
+                const newProductContainer = document.getElementById('new_product_container');
+                const newProductNameContainer = document.getElementById('new_product_name_container');
+                
+                if (requestType === 'new_product') {
+                    // Hide product selection with animation
+                    productSelection.style.opacity = '0';
+                    productSelection.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        productSelection.classList.add('hidden');
+                        productSelection.style.opacity = '';
+                        productSelection.style.transform = '';
+                    }, 200);
+                    
+                    // Show new product fields with animation
+                    newProductContainer.classList.remove('hidden');
+                    newProductContainer.style.opacity = '0';
+                    newProductContainer.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        newProductContainer.style.opacity = '1';
+                        newProductContainer.style.transform = 'translateY(0)';
+                    }, 50);
+                    
+                    newProductNameContainer.classList.remove('hidden');
+                    newProductNameContainer.style.opacity = '0';
+                    newProductNameContainer.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        newProductNameContainer.style.opacity = '1';
+                        newProductNameContainer.style.transform = 'translateY(0)';
+                    }, 100);
+                    
+                    document.getElementById('product').removeAttribute('required');
+                    document.getElementById('new_product_name').setAttribute('required', 'required');
+                } else {
+                    // Show product selection with animation
+                    productSelection.classList.remove('hidden');
+                    productSelection.style.opacity = '0';
+                    productSelection.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        productSelection.style.opacity = '1';
+                        productSelection.style.transform = 'translateY(0)';
+                    }, 50);
+                    
+                    // Hide new product fields with animation
+                    newProductContainer.style.opacity = '0';
+                    newProductContainer.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        newProductContainer.classList.add('hidden');
+                        newProductContainer.style.opacity = '';
+                        newProductContainer.style.transform = '';
+                    }, 200);
+                    
+                    newProductNameContainer.style.opacity = '0';
+                    newProductNameContainer.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        newProductNameContainer.classList.add('hidden');
+                        newProductNameContainer.style.opacity = '';
+                        newProductNameContainer.style.transform = '';
+                    }, 200);
+                    
+                    if (requestType === 'replenishment' || requestType === 'sample') {
+                        document.getElementById('product').setAttribute('required', 'required');
+                    } else {
+                        document.getElementById('product').removeAttribute('required');
+                    }
+                    document.getElementById('new_product_name').removeAttribute('required');
+                }
+            });
+        }
+    });
+
+    // Submit request function with loading state and better feedback
+    function submitRequest() {
+        const form = document.getElementById('createRequestForm');
+        const submitButton = document.querySelector('button[onclick="submitRequest()"]');
+        const originalButtonText = submitButton.innerHTML;
+        
+        // Show loading state
+        submitButton.innerHTML = `
+            <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Submitting...
+        `;
+        submitButton.disabled = true;
+        
+        const formData = new FormData(form);
+        
+        fetch('{% url "sourcing:create_request" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showNotification('Sourcing request created successfully!', 'success');
+                closeCreateModal();
+                
+                // Reload page after a short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                // Show error message
+                showNotification('Error creating request: ' + (data.error || 'Unknown error'), 'error');
+                
+                // Show field-specific errors if available
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(fieldName => {
+                        const field = document.querySelector(`[name="${fieldName}"]`);
+                        if (field) {
+                            field.classList.add('border-red-500');
+                            field.classList.remove('border-gray-300', 'dark:border-gray-600');
+                            
+                            // Add error message
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                            errorDiv.textContent = data.errors[fieldName][0];
+                            field.parentNode.appendChild(errorDiv);
+                        }
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error creating request. Please try again.', 'error');
+        })
+        .finally(() => {
+            // Reset button state
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+        });
+    }
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        // Remove existing notifications
+        document.querySelectorAll('.notification').forEach(el => el.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+        
+        const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+        const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+        
+        notification.innerHTML = `
+            <div class="flex items-center ${bgColor} text-white p-3 rounded-lg">
+                <span class="text-lg mr-2">${icon}</span>
+                <span class="font-medium">${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 10);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 5000);
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('createRequestModal');
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeCreateModal();
+            }
+        });
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('createRequestModal');
+            if (!modal.classList.contains('hidden')) {
+                closeCreateModal();
+            }
+        }
+    });
+</script>
 {% endblock %} 

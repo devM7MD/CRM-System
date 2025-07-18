@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Details - Atlas Fulfillment{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">User Details</h1>
+                    <p class="text-lg text-gray-600">Detailed information about {{ user.full_name }}</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'subscribers:edit_user' user.id %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit User
+                    </a>
+                    <a href="{% url 'subscribers:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- User Profile Card -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <!-- Profile Header -->
+                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-8 text-center">
+                        <div class="mb-4">
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="{{ user.full_name }}" class="w-24 h-24 rounded-full mx-auto border-4 border-white shadow-lg object-cover">
+                            {% else %}
+                                <div class="w-24 h-24 rounded-full mx-auto border-4 border-white shadow-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+                                    <span class="text-3xl font-bold text-white">{{ user.get_initials }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-1">{{ user.full_name }}</h2>
+                        <p class="text-yellow-100">{{ user.email }}</p>
+                        {% if user.company_name %}
+                            <p class="text-yellow-100 text-sm">{{ user.company_name }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Profile Stats -->
+                    <div class="px-6 py-4 bg-gray-50">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-gray-900">{{ user.date_joined|date:"M Y" }}</div>
+                                <div class="text-sm text-gray-500">Member Since</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-gray-900">{{ user.last_login|date:"M d" }}</div>
+                                <div class="text-sm text-gray-500">Last Login</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <a href="{% url 'subscribers:edit_user' user.id %}" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                                <div class="flex-shrink-0 w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-edit text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Edit User</div>
+                                    <div class="text-sm text-gray-500">Update user information</div>
+                                </div>
+                            </a>
+                            
+                            <button onclick="toggleUserStatus()" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                                <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-power-off text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">{% if user.is_active %}Deactivate{% else %}Activate{% endif %} User</div>
+                                    <div class="text-sm text-gray-500">Toggle user status</div>
+                                </div>
+                            </button>
+                            
+                            <a href="{% url 'subscribers:delete_user' user.id %}" class="w-full flex items-center px-4 py-3 text-left text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200">
+                                <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-trash text-red-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Delete User</div>
+                                    <div class="text-sm text-gray-500">Permanently remove user</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Personal Information -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-user-circle text-yellow-500 mr-3"></i>
+                            Personal Information
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-user text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900 font-medium">{{ user.full_name }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-envelope text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">{{ user.email }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-phone text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">{{ user.phone_number|default:"Not provided" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-building text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">{{ user.company_name|default:"Not specified" }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-map-marker-alt text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">{{ user.country|default:"Not specified" }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Account Status</label>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-circle text-gray-400 mr-3"></i>
+                                        <span class="text-gray-900">
+                                            {% if user.is_active %}
+                                                <span class="text-green-600 font-medium">Active</span>
+                                            {% else %}
+                                                <span class="text-red-600 font-medium">Inactive</span>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Roles -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-user-tag text-yellow-500 mr-3"></i>
+                            User Roles
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        {% if user_roles %}
+                            <div class="space-y-3">
+                                {% for user_role in user_roles %}
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 rounded-full 
+                                            {% if user_role.is_primary %}bg-yellow-500{% else %}bg-gray-400{% endif %} mr-3"></div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">{{ user_role.role.name }}</p>
+                                            <p class="text-sm text-gray-500">{{ user_role.role.description|default:"No description" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        {% if user_role.is_primary %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Primary
+                                        </span>
+                                        {% endif %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                            {% if user_role.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                            {% if user_role.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-8">
+                                <i class="fas fa-user-slash text-4xl text-gray-300 mb-4"></i>
+                                <h3 class="text-lg font-medium text-gray-900">No roles assigned</h3>
+                                <p class="text-gray-500">This user doesn't have any roles assigned yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-history text-yellow-500 mr-3"></i>
+                            Recent Activity
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        {% if recent_activity %}
+                            <div class="space-y-4">
+                                {% for activity in recent_activity %}
+                                <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-{% if activity.action == 'login' %}sign-in-alt{% elif activity.action == 'logout' %}sign-out-alt{% else %}circle{% endif %} text-yellow-600 text-sm"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900">{{ activity.description }}</p>
+                                        <p class="text-xs text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-8">
+                                <i class="fas fa-clock text-4xl text-gray-300 mb-4"></i>
+                                <h3 class="text-lg font-medium text-gray-900">No recent activity</h3>
+                                <p class="text-gray-500">This user hasn't had any recent activity.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleUserStatus() {
+        const userId = {{ user.id }};
+        
+        fetch(`/subscribers/user/${userId}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error updating user status', 'error');
+        });
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+{% endblock %} 
