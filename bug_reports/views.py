@@ -183,7 +183,7 @@ def send_to_discord(bug_report):
             if hasattr(settings, 'SITE_URL'):
                 base_url = settings.SITE_URL
             else:
-                base_url = 'http://127.0.0.1:8000'  # Default for development
+                base_url = 'http://5.189.156.89'  # Default for development
             
             image_url = f"{base_url}/bug-reports/image/{image.id}/"
             image_urls.append(image_url)
