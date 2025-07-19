@@ -50,6 +50,10 @@ msgstr "Contact Us"
 msgid "تسجيل الدخول"
 msgstr "Login"
 
+msgid "Logout"
+msgstr ""
+
+
 msgid "إنشاء حساب"
 msgstr "Register"
 
@@ -95,9 +99,6 @@ msgstr "Settings"
 
 msgid "Profile"
 msgstr "Profile"
-
-msgid "Logout"
-msgstr "Logout"
 
 msgid "Welcome"
 msgstr "Welcome"
