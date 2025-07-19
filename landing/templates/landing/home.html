@@ -174,12 +174,9 @@
             <div class="text-center lg:text-left">
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                     <span
-                        class="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-text">{%
-                        trans "Unified CRM" %}</span> {% trans "For Growing Businesses" %}
+                        class="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-text">{%trans "Unified CRM" %}</span>{% trans "For Growing Businesses" %}
                 </h1>
-                <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0">
-                    {% trans "Streamline customer relationships, automate workflows, and drive growth with our
-                    all-in-one CRM platform designed for modern businesses." %}
+                <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0">{% trans "Streamline customer relationships, automate workflows, and drive growth with our all-in-one CRM platform designed for modern businesses." %}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
                     <a href="{% url 'users:login' %}"
@@ -255,9 +252,7 @@
             <h2 class="text-3xl lg:text-4xl font-bold text-primary-500 mb-4">{% trans "Welcome to Atlas Fulfillment" %}
             </h2>
             <div class="max-w-3xl mx-auto">
-                <p class="text-gray-600 text-lg">
-                    {% trans "We understand that today's business world requires both innovation and flexibility, so
-                    we've designed our services to meet all your needs from importing to profit transfers." %}
+                <p class="text-gray-600 text-lg">{% trans "We understand that today's business world requires both innovation and flexibility, so we've designed our services to meet all your needs from importing to profit transfers." %}
                 </p>
             </div>
         </div>
@@ -324,9 +319,7 @@
         <div class="text-center mb-12" data-aos="fade-up">
             <h2 class="text-3xl lg:text-4xl font-bold text-primary-500 mb-4">{% trans "Contact Us" %}</h2>
             <div class="max-w-3xl mx-auto">
-                <p class="text-gray-600 text-lg">
-                    {% trans "We appreciate you contacting us. Please fill out the form below and we will get back to
-                    you as soon as possible." %}
+                <p class="text-gray-600 text-lg">{% trans "We appreciate you contacting us. Please fill out the form below and we will get back to you as soon as possible." %}
                 </p>
             </div>
         </div>
@@ -337,15 +330,13 @@
                     {% csrf_token %}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Full Name"
-                                %}</label>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Full Name"%}</label>
                             <input type="text" id="name" name="name"
                                 class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
                                 required>
                         </div>
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Email"
-                                %}</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Email"%}</label>
                             <input type="email" id="email" name="email"
                                 class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
                                 required>
@@ -353,14 +344,12 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Phone
-                                Number" %}</label>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Phone Number" %}</label>
                             <input type="tel" id="phone" name="phone"
                                 class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
                         <div>
-                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Subject"
-                                %}</label>
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Subject" %}</label>
                             <select id="subject" name="subject"
                                 class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
                                 required>
@@ -374,8 +363,7 @@
                         </div>
                     </div>
                     <div>
-                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Message"
-                            %}</label>
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Message"%}</label>
                         <textarea id="message" name="message" rows="5"
                             class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
                             required></textarea>
@@ -397,8 +385,7 @@
     <div class="container mx-auto px-4 md:px-6">
         <div class="text-center max-w-3xl mx-auto mb-16">
             <h2 class="text-3xl md:text-4xl font-bold mb-4">{% trans "Powerful CRM Tools For Business Growth" %}</h2>
-            <p class="text-lg text-gray-600">{% trans "Our integrated CRM system provides everything you need to manage
-                customer relationships, streamline workflows, and drive business growth." %}</p>
+            <p class="text-lg text-gray-600">{% trans "Our integrated CRM system provides everything you need to manage customer relationships, streamline workflows, and drive business growth." %}</p>
         </div>
         <!-- Feature Cards ... (copy as in index.html, already read) -->
     </div>
@@ -408,10 +395,8 @@
 <section class="py-20 bg-gradient-to-r from-amber-500 to-yellow-500 text-white relative overflow-hidden">
     <div class="container mx-auto px-4 md:px-6 relative ">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6">{% trans "Ready to Transform Your Customer Relationships?"
-                %}</h2>
-            <p class="text-xl opacity-90 mb-10 max-w-2xl mx-auto">{% trans "Join thousands of successful businesses that
-                have already streamlined their operations and improved customer satisfaction with our CRM platform." %}
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">{% trans "Ready to Transform Your Customer Relationships?"%}</h2>
+            <p class="text-xl opacity-90 mb-10 max-w-2xl mx-auto">{% trans "Join thousands of successful businesses that have already streamlined their operations and improved customer satisfaction with our CRM platform." %}
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{% url 'users:register' %}"
