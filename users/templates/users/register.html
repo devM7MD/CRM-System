@@ -3,167 +3,50 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Create your account
-      </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        Join CRM Fulfillment System
-      </p>
+<div class="min-h-screen flex bg-gray-50">
+  <!-- Left Section with Image -->
+  <div class="hidden lg:flex lg:w-1/2  items-center justify-center p-8">
+    <div class="max-w-md text-center">
+      <img src="https://i.ibb.co/NdFP4Wsd/image.png" alt="CRM System" class="w-full h-auto mb-6 rounded-lg ">
+      <h1 class="text-3xl font-bold text-black mb-4">Join Our CRM Platform</h1>
+      <p class="text-xl text-yellow-800">Start managing your business more efficiently today</p>
     </div>
+  </div>
 
-    {% if messages %}
-    <div class="rounded-md bg-yellow-50 p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">
-            Attention needed
-          </h3>
-          <div class="mt-2 text-sm text-yellow-700">
-            <ul class="list-disc pl-5 space-y-1">
-              {% for message in messages %}
-              <li>{{ message }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    
-    <form class="mt-8 space-y-6" method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
-      
-      <div class="space-y-4">
-        <!-- Full Name -->
-        <div>
-          <label for="id_full_name" class="block text-sm font-medium text-gray-700">Full Name</label>
-          <div class="mt-1">
-            <input id="id_full_name" name="full_name" type="text" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.full_name.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Email -->
-        <div>
-          <label for="id_email" class="block text-sm font-medium text-gray-700">Email address</label>
-          <div class="mt-1">
-            <input id="id_email" name="email" type="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.email.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Phone -->
-        <div>
-          <label for="id_phone_number" class="block text-sm font-medium text-gray-700">Phone</label>
-          <div class="mt-1">
-            <input id="id_phone_number" name="phone_number" type="tel" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="+971501234567">
-          </div>
-          {% if form.phone_number.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Company Name -->
-        <div>
-          <label for="id_company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
-          <div class="mt-1">
-            <input id="id_company_name" name="company_name" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.company_name.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.company_name.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Country -->
-        <div>
-          <label for="id_country" class="block text-sm font-medium text-gray-700">Country</label>
-          <div class="mt-1">
-            <input id="id_country" name="country" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.country.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.country.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Expected Daily Orders -->
-        <div>
-          <label for="id_expected_daily_orders" class="block text-sm font-medium text-gray-700">Expected Daily Orders</label>
-          <div class="mt-1">
-            <input id="id_expected_daily_orders" name="expected_daily_orders" type="number" min="0" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" value="0">
-          </div>
-          {% if form.expected_daily_orders.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.expected_daily_orders.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Profile Image -->
-        <div>
-          <label for="id_profile_image" class="block text-sm font-medium text-gray-700">Profile Image (Optional)</label>
-          <div class="mt-1">
-            <input id="id_profile_image" name="profile_image" type="file" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.profile_image.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.profile_image.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Password -->
-        <div>
-          <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
-          <div class="mt-1">
-            <input id="id_password1" name="password1" type="password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.password1.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Confirm Password -->
-        <div>
-          <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <div class="mt-1">
-            <input id="id_password2" name="password2" type="password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-          </div>
-          {% if form.password2.errors %}
-          <p class="mt-2 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
-          {% endif %}
-        </div>
+  <!-- Right Section with Form -->
+  <div class="flex-1 flex items-center justify-center p-4 sm:p-8">
+    <div class="max-w-lg w-full space-y-8">
+      <!-- Mobile Header -->
+      <div class="lg:hidden text-center mb-8">
+        <img src="https://i.ibb.co/NdFP4Wsd/image.png" alt="CRM System" class="w-32 h-auto mx-auto mb-4 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">CRM Fulfillment System</h1>
       </div>
 
       <div>
-        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-          Register
-        </button>
+        <h2 class="text-center text-3xl font-extrabold text-gray-900">
+          Create your account
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+          Join CRM Fulfillment System and get started today
+        </p>
       </div>
-      
-      {% if form.non_field_errors %}
-      <div class="rounded-md bg-red-50 p-4">
+
+      {% if messages %}
+      <div class="rounded-md bg-yellow-50 p-4 border-l-4 border-yellow-400">
         <div class="flex">
           <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
           </div>
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">
-              There were errors with your submission
+            <h3 class="text-sm font-medium text-yellow-800">
+              Attention needed
             </h3>
-            <div class="mt-2 text-sm text-red-700">
+            <div class="mt-2 text-sm text-yellow-700">
               <ul class="list-disc pl-5 space-y-1">
-                {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
+                {% for message in messages %}
+                <li>{{ message }}</li>
                 {% endfor %}
               </ul>
             </div>
@@ -171,16 +54,331 @@
         </div>
       </div>
       {% endif %}
-    </form>
-    
-    <div class="text-center mt-4">
-      <p class="text-sm text-gray-600">
-        Already have an account? 
-        <a href="{% url 'users:login' %}" class="font-medium text-yellow-600 hover:text-yellow-500">
-          Sign in here
-        </a>
-      </p>
+      
+      <form class="mt-8 space-y-6" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Full Name -->
+          <div class="relative md:col-span-2">
+            <input 
+              id="id_full_name" 
+              name="full_name" 
+              type="text" 
+              required 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Full Name"
+            >
+            <label 
+              for="id_full_name" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Full Name
+            </label>
+            {% if form.full_name.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Email -->
+          <div class="relative">
+            <input 
+              id="id_email" 
+              name="email" 
+              type="email" 
+              required 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Email address"
+            >
+            <label 
+              for="id_email" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Email address
+            </label>
+            {% if form.email.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Phone -->
+          <div class="relative">
+            <input 
+              id="id_phone_number" 
+              name="phone_number" 
+              type="tel" 
+              required 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Phone Number"
+            >
+            <label 
+              for="id_phone_number" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Phone Number
+            </label>
+            {% if form.phone_number.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Company Name -->
+          <div class="relative">
+            <input 
+              id="id_company_name" 
+              name="company_name" 
+              type="text" 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Company Name"
+            >
+            <label 
+              for="id_company_name" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Company Name (Optional)
+            </label>
+            {% if form.company_name.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.company_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Country -->
+          <div class="relative">
+            <input 
+              id="id_country" 
+              name="country" 
+              type="text" 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Country"
+            >
+            <label 
+              for="id_country" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Country
+            </label>
+            {% if form.country.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.country.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Expected Daily Orders -->
+          <div class="relative">
+            <input 
+              id="id_expected_daily_orders" 
+              name="expected_daily_orders" 
+              type="number" 
+              min="0" 
+              value="0"
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Expected Daily Orders"
+            >
+            <label 
+              for="id_expected_daily_orders" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Expected Daily Orders
+            </label>
+            {% if form.expected_daily_orders.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.expected_daily_orders.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Profile Image -->
+          <div class="md:col-span-2">
+            <label for="id_profile_image" class="block text-sm font-medium text-gray-700 mb-2">Profile Image (Optional)</label>
+            <div id="upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-yellow-400 transition-colors">
+              <div id="upload-content" class="space-y-1 text-center">
+                <svg id="upload-icon" class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="flex text-sm text-gray-600">
+                  <label for="id_profile_image" class="relative cursor-pointer bg-white rounded-md font-medium text-yellow-600 hover:text-yellow-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-yellow-500">
+                    <span>Upload a file</span>
+                    <input id="id_profile_image" name="profile_image" type="file" class="sr-only" accept="image/*">
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+              </div>
+              <div id="preview-content" class="hidden">
+                <div class="relative">
+                  <img id="preview-image" src="" alt="Preview" class="mx-auto h-32 w-32 object-cover rounded-lg shadow-md">
+                  <button type="button" id="remove-image" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+                    ×
+                  </button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600">Click to change image</p>
+              </div>
+            </div>
+            {% if form.profile_image.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.profile_image.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Password -->
+          <div class="relative">
+            <input 
+              id="id_password1" 
+              name="password1" 
+              type="password" 
+              required 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Password"
+            >
+            <label 
+              for="id_password1" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Password
+            </label>
+            {% if form.password1.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="relative">
+            <input 
+              id="id_password2" 
+              name="password2" 
+              type="password" 
+              required 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Confirm Password"
+            >
+            <label 
+              for="id_password2" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Confirm Password
+            </label>
+            {% if form.password2.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mt-8">
+          <button 
+            type="submit" 
+            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105"
+          >
+            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+              <svg class="h-5 w-5 text-yellow-500 group-hover:text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+              </svg>
+            </span>
+            Create Account
+          </button>
+        </div>
+        
+        <!-- Error Messages -->
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-red-50 p-4 border-l-4 border-red-400">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                There were errors with your submission
+              </h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul class="list-disc pl-5 space-y-1">
+                  {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </form>
+      
+      <!-- Login Link -->
+      <div class="text-center mt-6">
+        <p class="text-sm text-gray-600">
+          Already have an account? 
+          <a href="{% url 'users:login' %}" class="font-medium text-yellow-600 hover:text-yellow-500 transition-colors">
+            Sign in here
+          </a>
+        </p>
+      </div>
     </div>
   </div>
 </div>
-{% endblock %} 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('id_profile_image');
+  const uploadArea = document.getElementById('upload-area');
+  const uploadContent = document.getElementById('upload-content');
+  const previewContent = document.getElementById('preview-content');
+  const previewImage = document.getElementById('preview-image');
+  const removeButton = document.getElementById('remove-image');
+
+  // Handle file selection
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      displayImage(file);
+    }
+  });
+
+  // Handle drag and drop
+  uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadArea.classList.add('border-yellow-400', 'bg-yellow-50');
+  });
+
+  uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('border-yellow-400', 'bg-yellow-50');
+  });
+
+  uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('border-yellow-400', 'bg-yellow-50');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      fileInput.files = files;
+      displayImage(files[0]);
+    }
+  });
+
+  // Handle remove button
+  removeButton.addEventListener('click', function() {
+    fileInput.value = '';
+    hidePreview();
+  });
+
+  // Handle click on preview to change image
+  previewContent.addEventListener('click', function() {
+    fileInput.click();
+  });
+
+  function displayImage(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewImage.src = e.target.result;
+      uploadContent.classList.add('hidden');
+      previewContent.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function hidePreview() {
+    uploadContent.classList.remove('hidden');
+    previewContent.classList.add('hidden');
+    previewImage.src = '';
+  }
+});
+</script>
+
+{% endblock %}

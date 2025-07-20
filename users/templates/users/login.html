@@ -3,92 +3,50 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Sign in to your account
-      </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        CRM Fulfillment System
-      </p>
+<div class="min-h-screen flex bg-gray-50">
+  <!-- Left Section with Image -->
+  <div class="hidden lg:flex lg:w-1/2 items-center justify-center p-8">
+    <div class="max-w-md text-center">
+      <img src="https://i.ibb.co/NdFP4Wsd/image.png" alt="CRM System" class="w-full h-auto mb-6 rounded-lg ">
+      <h1 class="text-3xl font-bold text-black mb-4">CRM Fulfillment System</h1>
+      <p class="text-xl text-yellow-800">Manage your business efficiently with our comprehensive CRM solution</p>
     </div>
-    
-    {% if messages %}
-    <div class="rounded-md bg-yellow-50 p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">
-            Attention needed
-          </h3>
-          <div class="mt-2 text-sm text-yellow-700">
-            <ul class="list-disc pl-5 space-y-1">
-              {% for message in messages %}
-              <li>{{ message }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    
-    <form class="mt-8 space-y-6" method="POST" action="{% url 'users:login' %}">
-      {% csrf_token %}
-      
-      <div class="rounded-md shadow-sm -space-y-px">
-        <div>
-          <label for="id_email" class="sr-only">Email address</label>
-          <input id="id_email" name="email" type="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm" placeholder="Email address">
-        </div>
-        <div>
-          <label for="id_password" class="sr-only">Password</label>
-          <input id="id_password" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm" placeholder="Password">
-        </div>
-      </div>
+  </div>
 
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-          <label for="remember_me" class="ml-2 block text-sm text-gray-900">
-            Remember me
-          </label>
-        </div>
-
-        <div class="text-sm">
-          <a href="#" class="font-medium text-yellow-600 hover:text-yellow-500">
-            Forgot your password?
-          </a>
-        </div>
+  <!-- Right Section with Form -->
+  <div class="flex-1 flex items-center justify-center p-4 sm:p-8">
+    <div class="max-w-md w-full space-y-8">
+      <!-- Mobile Header -->
+      <div class="lg:hidden text-center mb-8">
+        <img src="https://i.ibb.co/NdFP4Wsd/image.png" alt="CRM System" class="w-32 h-auto mx-auto mb-4 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">CRM Fulfillment System</h1>
       </div>
 
       <div>
-        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-          Sign in
-        </button>
+        <h2 class="text-center text-3xl font-extrabold text-gray-900">
+          Sign in to your account
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+          Welcome back! Please enter your credentials
+        </p>
       </div>
       
-      {% if form.non_field_errors %}
-      <div class="rounded-md bg-red-50 p-4">
+      {% if messages %}
+      <div class="rounded-md bg-yellow-50 p-4 border-l-4 border-yellow-400">
         <div class="flex">
           <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
           </div>
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">
-              There were errors with your submission
+            <h3 class="text-sm font-medium text-yellow-800">
+              Attention needed
             </h3>
-            <div class="mt-2 text-sm text-red-700">
+            <div class="mt-2 text-sm text-yellow-700">
               <ul class="list-disc pl-5 space-y-1">
-                {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
+                {% for message in messages %}
+                <li>{{ message }}</li>
                 {% endfor %}
               </ul>
             </div>
@@ -96,16 +54,120 @@
         </div>
       </div>
       {% endif %}
-    </form>
-    
-    <div class="text-center mt-4">
-      <p class="text-sm text-gray-600">
-        Don't have an account? 
-        <a href="{% url 'users:register' %}" class="font-medium text-yellow-600 hover:text-yellow-500">
-          Register here
-        </a>
-      </p>
+      
+      <form class="mt-8 space-y-8" method="POST" action="{% url 'users:login' %}">
+        {% csrf_token %}
+        
+        <!-- Email Input with Underline Style -->
+        <div class="space-y-6">
+          <div class="relative">
+            <input 
+              id="id_email" 
+              name="email" 
+              type="email" 
+              required 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Email address"
+            >
+            <label 
+              for="id_email" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Email address
+            </label>
+          </div>
+
+          <!-- Password Input with Underline Style -->
+          <div class="relative">
+            <input 
+              id="id_password" 
+              name="password" 
+              type="password" 
+              required 
+              class="peer w-full px-0 py-3 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-yellow-500 placeholder-transparent text-sm"
+              placeholder="Password"
+            >
+            <label 
+              for="id_password" 
+              class="absolute left-0 -top-3.5 text-gray-600 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-yellow-500 peer-focus:text-sm"
+            >
+              Password
+            </label>
+          </div>
+        </div>
+
+        <!-- Remember Me and Forgot Password -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input 
+              id="remember_me" 
+              name="remember_me" 
+              type="checkbox" 
+              class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+            >
+            <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+              Remember me
+            </label>
+          </div>
+
+          <div class="text-sm">
+            <a href="#" class="font-medium text-yellow-600 hover:text-yellow-500 transition-colors">
+              Forgot your password?
+            </a>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button 
+            type="submit" 
+            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105"
+          >
+            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+              <svg class="h-5 w-5 text-yellow-500 group-hover:text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+              </svg>
+            </span>
+            Sign in
+          </button>
+        </div>
+        
+        <!-- Error Messages -->
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-red-50 p-4 border-l-4 border-red-400">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                There were errors with your submission
+              </h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul class="list-disc pl-5 space-y-1">
+                  {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </form>
+      
+      <!-- Register Link -->
+      <div class="text-center mt-6">
+        <p class="text-sm text-gray-600">
+          Don't have an account? 
+          <a href="{% url 'users:register' %}" class="font-medium text-yellow-600 hover:text-yellow-500 transition-colors">
+            Register here
+          </a>
+        </p>
+      </div>
     </div>
   </div>
 </div>
-{% endblock %} 
+{% endblock %}
