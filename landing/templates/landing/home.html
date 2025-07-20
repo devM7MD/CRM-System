@@ -178,7 +178,8 @@
                 </h1>
                 <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0">{% trans "Streamline customer relationships, automate workflows, and drive growth with our all-in-one CRM platform designed for modern businesses." %}
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
+               <div class="flex flex-col sm:flex-row gap-4 justify-center lg:{% if LANGUAGE_CODE == 'ar' %}justify-end{% else %}justify-start{% endif %} mb-12">
+
                     <a href="{% url 'users:login' %}"
                         class="bg-white text-gray-800 px-8 py-3 rounded-lg font-medium shadow-md border border-gray-200 hover:border-amber-300 transition-all hover:scale-105 flex items-center justify-center gap-2">
                         <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"
