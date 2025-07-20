@@ -36,8 +36,14 @@ def is_courier(user):
     """Check if user is a courier"""
     return hasattr(user, 'courier_profile') and user.courier_profile is not None
 
+def has_delivery_role(user):
+    return (
+        user.is_superuser or
+        user.has_role('Super Admin') or
+        user.has_role('Delivery')
+    )
+
 @login_required
-@user_passes_test(is_delivery_user)
 def dashboard(request):
     """Delivery dashboard with real statistics and current tasks"""
     today = timezone.now().date()

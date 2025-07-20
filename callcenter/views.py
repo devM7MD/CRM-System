@@ -23,12 +23,22 @@ def is_call_center_manager(user):
     """Check if user is a call center manager."""
     return user.groups.filter(name='Call Center Managers').exists() or user.is_superuser
 
+def has_callcenter_role(user):
+    return (
+        user.is_superuser or
+        user.has_role('Super Admin') or
+        user.has_role('Call Center Manager') or
+        user.has_role('Call Center Agent')
+    )
+
 # Agent Panel Views
 
 @login_required
-@user_passes_test(is_call_center_agent)
 def agent_dashboard(request):
     """Call center agent dashboard."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     today = timezone.now().date()
     
     # Get or create agent session
@@ -116,9 +126,11 @@ def agent_dashboard(request):
     return render(request, 'callcenter/agent/dashboard.html', context)
 
 @login_required
-@user_passes_test(is_call_center_agent)
 def agent_order_list(request):
     """Agent's assigned orders list."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     # Get filter parameters
     status = request.GET.get('status', '')
     priority = request.GET.get('priority', '')
@@ -157,9 +169,11 @@ def agent_order_list(request):
     return render(request, 'callcenter/agent/order_list.html', context)
 
 @login_required
-@user_passes_test(is_call_center_agent)
 def agent_order_detail(request, order_id):
     """Agent's order detail view."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     order = get_object_or_404(Order, id=order_id, assignments__agent=request.user)
     
     # Get call logs for this order
@@ -181,9 +195,11 @@ def agent_order_detail(request, order_id):
     return render(request, 'callcenter/agent/order_detail.html', context)
 
 @login_required
-@user_passes_test(is_call_center_agent)
 def agent_log_call(request, order_id):
     """Log a call for an order."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     if request.method == 'POST':
         order = get_object_or_404(Order, id=order_id, assignments__agent=request.user)
         
@@ -219,9 +235,11 @@ def agent_log_call(request, order_id):
 # Manager Panel Views
 
 @login_required
-@user_passes_test(is_call_center_manager)
 def manager_dashboard(request):
     """Call center manager dashboard."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     today = timezone.now().date()
     
     # Get overall statistics
@@ -283,9 +301,11 @@ def manager_dashboard(request):
     return render(request, 'callcenter/manager/dashboard.html', context)
 
 @login_required
-@user_passes_test(is_call_center_manager)
 def manager_order_list(request):
     """Manager's order management view."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     # Get filter parameters
     status = request.GET.get('status', '')
     agent = request.GET.get('agent', '')
@@ -333,9 +353,11 @@ def manager_order_list(request):
     return render(request, 'callcenter/manager/order_list.html', context)
 
 @login_required
-@user_passes_test(is_call_center_manager)
 def manager_assign_order(request, order_id):
     """Assign order to agent."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     if request.method == 'POST':
         order = get_object_or_404(Order, id=order_id)
         agent_id = request.POST.get('agent')
@@ -369,9 +391,11 @@ def manager_assign_order(request, order_id):
     })
 
 @login_required
-@user_passes_test(is_call_center_manager)
 def manager_agent_reports(request):
     """Manager's agent performance reports."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     # Get date range
     date_range = request.GET.get('date_range', 'today')
     today = timezone.now().date()
@@ -454,6 +478,9 @@ def get_order_details(request, order_id):
 @login_required
 def dashboard(request):
     """Legacy dashboard - redirect to appropriate panel."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     if is_call_center_manager(request.user):
         return redirect('callcenter:manager_dashboard')
     elif is_call_center_agent(request.user):
@@ -464,6 +491,9 @@ def dashboard(request):
 @login_required
 def order_list(request):
     """Legacy order list - redirect to appropriate panel."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     if is_call_center_manager(request.user):
         return redirect('callcenter:manager_order_list')
     elif is_call_center_agent(request.user):

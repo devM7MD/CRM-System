@@ -16,15 +16,14 @@ import json
 
 User = get_user_model()
 
-def is_packaging_user(user):
-    """Check if user has packaging role or is super admin"""
-    return (user.is_superuser or 
-            user.has_role('Super Admin') or 
-            user.has_role('Admin') or
-            (hasattr(user, 'primary_role') and user.primary_role and 'packaging' in user.primary_role.name.lower()))
+def has_packaging_role(user):
+    return (
+        user.is_superuser or
+        user.has_role('Super Admin') or
+        user.has_role('Packaging')
+    )
 
 @login_required
-@user_passes_test(is_packaging_user)
 def dashboard(request):
     """Packaging dashboard with real data."""
     today = timezone.now().date()
@@ -124,7 +123,7 @@ def dashboard(request):
     return render(request, 'packaging/dashboard.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def order_list(request):
     """List of orders for packaging with real data."""
     # Get orders that need packaging (processing orders)
@@ -192,7 +191,7 @@ def order_list(request):
     return render(request, 'packaging/order_list.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def start_packaging(request, order_id):
     """Start packaging for an order."""
     order = get_object_or_404(Order, id=order_id)
@@ -236,7 +235,7 @@ def start_packaging(request, order_id):
     return render(request, 'packaging/start_packaging.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def complete_packaging(request, order_id):
     """Complete packaging for an order."""
     order = get_object_or_404(Order, id=order_id)
@@ -281,7 +280,7 @@ def complete_packaging(request, order_id):
     return render(request, 'packaging/complete_packaging.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def order_detail(request, order_id):
     """Detailed view of order packaging."""
     order = get_object_or_404(Order, id=order_id)
@@ -299,7 +298,7 @@ def order_detail(request, order_id):
     return render(request, 'packaging/order_detail.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def materials_inventory(request):
     """Manage packaging materials inventory."""
     materials = PackagingMaterial.objects.all()
@@ -340,7 +339,7 @@ def materials_inventory(request):
     return render(request, 'packaging/materials_inventory.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def quality_control(request):
     """Quality control interface."""
     # Get pending quality checks
@@ -362,7 +361,7 @@ def quality_control(request):
     return render(request, 'packaging/quality_control.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def perform_quality_check(request, packaging_id):
     """Perform quality check on a package."""
     packaging_record = get_object_or_404(PackagingRecord, id=packaging_id)
@@ -397,7 +396,7 @@ def perform_quality_check(request, packaging_id):
     return render(request, 'packaging/perform_quality_check.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def packaging_report(request):
     """Packaging performance report with detailed statistics."""
     today = timezone.now().date()
@@ -512,7 +511,7 @@ def packaging_report(request):
     return render(request, 'packaging/packaging_report.html', context)
 
 @login_required
-@user_passes_test(is_packaging_user)
+@user_passes_test(has_packaging_role)
 def materials_management(request):
     """Materials management page with detailed inventory control."""
     # Get materials with stock alerts

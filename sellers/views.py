@@ -6,12 +6,18 @@ from orders.models import Order
 from users.models import User
 from django.http import JsonResponse
 
+def has_seller_role(user):
+    return (
+        user.is_superuser or
+        user.has_role('Super Admin') or
+        user.has_role('Seller')
+    )
+
 @login_required
 def dashboard(request):
     """Seller dashboard with stats and recent data."""
-    # Check if user has Seller role or is Super Admin
-    if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
-        messages.error(request, "You don't have permission to access this page.")
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
         return redirect('dashboard:index')
     
     from django.db.models import Sum, Count, Q
@@ -93,6 +99,9 @@ def dashboard(request):
 @login_required
 def product_list(request):
     """List all products for the seller."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     if request.user.has_role('Seller'):
         products = Product.objects.filter(seller=request.user).order_by('-created_at')
     else:
@@ -105,6 +114,9 @@ def product_list(request):
 @login_required
 def product_create(request):
     """Create a new product."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     if request.method == 'POST':
         # Process form data
         name_en = request.POST.get('name')
@@ -158,6 +170,9 @@ def product_create(request):
 @login_required
 def product_detail(request, product_id):
     """View a specific product."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     product = get_object_or_404(Product, id=product_id)
     
     # Check permissions
@@ -173,6 +188,9 @@ def product_detail(request, product_id):
 @login_required
 def product_edit(request, product_id):
     """Edit a specific product."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     product = get_object_or_404(Product, id=product_id)
     
     # Check permissions
@@ -188,6 +206,9 @@ def product_edit(request, product_id):
 @login_required
 def order_list(request):
     """List orders for the seller."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     # Check if user has Seller role or is Super Admin
     if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
         messages.error(request, "You don't have permission to access this page.")
@@ -208,6 +229,9 @@ def order_list(request):
 @login_required
 def order_detail(request, order_id):
     """View a specific order."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     order = get_object_or_404(Order, id=order_id)
     
     # Check permissions
@@ -223,6 +247,9 @@ def order_detail(request, order_id):
 @login_required
 def sourcing_request_list(request):
     """List sourcing requests."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     # Check if user has Seller role or is Super Admin
     if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
         messages.error(request, "You don't have permission to access this page.")
@@ -241,11 +268,9 @@ def sourcing_request_list(request):
 @login_required
 def sourcing_request_create(request):
     """Create a new sourcing request."""
-    # Check if user has Seller role or is Super Admin
-    if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
-        messages.error(request, "You don't have permission to access this page.")
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
         return redirect('dashboard:index')
-    
     if request.method == 'POST':
         # Handle AJAX form submission
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -293,6 +318,9 @@ def sourcing_request_create(request):
 @login_required
 def sourcing_request_detail(request, request_id):
     """View a specific sourcing request."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     # Check if user has Seller role or is Super Admin
     if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
         messages.error(request, "You don't have permission to access this page.")
@@ -310,6 +338,9 @@ def sourcing_request_detail(request, request_id):
 @login_required
 def sales(request):
     """Seller sales overview and analytics."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
     # Check if user has Seller role or is Super Admin
     if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
         messages.error(request, "You don't have permission to access this page.")
@@ -448,11 +479,9 @@ def sales(request):
 @login_required
 def inventory(request):
     """Show inventory management page for seller products."""
-    # Check if user has Seller role or is Super Admin
-    if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
-        messages.error(request, "You don't have permission to access this page.")
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
         return redirect('dashboard:index')
-    
     # Handle export request
     if request.GET.get('export') == 'csv':
         import csv
