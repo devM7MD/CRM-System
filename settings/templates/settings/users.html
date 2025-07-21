@@ -4,12 +4,12 @@
 {% block title %}Users Management{% endblock %}
 
 {% block content %}
-<div class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+<div class=" min-h-screen">
     <!-- Page Header -->
-    <div class="bg-amber-600 dark:bg-amber-700 shadow-lg border-t-4 border-amber-500">
+    <div class="bg-yellow-500 shadow-lg rounded-md">
         <div class="py-6 px-6 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-white">Users Management</h1>
-            <button onclick="openAddUserModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+            <button onclick="openAddUserModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-300 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
                 <i class="fas fa-plus mr-2"></i>
                 Add User
             </button>
@@ -18,13 +18,13 @@
 
     <!-- Search and Filters -->
     <div class="py-6 px-6">
-        <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="bg-white -gray-800 shadow sm:rounded-lg border border-gray-200 -gray-700">
             <div class="px-6 py-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">Search Users</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 -white mb-4">Search Users</h3>
                 <form method="get" class="flex gap-4">
                     <div class="flex-1">
                         <input type="text" name="search" value="{{ search_query }}" placeholder="Search by name or email..." 
-                               class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
+                               class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 -gray-700 bg-white -gray-800 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
                     </div>
                     <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
                         <i class="fas fa-search mr-2"></i>
@@ -37,65 +37,65 @@
 
     <!-- Users Table -->
     <div class="px-6 pb-6">
-        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="bg-white -gray-800 shadow overflow-hidden border border-gray-200 -gray-700">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-amber-50 dark:bg-amber-900">
+                <table class="min-w-full divide-y divide-gray-200 -gray-700">
+                    <thead class="bg-amber-50 -amber-900">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">USER</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">EMAIL</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">ROLES</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">STATUS</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">LAST LOGIN</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">ACTIONS</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 -amber-300 uppercase tracking-wider">USER</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 -amber-300 uppercase tracking-wider">EMAIL</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 -amber-300 uppercase tracking-wider">ROLES</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 -amber-300 uppercase tracking-wider">STATUS</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 -amber-300 uppercase tracking-wider">LAST LOGIN</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-amber-700 -amber-300 uppercase tracking-wider">ACTIONS</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody class="bg-white -gray-800 divide-y divide-gray-200 -gray-700">
                         {% for user in page_obj %}
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                        <tr class="hover:bg-gray-50 :bg-gray-700 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10">
                                         {% if user.profile_image %}
                                         <img class="h-10 w-10 rounded-full" src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}">
                                         {% else %}
-                                        <div class="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-                                            <span class="text-sm font-medium text-purple-600 dark:text-purple-400">{{ user.get_initials }}</span>
+                                        <div class="h-10 w-10 rounded-full bg-purple-100 -purple-900 flex items-center justify-center">
+                                            <span class="text-sm font-medium text-purple-600 -purple-400">{{ user.get_initials }}</span>
                                         </div>
                                         {% endif %}
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ user.get_full_name }}</div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">@{{ user.username }}</div>
+                                        <div class="text-sm font-medium text-gray-900 -white">{{ user.get_full_name }}</div>
+                                        <div class="text-sm text-gray-500 -gray-400">@{{ user.username }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 -white">
                                 {{ user.email }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-wrap gap-1">
                                     {% for role in user.roles.all %}
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 -purple-900 -purple-200">
                                         {{ role.name }}
                                     </span>
                                     {% empty %}
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">No roles</span>
+                                    <span class="text-sm text-gray-500 -gray-400">No roles</span>
                                     {% endfor %}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 {% if user.is_active %}
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 -green-900 -green-200">
                                     Active
                                 </span>
                                 {% else %}
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 -red-900 -red-200">
                                     Inactive
                                 </span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 -white">
                                 {{ user.last_login|date:"M d, Y H:i"|default:"Never" }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -105,7 +105,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">No users found.</td>
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 -gray-400">No users found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -117,7 +117,7 @@
     <!-- Pagination -->
     {% if page_obj.has_other_pages %}
     <div class="px-6 pb-6">
-        <div class="bg-white dark:bg-gray-800 px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:rounded-lg shadow">
+        <div class="bg-white -gray-800 px-6 py-3 flex items-center justify-between border-t border-gray-200 -gray-700 sm:rounded-lg shadow">
             <div class="flex-1 flex justify-between sm:hidden">
                 {% if page_obj.has_previous %}
                 <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
@@ -132,7 +132,7 @@
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <p class="text-sm text-gray-700 -gray-300">
                         Showing <span class="font-medium">{{ page_obj.start_index }}</span> to <span class="font-medium">{{ page_obj.end_index }}</span> of <span class="font-medium">{{ page_obj.paginator.count }}</span> results
                     </p>
                 </div>
