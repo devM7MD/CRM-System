@@ -25,6 +25,48 @@ class Payment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField(blank=True)
 
+class Invoice(models.Model):
+    INVOICE_STATUS = (
+        ('draft', 'Draft'),
+        ('sent', 'Sent'),
+        ('paid', 'Paid'),
+        ('overdue', 'Overdue'),
+        ('cancelled', 'Cancelled'),
+    )
+    
+    order = models.ForeignKey('orders.Order', on_delete=models.CASCADE, related_name='invoices')
+    invoice_number = models.CharField(max_length=50, unique=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=INVOICE_STATUS, default='draft')
+    due_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    notes = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"Invoice {self.invoice_number} - {self.order.order_code}"
+
+class Invoice(models.Model):
+    INVOICE_STATUS = (
+        ('draft', 'Draft'),
+        ('sent', 'Sent'),
+        ('paid', 'Paid'),
+        ('overdue', 'Overdue'),
+        ('cancelled', 'Cancelled'),
+    )
+    
+    order = models.ForeignKey('orders.Order', on_delete=models.CASCADE, related_name='invoices')
+    invoice_number = models.CharField(max_length=50, unique=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=INVOICE_STATUS, default='draft')
+    due_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    notes = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"Invoice {self.invoice_number} - {self.order.order_code}"
+
 class SellerFee(models.Model):
     seller = models.ForeignKey('users.User', on_delete=models.CASCADE)
     fee_percentage = models.DecimalField(max_digits=5, decimal_places=2)  # e.g., 5.00 for 5%

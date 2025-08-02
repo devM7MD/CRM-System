@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Financial Reports" %} - Atlas Fulfillment{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">{% trans "Financial Reports & Analytics" %}</h1>
+                    <p class="ml-4 text-gray-600">{% trans "Comprehensive financial analysis and reporting" %}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="new_report">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center transition-colors duration-200">
+                            <i class="fas fa-chart-bar mr-2"></i>
+                            {% trans "New Report" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="settings">
+                        <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center transition-colors duration-200">
+                            <i class="fas fa-cog mr-2"></i>
+                            {% trans "Settings" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Quick Reports -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Quick Reports" %}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="daily_revenue">
+                    <button type="submit" class="w-full bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200">
+                        <i class="fas fa-chart-line text-2xl text-blue-500 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Daily Revenue" %}</p>
+                    </button>
+                </form>
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="payment_summary">
+                    <button type="submit" class="w-full bg-green-50 hover:bg-green-100 p-4 rounded-lg text-center transition-colors duration-200">
+                        <i class="fas fa-money-bill text-2xl text-green-500 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Payment Summary" %}</p>
+                    </button>
+                </form>
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="fee_analysis">
+                    <button type="submit" class="w-full bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-center transition-colors duration-200">
+                        <i class="fas fa-calculator text-2xl text-purple-500 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Fee Analysis" %}</p>
+                    </button>
+                </form>
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="seller_report">
+                    <button type="submit" class="w-full bg-orange-50 hover:bg-orange-100 p-4 rounded-lg text-center transition-colors duration-200">
+                        <i class="fas fa-store text-2xl text-orange-500 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Seller Report" %}</p>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Custom Report Builder -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Custom Report Builder" %}</h3>
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Report Type" %}</label>
+                    <select name="report_type" class="form-select w-full">
+                        <option value="revenue">{% trans "Revenue Analysis" %}</option>
+                        <option value="payments">{% trans "Payment Analysis" %}</option>
+                        <option value="fees">{% trans "Fee Analysis" %}</option>
+                        <option value="sellers">{% trans "Seller Analysis" %}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Date From" %}</label>
+                    <input type="date" name="date_from" value="{{ date_from }}" class="form-input w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Date To" %}</label>
+                    <input type="date" name="date_to" value="{{ date_to }}" class="form-input w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Group By" %}</label>
+                    <select name="group_by" class="form-select w-full">
+                        <option value="daily">{% trans "Daily" %}</option>
+                        <option value="weekly">{% trans "Weekly" %}</option>
+                        <option value="monthly">{% trans "Monthly" %}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Filters" %}</label>
+                    <select name="filters" class="form-select w-full">
+                        <option value="all">{% trans "All Sellers" %}</option>
+                        <option value="all">{% trans "All Payment Methods" %}</option>
+                        <option value="all">{% trans "All Warehouses" %}</option>
+                    </select>
+                </div>
+                <div class="col-span-full flex justify-end">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+                        {% trans "Generate Report" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Revenue Analysis -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Revenue Analysis" %} - {% trans "Real Data from Database" %}</h3>
+                <div class="flex space-x-2">
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="export">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm">
+                            <i class="fas fa-download mr-1"></i>
+                            {% trans "Export" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="print">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm">
+                            <i class="fas fa-print mr-1"></i>
+                            {% trans "Print" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Orders" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Revenue" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Fees" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Total" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Avg Order" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Top Seller" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% if revenue_analysis %}
+                            {% for data in revenue_analysis %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ data.date }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ data.orders }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ data.revenue|floatformat:2 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ data.fees|floatformat:2 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ data.total|floatformat:2 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ data.avg_order|floatformat:2 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ data.top_seller }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    {% trans "No revenue data available. Please create some orders and payments first." %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Metrics -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Summary Metrics" %}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Total Revenue" %}</p>
+                    <p class="text-2xl font-bold text-blue-600">AED {{ total_revenue|floatformat:2 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Total Orders" %}</p>
+                    <p class="text-2xl font-bold text-green-600">{{ total_orders }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Average Order" %}</p>
+                    <p class="text-2xl font-bold text-purple-600">AED {{ avg_order_value|floatformat:2 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Total Fees" %}</p>
+                    <p class="text-2xl font-bold text-orange-600">AED {{ total_fees_amount|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">{% trans "Real data from database" %} | {% trans "Last updated" %}: {{ "now"|date:"F d, Y H:i" }}</p>
+            </div>
+        </div>
+
+        <!-- Fee Breakdown Chart -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Fee Breakdown Chart" %}</h3>
+                <p class="text-sm text-gray-600">{% trans "Real data from database" %}</p>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700">{% trans "Shipping" %} ({{ fee_breakdown.shipping|floatformat:1 }}%)</span>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: {{ fee_breakdown.shipping }}%"></div>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ fee_breakdown.shipping|floatformat:1 }}%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700">{% trans "Fulfillment" %} ({{ fee_breakdown.fulfillment|floatformat:1 }}%)</span>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ fee_breakdown.fulfillment }}%"></div>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ fee_breakdown.fulfillment|floatformat:1 }}%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700">{% trans "Upsell" %} ({{ fee_breakdown.upsell|floatformat:1 }}%)</span>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: {{ fee_breakdown.upsell }}%"></div>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ fee_breakdown.upsell|floatformat:1 }}%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700">{% trans "Confirmation" %} ({{ fee_breakdown.confirmation|floatformat:1 }}%)</span>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-2">
+                            <div class="bg-orange-500 h-2 rounded-full" style="width: {{ fee_breakdown.confirmation }}%"></div>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ fee_breakdown.confirmation|floatformat:1 }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center">
+                <div class="flex space-x-4">
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="save_report">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <i class="fas fa-save mr-2"></i>
+                            {% trans "Save Report" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="schedule_email">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            {% trans "Schedule Email" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_to_dashboard">
+                        <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <i class="fas fa-plus mr-2"></i>
+                            {% trans "Add to Dashboard" %}
+                        </button>
+                    </form>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="location.reload()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center">
+                        <i class="fas fa-sync mr-2"></i>
+                        {% trans "Refresh" %}
+                    </button>
+                    <a href="{% url 'finance:accountant_dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        {% trans "Back to Dashboard" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Daily Sales Chart
+    const dailyData = {{ daily_sales|safe }};
+    const ctx = document.getElementById('dailySalesChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dailyData.map(item => item.date),
+                datasets: [{
+                    label: 'Daily Sales (AED)',
+                    data: dailyData.map(item => item.total),
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Payment Method Chart
+    const paymentData = {{ payment_method_breakdown|safe }};
+    const ctx2 = document.getElementById('paymentMethodChart');
+    if (ctx2) {
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: paymentData.map(item => item.payment_method),
+                datasets: [{
+                    data: paymentData.map(item => item.total),
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

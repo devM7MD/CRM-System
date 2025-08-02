@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
 from django.contrib import messages
 from django.utils import timezone
@@ -12,6 +12,9 @@ from settings.models import DeliveryCompany
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
+import csv
+import io
+from datetime import datetime
 
 @login_required
 def order_list(request):
@@ -21,29 +24,30 @@ def order_list(request):
     
     # If user has no role, show all orders (default behavior)
     if not user_role:
-        orders = Order.objects.all().order_by('-created_at')
+        orders = Order.objects.all().order_by('-date')
     elif user_role in ['Super Admin', 'Admin']:
-        orders = Order.objects.all().order_by('-created_at')
+        orders = Order.objects.all().order_by('-date')
     elif user_role == 'Seller':
-        orders = Order.objects.filter(seller=request.user).order_by('-created_at')
+        # Sellers see orders with their email
+        orders = Order.objects.filter(seller_email=request.user.email).order_by('-date')
     elif user_role in ['Call Center Manager', 'Call Center Agent']:
         # Call center sees pending and confirmed orders for follow-up
         orders = Order.objects.filter(
-            status__in=['pending', 'confirmed', 'no_response', 'postponed']
-        ).order_by('-created_at')
+            status__in=['pending', 'processing', 'confirmed']
+        ).order_by('-date')
     elif user_role == 'Packaging':
         # Packaging team sees orders ready for packaging
         orders = Order.objects.filter(
-            status__in=['ready_for_packaging', 'packaging_in_progress']
-        ).order_by('-created_at')
+            status__in=['confirmed', 'processing']
+        ).order_by('-date')
     elif user_role == 'Delivery':
         # Delivery team sees orders ready for delivery and in delivery
         orders = Order.objects.filter(
-            status__in=['ready_for_delivery', 'in_delivery', 'delivered', 'returned']
-        ).order_by('-created_at')
+            status__in=['shipped', 'delivered']
+        ).order_by('-date')
     else:
         # Other roles see all orders for reference
-        orders = Order.objects.all().order_by('-created_at')
+        orders = Order.objects.all().order_by('-date')
     
     # Filter options
     status_filter = request.GET.get('status', '')
@@ -57,16 +61,26 @@ def order_list(request):
     
     if search_query:
         orders = orders.filter(
-            Q(code__icontains=search_query) | 
-            Q(customer_name__icontains=search_query) | 
-            Q(customer_phone__icontains=search_query)
+            Q(order_code__icontains=search_query) | 
+            Q(customer__icontains=search_query) | 
+            Q(customer_phone__icontains=search_query) |
+            Q(product__name_en__icontains=search_query)
         )
+    
+    if date_from:
+        orders = orders.filter(date__date__gte=date_from)
+    
+    if date_to:
+        orders = orders.filter(date__date__lte=date_to)
     
     return render(request, 'orders/order_list.html', {
         'orders': orders,
         'status_choices': Order.STATUS_CHOICES,
         'current_status': status_filter,
-        'search_query': search_query
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to,
+        'total_orders': orders.count()
     })
 
 @login_required
@@ -76,7 +90,7 @@ def order_detail(request, order_id):
     
     # Check if user has permission to view this order
     user_role = request.user.primary_role.name if request.user.primary_role else None
-    if user_role == 'Seller' and order.seller != request.user:
+    if user_role == 'Seller' and order.seller_email != request.user.email:
         messages.error(request, "You don't have permission to view this order.")
         return redirect('orders:order_list')
     
@@ -111,14 +125,16 @@ def create_order(request):
         if form.is_valid() and formset.is_valid():
             order = form.save(commit=False)
             
-            # Set the seller based on user role
+            # Set the seller email based on user role
             if user_role == 'Seller':
-                order.seller = request.user
-            elif form.cleaned_data.get('seller'):
-                order.seller = form.cleaned_data['seller']
+                order.seller_email = request.user.email
+            elif form.cleaned_data.get('seller_email'):
+                order.seller_email = form.cleaned_data['seller_email']
             
-            # Generate order code
-            order.code = _generate_order_code()
+            # Generate order code if not provided
+            if not order.order_code:
+                order.order_code = _generate_order_code()
+            
             order.save()
             
             # Save order items
@@ -130,38 +146,28 @@ def create_order(request):
                 item.save()
                 total_price += item.quantity * item.price
             
-            # Update total price
-            order.total_price = total_price
-            order.save()
-            
             # Create audit log
             AuditLog.objects.create(
                 user=request.user,
                 action='create',
                 entity_type='Order',
                 entity_id=str(order.id),
-                description=f"Created new order {order.code}"
+                description=f"Created new order {order.order_code}"
             )
             
-            messages.success(request, f"Order {order.code} created successfully!")
+            messages.success(request, f"Order {order.order_code} created successfully!")
             return redirect('orders:order_detail', order_id=order.id)
     else:
         form = OrderForm(user=request.user)
         formset = OrderItemFormSet(prefix='items')
     
-    # Get available products based on user role
-    if user_role == 'Seller':
-        products = Product.objects.filter(seller=request.user)
-        sellers = None
-    else:
-        products = Product.objects.all()
-        sellers = User.objects.filter(primary_role__name='Seller')
+    # Get available products
+    products = Product.objects.all()
     
     return render(request, 'orders/create_order.html', {
         'form': form,
         'formset': formset,
-        'products': products,
-        'sellers': sellers
+        'products': products
     })
 
 @login_required
@@ -184,8 +190,6 @@ def update_order(request, order_id):
             
             # Recalculate total price
             total_price = sum(item.quantity * item.price for item in order.items.all())
-            order.total_price = total_price
-            order.save()
             
             # Create audit log
             AuditLog.objects.create(
@@ -193,21 +197,17 @@ def update_order(request, order_id):
                 action='update',
                 entity_type='Order',
                 entity_id=str(order.id),
-                description=f"Updated order {order.code}"
+                description=f"Updated order {order.order_code}"
             )
             
-            messages.success(request, f"Order {order.code} updated successfully!")
+            messages.success(request, f"Order {order.order_code} updated successfully!")
             return redirect('orders:order_detail', order_id=order.id)
     else:
         form = OrderForm(instance=order, user=request.user)
         formset = OrderItemFormSet(instance=order, prefix='items')
     
-    # Get available products based on user role
-    user_role = request.user.primary_role.name if request.user.primary_role else None
-    if user_role == 'Seller':
-        products = Product.objects.filter(seller=request.user)
-    else:
-        products = Product.objects.all()
+    # Get available products
+    products = Product.objects.all()
     
     return render(request, 'orders/update_order.html', {
         'form': form,
@@ -244,21 +244,7 @@ def update_order_status(request, order_id):
                 description=f"Changed order status from {old_status} to {order.status}"
             )
             
-            # Add tracking number if provided (for delivery status)
-            if 'tracking_number' in request.POST and request.POST['tracking_number'].strip():
-                order.tracking_number = request.POST['tracking_number']
-                
-                # Set delivery company if provided
-                if 'delivery_company' in request.POST and request.POST['delivery_company']:
-                    order.delivery_company = DeliveryCompany.objects.get(id=request.POST['delivery_company'])
-                
-                # Set delivery date for 'delivered' status
-                if order.status == 'delivered':
-                    order.delivery_date = timezone.now()
-                
-                order.save()
-            
-            messages.success(request, f"Order {order.code} status updated to {order.get_status_display()}!")
+            messages.success(request, f"Order {order.order_code} status updated to {order.get_status_display()}!")
             
             # If this is an AJAX request
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -278,7 +264,7 @@ def order_dashboard(request):
     # Different users see different metrics
     user_role = request.user.primary_role.name if request.user.primary_role else None
     if user_role == 'Seller':
-        orders = Order.objects.filter(seller=request.user)
+        orders = Order.objects.filter(seller_email=request.user.email)
     elif user_role in ['Super Admin', 'Admin']:
         orders = Order.objects.all()
     else:
@@ -289,7 +275,7 @@ def order_dashboard(request):
                     for status_code, status in Order.STATUS_CHOICES}
     
     # Get recent orders
-    recent_orders = orders.order_by('-created_at')[:10]
+    recent_orders = orders.order_by('-date')[:10]
     
     return render(request, 'orders/dashboard.html', {
         'total_orders': orders.count(),
@@ -306,12 +292,12 @@ def _can_edit_order(user, order):
         return True
     
     # Seller can only edit their own orders in certain statuses
-    if user_role == 'Seller' and order.seller == user:
-        return order.status in ['pending', 'confirmed', 'no_response', 'postponed']
+    if user_role == 'Seller' and order.seller_email == user.email:
+        return order.status in ['pending', 'processing', 'confirmed']
     
     # Call center agents can edit certain order statuses
     if user_role in ['Call Center Manager', 'Call Center Agent']:
-        return order.status in ['pending', 'confirmed', 'no_response', 'postponed']
+        return order.status in ['pending', 'processing', 'confirmed']
     
     return False
 
@@ -323,20 +309,20 @@ def _can_update_status(user, order):
         return True
     
     # Seller can update certain statuses of their own orders
-    if user_role == 'Seller' and order.seller == user:
-        return order.status in ['pending', 'confirmed', 'no_response', 'postponed', 'under_review', 'cancelled']
+    if user_role == 'Seller' and order.seller_email == user.email:
+        return order.status in ['pending', 'processing', 'confirmed', 'cancelled']
     
     # Call center can update confirmation statuses
     if user_role in ['Call Center Manager', 'Call Center Agent']:
-        return order.status in ['pending', 'confirmed', 'no_response', 'postponed']
+        return order.status in ['pending', 'processing', 'confirmed']
     
     # Packaging team can update packaging statuses
     if user_role == 'Packaging':
-        return order.status in ['ready_for_packaging', 'packaging_in_progress', 'ready_for_delivery']
+        return order.status in ['confirmed', 'processing', 'shipped']
     
     # Delivery team can update delivery statuses
     if user_role == 'Delivery':
-        return order.status in ['ready_for_delivery', 'in_delivery', 'delivered', 'returned']
+        return order.status in ['shipped', 'delivered', 'returned']
     
     return False
 
@@ -351,7 +337,7 @@ def _generate_order_code():
     code = f"ORD-{date_part}-{random_part}"
     
     # Ensure code is unique
-    while Order.objects.filter(code=code).exists():
+    while Order.objects.filter(order_code=code).exists():
         random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         code = f"ORD-{date_part}-{random_part}"
     
@@ -373,16 +359,16 @@ class OrderListView(LoginRequiredMixin, ListView):
         elif user_role in ['Super Admin', 'Admin']:
             queryset = Order.objects.all().order_by('-date')
         elif user_role == 'Seller':
-            queryset = Order.objects.filter(seller__user=self.request.user).order_by('-date')
+            queryset = Order.objects.filter(seller_email=self.request.user.email).order_by('-date')
         elif user_role in ['Call Center Manager', 'Call Center Agent']:
             # Call center sees pending and confirmed orders for follow-up
             queryset = Order.objects.filter(
-                status__in=['pending', 'processing']
+                status__in=['pending', 'processing', 'confirmed']
             ).order_by('-date')
         elif user_role == 'Packaging':
             # Packaging team sees orders ready for packaging
             queryset = Order.objects.filter(
-                status__in=['processing', 'shipped']
+                status__in=['confirmed', 'processing']
             ).order_by('-date')
         elif user_role == 'Delivery':
             # Delivery team sees orders ready for delivery and in delivery
@@ -402,12 +388,9 @@ class OrderListView(LoginRequiredMixin, ListView):
         if search_query:
             queryset = queryset.filter(
                 Q(order_code__icontains=search_query) |
-                Q(customer__first_name__icontains=search_query) |
-                Q(customer__last_name__icontains=search_query) |
+                Q(customer__icontains=search_query) |
                 Q(customer_phone__icontains=search_query) |
-                Q(product__name__icontains=search_query) |
-                Q(seller__name__icontains=search_query) |
-                Q(seller__phone__icontains=search_query)
+                Q(product__name_en__icontains=search_query)
             )
 
         if status_filter:
@@ -419,7 +402,7 @@ class OrderListView(LoginRequiredMixin, ListView):
         if date_to:
             queryset = queryset.filter(date__date__lte=date_to)
 
-        return queryset.select_related('customer', 'product', 'seller', 'seller__user')
+        return queryset.select_related('product')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -455,14 +438,12 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         order = form.save(commit=False)
         
-        # Set the seller based on user role
+        # Set the seller email based on user role
         user_role = self.request.user.primary_role.name if self.request.user.primary_role else None
         if user_role == 'Seller':
-            # For sellers, set their seller profile
-            if hasattr(self.request.user, 'seller_profile'):
-                order.seller = self.request.user.seller_profile
-        elif form.cleaned_data.get('seller'):
-            order.seller = form.cleaned_data['seller']
+            order.seller_email = self.request.user.email
+        elif form.cleaned_data.get('seller_email'):
+            order.seller_email = form.cleaned_data['seller_email']
         
         # Generate order code if not provided
         if not order.order_code:
@@ -471,7 +452,6 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
         order.save()
         
         # Create audit log
-        from users.models import AuditLog
         AuditLog.objects.create(
             user=self.request.user,
             action='create',
@@ -486,15 +466,8 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Get available products based on user role
-        user_role = self.request.user.primary_role.name if self.request.user.primary_role else None
-        if user_role == 'Seller':
-            from products.models import Product
-            products = Product.objects.all()  # Sellers can see all products
-        else:
-            from products.models import Product
-            products = Product.objects.all()
-        
+        # Get available products
+        products = Product.objects.all()
         context['products'] = products
         return context
 
@@ -508,14 +481,146 @@ class OrderUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, 'Order updated successfully.')
         return super().form_valid(form)
 
+@login_required
+def download_template(request):
+    """Download CSV template for order import."""
+    # Create the response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="orders_import_template.csv"'
+    
+    # Create CSV writer
+    writer = csv.writer(response)
+    
+    # Write header row based on the template format
+    writer.writerow([
+        'NA',  # Order Code/Number
+        'Name',  # Customer Name
+        'Mobile number',  # Customer Phone
+        'Address',  # Shipping Address
+        'Proudact ID',  # Product ID (note: keeping the typo as in template)
+        'Quantity',  # Quantity
+        'Price',  # Price Per Unit
+        'Proudact variant',  # Product variant (note: keeping the typo as in template)
+        'Notes',  # Order Notes
+        'Date of order'  # Order Date
+    ])
+    
+    # Add a sample row
+    writer.writerow([
+        'ORD-12345678',  # Order Code
+        'John Doe',  # Customer Name
+        '+971501234567',  # Mobile number
+        'Dubai, UAE',  # Address
+        'PROD-001',  # Product ID
+        '2',  # Quantity
+        '150.00',  # Price
+        'Red, Large',  # Product variant
+        'Customer requested express delivery',  # Notes
+        '2024-01-15'  # Date of order
+    ])
+    
+    return response
+
 def import_orders(request):
     if request.method == 'POST':
         form = OrderImportForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                form.save()
-                messages.success(request, 'Orders imported successfully.')
-                return redirect('orders:list')
+                file = form.cleaned_data['file']
+                
+                # Handle CSV file
+                if file.name.endswith('.csv'):
+                    decoded_file = file.read().decode('utf-8')
+                    csv_data = csv.reader(io.StringIO(decoded_file))
+                    
+                    # Skip header row
+                    next(csv_data)
+                    
+                    success_count = 0
+                    error_count = 0
+                    errors = []
+                    
+                    for row_num, row in enumerate(csv_data, start=2):  # Start from 2 because we skipped header
+                        try:
+                            if len(row) < 10:  # Ensure we have all required columns
+                                errors.append(f"Row {row_num}: Insufficient columns")
+                                error_count += 1
+                                continue
+                            
+                            # Parse row data
+                            order_code = row[0].strip() if row[0] else None
+                            customer_name = row[1].strip() if row[1] else 'Unknown Customer'
+                            mobile_number = row[2].strip() if row[2] else ''
+                            address = row[3].strip() if row[3] else ''
+                            product_id = row[4].strip() if row[4] else None
+                            quantity = int(row[5]) if row[5] and row[5].isdigit() else 1
+                            price = float(row[6]) if row[6] and row[6].replace('.', '').isdigit() else 0.0
+                            product_variant = row[7].strip() if row[7] else ''
+                            notes = row[8].strip() if row[8] else ''
+                            order_date_str = row[9].strip() if row[9] else ''
+                            
+                            # Parse order date
+                            try:
+                                if order_date_str:
+                                    order_date = datetime.strptime(order_date_str, '%Y-%m-%d')
+                                else:
+                                    order_date = timezone.now()
+                            except ValueError:
+                                order_date = timezone.now()
+                            
+                            # Find product by ID
+                            product = None
+                            if product_id:
+                                try:
+                                    product = Product.objects.get(code=product_id)
+                                except Product.DoesNotExist:
+                                    # Try to find by name if code doesn't exist
+                                    product = Product.objects.filter(name_en__icontains=product_id).first()
+                            
+                            # Create order
+                            order = Order.objects.create(
+                                order_code=order_code or _generate_order_code(),
+                                customer=customer_name,
+                                customer_phone=mobile_number,
+                                shipping_address=address,
+                                product=product,
+                                quantity=quantity,
+                                price_per_unit=price,
+                                notes=notes,
+                                date=order_date,
+                                status='pending'
+                            )
+                            
+                            success_count += 1
+                            
+                            # Create audit log
+                            AuditLog.objects.create(
+                                user=request.user,
+                                action='import',
+                                entity_type='Order',
+                                entity_id=str(order.id),
+                                description=f"Imported order {order.order_code} from CSV"
+                            )
+                            
+                        except Exception as e:
+                            errors.append(f"Row {row_num}: {str(e)}")
+                            error_count += 1
+                    
+                    # Show results
+                    if success_count > 0:
+                        messages.success(request, f'Successfully imported {success_count} orders.')
+                    if error_count > 0:
+                        messages.warning(request, f'Failed to import {error_count} orders. Check the errors below.')
+                        for error in errors[:5]:  # Show first 5 errors
+                            messages.error(request, error)
+                        if len(errors) > 5:
+                            messages.error(request, f'... and {len(errors) - 5} more errors.')
+                    
+                    return redirect('orders:list')
+                    
+                else:
+                    messages.error(request, 'Only CSV files are supported for now.')
+                    
             except Exception as e:
                 messages.error(request, f'Error importing orders: {str(e)}')
     else:

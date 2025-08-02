@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Order Detail" %} - ORD-{{ order.id|stringformat:"06d" }}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-file-alt text-primary-600 mr-3"></i>
+                    {% trans "Order Detail" %} - ORD-{{ order.id|stringformat:"06d" }}
+                </h1>
+                <p class="text-gray-600 mt-1">{% trans "Comprehensive order information and management" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'callcenter:manager_order_list' %}" class="btn-secondary">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    {% trans "Back to Orders" %}
+                </a>
+                <button onclick="assignOrder({{ order.id }})" class="btn-primary">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    {% trans "Assign Order" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Order Details -->
+        <div class="lg:col-span-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Order Information" %}</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">{% trans "Customer Details" %}</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Customer Name" %}:</span>
+                                    <span class="font-medium">{{ order.customer }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Phone" %}:</span>
+                                    <span class="font-medium">{{ order.customer_phone|default:"N/A" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Address" %}:</span>
+                                    <span class="font-medium">{{ order.shipping_address|default:"N/A" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "City" %}:</span>
+                                    <span class="font-medium">{{ order.city|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">{% trans "Product Details" %}</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Product" %}:</span>
+                                    <span class="font-medium">{{ order.product.name_en|default:"N/A" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Product Code" %}:</span>
+                                    <span class="font-medium">{{ order.product.code|default:"N/A" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Quantity" %}:</span>
+                                    <span class="font-medium">{{ order.quantity|default:"1" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Price per Unit" %}:</span>
+                                    <span class="font-medium">AED {{ order.price_per_unit|default:"0" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">{% trans "Total Price" %}:</span>
+                                    <span class="font-medium text-lg text-primary-600">AED {{ order.total_price|default:"0" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="font-medium text-gray-900 mb-3">{% trans "Order Status & Timeline" %}</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-sm text-gray-600">{% trans "Order Date" %}</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ order.date|date:"M d, Y" }}</div>
+                                <div class="text-xs text-gray-500">{{ order.date|date:"H:i" }}</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-sm text-gray-600">{% trans "Current Status" %}</div>
+                                <div class="text-lg font-semibold">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                        {% if order.status == 'confirmed' %}bg-green-100 text-green-800
+                                        {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ order.status|title }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-sm text-gray-600">{% trans "Last Updated" %}</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ order.updated_at|date:"M d, Y" }}</div>
+                                <div class="text-xs text-gray-500">{{ order.updated_at|date:"H:i" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if order.notes or order.internal_notes %}
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="font-medium text-gray-900 mb-3">{% trans "Notes" %}</h4>
+                        {% if order.notes %}
+                        <div class="mb-4">
+                            <div class="text-sm text-gray-600 mb-1">{% trans "Customer Notes" %}:</div>
+                            <div class="p-3 bg-blue-50 rounded-lg text-sm">{{ order.notes }}</div>
+                        </div>
+                        {% endif %}
+                        {% if order.internal_notes %}
+                        <div>
+                            <div class="text-sm text-gray-600 mb-1">{% trans "Internal Notes" %}:</div>
+                            <div class="p-3 bg-yellow-50 rounded-lg text-sm">{{ order.internal_notes }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Actions & Status -->
+        <div class="space-y-6">
+            <!-- Current Assignment -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Current Assignment" %}</h3>
+                </div>
+                <div class="p-6">
+                    {% if assignments %}
+                        {% for assignment in assignments %}
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-primary-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ assignment.agent.get_full_name }}</div>
+                                    <div class="text-sm text-gray-500">{% trans "Assigned" %} {{ assignment.assignment_date|date:"M d, H:i" }}</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">{% trans "Priority" %}:</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                        {% if assignment.priority_level == 'urgent' %}bg-red-100 text-red-800
+                                        {% elif assignment.priority_level == 'high' %}bg-orange-100 text-orange-800
+                                        {% elif assignment.priority_level == 'medium' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-green-100 text-green-800{% endif %}">
+                                        {{ assignment.priority_level|title }}
+                                    </span>
+                                </div>
+                                {% if assignment.expected_completion %}
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">{% trans "Expected Completion" %}:</span>
+                                    <span class="text-sm font-medium">{{ assignment.expected_completion|date:"M d, H:i" }}</span>
+                                </div>
+                                {% endif %}
+                                {% if assignment.manager_notes %}
+                                <div>
+                                    <div class="text-sm text-gray-600 mb-1">{% trans "Manager Notes" %}:</div>
+                                    <div class="p-2 bg-gray-50 rounded text-sm">{{ assignment.manager_notes }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-user-plus text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500">{% trans "No agent assigned" %}</p>
+                            <button onclick="assignOrder({{ order.id }})" class="btn-primary mt-4">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                {% trans "Assign Agent" %}
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        <button onclick="addNote({{ order.id }})" class="w-full btn-secondary">
+                            <i class="fas fa-sticky-note mr-2"></i>
+                            {% trans "Add Note" %}
+                        </button>
+                        <button onclick="reassignOrder({{ order.id }})" class="w-full btn-secondary">
+                            <i class="fas fa-user-edit mr-2"></i>
+                            {% trans "Reassign Order" %}
+                        </button>
+                        <button onclick="updateStatus({{ order.id }})" class="w-full btn-secondary">
+                            <i class="fas fa-edit mr-2"></i>
+                            {% trans "Update Status" %}
+                        </button>
+                        <button onclick="viewHistory({{ order.id }})" class="w-full btn-secondary">
+                            <i class="fas fa-history mr-2"></i>
+                            {% trans "View History" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call Logs -->
+    {% if call_logs %}
+    <div class="card mb-8">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Call History" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for call in call_logs %}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-phone text-blue-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">{{ call.agent.get_full_name }}</div>
+                                <div class="text-sm text-gray-500">{{ call.call_time|date:"M d, Y H:i" }}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if call.status == 'completed' %}bg-green-100 text-green-800
+                                {% elif call.status == 'no_answer' %}bg-yellow-100 text-yellow-800
+                                {% elif call.status == 'busy' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ call.get_status_display }}
+                            </span>
+                            {% if call.duration %}
+                            <span class="text-sm text-gray-500">{{ call.duration }}s</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if call.notes %}
+                    <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded">
+                        {{ call.notes }}
+                    </div>
+                    {% endif %}
+                    {% if call.customer_satisfaction %}
+                    <div class="mt-2 flex items-center">
+                        <span class="text-sm text-gray-600 mr-2">{% trans "Satisfaction" %}:</span>
+                        <div class="flex space-x-1">
+                            {% for i in "12345" %}
+                            <i class="fas fa-star {% if forloop.counter <= call.customer_satisfaction %}text-yellow-400{% else %}text-gray-300{% endif %} text-xs"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function assignOrder(orderId) {
+    // Redirect to assignment page or open modal
+    window.location.href = `/callcenter/manager/orders/${orderId}/assign/`;
+}
+
+function addNote(orderId) {
+    // Implement add note functionality
+    alert('Add note functionality coming soon!');
+}
+
+function reassignOrder(orderId) {
+    // Implement reassign functionality
+    alert('Reassign functionality coming soon!');
+}
+
+function updateStatus(orderId) {
+    // Implement status update functionality
+    alert('Status update functionality coming soon!');
+}
+
+function viewHistory(orderId) {
+    // Implement history view functionality
+    alert('History view functionality coming soon!');
+}
+</script>
+{% endblock %} 

@@ -8,17 +8,11 @@ User = get_user_model()
 class Role(models.Model):
     """Role model for managing user roles and permissions"""
     
-    ROLE_TYPES = (
-        ('super_admin', _('Super Admin')),
-        ('seller', _('Seller')),
-    )
-    
     name = models.CharField(_('Role Name'), max_length=100, unique=True)
-    role_type = models.CharField(_('Role Type'), max_length=50, choices=ROLE_TYPES)
     description = models.TextField(_('Description'), blank=True, null=True)
     is_active = models.BooleanField(_('Active'), default=True)
     is_default = models.BooleanField(_('Default Role'), default=False)
-    is_protected = models.BooleanField(_('Protected Role'), default=False, help_text=_('Protected roles cannot be deleted'))
+    is_protected = models.BooleanField(_('Protected Role'), default=True, help_text=_('Protected roles cannot be deleted'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
@@ -66,6 +60,12 @@ class Permission(models.Model):
         ('read', _('Read')),
         ('update', _('Update')),
         ('delete', _('Delete')),
+        ('export', _('Export')),
+        ('import', _('Import')),
+        ('approve', _('Approve')),
+        ('reject', _('Reject')),
+        ('assign', _('Assign')),
+        ('manage', _('Manage')),
     )
     
     name = models.CharField(_('Permission Name'), max_length=100)
@@ -73,6 +73,7 @@ class Permission(models.Model):
     description = models.TextField(_('Description'), blank=True, null=True)
     permission_type = models.CharField(_('Permission Type'), max_length=20, choices=PERMISSION_TYPES)
     module = models.CharField(_('Module'), max_length=50)  # e.g., 'dashboard', 'orders', 'inventory'
+    model_name = models.CharField(_('Model Name'), max_length=50, blank=True)  # e.g., 'Order', 'Product'
     is_active = models.BooleanField(_('Active'), default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     

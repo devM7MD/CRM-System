@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Product - {{ product.name_en }}{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-900">
+    <!-- Page Header -->
+    <div class="bg-yellow-400 dark:bg-yellow-600 shadow-lg">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Product</h1>
+                <div class="flex space-x-3">
+                    <a href="{% url 'sellers:product_detail' product.id %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-eye mr-2"></i>View Product
+                    </a>
+                    <a href="{% url 'sellers:products' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Products
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Form -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <!-- Basic Information -->
+                        <div class="sm:col-span-6">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white">Basic Information</h3>
+                        </div>
+
+                        <!-- Product Name -->
+                        <div class="sm:col-span-3">
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Name (English)</label>
+                            <div class="mt-1">
+                                <input type="text" name="name" id="name" value="{{ product.name_en }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                            </div>
+                        </div>
+
+                        <!-- Product Name (Arabic) -->
+                        <div class="sm:col-span-3">
+                            <label for="name_ar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Name (Arabic)</label>
+                            <div class="mt-1">
+                                <input type="text" name="name_ar" id="name_ar" value="{{ product.name_ar }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <!-- SKU -->
+                        <div class="sm:col-span-2">
+                            <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">SKU/Product Code</label>
+                            <div class="mt-1">
+                                <input type="text" name="code" id="code" value="{{ product.code }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md bg-gray-100" readonly>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">SKU cannot be changed after creation.</p>
+                        </div>
+
+                        <!-- Current Image Preview -->
+                        <div class="sm:col-span-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Image</label>
+                            <div class="mt-1">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name_en }}" class="h-32 w-32 object-cover rounded-lg border">
+                                {% else %}
+                                    <div class="h-32 w-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- New Image Upload -->
+                        <div class="sm:col-span-6">
+                            <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Update Product Image</label>
+                            <div class="mt-1">
+                                <input type="file" name="image" id="image" accept="image/*" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Leave empty to keep the current image.</p>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="sm:col-span-6">
+                            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description (English)</label>
+                            <div class="mt-1">
+                                <textarea id="description" name="description" rows="3" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">{{ product.description }}</textarea>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Brief description of the product.</p>
+                        </div>
+
+                        <!-- Pricing -->
+                        <div class="sm:col-span-6">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white">Pricing Information</h3>
+                        </div>
+
+                        <!-- Selling Price -->
+                        <div class="sm:col-span-3">
+                            <label for="selling_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Selling Price (AED)</label>
+                            <div class="mt-1">
+                                <input type="number" name="selling_price" id="selling_price" value="{{ product.selling_price }}" step="0.01" min="0" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                            </div>
+                        </div>
+
+                        <!-- Purchase Price -->
+                        <div class="sm:col-span-3">
+                            <label for="purchase_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Purchase Price (AED)</label>
+                            <div class="mt-1">
+                                <input type="number" name="purchase_price" id="purchase_price" value="{{ product.purchase_price|default:'' }}" step="0.01" min="0" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Optional: Cost price for profit calculation.</p>
+                        </div>
+
+                        <!-- Product Link -->
+                        <div class="sm:col-span-6">
+                            <label for="product_link" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Link</label>
+                            <div class="mt-1">
+                                <input type="url" name="product_link" id="product_link" value="{{ product.product_link }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Optional: Link to the product on your store or marketplace.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-right sm:px-6">
+                    <div class="flex justify-between">
+                        <a href="{% url 'sellers:product_detail' product.id %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                            Cancel
+                        </a>
+                        <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-save mr-2"></i>Update Product
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Preview image before upload
+document.getElementById('image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.querySelector('img[src*="{{ product.image.url }}"]');
+            if (preview) {
+                preview.src = e.target.result;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %} 

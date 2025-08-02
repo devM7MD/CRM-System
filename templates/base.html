@@ -659,7 +659,9 @@
                 <div class="mb-6 pb-4 border-b border-gray-600">
                     <div class="text-center">
                         <h2 class="text-xl font-bold text-yellow-400 mb-1">Atlas Fulfillment</h2>
-                        {% if user.get_primary_role %}
+                        {% if 'users:edit' in request.resolver_match.url_name or 'users:detail' in request.resolver_match.url_name %}
+                            <p class="text-sm text-gray-300">Admin Panel</p>
+                        {% elif user.get_primary_role %}
                         <p class="text-sm text-gray-300">{{ user.get_primary_role.name }}</p>
                         {% else %}
                         <p class="text-sm text-gray-300">User</p>
@@ -668,6 +670,114 @@
                 </div>
                 
                 <ul class="space-y-2">
+                    <!-- Admin Panel for User Management -->
+                    {% if 'users:edit' in request.resolver_match.url_name or 'users:detail' in request.resolver_match.url_name %}
+                    <li>
+                        <a href="{% url 'users:list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'users:list' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-users w-6"></i>
+                            <span class="ml-3">{% trans "User Management" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'dashboard:index' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'dashboard:index' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt w-6"></i>
+                            <span class="ml-3">{% trans "Admin Dashboard" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'users:create' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'users:create' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-user-plus w-6"></i>
+                            <span class="ml-3">{% trans "Create User" %}</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Call Center Agent Specific Sidebar -->
+                    {% elif user.has_role_call_center_agent %}
+                    <li>
+                        <a href="{% url 'callcenter:agent_dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'agent_dashboard' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt w-6"></i>
+                            <span class="ml-3">{% trans "Dashboard" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'callcenter:agent_order_list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'agent_order_list' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-shopping-cart w-6"></i>
+                            <span class="ml-3">{% trans "Orders" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'callcenter:agent_reports' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'agent_reports' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-chart-bar w-6"></i>
+                            <span class="ml-3">{% trans "Reports" %}</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Call Center Manager Specific Sidebar -->
+                    {% elif user.has_role_call_center_manager %}
+                    <li>
+                        <a href="{% url 'callcenter:manager_dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'manager_dashboard' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt w-6"></i>
+                            <span class="ml-3">{% trans "Dashboard" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'callcenter:manager_order_list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'manager_order_list' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-shopping-cart w-6"></i>
+                            <span class="ml-3">{% trans "Orders" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'callcenter:manager_agent_reports' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'manager_agent_reports' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-chart-bar w-6"></i>
+                            <span class="ml-3">{% trans "Reports" %}</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Accountant Sidebar -->
+                    {% elif user.has_role_accountant %}
+                    <li>
+                        <a href="{% url 'finance:accountant_dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'accountant_dashboard' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt w-6"></i>
+                            <span class="ml-3">{% trans "Dashboard" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'finance:order_management' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'order_management' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-calculator w-6"></i>
+                            <span class="ml-3">{% trans "Order Management" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'finance:payment_processing' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'payment_processing' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-credit-card w-6"></i>
+                            <span class="ml-3">{% trans "Payment Processing" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'finance:financial_reports' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'financial_reports' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-chart-line w-6"></i>
+                            <span class="ml-3">{% trans "Financial Reports" %}</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'finance:bank_reconciliation' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'bank_reconciliation' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-university w-6"></i>
+                            <span class="ml-3">{% trans "Bank Reconciliation" %}</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Default Sidebar for other roles -->
+                    {% else %}
                     <li>
                         <a href="{% url 'dashboard:index' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                             <i class="fas fa-tachometer-alt w-6"></i>
@@ -696,12 +806,22 @@
                         </a>
                     </li>
                     
+                    {% if user.has_role_call_center_manager or user.has_role_call_center_agent or user.has_role_admin or user.is_superuser %}
                     <li>
                         <a href="{% url 'callcenter:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'callcenter' in request.path %}active{% endif %}">
                             <i class="fas fa-headset w-6"></i>
-                            <span class="ml-3">{% trans "Call Center" %}</span>
+                            <span class="ml-3">
+                                {% if user.has_role_call_center_manager %}
+                                    {% trans "Call Center Manager" %}
+                                {% elif user.has_role_call_center_agent %}
+                                    {% trans "Call Center Agent" %}
+                                {% else %}
+                                    {% trans "Call Center" %}
+                                {% endif %}
+                            </span>
                         </a>
                     </li>
+                    {% endif %}
                     
                     <li>
                         <a href="{% url 'packaging:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'packaging' in request.path %}active{% endif %}">
@@ -718,7 +838,7 @@
                     </li>
                     
                     <li>
-                        <a href="{% url 'finance:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'finance' in request.path %}active{% endif %}">
+                        <a href="{% url 'finance:accountant_dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'finance' in request.path %}active{% endif %}">
                             <i class="fas fa-money-bill-wave w-6"></i>
                             <span class="ml-3">{% trans "Finance" %}</span>
                         </a>
@@ -730,17 +850,11 @@
                             <span class="ml-3">{% trans "Sellers" %}</span>
                         </a>
                     </li>
+                    
                     <li>
                         <a href="{% url 'subscribers:list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'subscribers' in request.path %}active{% endif %}">
                             <i class="fas fa-user-friends w-6"></i>
                             <span class="ml-3">{% trans "Subscribers" %}</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'followup:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'followup' in request.path %}active{% endif %}">
-                            <i class="fas fa-clipboard-check w-6"></i>
-                            <span class="ml-3">{% trans "Follow-up" %}</span>
                         </a>
                     </li>
                     
@@ -751,15 +865,13 @@
                             <span class="ml-3">{% trans "Roles" %}</span>
                         </a>
                     </li>
-                    {% endif %}
-                    
-                    {% if user.is_staff %}
-                    <li class="pt-4 mt-4 border-t border-gray-600">
-                        <a href="{% url 'admin:index' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'admin' in request.path %}active{% endif %}">
-                            <i class="fas fa-cogs w-6"></i>
-                            <span class="ml-3">{% trans "Admin Panel" %}</span>
+                    <li>
+                        <a href="{% url 'roles:permission_list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'permissions' in request.path %}active{% endif %}">
+                            <i class="fas fa-shield-alt w-6"></i>
+                            <span class="ml-3">{% trans "Permissions" %}</span>
                         </a>
                     </li>
+                    {% endif %}
                     {% endif %}
                 </ul>
                 <!-- Beta Warning and Report Bug Button -->

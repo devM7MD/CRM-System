@@ -11,73 +11,63 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Setting up initial roles and permissions...')
         
-        # Create roles
+        # Create roles based on task folders
         roles_data = [
             {
                 'name': 'Super Admin',
                 'role_type': 'super_admin',
-                'description': 'System Super Administrator with full access to all features',
-                'is_default': True,
+                'description': 'System Super Administrator with full access to all features and system settings',
+                'is_default': False,
+                'is_protected': True,
             },
             {
                 'name': 'Admin',
                 'role_type': 'admin',
-                'description': 'System Administrator with administrative privileges',
+                'description': 'System Administrator with administrative privileges and user management',
                 'is_default': False,
+                'is_protected': True,
             },
             {
                 'name': 'Seller',
                 'role_type': 'seller',
-                'description': 'Product seller with inventory and order management access',
-                'is_default': False,
-            },
-            {
-                'name': 'Livreur',
-                'role_type': 'livreur',
-                'description': 'Delivery personnel responsible for order delivery',
-                'is_default': False,
+                'description': 'Product seller with inventory, orders, sales channels, sourcing, delivery, and financial management access',
+                'is_default': True,
+                'is_protected': True,
             },
             {
                 'name': 'Accountant',
                 'role_type': 'accountant',
-                'description': 'Financial accountant with access to financial reports',
+                'description': 'Financial accountant with access to financial reports, payments, and accounting features',
                 'is_default': False,
+                'is_protected': True,
             },
             {
-                'name': 'Stock Manager',
-                'role_type': 'stock_manager',
-                'description': 'Inventory manager responsible for stock management',
+                'name': 'Call Center Agent',
+                'role_type': 'call_center_agent',
+                'description': 'Customer service representative for phone support and order management',
                 'is_default': False,
-            },
-            {
-                'name': 'Teleconsultant',
-                'role_type': 'teleconsultant',
-                'description': 'Customer service representative for phone support',
-                'is_default': False,
+                'is_protected': True,
             },
             {
                 'name': 'Call Center Manager',
-                'role_type': 'callcenter_manager',
-                'description': 'Manager of call center operations and staff',
+                'role_type': 'call_center_manager',
+                'description': 'Manager of call center operations, staff management, and performance monitoring',
                 'is_default': False,
+                'is_protected': True,
             },
             {
-                'name': 'Unreached Teleconsultant',
-                'role_type': 'unreached',
-                'description': 'Specialist for handling unreached customer contacts',
+                'name': 'Delivery Agent',
+                'role_type': 'delivery_agent',
+                'description': 'Delivery personnel responsible for order delivery and tracking',
                 'is_default': False,
+                'is_protected': True,
             },
             {
-                'name': 'WhatsApp',
-                'role_type': 'whatsapp',
-                'description': 'WhatsApp customer service representative',
+                'name': 'Stock Keeper',
+                'role_type': 'stock_keeper',
+                'description': 'Inventory manager responsible for stock management, warehouse operations, and inventory tracking',
                 'is_default': False,
-            },
-            {
-                'name': 'Sourcing',
-                'role_type': 'sourcing',
-                'description': 'Sourcing specialist for product procurement',
-                'is_default': False,
+                'is_protected': True,
             },
         ]
         
@@ -87,11 +77,16 @@ class Command(BaseCommand):
                 name=role_data['name'],
                 defaults=role_data
             )
+            # Update existing roles to be protected
+            if not created:
+                role.is_protected = True
+                role.save()
+            
             created_roles[role.name] = role
             if created:
                 self.stdout.write(f'Created role: {role.name}')
             else:
-                self.stdout.write(f'Role already exists: {role.name}')
+                self.stdout.write(f'Updated role: {role.name} (now protected)')
         
         # Create permissions
         permissions_data = [
@@ -134,6 +129,30 @@ class Command(BaseCommand):
             {'name': 'Create Sourcing Requests', 'codename': 'create_sourcing_requests', 'permission_type': 'create', 'module': 'sourcing'},
             {'name': 'Edit Sourcing Requests', 'codename': 'edit_sourcing_requests', 'permission_type': 'update', 'module': 'sourcing'},
             {'name': 'Delete Sourcing Requests', 'codename': 'delete_sourcing_requests', 'permission_type': 'delete', 'module': 'sourcing'},
+            
+            # Delivery permissions
+            {'name': 'View Delivery', 'codename': 'view_delivery', 'permission_type': 'read', 'module': 'delivery'},
+            {'name': 'Create Deliveries', 'codename': 'create_deliveries', 'permission_type': 'create', 'module': 'delivery'},
+            {'name': 'Edit Deliveries', 'codename': 'edit_deliveries', 'permission_type': 'update', 'module': 'delivery'},
+            {'name': 'Delete Deliveries', 'codename': 'delete_deliveries', 'permission_type': 'delete', 'module': 'delivery'},
+            
+            # Call Center permissions
+            {'name': 'View Call Center', 'codename': 'view_callcenter', 'permission_type': 'read', 'module': 'callcenter'},
+            {'name': 'Create Call Logs', 'codename': 'create_call_logs', 'permission_type': 'create', 'module': 'callcenter'},
+            {'name': 'Edit Call Logs', 'codename': 'edit_call_logs', 'permission_type': 'update', 'module': 'callcenter'},
+            {'name': 'Delete Call Logs', 'codename': 'delete_call_logs', 'permission_type': 'delete', 'module': 'callcenter'},
+            
+            # Packaging permissions
+            {'name': 'View Packaging', 'codename': 'view_packaging', 'permission_type': 'read', 'module': 'packaging'},
+            {'name': 'Create Packaging Records', 'codename': 'create_packaging_records', 'permission_type': 'create', 'module': 'packaging'},
+            {'name': 'Edit Packaging Records', 'codename': 'edit_packaging_records', 'permission_type': 'update', 'module': 'packaging'},
+            {'name': 'Delete Packaging Records', 'codename': 'delete_packaging_records', 'permission_type': 'delete', 'module': 'packaging'},
+            
+            # Bug Reports permissions
+            {'name': 'View Bug Reports', 'codename': 'view_bug_reports', 'permission_type': 'read', 'module': 'bug_reports'},
+            {'name': 'Create Bug Reports', 'codename': 'create_bug_reports', 'permission_type': 'create', 'module': 'bug_reports'},
+            {'name': 'Edit Bug Reports', 'codename': 'edit_bug_reports', 'permission_type': 'update', 'module': 'bug_reports'},
+            {'name': 'Delete Bug Reports', 'codename': 'delete_bug_reports', 'permission_type': 'delete', 'module': 'bug_reports'},
         ]
         
         created_permissions = {}
@@ -148,58 +167,56 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f'Permission already exists: {permission.name}')
         
-        # Assign permissions to roles
+        # Assign permissions to roles based on task folders
         role_permissions = {
             'Super Admin': [perm.codename for perm in created_permissions.values()],  # All permissions
             'Admin': [
                 'view_dashboard', 'access_analytics',
                 'view_users', 'create_users', 'edit_users',
+                'view_roles', 'create_roles', 'edit_roles',
                 'view_orders', 'create_orders', 'edit_orders',
                 'view_inventory', 'create_products', 'edit_products',
                 'view_finance', 'create_payments', 'edit_payments',
                 'view_sourcing', 'create_sourcing_requests', 'edit_sourcing_requests',
+                'view_delivery', 'create_deliveries', 'edit_deliveries',
+                'view_callcenter', 'create_call_logs', 'edit_call_logs',
+                'view_packaging', 'create_packaging_records', 'edit_packaging_records',
+                'view_bug_reports', 'create_bug_reports', 'edit_bug_reports',
             ],
             'Seller': [
                 'view_dashboard',
                 'view_orders', 'create_orders', 'edit_orders',
                 'view_inventory', 'create_products', 'edit_products',
-                'view_sourcing', 'create_sourcing_requests',
-            ],
-            'Livreur': [
-                'view_dashboard',
-                'view_orders', 'edit_orders',
+                'view_sourcing', 'create_sourcing_requests', 'edit_sourcing_requests',
+                'view_delivery', 'create_deliveries', 'edit_deliveries',
+                'view_finance', 'create_payments', 'edit_payments',
             ],
             'Accountant': [
                 'view_dashboard',
-                'view_finance', 'create_payments', 'edit_payments',
+                'view_finance', 'create_payments', 'edit_payments', 'delete_payments',
                 'view_orders',
             ],
-            'Stock Manager': [
-                'view_dashboard',
-                'view_inventory', 'create_products', 'edit_products', 'delete_products',
-                'view_orders',
-            ],
-            'Teleconsultant': [
+            'Call Center Agent': [
                 'view_dashboard',
                 'view_orders', 'edit_orders',
+                'view_callcenter', 'create_call_logs', 'edit_call_logs',
             ],
             'Call Center Manager': [
                 'view_dashboard',
                 'view_orders', 'create_orders', 'edit_orders',
+                'view_callcenter', 'create_call_logs', 'edit_call_logs', 'delete_call_logs',
                 'view_users',
             ],
-            'Unreached Teleconsultant': [
+            'Delivery Agent': [
                 'view_dashboard',
                 'view_orders', 'edit_orders',
+                'view_delivery', 'create_deliveries', 'edit_deliveries',
             ],
-            'WhatsApp': [
+            'Stock Keeper': [
                 'view_dashboard',
-                'view_orders', 'edit_orders',
-            ],
-            'Sourcing': [
-                'view_dashboard',
-                'view_sourcing', 'create_sourcing_requests', 'edit_sourcing_requests',
-                'view_inventory',
+                'view_inventory', 'create_products', 'edit_products', 'delete_products',
+                'view_orders',
+                'view_packaging', 'create_packaging_records', 'edit_packaging_records',
             ],
         }
         
@@ -220,71 +237,6 @@ class Command(BaseCommand):
                         )
                 
                 self.stdout.write(f'Assigned {len(permission_codenames)} permissions to {role_name}')
-        
-        # Create sample users with roles
-        sample_users = [
-            {
-                'email': 'seller@atlas.com',
-                'full_name': 'Ahmed Al Mansouri',
-                'phone_number': '+971501234567',
-                'role': 'Seller',
-                'company_name': 'Atlas Trading Co.',
-                'country': 'UAE',
-            },
-            {
-                'email': 'accountant@atlas.com',
-                'full_name': 'Fatima Al Zahra',
-                'phone_number': '+971502345678',
-                'role': 'Accountant',
-                'company_name': 'Atlas Trading Co.',
-                'country': 'UAE',
-            },
-            {
-                'email': 'stock@atlas.com',
-                'full_name': 'Omar Al Rashid',
-                'phone_number': '+971503456789',
-                'role': 'Stock Manager',
-                'company_name': 'Atlas Trading Co.',
-                'country': 'UAE',
-            },
-            {
-                'email': 'delivery@atlas.com',
-                'full_name': 'Khalid Al Qasimi',
-                'phone_number': '+971504567890',
-                'role': 'Livreur',
-                'company_name': 'Atlas Trading Co.',
-                'country': 'UAE',
-            },
-        ]
-        
-        for user_data in sample_users:
-            role_name = user_data.pop('role')
-            user, created = User.objects.get_or_create(
-                email=user_data['email'],
-                defaults={
-                    **user_data,
-                    'is_active': True,
-                    'is_staff': False,
-                }
-            )
-            
-            if created:
-                user.set_password('Atlas123!')
-                user.save()
-                
-                # Assign role
-                if role_name in created_roles:
-                    from roles.models import UserRole
-                    UserRole.objects.create(
-                        user=user,
-                        role=created_roles[role_name],
-                        is_primary=True,
-                        is_active=True
-                    )
-                
-                self.stdout.write(f'Created user: {user.email} with role: {role_name}')
-            else:
-                self.stdout.write(f'User already exists: {user.email}')
         
         self.stdout.write(
             self.style.SUCCESS('Successfully set up roles and permissions!')

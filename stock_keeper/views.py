@@ -312,7 +312,7 @@ def ship_orders(request):
     # Get orders ready for shipping
     ready_orders = Order.objects.filter(
         status='processing'
-    ).select_related('customer', 'product')
+    ).select_related('product')
     
     context = {
         'ready_orders': ready_orders,

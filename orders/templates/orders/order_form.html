@@ -49,6 +49,16 @@
                     </div>
 
                     <div>
+                        <label for="{{ form.date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {% trans "Order Date" %}
+                        </label>
+                        {{ form.date }}
+                        {% if form.date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
                         <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
                             {% trans "Status" %}
                         </label>
@@ -85,7 +95,7 @@
 
                     <div>
                         <label for="{{ form.price_per_unit.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                            {% trans "Price Per Unit" %}
+                            {% trans "Price Per Unit (AED)" %}
                         </label>
                         {{ form.price_per_unit }}
                         {% if form.price_per_unit.errors %}
@@ -94,27 +104,17 @@
                     </div>
                 </div>
 
-                <!-- Seller Information -->
+                <!-- Contact Information -->
                 <div class="space-y-4">
-                    <h2 class="text-lg font-semibold text-gray-800">{% trans "Seller Information" %}</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">{% trans "Contact Information" %}</h2>
                     
                     <div>
-                        <label for="{{ form.seller.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                            {% trans "Seller" %}
+                        <label for="{{ form.customer_phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {% trans "Customer Phone" %}
                         </label>
-                        {{ form.seller }}
-                        {% if form.seller.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.seller.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.seller_phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                            {% trans "Seller Phone" %}
-                        </label>
-                        {{ form.seller_phone }}
-                        {% if form.seller_phone.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.seller_phone.errors.0 }}</p>
+                        {{ form.customer_phone }}
+                        {% if form.customer_phone.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.customer_phone.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -139,18 +139,87 @@
                     </div>
                 </div>
 
-                <!-- Customer Contact -->
+                <!-- Shipping Information -->
                 <div class="space-y-4">
-                    <h2 class="text-lg font-semibold text-gray-800">{% trans "Customer Contact" %}</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">{% trans "Shipping Information" %}</h2>
                     
                     <div>
-                        <label for="{{ form.customer_phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                            {% trans "Customer Phone" %}
+                        <label for="{{ form.shipping_address.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {% trans "Shipping Address" %}
                         </label>
-                        {{ form.customer_phone }}
-                        {% if form.customer_phone.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.customer_phone.errors.0 }}</p>
+                        {{ form.shipping_address }}
+                        {% if form.shipping_address.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.shipping_address.errors.0 }}</p>
                         {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {% trans "City" %}
+                            </label>
+                            {{ form.city }}
+                            {% if form.city.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.city.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.state.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {% trans "State" %}
+                            </label>
+                            {{ form.state }}
+                            {% if form.state.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.state.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.zip_code.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {% trans "ZIP Code" %}
+                            </label>
+                            {{ form.zip_code }}
+                            {% if form.zip_code.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.zip_code.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {% trans "Country" %}
+                            </label>
+                            {{ form.country }}
+                            {% if form.country.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.country.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="space-y-4 md:col-span-2">
+                    <h2 class="text-lg font-semibold text-gray-800">{% trans "Notes" %}</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {% trans "Customer Notes" %}
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.internal_notes.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {% trans "Internal Notes" %}
+                            </label>
+                            {{ form.internal_notes }}
+                            {% if form.internal_notes.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.internal_notes.errors.0 }}</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>

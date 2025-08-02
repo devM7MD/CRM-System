@@ -249,20 +249,27 @@
             <form id="permissions-form" method="POST" action="{% url 'roles:update_permissions' role.id %}">
                 {% csrf_token %}
                 <div class="space-y-4 max-h-96 overflow-y-auto">
-                    {% for permission in all_permissions %}
-                    <div class="flex items-center justify-between p-3 border rounded-lg">
-                        <div class="flex items-center">
-                            <input type="checkbox" name="permissions" value="{{ permission.id }}" 
-                                   id="perm_{{ permission.id }}" 
-                                   {% if permission in role_permissions %}checked{% endif %}
-                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                            <label for="perm_{{ permission.id }}" class="ml-3 text-sm font-medium text-gray-900">
-                                {{ permission.module }} - {{ permission.get_permission_type_display }}
-                            </label>
+                    {% if all_permissions %}
+                        {% for permission in all_permissions %}
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="permissions" value="{{ permission.id }}" 
+                                       id="perm_{{ permission.id }}" 
+                                       {% for role_perm in role_permissions %}{% if role_perm.permission.id == permission.id %}checked{% endif %}{% endfor %}
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                <label for="perm_{{ permission.id }}" class="ml-3 text-sm font-medium text-gray-900">
+                                    {{ permission.module }} - {{ permission.get_permission_type_display }}
+                                </label>
+                            </div>
+                            <span class="text-xs text-gray-500">{{ permission.name }}</span>
                         </div>
-                        <span class="text-xs text-gray-500">{{ permission.description }}</span>
-                    </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-shield-alt text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">No permissions available in the system.</p>
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">

@@ -66,7 +66,7 @@ def dashboard(request):
     ).order_by('-created_at')[:10]
     
     # Get orders that need packaging (processing orders)
-    recent_packaging_orders = Order.objects.filter(status='processing').select_related('customer').order_by('-date')[:10]
+    recent_packaging_orders = Order.objects.filter(status='processing').order_by('-date')[:10]
     
     # Get quality check statistics
     quality_checks_today = PackagingQualityCheck.objects.filter(
@@ -127,15 +127,14 @@ def dashboard(request):
 def order_list(request):
     """List of orders for packaging with real data."""
     # Get orders that need packaging (processing orders)
-    orders = Order.objects.filter(status='processing').select_related('customer')
+    orders = Order.objects.filter(status='processing')
     
     # Get search query
     search = request.GET.get('search', '')
     if search:
         orders = orders.filter(
             Q(order_code__icontains=search) |
-            Q(customer__first_name__icontains=search) |
-            Q(customer__last_name__icontains=search) |
+            Q(customer__icontains=search) |
             Q(customer_phone__icontains=search)
         )
     

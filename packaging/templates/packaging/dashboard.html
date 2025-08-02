@@ -92,7 +92,7 @@
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ order.order_code }}</td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                                     {% if order.customer %}
-                                        {{ order.customer.get_full_name }}
+                                        {{ order.customer }}
                                     {% else %}
                                         {{ order.customer_phone|default:"No Customer" }}
                                     {% endif %}

@@ -1,262 +1,523 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Order Management{% endblock %}
+{% block title %}{% trans "Order Management - All Orders" %}{% endblock %}
 
 {% block content %}
-<div class="bg-white">
+<div class="w-full">
     <!-- Page Header -->
-    <div class="bg-yellow-500 shadow-lg border-t-4 border-yellow-400">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-white">Order Management</h1>
-                <div class="flex items-center space-x-4">
-                    <span class="text-white text-sm">{{ request.user.get_full_name|default:request.user.username }}</span>
-                </div>
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-list text-primary-600 mr-3"></i>
+                    {% trans "Order Management - All Orders" %}
+                </h1>
+                <p class="text-gray-600 mt-1">{% trans "Manage and assign orders to call center agents" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="openBulkAssignModal()" class="btn-primary">
+                    <i class="fas fa-users mr-2"></i>
+                    {% trans "Bulk Assign" %}
+                </button>
+                <button onclick="exportOrders()" class="btn-secondary">
+                    <i class="fas fa-download mr-2"></i>
+                    {% trans "Export" %}
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <!-- Filters -->
-        <div class="bg-white shadow rounded-lg border border-gray-200 mb-6">
-            <div class="px-4 py-5 sm:p-6">
-                <form method="GET" class="grid grid-cols-1 gap-4 sm:grid-cols-5">
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                        <select id="status" name="status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
-                            <option value="">All Statuses</option>
-                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-                            <option value="pending_confirmation" {% if status_filter == 'pending_confirmation' %}selected{% endif %}>Pending Confirmation</option>
-                            <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
-                            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
-                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
-                        </select>
+    <!-- Filters and Search -->
+    <div class="card mb-6">
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Status" %}</label>
+                    <select id="status-filter" class="form-select w-full">
+                        <option value="">{% trans "All Status" %}</option>
+                        <option value="pending">{% trans "Pending" %}</option>
+                        <option value="confirmed">{% trans "Confirmed" %}</option>
+                        <option value="cancelled">{% trans "Cancelled" %}</option>
+                        <option value="postponed">{% trans "Postponed" %}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Agent" %}</label>
+                    <select id="agent-filter" class="form-select w-full">
+                        <option value="">{% trans "All Agents" %}</option>
+                        {% for agent in agents %}
+                        <option value="{{ agent.id }}">{{ agent.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Date Range" %}</label>
+                    <select id="date-filter" class="form-select w-full">
+                        <option value="today">{% trans "Today" %}</option>
+                        <option value="yesterday">{% trans "Yesterday" %}</option>
+                        <option value="week">{% trans "This Week" %}</option>
+                        <option value="month">{% trans "This Month" %}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Priority" %}</label>
+                    <select id="priority-filter" class="form-select w-full">
+                        <option value="">{% trans "All Priorities" %}</option>
+                        <option value="low">{% trans "Low" %}</option>
+                        <option value="medium">{% trans "Medium" %}</option>
+                        <option value="high">{% trans "High" %}</option>
+                        <option value="urgent">{% trans "Urgent" %}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="{% trans 'Search orders, customers, products...' %}" 
+                               class="form-input w-full pl-10">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
                     </div>
-                    
+                </div>
+                <button onclick="applyFilters()" class="btn-primary">
+                    <i class="fas fa-filter mr-2"></i>
+                    {% trans "Apply Filters" %}
+                </button>
+                <button onclick="clearFilters()" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>
+                    {% trans "Clear" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div class="card">
+            <div class="p-4 text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ total_orders|default:"156" }}</div>
+                <div class="text-sm text-gray-600">{% trans "Total" %}</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ assigned_orders|default:"134" }}</div>
+                <div class="text-sm text-gray-600">{% trans "Assigned" %}</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="p-4 text-center">
+                <div class="text-2xl font-bold text-red-600">{{ unassigned_orders|default:"22" }}</div>
+                <div class="text-sm text-gray-600">{% trans "Unassigned" %}</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">{{ confirmed_orders|default:"89" }}</div>
+                <div class="text-sm text-gray-600">{% trans "Confirmed" %}</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="p-4 text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ pending_orders|default:"45" }}</div>
+                <div class="text-sm text-gray-600">{% trans "Pending" %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unassigned High Priority Orders -->
+    {% if high_priority_unassigned %}
+    <div class="card mb-6">
+        <div class="card-header bg-red-50 border-red-200">
+            <h3 class="text-lg font-semibold text-red-900">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                {% trans "Unassigned High Priority Orders" %} ({{ high_priority_unassigned|length }})
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-red-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">{% trans "Order Code" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">{% trans "Customer" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">{% trans "Product" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">{% trans "Price" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">{% trans "Status" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for order in high_priority_unassigned %}
+                        <tr class="bg-red-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ORD-{{ order.id|stringformat:"06d" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.customer }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.product.name_en|default:"N/A" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ order.total_price|default:"0" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    {{ order.status|title }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <select class="form-select text-xs" onchange="assignOrder({{ order.id }}, this.value)">
+                                        <option value="">{% trans "Select Agent" %}</option>
+                                        {% for agent in available_agents %}
+                                        <option value="{{ agent.id }}">{{ agent.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button onclick="addNote({{ order.id }})" class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-sticky-note"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Orders Table -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "All Orders" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Customer" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Product" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Price" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Agent" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" class="order-checkbox" value="{{ order.id }}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">ORD-{{ order.id|stringformat:"06d" }}</div>
+                                <div class="text-sm text-gray-500">{{ order.date|date:"M d, H:i" }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ order.customer }}</div>
+                                <div class="text-sm text-gray-500">{{ order.customer_phone|default:"N/A" }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ order.product.name_en|default:"N/A" }}</div>
+                                <div class="text-sm text-gray-500">{{ order.product.code|default:"N/A" }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ order.total_price|default:"0" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    {% if order.status == 'confirmed' %}bg-green-100 text-green-800
+                                    {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ order.status|title }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if order.assignments.first.agent %}
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                                        <span class="text-xs font-medium text-blue-600">{{ order.assignments.first.agent.get_full_name|first }}</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ order.assignments.first.agent.get_full_name }}</div>
+                                        <div class="text-xs text-gray-500">{{ order.assignments.first.priority_level|title }}</div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-sm text-gray-500">{% trans "Unassigned" %}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button onclick="assignOrder({{ order.id }})" class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                    <button onclick="addNote({{ order.id }})" class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-sticky-note"></i>
+                                    </button>
+                                    <button onclick="viewOrder({{ order.id }})" class="text-purple-600 hover:text-purple-900">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                {% trans "No orders found" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if orders.has_other_pages %}
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    {% trans "Showing" %} {{ orders.start_index }} {% trans "to" %} {{ orders.end_index }} {% trans "of" %} {{ orders.paginator.count }} {% trans "results" %}
+                </div>
+                <div class="flex space-x-2">
+                    {% if orders.has_previous %}
+                    <a href="?page={{ orders.previous_page_number }}" class="btn-secondary">{% trans "Previous" %}</a>
+                    {% endif %}
+                    {% if orders.has_next %}
+                    <a href="?page={{ orders.next_page_number }}" class="btn-secondary">{% trans "Next" %}</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Assign Order Modal -->
+<div id="assign-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="flex items-center justify-between p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Assign Order to Agent" %}</h3>
+                <button onclick="closeAssignModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="order-details" class="mb-6">
+                    <!-- Order details will be loaded here -->
+                </div>
+                <div class="space-y-4">
                     <div>
-                        <label for="agent" class="block text-sm font-medium text-gray-700">Assigned Agent</label>
-                        <select id="agent" name="agent" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
-                            <option value="">All Agents</option>
-                            {% for agent in agents %}
-                            <option value="{{ agent.id }}" {% if agent_filter == agent.id|stringformat:"s" %}selected{% endif %}>
-                                {{ agent.get_full_name|default:agent.username }}
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Select Agent" %}</label>
+                        <select id="agent-select" class="form-select w-full">
+                            <option value="">{% trans "Choose an agent..." %}</option>
+                            {% for agent in available_agents %}
+                            <option value="{{ agent.id }}" data-load="{{ agent.current_load }}" data-availability="{{ agent.availability }}" data-performance="{{ agent.performance_rate }}">
+                                {{ agent.get_full_name }} ({{ agent.current_load }} orders, {{ agent.availability }}, {{ agent.performance_rate }}% performance)
                             </option>
                             {% endfor %}
                         </select>
                     </div>
-                    
                     <div>
-                        <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
-                        <select id="priority" name="priority" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
-                            <option value="">All Priorities</option>
-                            <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
-                            <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>Medium</option>
-                            <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
-                            <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %}>Urgent</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-                        <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="Order ID, Customer, Phone..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
-                    </div>
-                    
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-150">
-                            Filter
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Orders List -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Orders ({{ orders.paginator.count }} total)</h3>
-                    <div class="text-sm text-gray-500">
-                        Showing {{ orders.start_index }} to {{ orders.end_index }} of {{ orders.paginator.count }} results
-                    </div>
-                </div>
-            </div>
-            <ul role="list" class="divide-y divide-gray-200">
-                {% for order in orders %}
-                <li class="hover:bg-gray-50 transition-colors duration-150">
-                    <div class="px-4 py-4 sm:px-6">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    {% if order.status == 'confirmed' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Confirmed
-                                        </span>
-                                    {% elif order.status == 'pending_confirmation' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            Pending Confirmation
-                                        </span>
-                                    {% elif order.status == 'cancelled' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            Cancelled
-                                        </span>
-                                    {% elif order.status == 'completed' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            Completed
-                                        </span>
-                                    {% else %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            {{ order.status|title }}
-                                        </span>
-                                    {% endif %}
-                                </div>
-                                <div class="ml-4">
-                                    <div class="flex items-center">
-                                        <p class="text-sm font-medium text-gray-900">
-                                            Order #{{ order.id }}
-                                        </p>
-                                        {% for assignment in order.assignments.all %}
-                                            {% if assignment.priority_level == 'urgent' %}
-                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                                    Urgent
-                                                </span>
-                                            {% elif assignment.priority_level == 'high' %}
-                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
-                                                    High
-                                                </span>
-                                            {% elif assignment.priority_level == 'medium' %}
-                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                    Medium
-                                                </span>
-                                            {% else %}
-                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                                    Low
-                                                </span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    <div class="mt-1 flex items-center text-sm text-gray-500">
-                                        <p>{{ order.customer.get_full_name|default:"No Customer" }}</p>
-                                        <span class="mx-2">•</span>
-                                        <p>{{ order.customer_phone }}</p>
-                                        <span class="mx-2">•</span>
-                                        <p>{{ order.date|date:"M d, Y" }}</p>
-                                    </div>
-                                    {% if order.customer_address %}
-                                    <div class="mt-1 text-sm text-gray-500">
-                                        <p>{{ order.customer_address }}</p>
-                                    </div>
-                                    {% endif %}
-                                    <!-- Assignment Info -->
-                                    {% for assignment in order.assignments.all %}
-                                    <div class="mt-1 text-sm text-gray-500">
-                                        <p>Assigned to: <span class="font-medium">{{ assignment.agent.get_full_name|default:assignment.agent.username }}</span> 
-                                        on {{ assignment.assignment_date|date:"M d, Y H:i" }}</p>
-                                        {% if assignment.manager_notes %}
-                                        <p class="text-xs text-gray-400 mt-1">Note: {{ assignment.manager_notes|truncatechars:100 }}</p>
-                                        {% endif %}
-                                    </div>
-                                    {% empty %}
-                                    <div class="mt-1 text-sm text-red-500">
-                                        <p>⚠️ Not assigned to any agent</p>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-sm font-medium text-gray-900">
-                                    {{ order.total_price|floatformat:2 }} AED
-                                </span>
-                                <div class="flex space-x-2">
-                                    {% if not order.assignments.all %}
-                                    <a href="{% url 'callcenter:manager_assign_order' order.id %}" class="text-sm text-green-600 hover:text-green-700 font-medium">
-                                        Assign
-                                    </a>
-                                    {% else %}
-                                    <a href="{% url 'callcenter:manager_assign_order' order.id %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                                        Reassign
-                                    </a>
-                                    {% endif %}
-                                    <a href="#" class="text-sm text-yellow-600 hover:text-yellow-700 font-medium">
-                                        Details
-                                    </a>
-                                </div>
-                            </div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Priority Level" %}</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="low" class="form-radio">
+                                <span class="ml-2">{% trans "Low" %}</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="medium" class="form-radio" checked>
+                                <span class="ml-2">{% trans "Medium" %}</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="high" class="form-radio">
+                                <span class="ml-2">{% trans "High" %}</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="urgent" class="form-radio">
+                                <span class="ml-2">{% trans "Urgent" %}</span>
+                            </label>
                         </div>
                     </div>
-                </li>
-                {% empty %}
-                <li class="px-4 py-8 text-center text-gray-500">
-                    <p>No orders found matching your criteria.</p>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Pagination -->
-        {% if orders.has_other_pages %}
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6">
-            <div class="flex-1 flex justify-between sm:hidden">
-                {% if orders.has_previous %}
-                    <a href="?page={{ orders.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Previous
-                    </a>
-                {% endif %}
-                {% if orders.has_next %}
-                    <a href="?page={{ orders.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Next
-                    </a>
-                {% endif %}
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-700">
-                        Showing
-                        <span class="font-medium">{{ orders.start_index }}</span>
-                        to
-                        <span class="font-medium">{{ orders.end_index }}</span>
-                        of
-                        <span class="font-medium">{{ orders.paginator.count }}</span>
-                        results
-                    </p>
-                </div>
-                <div>
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        {% if orders.has_previous %}
-                            <a href="?page={{ orders.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <span class="sr-only">Previous</span>
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                        {% endif %}
-                        
-                        {% for num in orders.paginator.page_range %}
-                            {% if orders.number == num %}
-                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-yellow-50 text-sm font-medium text-yellow-600">
-                                    {{ num }}
-                                </span>
-                            {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
-                                <a href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    {{ num }}
-                                </a>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if orders.has_next %}
-                            <a href="?page={{ orders.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <span class="sr-only">Next</span>
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                        {% endif %}
-                    </nav>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Manager Notes" %}</label>
+                        <textarea id="manager-notes" rows="3" class="form-textarea w-full" placeholder="{% trans 'Add instructions or notes for the agent...' %}"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Expected Completion" %}</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="date" id="completion-date" class="form-input">
+                            <input type="time" id="completion-time" class="form-input">
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="flex items-center justify-end space-x-3 p-6 border-t">
+                <button onclick="closeAssignModal()" class="btn-secondary">{% trans "Cancel" %}</button>
+                <button onclick="confirmAssignOrder()" class="btn-primary">{% trans "Assign Order" %}</button>
+            </div>
         </div>
-        {% endif %}
     </div>
 </div>
+
+<script>
+let currentOrderId = null;
+
+function applyFilters() {
+    const status = document.getElementById('status-filter').value;
+    const agent = document.getElementById('agent-filter').value;
+    const date = document.getElementById('date-filter').value;
+    const priority = document.getElementById('priority-filter').value;
+    const search = document.getElementById('search-input').value;
+    
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (agent) params.append('agent', agent);
+    if (date) params.append('date', date);
+    if (priority) params.append('priority', priority);
+    if (search) params.append('search', search);
+    
+    window.location.href = '?' + params.toString();
+}
+
+function clearFilters() {
+    document.getElementById('status-filter').value = '';
+    document.getElementById('agent-filter').value = '';
+    document.getElementById('date-filter').value = '';
+    document.getElementById('priority-filter').value = '';
+    document.getElementById('search-input').value = '';
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+}
+
+function assignOrder(orderId, agentId = null) {
+    currentOrderId = orderId;
+    
+    // Load order details
+    fetch(`/callcenter/order/${orderId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('order-details').innerHTML = `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-medium text-gray-900 mb-2">Order ORD-${String(orderId).padStart(6, '0')}</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Customer:</span>
+                            <span class="font-medium">${data.customer}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Product:</span>
+                            <span class="font-medium">${data.product}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Price:</span>
+                            <span class="font-medium">AED ${data.price}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Status:</span>
+                            <span class="font-medium">${data.status}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            if (agentId) {
+                document.getElementById('agent-select').value = agentId;
+            }
+            
+            document.getElementById('assign-modal').classList.remove('hidden');
+        });
+}
+
+function closeAssignModal() {
+    document.getElementById('assign-modal').classList.add('hidden');
+    currentOrderId = null;
+}
+
+function confirmAssignOrder() {
+    const agentId = document.getElementById('agent-select').value;
+    const priority = document.querySelector('input[name="priority"]:checked').value;
+    const notes = document.getElementById('manager-notes').value;
+    const completionDate = document.getElementById('completion-date').value;
+    const completionTime = document.getElementById('completion-time').value;
+    
+    if (!agentId) {
+        alert('Please select an agent');
+        return;
+    }
+    
+    const data = {
+        agent_id: agentId,
+        priority_level: priority,
+        manager_notes: notes,
+        expected_completion: completionDate + ' ' + completionTime
+    };
+    
+    fetch(`/callcenter/order/${currentOrderId}/assign/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeAssignModal();
+            location.reload();
+        } else {
+            alert('Error assigning order: ' + data.error);
+        }
+    });
+}
+
+function addNote(orderId) {
+    // Implement add note functionality
+    alert('Add note functionality coming soon!');
+}
+
+function viewOrder(orderId) {
+    window.open(`/callcenter/order/${orderId}/`, '_blank');
+}
+
+function openBulkAssignModal() {
+    const selectedOrders = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+    if (selectedOrders.length === 0) {
+        alert('Please select orders to assign');
+        return;
+    }
+    // Implement bulk assign modal
+    alert(`Bulk assign ${selectedOrders.length} orders - coming soon!`);
+}
+
+function exportOrders() {
+    // Implement export functionality
+    alert('Export functionality coming soon!');
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %} 

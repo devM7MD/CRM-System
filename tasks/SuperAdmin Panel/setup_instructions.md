@@ -132,7 +132,6 @@ crm_fulfillment/
 ├── packaging/               # Packaging app
 ├── delivery/                # Delivery app
 ├── finance/                 # Finance app
-├── followup/                # Follow-up app
 ├── settings/                # System settings app
 ├── static/                  # Static files
 └── templates/               # Global templates

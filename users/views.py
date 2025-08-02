@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -5,8 +6,11 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.db import models
 from .forms import LoginForm, RegisterForm, UserCreationForm, UserChangeForm, PasswordChangeForm
 from .models import User, AuditLog
+from django.views.decorators.csrf import csrf_exempt
+from roles.models import Role, UserRole
 
 def login_view(request):
     """Log in a user."""
@@ -102,17 +106,37 @@ def register_view(request):
 @user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
 def user_list(request):
     """List all users (admin only)."""
-    users = User.objects.all().order_by('-date_joined')
+    # Prefetch user roles to avoid N+1 queries
+    users = User.objects.prefetch_related('user_roles__role').all().order_by('-date_joined')
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        users = users.filter(
+            models.Q(full_name__icontains=search_query) |
+            models.Q(email__icontains=search_query) |
+            models.Q(phone_number__icontains=search_query)
+        )
     
     # Filter by role if requested
-    role = request.GET.get('role', '')
-    if role:
-        # Filter users by role using the new role system
-        users = users.filter(user_roles__role__name=role)
+    selected_role = request.GET.get('role', '')
+    if selected_role:
+        users = users.filter(user_roles__role__name=selected_role)
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(users, 20)  # Show 20 users per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get available roles for filter dropdown
+    available_roles = Role.objects.filter(is_active=True).order_by('name')
     
     return render(request, 'users/list.html', {
-        'users': users,
-        'role_filter': role,
+        'users': page_obj,
+        'search_query': search_query,
+        'selected_role': selected_role,
+        'available_roles': available_roles,
     })
 
 @login_required
@@ -146,10 +170,21 @@ def user_create(request):
 @user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
 def user_edit(request, user_id):
     """Edit an existing user (admin only)."""
-    user = get_object_or_404(User, id=user_id)
+    user_obj = get_object_or_404(User, id=user_id)
+    
+    # Split the user's full name for the template
+    first_name = ''
+    last_name = ''
+    if user_obj.full_name:
+        name_parts = user_obj.full_name.split(' ', 1)
+        if len(name_parts) > 1:
+            first_name = name_parts[0]
+            last_name = name_parts[1]
+        else:
+            first_name = name_parts[0]
     
     if request.method == 'POST':
-        form = UserChangeForm(request.POST, request.FILES, instance=user)
+        form = UserChangeForm(request.POST, request.FILES, instance=user_obj)
         if form.is_valid():
             updated_user = form.save()
             
@@ -167,21 +202,30 @@ def user_edit(request, user_id):
             messages.success(request, f"User {updated_user.email} updated successfully.")
             return redirect('users:list')
     else:
-        form = UserChangeForm(instance=user)
+        form = UserChangeForm(instance=user_obj)
     
-    return render(request, 'users/edit.html', {'form': form, 'user_obj': user})
+    # Get available roles for filter dropdown
+    available_roles = Role.objects.filter(is_active=True).order_by('name')
+    
+    return render(request, 'users/edit.html', {
+        'form': form, 
+        'user_obj': user_obj,
+        'first_name': first_name,
+        'last_name': last_name,
+        'available_roles': available_roles
+    })
 
 @login_required
 @user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
 def user_detail(request, user_id):
     """View user details (admin only)."""
-    user = get_object_or_404(User, id=user_id)
+    user_obj = get_object_or_404(User, id=user_id)
     
     # Get user's audit logs
-    audit_logs = AuditLog.objects.filter(user=user).order_by('-timestamp')[:20]
+    audit_logs = AuditLog.objects.filter(user=user_obj).order_by('-timestamp')[:20]
     
     return render(request, 'users/detail.html', {
-        'user_obj': user,
+        'user_obj': user_obj,
         'audit_logs': audit_logs
     })
 
@@ -361,5 +405,107 @@ def security_settings(request):
         )
         
         return JsonResponse({'success': True, 'message': 'Security settings saved'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
+@csrf_exempt
+def add_user_role(request, user_id):
+    """Add a role to a user."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        data = json.loads(request.body)
+        role_id = data.get('role_id')
+        
+        user = get_object_or_404(User, id=user_id)
+        role = get_object_or_404(Role, id=role_id)
+        
+        # Check if role already exists
+        if UserRole.objects.filter(user=user, role=role).exists():
+            return JsonResponse({'success': False, 'error': 'Role already assigned'})
+        
+        # Add role
+        UserRole.objects.create(user=user, role=role)
+        
+        # Log the action
+        AuditLog.objects.create(
+            user=request.user,
+            action='add_role',
+            entity_type='user',
+            entity_id=str(user.id),
+            description=f"Role '{role.name}' added to user {user.email} by {request.user.email}",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
+@csrf_exempt
+def remove_user_role(request, user_role_id):
+    """Remove a role from a user."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        user_role = get_object_or_404(UserRole, id=user_role_id)
+        user = user_role.user
+        role = user_role.role
+        
+        # Remove role
+        user_role.delete()
+        
+        # Log the action
+        AuditLog.objects.create(
+            user=request.user,
+            action='remove_role',
+            entity_type='user',
+            entity_id=str(user.id),
+            description=f"Role '{role.name}' removed from user {user.email} by {request.user.email}",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@user_passes_test(lambda u: u.has_role('Super Admin') or u.has_role('Admin') or u.is_superuser)
+@csrf_exempt
+def toggle_primary_role(request, user_role_id):
+    """Toggle primary role for a user."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        user_role = get_object_or_404(UserRole, id=user_role_id)
+        user = user_role.user
+        
+        # Remove primary from all other roles
+        UserRole.objects.filter(user=user).update(is_primary=False)
+        
+        # Set this role as primary
+        user_role.is_primary = True
+        user_role.save()
+        
+        # Log the action
+        AuditLog.objects.create(
+            user=request.user,
+            action='set_primary_role',
+            entity_type='user',
+            entity_id=str(user.id),
+            description=f"Primary role set to '{user_role.role.name}' for user {user.email} by {request.user.email}",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})

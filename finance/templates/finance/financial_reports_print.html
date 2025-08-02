@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Financial Reports Print" %} - Atlas Fulfillment{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-white">
+    <!-- Print Header -->
+    <div class="text-center py-8 border-b-2 border-gray-300">
+        <h1 class="text-3xl font-bold text-gray-900">{% trans "Financial Reports" %}</h1>
+        <p class="text-lg text-gray-600">{% trans "Atlas Fulfillment" %}</p>
+        <p class="text-sm text-gray-500">{% trans "Generated on" %}: {{ "now"|date:"F d, Y H:i" }}</p>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-8 py-8">
+        <!-- Summary Metrics -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Summary Metrics" %}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Total Revenue" %}</p>
+                    <p class="text-xl font-bold text-blue-600">AED {{ total_revenue|floatformat:2 }}</p>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Total Orders" %}</p>
+                    <p class="text-xl font-bold text-green-600">{{ total_orders }}</p>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Average Order" %}</p>
+                    <p class="text-xl font-bold text-purple-600">AED {{ avg_order_value|floatformat:2 }}</p>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700">{% trans "Total Fees" %}</p>
+                    <p class="text-xl font-bold text-orange-600">AED {{ total_fees_amount|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Analysis Table -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Revenue Analysis" %}</h2>
+            <table class="min-w-full border border-gray-300">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 border border-gray-300">{% trans "Date" %}</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 border border-gray-300">{% trans "Orders" %}</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 border border-gray-300">{% trans "Revenue" %}</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 border border-gray-300">{% trans "Fees" %}</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 border border-gray-300">{% trans "Total" %}</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 border border-gray-300">{% trans "Avg Order" %}</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 border border-gray-300">{% trans "Top Seller" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% if revenue_analysis %}
+                        {% for data in revenue_analysis %}
+                        <tr>
+                            <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">{{ data.date }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">{{ data.orders }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">AED {{ data.revenue|floatformat:2 }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">AED {{ data.fees|floatformat:2 }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">AED {{ data.total|floatformat:2 }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">AED {{ data.avg_order|floatformat:2 }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">{{ data.top_seller }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="px-4 py-2 text-center text-sm text-gray-500 border border-gray-300">
+                                {% trans "No revenue data available." %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 pt-8 border-t-2 border-gray-300">
+            <p class="text-sm text-gray-600 text-center">
+                {% trans "This report contains real data from the Atlas Fulfillment database." %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-print when page loads
+    window.onload = function() {
+        window.print();
+    };
+</script>
+{% endblock %} 

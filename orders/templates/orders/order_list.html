@@ -54,7 +54,7 @@
                 Toggle Filters
             </button>
         </div>
-        <form method="get" id="filters-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <form method="get" id="filters-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Search Orders</label>
                 <div class="relative">
@@ -80,14 +80,6 @@
                 <div class="relative">
                     <i class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     <input type="date" name="date_from" value="{{ date_from }}"
-                           class="form-input pl-10 w-full">
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
-                <div class="relative">
-                    <i class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="date" name="date_to" value="{{ date_to }}"
                            class="form-input pl-10 w-full">
                 </div>
             </div>
@@ -154,13 +146,7 @@
                         <th class="px-6 py-4 text-left">
                             <div class="flex items-center">
                                 <i class="fas fa-dollar-sign mr-2"></i>
-                                {% trans "Price Per Unit" %}
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-left">
-                            <div class="flex items-center">
-                                <i class="fas fa-store mr-2"></i>
-                                {% trans "Seller" %}
+                                {% trans "Price Per Unit (AED)" %}
                             </div>
                         </th>
                         <th class="px-6 py-4 text-left">
@@ -187,13 +173,9 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-gray-900">
-                                {% if order.customer %}
-                                    {{ order.customer.get_full_name }}
-                                    {% if order.customer_phone %}
-                                        <div class="text-xs text-gray-500">{{ order.customer_phone }}</div>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="text-gray-400">No customer assigned</span>
+                                <div class="font-medium">{{ order.customer }}</div>
+                                {% if order.customer_phone %}
+                                    <div class="text-xs text-gray-500">{{ order.customer_phone }}</div>
                                 {% endif %}
                             </div>
                         </td>
@@ -222,28 +204,18 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-gray-900 font-medium">
-                                ${{ order.price_per_unit|floatformat:2 }}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900">
-                                {% if order.seller %}
-                                    {{ order.seller.name }}
-                                    {% if order.seller.phone %}
-                                        <div class="text-xs text-gray-500">{{ order.seller.phone }}</div>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="text-gray-400">No seller assigned</span>
-                                {% endif %}
+                                {{ order.price_per_unit_aed }}
                             </div>
                         </td>
                         <td class="px-6 py-4">
                             <span class="status-badge 
                                 {% if order.status == 'pending' %}status-pending
                                 {% elif order.status == 'processing' %}status-processing
+                                {% elif order.status == 'confirmed' %}status-confirmed
                                 {% elif order.status == 'shipped' %}status-shipped
                                 {% elif order.status == 'delivered' %}status-delivered
-                                {% else %}status-cancelled{% endif %}">
+                                {% elif order.status == 'cancelled' %}status-cancelled
+                                {% else %}status-returned{% endif %}">
                                 <i class="fas fa-circle mr-1 text-xs"></i>
                                 {{ order.get_status_display }}
                             </span>
@@ -251,7 +223,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
                                 <h3 class="text-lg font-medium text-gray-900 mb-2">No orders found</h3>

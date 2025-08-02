@@ -15,7 +15,7 @@ def has_seller_role(user):
 
 @login_required
 def dashboard(request):
-    """Seller dashboard with stats and recent data."""
+    """Seller dashboard with real data from database."""
     if not has_seller_role(request.user):
         messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
         return redirect('dashboard:index')
@@ -23,66 +23,62 @@ def dashboard(request):
     from django.db.models import Sum, Count, Q
     from django.utils import timezone
     from datetime import timedelta
+    from orders.models import Order
+    from sellers.models import Product
+    from sourcing.models import SourcingRequest
     
-    # Get seller instance
-    seller_instance = getattr(request.user, 'seller_profile', None)
+    # Get real data for the current user (seller)
+    all_orders = Order.objects.all()  # All orders in the system
+    all_products = Product.objects.filter(seller=request.user)
     
-    if seller_instance:
-        # Get real data for the seller
-        all_orders = Order.objects.filter(seller=seller_instance)
-        all_products = Product.objects.filter(seller=request.user)
-        
-        # Calculate order statistics
-        orders_count = all_orders.count()
-        completed_orders = all_orders.filter(status='delivered').count()
-        processing_orders = all_orders.filter(status='processing').count()
-        cancelled_orders = all_orders.filter(status='cancelled').count()
-        
-        # Calculate inventory statistics
-        total_inventory = sum(product.total_quantity for product in all_products)
-        available_inventory = sum(product.available_quantity for product in all_products)
-        in_delivery_inventory = total_inventory - available_inventory
-        
-        # Calculate sales data
-        total_sales = all_orders.aggregate(total=Sum('total_amount'))['total'] or 0
-        
-        # Get sourcing requests (placeholder for now)
-        sourcing_requests_count = 0  # Will be updated when sourcing model is implemented
-        pending_requests = 0
-        approved_requests = 0
-        
-        # Get recent orders and products
-        recent_orders = all_orders.order_by('-date')[:5]
-        products = all_products.order_by('-created_at')[:5]
-        
-    else:
-        # No seller profile, return empty data
-        orders_count = 0
-        completed_orders = 0
-        processing_orders = 0
-        cancelled_orders = 0
-        total_inventory = 0
-        available_inventory = 0
-        in_delivery_inventory = 0
-        total_sales = 0
-        sourcing_requests_count = 0
-        pending_requests = 0
-        approved_requests = 0
-        recent_orders = []
-        products = []
+    # Calculate order statistics
+    orders_count = all_orders.count()
+    completed_orders = all_orders.filter(status='confirmed').count()
+    processing_orders = all_orders.filter(status__in=['pending', 'pending_confirmation']).count()
+    cancelled_orders = all_orders.filter(status='cancelled').count()
     
-    # Prepare order stats
-    order_stats = {
-        'total': orders_count,
-        'pending': processing_orders,
-        'delivered': completed_orders,
-        'cancelled': cancelled_orders,
-    }
+    # Calculate inventory statistics
+    total_inventory = all_products.count()
+    available_inventory = all_products.filter(stock__gt=0).count()
+    in_delivery_inventory = all_products.filter(stock=0).count()
+    
+    # Calculate sales data - sum of all order totals
+    total_sales_amount = sum(order.total_price for order in all_orders)
+    
+    # Get sourcing requests
+    sourcing_requests = SourcingRequest.objects.filter(seller=request.user)
+    sourcing_requests_count = sourcing_requests.count()
+    pending_requests = sourcing_requests.filter(status='pending').count()
+    approved_requests = sourcing_requests.filter(status='approved').count()
+    
+    # Get recent orders and products
+    recent_orders = all_orders.order_by('-date')[:5]
+    products = all_products.order_by('-created_at')[:5]
+    
+    # Prepare sales performance data for chart (last 6 months)
+    sales_data = []
+    months = []
+    for i in range(6):
+        month_date = timezone.now() - timedelta(days=30*i)
+        month_orders = all_orders.filter(
+            date__year=month_date.year,
+            date__month=month_date.month
+        )
+        month_sales = sum(order.total_price for order in month_orders)
+        sales_data.append(float(month_sales))
+        months.append(month_date.strftime('%b'))
+    
+    # Prepare top products data for chart
+    top_products = all_products.annotate(
+        order_count=Count('orders')
+    ).order_by('-order_count')[:5]
+    
+    product_names = [product.name_en for product in top_products]
+    product_sales = [product.order_count for product in top_products]
     
     return render(request, 'sellers/dashboard.html', {
         'products': products,
         'recent_orders': recent_orders,
-        'order_stats': order_stats,
         'total_inventory': total_inventory,
         'available_inventory': available_inventory,
         'in_delivery_inventory': in_delivery_inventory,
@@ -90,10 +86,14 @@ def dashboard(request):
         'completed_orders': completed_orders,
         'processing_orders': processing_orders,
         'cancelled_orders': cancelled_orders,
-        'total_sales': f"AED {total_sales:,.0f}",
+        'total_sales': f"AED {total_sales_amount:,.0f}",
         'sourcing_requests_count': sourcing_requests_count,
         'pending_requests': pending_requests,
         'approved_requests': approved_requests,
+        'sales_data': sales_data,
+        'months': months,
+        'product_names': product_names,
+        'product_sales': product_sales,
     })
 
 @login_required
@@ -198,8 +198,50 @@ def product_edit(request, product_id):
     if user_role == 'Seller' and product.seller != request.user:
         messages.error(request, "You don't have permission to edit this product.")
         return redirect('sellers:products')
+    
+    if request.method == 'POST':
+        # Update product data
+        product.name_en = request.POST.get('name', product.name_en)
+        product.name_ar = request.POST.get('name_ar', product.name_ar)
+        product.description = request.POST.get('description', product.description)
+        product.selling_price = request.POST.get('selling_price', product.selling_price)
+        product.purchase_price = request.POST.get('purchase_price') or None
+        product.product_link = request.POST.get('product_link', product.product_link)
+        
+        # Handle image upload
+        if 'image' in request.FILES:
+            product.image = request.FILES['image']
+        
+        product.save()
+        messages.success(request, f'Product "{product.name_en}" updated successfully.')
+        return redirect('sellers:product_detail', product_id=product.id)
         
     return render(request, 'sellers/product_edit.html', {
+        'product': product,
+    })
+
+@login_required
+def product_delete(request, product_id):
+    """Delete a specific product."""
+    if not has_seller_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Check permissions
+    user_role = request.user.primary_role.name if request.user.primary_role else None
+    if user_role == 'Seller' and product.seller != request.user:
+        messages.error(request, "You don't have permission to delete this product.")
+        return redirect('sellers:products')
+    
+    if request.method == 'POST':
+        product_name = product.name_en
+        product.delete()
+        messages.success(request, f'Product "{product_name}" deleted successfully.')
+        return redirect('sellers:products')
+    
+    # If GET request, show confirmation page
+    return render(request, 'sellers/product_delete_confirm.html', {
         'product': product,
     })
 
@@ -414,7 +456,7 @@ def sales(request):
         products = Product.objects.filter(seller=request.user)
         
         for product in products:
-            product_orders = all_orders.filter(order_items__product=product)
+            product_orders = all_orders.filter(product=product)
             sales_volume = product_orders.count()
             revenue = product_orders.aggregate(
                 total=Sum('total_amount')

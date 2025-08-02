@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Invoice Generation" %} - Atlas Fulfillment{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">{% trans "Invoice Preview" %}</h1>
+                    <p class="ml-4 text-gray-600">{% trans "INV-ORD-" %}{{ order.order_code }}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="save">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center transition-colors duration-200">
+                            <i class="fas fa-save mr-2"></i>
+                            {% trans "Save" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="print">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center transition-colors duration-200">
+                            <i class="fas fa-print mr-2"></i>
+                            {% trans "Print" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send">
+                        <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center transition-colors duration-200">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            {% trans "Send" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Invoice Details -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Invoice Details" %}</h3>
+                <button class="text-blue-500 hover:text-blue-700 text-sm" onclick="editHeader()">
+                    <i class="fas fa-edit mr-1"></i>
+                    {% trans "Edit Header" %}
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Invoice #" %}</p>
+                    <p class="text-lg font-semibold text-gray-900">INV-{{ order.order_code }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Order #" %}</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ order.order_code }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Date" %}</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ order.date|date:"F d, Y" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Due Date" %}</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ due_date|date:"F d, Y" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Customer" %}</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ order.customer }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Payment Method" %}</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ payment_method|title }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Information -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Billing Information" %}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "BILL TO:" %}</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="font-medium text-gray-900">{{ customer_info.name }}</p>
+                        <p class="text-gray-600">{{ customer_info.address }}</p>
+                        <p class="text-gray-600">{{ customer_info.city }}</p>
+                        <p class="text-gray-600">{{ customer_info.phone }}</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "SELLER:" %}</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="font-medium text-gray-900">
+                            {% if seller_info %}
+                                {{ seller_info.get_full_name }}
+                            {% else %}
+                                {% trans "Seller Information" %}
+                            {% endif %}
+                        </p>
+                        <p class="text-gray-600">
+                            {% if seller_info %}
+                                {{ seller_info.address|default:"Seller Address" }}
+                            {% else %}
+                                {% trans "Seller Address" %}
+                            {% endif %}
+                        </p>
+                        <p class="text-gray-600">
+                            {% if seller_info %}
+                                {{ seller_info.city|default:"Dubai, UAE" }}
+                            {% else %}
+                                {% trans "Dubai, UAE" %}
+                            {% endif %}
+                        </p>
+                        <p class="text-gray-600">
+                            {% if seller_info %}
+                                {{ seller_info.phone|default:"Seller Phone" }}
+                            {% else %}
+                                {% trans "Seller Phone" %}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items & Charges -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Items & Charges" %}</h3>
+                <button class="text-blue-500 hover:text-blue-700 text-sm" onclick="editItems()">
+                    <i class="fas fa-edit mr-1"></i>
+                    {% trans "Edit Items" %}
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Description" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Qty" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Unit Price" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Amount" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Notes" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Main Product -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {% if order.product %}
+                                        {{ order.product.name_en }}
+                                    {% else %}
+                                        {% trans "Product" %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.quantity }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ order.price_per_unit|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ base_price|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                {% if order.product %}
+                                    {% trans "Model" %}: {{ order.product.code }}
+                                {% else %}
+                                    {% trans "Standard product" %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <!-- Upsell Fee -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{% trans "Upsell Fee" %}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.upsell|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.upsell|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{% trans "Premium service" %}</td>
+                        </tr>
+                        <!-- Confirmation Fee -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{% trans "Confirmation Fee" %}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.confirmation|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.confirmation|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{% trans "Order confirmation" %}</td>
+                        </tr>
+                        <!-- Fulfillment Fee -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{% trans "Fulfillment Fee" %}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.fulfillment|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.fulfillment|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{% trans "Processing & handling" %}</td>
+                        </tr>
+                        <!-- Shipping Fee -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{% trans "Shipping Fee" %}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.shipping|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ fees.shipping|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{% trans "Express delivery" %}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Payment Summary" %}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium text-gray-700">{% trans "Subtotal:" %}</span>
+                        <span class="text-sm font-semibold text-gray-900">AED {{ base_price|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium text-gray-700">{% trans "Total Fees:" %}</span>
+                        <span class="text-sm font-semibold text-gray-900">AED {{ total_fees|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium text-gray-700">{% trans "Tax (5%):" %}</span>
+                        <span class="text-sm font-semibold text-gray-900">AED {{ tax_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="border-t pt-3">
+                        <div class="flex justify-between">
+                            <span class="text-lg font-bold text-gray-900">{% trans "TOTAL:" %}</span>
+                            <span class="text-lg font-bold text-gray-900">AED {{ total_amount|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Payment Terms" %}</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>{% trans "• Payment due within 15 days" %}</li>
+                        <li>{% trans "• Late payment fees may apply" %}</li>
+                        <li>{% trans "• All prices in AED" %}</li>
+                        <li>{% trans "• 5% VAT included" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center">
+                <div class="flex space-x-4">
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="copy">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <i class="fas fa-copy mr-2"></i>
+                            {% trans "Copy Invoice" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="email">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            {% trans "Email Customer" %}
+                        </button>
+                    </form>
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="save_template">
+                        <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <i class="fas fa-save mr-2"></i>
+                            {% trans "Save as Template" %}
+                        </button>
+                    </form>
+                </div>
+                <div class="flex space-x-4">
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="regenerate">
+                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <i class="fas fa-sync mr-2"></i>
+                            {% trans "Regenerate" %}
+                        </button>
+                    </form>
+                    <a href="{% url 'finance:order_management' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        {% trans "Back to Orders" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add days to date function
+function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+
+// Format date for display
+function formatDate(date) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+}
+
+// Edit header function
+function editHeader() {
+    // Show modal for editing header
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+    modal.innerHTML = `
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Invoice Header</h3>
+                <form id="editHeaderForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Invoice Number</label>
+                        <input type="text" value="INV-{{ order.order_code }}" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                        <input type="date" value="{{ due_date|date:'Y-m-d' }}" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+// Edit items function
+function editItems() {
+    // Show modal for editing items
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+    modal.innerHTML = `
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Invoice Items</h3>
+                <form id="editItemsForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
+                        <input type="text" value="{% if order.product %}{{ order.product.name_en }}{% else %}Product{% endif %}" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                        <input type="number" value="{{ order.quantity }}" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Unit Price</label>
+                        <input type="number" step="0.01" value="{{ order.price_per_unit }}" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+// Close modal function
+function closeModal() {
+    const modals = document.querySelectorAll('.fixed.inset-0');
+    modals.forEach(modal => modal.remove());
+}
+
+// Copy to clipboard function
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        console.log('Copied to clipboard');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+
+// Update due date on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const orderDate = new Date('{{ order.date|date:"Y-m-d" }}');
+    const dueDate = addDays(orderDate, 15);
+    const dueDateElement = document.querySelector('p:contains("Due Date") + p');
+    if (dueDateElement) {
+        dueDateElement.textContent = formatDate(dueDate);
+    }
+    
+    // Add form submission handlers
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const action = this.querySelector('input[name="action"]').value;
+            
+            // Show loading state
+            const button = this.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            button.disabled = true;
+            
+            // Re-enable button after a short delay (simulating processing)
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 1000);
+        });
+    });
+});
+</script>
+{% endblock %} ذ

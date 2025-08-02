@@ -56,30 +56,64 @@ class RegisterForm(forms.ModelForm):
 
 class UserCreationForm(BaseUserCreationForm):
     """Form for admin to create a new user."""
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input w-full',
+            'placeholder': 'Enter first name'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input w-full',
+            'placeholder': 'Enter last name'
+        })
+    )
     password1 = forms.CharField(
         label="Password",
-        widget=forms.PasswordInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input w-full pr-10',
+            'placeholder': 'Enter password'
+        })
     )
     password2 = forms.CharField(
         label="Password confirmation",
-        widget=forms.PasswordInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input w-full pr-10',
+            'placeholder': 'Confirm password'
+        })
     )
     primary_role = forms.ModelChoiceField(
         queryset=None,
         required=False,
         empty_label="Select a role",
-        widget=forms.Select(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'})
+        widget=forms.Select(attrs={
+            'class': 'form-select w-full'
+        })
     )
     
     class Meta:
         model = User
-        fields = ('email', 'full_name', 'phone_number', 'is_active', 'profile_image')
+        fields = ('email', 'first_name', 'last_name', 'phone_number', 'is_active', 'profile_image')
         widgets = {
-            'email': forms.EmailInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'full_name': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'phone_number': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded'}),
-            'profile_image': forms.FileInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': 'user@atlasfulfillment.ae'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': '+971501234567'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-checkbox h-5 w-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500'
+            }),
+            'profile_image': forms.FileInput(attrs={
+                'class': 'form-input w-full',
+                'accept': 'image/*'
+            }),
         }
     
     def __init__(self, *args, **kwargs):
@@ -100,6 +134,12 @@ class UserCreationForm(BaseUserCreationForm):
     
     def save(self, commit=True):
         user = super().save(commit=False)
+        
+        # Combine first_name and last_name into full_name
+        first_name = self.cleaned_data.get('first_name', '')
+        last_name = self.cleaned_data.get('last_name', '')
+        user.full_name = f"{first_name} {last_name}".strip()
+        
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
@@ -124,26 +164,68 @@ class UserCreationForm(BaseUserCreationForm):
 
 class UserChangeForm(forms.ModelForm):
     """Form for user updates."""
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input w-full',
+            'placeholder': 'Enter first name'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input w-full',
+            'placeholder': 'Enter last name'
+        })
+    )
     primary_role = forms.ModelChoiceField(
         queryset=None,
         required=False,
         empty_label="Select a role",
-        widget=forms.Select(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'})
+        widget=forms.Select(attrs={
+            'class': 'form-select w-full'
+        })
     )
     
     class Meta:
         model = User
-        fields = ('email', 'full_name', 'phone_number', 'is_active', 'profile_image')
+        fields = ('email', 'first_name', 'last_name', 'phone_number', 'is_active', 'profile_image')
         widgets = {
-            'email': forms.EmailInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'full_name': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'phone_number': forms.TextInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded'}),
-            'profile_image': forms.FileInput(attrs={'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm'}),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': 'user@atlasfulfillment.ae'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-input w-full',
+                'placeholder': '+971501234567'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-checkbox h-5 w-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500'
+            }),
+            'profile_image': forms.FileInput(attrs={
+                'class': 'form-input w-full',
+                'accept': 'image/*'
+            }),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Set initial values for first_name and last_name from full_name
+        if self.instance.pk and self.instance.full_name:
+            name_parts = self.instance.full_name.split(' ', 1)
+            if len(name_parts) > 1:
+                self.fields['first_name'].initial = name_parts[0]
+                self.fields['last_name'].initial = name_parts[1]
+                print(f"Setting first_name: {name_parts[0]}, last_name: {name_parts[1]}")  # Debug
+            else:
+                self.fields['first_name'].initial = name_parts[0]
+                print(f"Setting first_name only: {name_parts[0]}")  # Debug
+        else:
+            print(f"No instance or full_name. Instance: {self.instance}, full_name: {getattr(self.instance, 'full_name', 'N/A')}")  # Debug
+        
         try:
             from roles.models import Role
             self.fields['primary_role'].queryset = Role.objects.filter(is_active=True).order_by('name')
@@ -159,6 +241,12 @@ class UserChangeForm(forms.ModelForm):
     
     def save(self, commit=True):
         user = super().save(commit=False)
+        
+        # Combine first_name and last_name into full_name
+        first_name = self.cleaned_data.get('first_name', '')
+        last_name = self.cleaned_data.get('last_name', '')
+        user.full_name = f"{first_name} {last_name}".strip()
+        
         if commit:
             user.save()
             

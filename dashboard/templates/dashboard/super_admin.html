@@ -158,19 +158,19 @@
                             <tbody class="bg-gray-50 divide-y divide-gray-200">
                             {% for activity in recent_activities %}
                             <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ activity.event }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ activity.user }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ activity.timestamp }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ activity.get_action_display }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ activity.user.get_full_name|default:"System" }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {% if activity.status == 'success' %}
+                                    {% if activity.action == 'create' or activity.action == 'login' %}
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                         Success
                                     </span>
-                                    {% elif activity.status == 'warning' %}
+                                    {% elif activity.action == 'update' %}
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                         Warning
                                     </span>
-                                    {% elif activity.status == 'error' %}
+                                    {% elif activity.action == 'delete' %}
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                         Error
                                     </span>
@@ -203,16 +203,28 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Get real data from Django context
+        const userActivityData = {{ user_activity_data|safe }};
+        const systemPerformanceData = {{ system_performance_data|safe }};
+        
+        // Extract data for charts
+        const months = userActivityData.map(item => item.month);
+        const activeUsers = userActivityData.map(item => item.active_users);
+        const newRegistrations = userActivityData.map(item => item.new_registrations);
+        
+        const performanceLabels = Object.keys(systemPerformanceData);
+        const performanceValues = Object.values(systemPerformanceData);
+        
         // User Activity Chart
         const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
         const userActivityChart = new Chart(userActivityCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                labels: months,
                 datasets: [
                     {
                         label: 'Active Users',
-                        data: [65, 59, 80, 81, 56, 55, 40],
+                        data: activeUsers,
                         borderColor: '#D97706',
                         backgroundColor: 'rgba(217, 119, 6, 0.1)',
                         tension: 0.3,
@@ -220,7 +232,7 @@
                     },
                     {
                         label: 'New Registrations',
-                        data: [28, 48, 40, 19, 86, 27, 90],
+                        data: newRegistrations,
                         borderColor: '#F59E0B',
                         backgroundColor: 'rgba(245, 158, 11, 0.1)',
                         tension: 0.3,
@@ -252,10 +264,10 @@
         const systemPerformanceChart = new Chart(systemPerformanceCtx, {
             type: 'bar',
             data: {
-                labels: ['Database', 'API Calls', 'Page Load', 'Background Tasks', 'File Storage'],
+                labels: performanceLabels,
                 datasets: [{
                     label: 'Response Time (ms)',
-                    data: [12, 19, 3, 5, 2],
+                    data: performanceValues,
                     backgroundColor: [
                         'rgba(217, 119, 6, 0.7)',
                         'rgba(245, 158, 11, 0.7)',

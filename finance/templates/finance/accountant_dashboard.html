@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Accountant Dashboard" %} - Atlas Fulfillment{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">{% trans "Accountant Dashboard" %}</h1>
+                    <p class="ml-4 text-gray-600">{% trans "Manage finances and accounting operations" %}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'finance:accountant_dashboard' %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md flex items-center transition-colors duration-200">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        {% trans "Go to Finance Panel" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Daily Financial Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Revenue -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-dollar-sign text-2xl text-green-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">{% trans "Total Revenue" %}</p>
+                        <p class="text-2xl font-bold text-gray-900">AED {{ today_revenue|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Sales -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-chart-bar text-2xl text-blue-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">{% trans "Today's Sales" %}</p>
+                        <p class="text-2xl font-bold text-gray-900">AED {{ today_revenue|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Payments -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock text-2xl text-orange-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">{% trans "Pending Payments" %}</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ pending_count }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Growth -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-chart-line text-2xl text-purple-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">{% trans "Monthly Growth" %}</p>
+                        <p class="text-2xl font-bold text-gray-900">
+                            {% if monthly_revenue|length > 1 %}
+                                {% with current=monthly_revenue|last previous=monthly_revenue|slice:"-2:-1"|first %}
+                                    {% if previous.revenue > 0 %}
+                                        {% widthratio current.revenue previous.revenue 100 %}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="bg-yellow-500 text-white px-6 py-3 rounded-t-lg">
+                    <h3 class="text-lg font-semibold">{% trans "Quick Actions" %}</h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- View Payments -->
+                    <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-list-check text-xl text-blue-500"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-sm font-medium text-gray-900">{% trans "View Payments" %}</h4>
+                            <p class="text-sm text-gray-600">{% trans "Manage all payment transactions" %}</p>
+                        </div>
+                        <a href="{% url 'finance:payments' %}" class="text-blue-500 hover:text-blue-700">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Sales Reports -->
+                    <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-file-chart text-xl text-green-500"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-sm font-medium text-gray-900">{% trans "Sales Reports" %}</h4>
+                            <p class="text-sm text-gray-600">{% trans "Generate sales and revenue reports" %}</p>
+                        </div>
+                        <a href="{% url 'finance:financial_reports' %}" class="text-green-500 hover:text-green-700">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Create Invoice -->
+                    <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-file-plus text-xl text-purple-500"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-sm font-medium text-gray-900">{% trans "Create Invoice" %}</h4>
+                            <p class="text-sm text-gray-600">{% trans "Generate new invoices" %}</p>
+                        </div>
+                        <a href="{% url 'finance:order_management' %}" class="text-purple-500 hover:text-purple-700">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Financial Reports -->
+                    <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-file-grid text-xl text-orange-500"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-sm font-medium text-gray-900">{% trans "Financial Reports" %}</h4>
+                            <p class="text-sm text-gray-600">{% trans "View comprehensive financial reports" %}</p>
+                        </div>
+                        <a href="{% url 'finance:financial_reports' %}" class="text-orange-500 hover:text-orange-700">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="bg-yellow-500 text-white px-6 py-3 rounded-t-lg">
+                    <h3 class="text-lg font-semibold">{% trans "Recent Transactions" %}</h3>
+                </div>
+                <div class="p-6">
+                    {% if recent_activities %}
+                        <div class="space-y-4">
+                            {% for payment in recent_activities %}
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        {% if payment.payment_status == 'completed' %}
+                                            <i class="fas fa-check-circle text-green-500"></i>
+                                        {% elif payment.payment_status == 'pending' %}
+                                            <i class="fas fa-clock text-orange-500"></i>
+                                        {% else %}
+                                            <i class="fas fa-times-circle text-red-500"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">
+                                            {% if payment.order %}
+                                                {{ payment.order.order_code }}
+                                            {% else %}
+                                                Payment #{{ payment.id }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ payment.payment_date|date:"M d, Y H:i" }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-900">AED {{ payment.amount|floatformat:2 }}</p>
+                                    <p class="text-xs text-gray-500">{{ payment.get_payment_method_display }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">{% trans "No recent transactions" %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Urgent Alerts -->
+        {% if urgent_alerts %}
+        <div class="mt-8 bg-white rounded-lg shadow">
+            <div class="bg-red-500 text-white px-6 py-3 rounded-t-lg">
+                <h3 class="text-lg font-semibold">{% trans "Urgent Financial Alerts" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    {% for alert in urgent_alerts %}
+                    <div class="flex items-center p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex-shrink-0">
+                            {% if alert.type == 'overdue_payment' %}
+                                <i class="fas fa-exclamation-triangle text-red-500"></i>
+                            {% elif alert.type == 'low_stock' %}
+                                <i class="fas fa-box text-orange-500"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium text-gray-900">{{ alert.message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Financial Overview -->
+        <div class="mt-8 bg-white rounded-lg shadow">
+            <div class="bg-yellow-500 text-white px-6 py-3 rounded-t-lg">
+                <h3 class="text-lg font-semibold">{% trans "Financial Overview" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <!-- Revenue Trend -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-arrow-up text-blue-500 text-xl"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Revenue" %}</p>
+                        <p class="text-lg font-bold text-blue-600">AED {{ total_revenue|floatformat:2 }}</p>
+                    </div>
+
+                    <!-- Fees Collected -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-arrow-down text-red-500 text-xl"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Fees" %}</p>
+                        <p class="text-lg font-bold text-red-600">AED {{ fees_collected|floatformat:2 }}</p>
+                    </div>
+
+                    <!-- Orders Processed -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-chart-pie text-green-500 text-xl"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Orders" %}</p>
+                        <p class="text-lg font-bold text-green-600">{{ orders_processed_today }}</p>
+                    </div>
+
+                    <!-- Growth Rate -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-percentage text-yellow-500 text-xl"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900">{% trans "Growth" %}</p>
+                        <p class="text-lg font-bold text-yellow-600">
+                            {% if monthly_revenue|length > 1 %}
+                                {% with current=monthly_revenue|last previous=monthly_revenue|slice:"-2:-1"|first %}
+                                    {% if previous.revenue > 0 %}
+                                        {% widthratio current.revenue previous.revenue 100 %}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Monthly Revenue Chart
+    const monthlyData = {{ monthly_revenue|safe }};
+    const ctx = document.getElementById('monthlyRevenueChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'Monthly Revenue (AED)',
+                    data: monthlyData.map(item => item.revenue),
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

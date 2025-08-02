@@ -1,212 +1,556 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
 
-{% block title %}Edit User{% endblock %}
+{% block title %}{% if user_obj %}Edit User: {{ user_obj.full_name }}{% else %}Create New User{% endif %}{% endblock %}
 
 {% block content %}
-<div class="py-10">
-    <header>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center">
-                <a href="{% url 'users:list' %}" class="mr-3 text-yellow-600 hover:text-yellow-700">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                </a>
-                <h1 class="text-3xl font-bold leading-tight text-gray-900 dark:text-white">
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <nav class="flex" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="{% url 'dashboard:index' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-home mr-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <a href="{% url 'users:list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">Users</a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <span class="text-sm font-medium text-gray-500">
+                                    {% if user_obj %}Edit User{% else %}Create User{% endif %}
+                                </span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">
                     {% if user_obj %}Edit User: {{ user_obj.full_name }}{% else %}Create New User{% endif %}
                 </h1>
+                <p class="text-gray-600 mt-1">
+                    {% if user_obj %}Update user information and permissions{% else %}Add a new user to the system{% endif %}
+                </p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'users:list' %}" class="btn-secondary inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    {% trans "Back to Users" %}
+                </a>
             </div>
         </div>
-    </header>
-    <main>
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <form method="post" enctype="multipart/form-data" class="space-y-8">
-                {% csrf_token %}
-                
-                {% if form.non_field_errors %}
-                <div class="bg-red-50 dark:bg-red-900 border-l-4 border-red-500 p-4 mt-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
-                                There were errors with your submission
-                            </h3>
-                            <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                                <ul role="list" class="list-disc pl-5 space-y-1">
-                                    {% for error in form.non_field_errors %}
-                                    <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
+    </div>
+
+    <!-- Main Form -->
+    <form method="post" enctype="multipart/form-data" id="user-form" class="space-y-8">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="card border-red-200 bg-red-50">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            {% trans "There were errors with your submission" %}
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul role="list" class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
                 </div>
-                {% endif %}
-                
-                <!-- Personal Information -->
-                <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-                    <div class="px-4 py-5 sm:px-6">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Personal Information</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">User details and basic information.</p>
-                    </div>
-                    <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">
-                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                            <div class="sm:col-span-3">
-                                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    First name
-                                </label>
-                                <div class="mt-1">
-                                    <input type="text" name="{{ form.first_name.html_name }}" id="{{ form.first_name.id_for_label }}" value="{{ form.first_name.value|default:'' }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if form.first_name.errors %}border-red-500{% endif %}">
-                                </div>
-                                {% if form.first_name.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.first_name.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-
-                            <div class="sm:col-span-3">
-                                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Last name
-                                </label>
-                                <div class="mt-1">
-                                    <input type="text" name="{{ form.last_name.html_name }}" id="{{ form.last_name.id_for_label }}" value="{{ form.last_name.value|default:'' }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if form.last_name.errors %}border-red-500{% endif %}">
-                                </div>
-                                {% if form.last_name.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.last_name.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-
-                            <div class="sm:col-span-6">
-                                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Email address
-                                </label>
-                                <div class="mt-1">
-                                    <input type="email" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}" value="{{ form.email.value|default:'' }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if form.email.errors %}border-red-500{% endif %}">
-                                </div>
-                                {% if form.email.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.email.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="sm:col-span-3">
-                                <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Phone number
-                                </label>
-                                <div class="mt-1">
-                                    <input type="text" name="{{ form.phone.html_name }}" id="{{ form.phone.id_for_label }}" value="{{ form.phone.value|default:'' }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if form.phone.errors %}border-red-500{% endif %}">
-                                </div>
-                                {% if form.phone.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.phone.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="sm:col-span-3">
-                                <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Profile Image
-                                </label>
-                                <div class="mt-1 flex items-center">
-                                    {% if user_obj.profile_image %}
-                                    <span class="h-12 w-12 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600 mr-3">
-                                        <img src="{{ user_obj.profile_image.url }}" alt="{{ user_obj.full_name }}" class="h-full w-full object-cover">
-                                    </span>
-                                    {% endif %}
-                                    <input type="file" name="{{ form.profile_image.html_name }}" id="{{ form.profile_image.id_for_label }}" class="block w-full text-sm text-gray-500 dark:text-gray-400
-                                        file:mr-4 file:py-2 file:px-4
-                                        file:rounded-md file:border-0
-                                        file:text-sm file:font-semibold
-                                        file:bg-yellow-50 file:text-yellow-700
-                                        hover:file:bg-yellow-100
-                                        dark:file:bg-yellow-900 dark:file:text-yellow-200
-                                        dark:hover:file:bg-yellow-800
-                                        {% if form.profile_image.errors %}border-red-500{% endif %}">
-                                </div>
-                                {% if form.profile_image.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.profile_image.errors.0 }}</p>
-                                {% endif %}
-                            </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Personal Information Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Account Information -->
-                <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-                    <div class="px-4 py-5 sm:px-6">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Account Information</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">User role and account settings.</p>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Personal Information" %}</h3>
+                        <p class="text-sm text-gray-600">{% trans "User details and basic information" %}</p>
                     </div>
-                    <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">
-                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                            <div class="sm:col-span-3">
-                                <label for="{{ form.role.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Role
-                                </label>
-                                <div class="mt-1">
-                                    <select id="{{ form.role.id_for_label }}" name="{{ form.role.html_name }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if form.role.errors %}border-red-500{% endif %}">
-                                        {% for value, text in form.role.field.choices %}
-                                        <option value="{{ value }}" {% if form.role.value == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                {% if form.role.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.role.errors.0 }}</p>
-                                {% endif %}
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- First Name -->
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-primary-500"></i>
+                            {% trans "First Name" %}
+                        </label>
+                        <input type="text" name="{{ form.first_name.html_name }}" 
+                               id="{{ form.first_name.id_for_label }}" 
+                               value="{% if form.first_name.value %}{{ form.first_name.value }}{% elif first_name %}{{ first_name }}{% endif %}" 
+                               class="form-input w-full" 
+                               placeholder="Enter first name"
+                               required>
+                        {% if form.first_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-primary-500"></i>
+                            {% trans "Last Name" %}
+                        </label>
+                        <input type="text" name="{{ form.last_name.html_name }}" 
+                               id="{{ form.last_name.id_for_label }}" 
+                               value="{% if form.last_name.value %}{{ form.last_name.value }}{% elif last_name %}{{ last_name }}{% endif %}" 
+                               class="form-input w-full" 
+                               placeholder="Enter last name"
+                               required>
+                        {% if form.last_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2 text-primary-500"></i>
+                            {% trans "Email Address" %}
+                        </label>
+                        <input type="email" name="{{ form.email.html_name }}" 
+                               id="{{ form.email.id_for_label }}" 
+                               value="{{ form.email.value|default:'' }}" 
+                               class="form-input w-full" 
+                               placeholder="user@example.com"
+                               required>
+                        {% if form.email.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div>
+                        <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone mr-2 text-primary-500"></i>
+                            {% trans "Phone Number" %}
+                        </label>
+                        <input type="tel" name="{{ form.phone_number.html_name }}" 
+                               id="{{ form.phone_number.id_for_label }}" 
+                               value="{{ form.phone_number.value|default:'' }}" 
+                               class="form-input w-full" 
+                               placeholder="+971501234567">
+                        {% if form.phone_number.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Profile Image -->
+                    <div>
+                        <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-camera mr-2 text-primary-500"></i>
+                            {% trans "Profile Image" %}
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            {% if user_obj.profile_image %}
+                            <div class="flex-shrink-0">
+                                <img src="{{ user_obj.profile_image.url }}" 
+                                     alt="{{ user_obj.full_name }}" 
+                                     class="h-16 w-16 rounded-full object-cover border-2 border-gray-200">
                             </div>
-                            
-                            {% if not user_obj %}
-                            <div class="sm:col-span-3">
-                                <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Password
-                                </label>
-                                <div class="mt-1">
-                                    <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if form.password.errors %}border-red-500{% endif %}">
+                            {% else %}
+                            <div class="flex-shrink-0">
+                                <div class="h-16 w-16 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center border-2 border-gray-200">
+                                    <i class="fas fa-user text-yellow-600 text-xl"></i>
                                 </div>
-                                {% if form.password.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="sm:col-span-3">
-                                <label for="{{ form.confirm_password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Confirm Password
-                                </label>
-                                <div class="mt-1">
-                                    <input type="password" name="{{ form.confirm_password.html_name }}" id="{{ form.confirm_password.id_for_label }}" class="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if form.confirm_password.errors %}border-red-500{% endif %}">
-                                </div>
-                                {% if form.confirm_password.errors %}
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.confirm_password.errors.0 }}</p>
-                                {% endif %}
                             </div>
                             {% endif %}
+                            <div class="flex-1">
+                                <input type="file" name="{{ form.profile_image.html_name }}" 
+                                       id="{{ form.profile_image.id_for_label }}" 
+                                       class="form-input w-full" 
+                                       accept="image/*">
+                                <p class="mt-1 text-xs text-gray-500">{% trans "JPG, PNG or GIF. Max 2MB." %}</p>
+                            </div>
+                        </div>
+                        {% if form.profile_image.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.profile_image.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                            <div class="sm:col-span-3">
-                                <div class="flex items-start mt-6">
-                                    <div class="flex items-center h-5">
-                                        <input id="{{ form.is_active.id_for_label }}" name="{{ form.is_active.html_name }}" type="checkbox" {% if form.is_active.value %}checked{% endif %} class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        <label for="{{ form.is_active.id_for_label }}" class="font-medium text-gray-700 dark:text-gray-300">Active</label>
-                                        <p class="text-gray-500 dark:text-gray-400">Whether this user can log in and access the system.</p>
-                                    </div>
+        <!-- Account Information Card -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Account Information" %}</h3>
+                        <p class="text-sm text-gray-600">{% trans "User role and account settings" %}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Primary Role -->
+                    <div>
+                        <label for="{{ form.primary_role.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user-tag mr-2 text-primary-500"></i>
+                            {% trans "Primary Role" %}
+                        </label>
+                        <select name="{{ form.primary_role.html_name }}" 
+                                id="{{ form.primary_role.id_for_label }}" 
+                                class="form-select w-full">
+                            <option value="">{% trans "Select a role" %}</option>
+                            {% for value, text in form.primary_role.field.choices %}
+                                {% if value %}
+                                <option value="{{ value }}" {% if form.primary_role.value == value|stringformat:"s" %}selected{% endif %}>
+                                    {{ text }}
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% if form.primary_role.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.primary_role.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">{% trans "The user's primary role in the system" %}</p>
+                    </div>
+
+                    <!-- Active Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-toggle-on mr-2 text-primary-500"></i>
+                            {% trans "Account Status" %}
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="{{ form.is_active.html_name }}" 
+                                       id="{{ form.is_active.id_for_label }}" 
+                                       {% if form.is_active.value %}checked{% endif %}
+                                       class="form-checkbox h-5 w-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
+                                <label for="{{ form.is_active.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">
+                                    {% trans "Active" %}
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if form.is_active.value %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    <i class="fas fa-circle mr-1"></i>
+                                    {% if form.is_active.value %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">{% trans "Whether this user can log in and access the system" %}</p>
+                    </div>
+
+                    {% if not user_obj %}
+                    <!-- Password Fields for New Users -->
+                    <div>
+                        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2 text-primary-500"></i>
+                            {% trans "Password" %}
+                        </label>
+                        <div class="relative">
+                            <input type="password" name="{{ form.password1.html_name }}" 
+                                   id="{{ form.password1.id_for_label }}" 
+                                   class="form-input w-full pr-10" 
+                                   placeholder="Enter password"
+                                   required>
+                            <button type="button" onclick="togglePassword('{{ form.password1.id_for_label }}')" 
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <i class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                            </button>
+                        </div>
+                        {% if form.password1.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2 text-primary-500"></i>
+                            {% trans "Confirm Password" %}
+                        </label>
+                        <div class="relative">
+                            <input type="password" name="{{ form.password2.html_name }}" 
+                                   id="{{ form.password2.id_for_label }}" 
+                                   class="form-input w-full pr-10" 
+                                   placeholder="Confirm password"
+                                   required>
+                            <button type="button" onclick="togglePassword('{{ form.password2.id_for_label }}')" 
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <i class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Management Card -->
+        {% if user_obj %}
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user-shield text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Role Management" %}</h3>
+                        <p class="text-sm text-gray-600">{% trans "Manage user roles and permissions" %}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="space-y-4">
+                    <!-- Current Roles -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">{% trans "Current Roles" %}</h4>
+                        <div class="space-y-2">
+                            {% for user_role in user_obj.user_roles.all %}
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3">
+                                        {% if user_role.is_primary %}
+                                            <i class="fas fa-star mr-1"></i>Primary
+                                        {% else %}
+                                            <i class="fas fa-user mr-1"></i>Secondary
+                                        {% endif %}
+                                    </span>
+                                    <span class="text-sm font-medium text-gray-900">{{ user_role.role.name }}</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button type="button" onclick="togglePrimaryRole({{ user_role.id }})" 
+                                            class="text-xs px-2 py-1 rounded {% if user_role.is_primary %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-600{% endif %} hover:bg-yellow-200">
+                                        {% if user_role.is_primary %}Primary{% else %}Set Primary{% endif %}
+                                    </button>
+                                    <button type="button" onclick="removeRole({{ user_role.id }})" 
+                                            class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">
+                                        <i class="fas fa-trash mr-1"></i>Remove
+                                    </button>
                                 </div>
                             </div>
+                            {% empty %}
+                            <div class="text-center py-4 text-gray-500">
+                                <i class="fas fa-user-slash text-2xl mb-2"></i>
+                                <p>{% trans "No roles assigned" %}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Add New Role -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">{% trans "Add New Role" %}</h4>
+                        <div class="flex space-x-3">
+                            <select id="new-role-select" class="form-select flex-1">
+                                <option value="">{% trans "Select a role..." %}</option>
+                                {% for role in available_roles %}
+                                <option value="{{ role.id }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" onclick="addRole()" class="btn-secondary">
+                                <i class="fas fa-plus mr-2"></i>{% trans "Add Role" %}
+                            </button>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Submit Buttons -->
-                <div class="flex justify-end space-x-3">
-                    <a href="{% url 'users:list' %}" class="py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                        Cancel
-                    </a>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                        {% if user_obj %}Save Changes{% else %}Create User{% endif %}
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
-    </main>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+            <a href="{% url 'users:list' %}" class="btn-secondary">
+                <i class="fas fa-times mr-2"></i>
+                {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="btn-primary" id="submit-btn">
+                <i class="fas fa-save mr-2"></i>
+                {% if user_obj %}{% trans "Save Changes" %}{% else %}{% trans "Create User" %}{% endif %}
+            </button>
+        </div>
+    </form>
 </div>
+
+<script>
+// Get user object ID for AJAX requests
+const user_obj_id = {{ user_obj.id|default:"null" }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('user-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const activeCheckbox = document.getElementById('{{ form.is_active.id_for_label }}');
+    const activeStatus = document.querySelector('.inline-flex.items-center.px-2\\.5');
+
+    // Update active status display
+    function updateActiveStatus() {
+        const isActive = activeCheckbox.checked;
+        activeStatus.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        activeStatus.innerHTML = `<i class="fas fa-circle mr-1"></i>${isActive ? 'Active' : 'Inactive'}`;
+    }
+
+    // Listen for checkbox changes
+    activeCheckbox.addEventListener('change', updateActiveStatus);
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        submitBtn.innerHTML = '<div class="loading mr-2"></div>Saving...';
+        submitBtn.disabled = true;
+        
+        // Validate required fields
+        const requiredFields = ['first_name', 'last_name', 'email'];
+        let isValid = true;
+        
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(`id_${fieldName}`);
+            if (field && !field.value) {
+                field.classList.add('border-red-500');
+                isValid = false;
+            } else if (field) {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Changes';
+            submitBtn.disabled = false;
+            alert('Please fill in all required fields.');
+            return;
+        }
+    });
+
+    // Initialize active status
+    updateActiveStatus();
+});
+
+// Role Management Functions
+function addRole() {
+    const roleSelect = document.getElementById('new-role-select');
+    const roleId = roleSelect.value;
+    
+    if (!roleId) {
+        alert('Please select a role to add.');
+        return;
+    }
+    
+    // Send AJAX request to add role
+    fetch(`/users/${user_obj_id}/add-role/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ role_id: roleId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to add role.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to add role.');
+    });
+}
+
+function removeRole(userRoleId) {
+    if (!confirm('Are you sure you want to remove this role?')) {
+        return;
+    }
+    
+    // Send AJAX request to remove role
+    fetch(`/users/remove-role/${userRoleId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to remove role.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to remove role.');
+    });
+}
+
+function togglePrimaryRole(userRoleId) {
+    // Send AJAX request to toggle primary role
+    fetch(`/users/toggle-primary-role/${userRoleId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to update primary role.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update primary role.');
+    });
+}
+
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = field.nextElementSibling.querySelector('i');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.className = 'fas fa-eye-slash text-gray-400 hover:text-gray-600';
+    } else {
+        field.type = 'password';
+        icon.className = 'fas fa-eye text-gray-400 hover:text-gray-600';
+    }
+}
+</script>
 {% endblock %} 

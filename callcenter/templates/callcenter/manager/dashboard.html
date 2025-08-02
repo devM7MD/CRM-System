@@ -6,289 +6,791 @@
 
 {% block content %}
 <div class="w-full">
-    <!-- Beta Warning Banner -->
-    <div class="bg-gradient-to-r from-yellow-400 to-orange-200 border-l-4 border-yellow-600 p-4 mb-6 rounded-md">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-triangle text-yellow-800 text-xl"></i>
+    <!-- Page Header with Manager Info and Real-time Status -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg mb-6">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-headset text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">{% trans "Call Center Manager" %}</h1>
+                        <p class="text-blue-100">{% trans "Manager" %}: {{ user.get_full_name }}</p>
+                    </div>
                 </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-yellow-800">
-                        Beta Version Notice
-                    </h3>
-                    <p class="text-sm text-yellow-700 mt-1">
-                        This is a beta version and may have some bugs.
-                    </p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button type="button" onclick="openBugReportModal()" 
-                        class="bg-yellow-700 hover:bg-yellow-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    <i class="fas fa-bug mr-2"></i>
-                    Report Bug
-                </button>
-                <button type="button" onclick="dismissBetaWarning()" 
-                        class="text-yellow-800 hover:text-yellow-900">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation Bar -->
-    <div class="bg-white shadow-sm rounded-lg mb-6">
-        <div class="flex items-center justify-between p-4">
-            <div class="flex items-center space-x-4">
-                <a href="{% url 'callcenter:manager_dashboard' %}" class="flex items-center text-primary-600 font-medium">
-                    <i class="fas fa-home mr-2"></i>
-                    <span>{% trans "Dashboard" %}</span>
-                </a>
-                <a href="{% url 'callcenter:manager_order_list' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
-                    <i class="fas fa-list mr-2"></i>
-                    <span>{% trans "Orders" %}</span>
-                </a>
-                <a href="{% url 'callcenter:manager_agent_reports' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
-                    <i class="fas fa-chart-line mr-2"></i>
-                    <span>{% trans "Agent Reports" %}</span>
-                </a>
-            </div>
-            <div class="flex items-center space-x-3">
                 <div class="text-right">
-                    <p class="text-sm text-gray-500">{% trans "Current Time" %}</p>
-                    <p class="text-lg font-semibold text-gray-900" id="current-time"></p>
-                </div>
-                <div class="h-8 w-px bg-gray-300"></div>
-                <div class="text-right">
-                    <p class="text-sm text-gray-500">{% trans "Today's Date" %}</p>
-                    <p class="text-lg font-semibold text-gray-900" id="current-date"></p>
+                    <div class="text-sm text-blue-100">{% trans "Real-time" %}</div>
+                    <div class="text-xl font-bold" id="current-datetime"></div>
+                    <div class="text-sm text-blue-100">{% trans "Live Operations" %}</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Page Header -->
+    <!-- Operational Performance Overview -->
     <div class="mb-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
-                    <i class="fas fa-headset text-primary-600 mr-3"></i>
-                    {% trans "Call Center Manager Dashboard" %}
-                </h1>
-                <p class="text-gray-600 mt-1">{% trans "Welcome back" %}, {{ user.get_full_name }}! {% trans "Real-time overview of your call center operations" %}</p>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-gray-900">{% trans "Operational Performance" %}</h2>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-lg font-medium">{% trans "Daily" %}</button>
+                <button class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-lg">{% trans "Weekly" %}</button>
+                <button class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-lg">{% trans "Monthly" %}</button>
+            </div>
+        </div>
+        
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="card">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">{% trans "Total Orders" %}</p>
+                            <p class="text-3xl font-bold text-gray-900">{{ total_orders }}</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                {{ orders_today }} {% trans "today" %}
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">{% trans "Active Agents" %}</p>
+                            <p class="text-3xl font-bold text-gray-900">{{ active_agents }}</p>
+                            <p class="text-sm text-blue-600 mt-1">
+                                <i class="fas fa-user-check mr-1"></i>
+                                {% trans "Available" %}
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">{% trans "Orders Processed" %}</p>
+                            <p class="text-3xl font-bold text-gray-900">{{ orders_processed }}</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-clock mr-1"></i>
+                                {% trans "Today" %}
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cogs text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">{% trans "Total Calls" %}</p>
+                            <p class="text-3xl font-bold text-gray-900">{{ total_calls_handled }}</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-phone mr-1"></i>
+                                {% trans "Handled" %}
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-phone-alt text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Performance Metrics Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Total Orders -->
-        <div class="card animate-slide-up">
-            <div class="p-6 text-center">
-                <div class="flex justify-center mb-4">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+    <!-- Key Performance Indicators -->
+    <div class="mb-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">{% trans "Key Performance Indicators" %}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ confirmation_rate }}%</h3>
+                    <p class="text-sm text-gray-600">{% trans "Confirmation Rate" %}</p>
+                    <div class="mt-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: {{ confirmation_rate }}%"></div>
+                        </div>
                     </div>
                 </div>
-                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Total Orders" %}</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_orders|default:"0" }}</p>
-                <p class="text-sm text-green-600 mt-1">
-                    <i class="fas fa-arrow-up mr-1"></i>
-                    +{{ orders_today|default:"0" }} {% trans "today" %}
-                </p>
             </div>
-        </div>
 
-        <!-- Confirmation Rate -->
-        <div class="card animate-slide-up">
-            <div class="p-6 text-center">
-                <div class="flex justify-center mb-4">
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+            <div class="card">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ avg_response_time }} {% trans "min" %}</h3>
+                    <p class="text-sm text-gray-600">{% trans "Avg Response Time" %}</p>
+                    <div class="mt-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 64%"></div>
+                        </div>
                     </div>
                 </div>
-                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Confirmation Rate" %}</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2">{{ confirmation_rate|default:"0" }}%</p>
-                <p class="text-sm text-green-600 mt-1">
-                    <i class="fas fa-arrow-up mr-1"></i>
-                    {{ orders_confirmed|default:"0" }} {% trans "confirmed" %}
-                </p>
             </div>
-        </div>
 
-        <!-- Active Agents -->
-        <div class="card animate-slide-up">
-            <div class="p-6 text-center">
-                <div class="flex justify-center mb-4">
-                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-users text-orange-600 text-xl"></i>
+            <div class="card">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-times-circle text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ cancellation_rate }}%</h3>
+                    <p class="text-sm text-gray-600">{% trans "Cancellation Rate" %}</p>
+                    <div class="mt-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-600 h-2 rounded-full" style="width: {{ cancellation_rate }}%"></div>
+                        </div>
                     </div>
                 </div>
-                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Active Agents" %}</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2">{{ active_agents|default:"0" }}</p>
-                <p class="text-sm text-blue-600 mt-1">
-                    <i class="fas fa-user-check mr-1"></i>
-                    {% trans "Available" %}
-                </p>
             </div>
-        </div>
 
-        <!-- Average Satisfaction -->
-        <div class="card animate-slide-up">
-            <div class="p-6 text-center">
-                <div class="flex justify-center mb-4">
-                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-star text-yellow-600 text-xl"></i>
+            <div class="card">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-star text-yellow-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ avg_satisfaction }}/5</h3>
+                    <p class="text-sm text-gray-600">{% trans "Customer Satisfaction" %}</p>
+                    <div class="mt-2 flex justify-center">
+                        <div class="flex space-x-1">
+                            {% for i in "12345" %}
+                                <i class="fas fa-star {% if forloop.counter <= avg_satisfaction %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-                <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Avg Satisfaction" %}</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2">{{ avg_satisfaction|default:"0" }}/5</p>
-                <p class="text-sm text-green-600 mt-1">
-                    <i class="fas fa-smile mr-1"></i>
-                    {% trans "Good" %}
-                </p>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activity and Quick Actions -->
+    <!-- Performance Analytics Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Recent Assignments -->
-        <div class="card animate-slide-up">
+        <!-- Confirmation Rate Trend -->
+        <div class="card">
             <div class="card-header">
-                <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-clock mr-2 text-primary-500"></i>
-                    {% trans "Recent Assignments" %}
-                </h3>
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Confirmation Rate Trend" %}</h3>
             </div>
             <div class="p-6">
-                {% if recent_assignments %}
-                    <div class="space-y-4">
-                        {% for assignment in recent_assignments %}
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user text-primary-600 text-sm"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">
-                                        {{ assignment.agent.get_full_name|default:assignment.agent.username }}
-                                    </p>
-                                    <p class="text-xs text-gray-500">
-                                        Order #{{ assignment.order.id }} • {{ assignment.assignment_date|date:"M d, H:i" }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                                    {{ assignment.priority_level|title }}
-                                </span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-8">
-                        <i class="fas fa-inbox text-gray-400 text-4xl mb-4"></i>
-                        <p class="text-gray-500">{% trans "No recent assignments" %}</p>
-                    </div>
-                {% endif %}
+                <div class="h-64 flex items-end justify-between space-x-2">
+                    {% for trend in weekly_trends %}
+                        <div class="flex-1 bg-blue-{{ forloop.counter }}00 rounded-t" style="height: {{ trend.confirmation_rate }}%"></div>
+                    {% empty %}
+                        <div class="flex-1 bg-blue-100 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-blue-200 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-blue-300 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-blue-400 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-blue-500 rounded-t" style="height: 0%"></div>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-between mt-4 text-sm text-gray-600">
+                    {% for trend in weekly_trends %}
+                        <span>{{ trend.date|date:"D" }}</span>
+                    {% empty %}
+                        <span>{% trans "Mon" %}</span>
+                        <span>{% trans "Tue" %}</span>
+                        <span>{% trans "Wed" %}</span>
+                        <span>{% trans "Thu" %}</span>
+                        <span>{% trans "Fri" %}</span>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
-        <!-- Pending Orders -->
-        <div class="card animate-slide-up">
+        <!-- Response Time Analysis -->
+        <div class="card">
             <div class="card-header">
-                <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-exclamation-triangle mr-2 text-orange-500"></i>
-                    {% trans "Pending Orders" %}
-                </h3>
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Response Time Analysis" %}</h3>
             </div>
             <div class="p-6">
-                {% if pending_orders %}
-                    <div class="space-y-4">
-                        {% for order in pending_orders %}
-                        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-clock text-orange-600 text-sm"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">
-                                        Order #{{ order.id }}
-                                    </p>
-                                    <p class="text-xs text-gray-500">
-                                        {{ order.customer.get_full_name|default:"No Customer" }} • {{ order.date|date:"M d, H:i" }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <a href="{% url 'callcenter:manager_assign_order' order.id %}" 
-                                   class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 hover:bg-orange-200 transition-colors">
-                                    {% trans "Assign" %}
-                                </a>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-8">
-                        <i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
-                        <p class="text-gray-500">{% trans "No pending orders" %}</p>
-                    </div>
-                {% endif %}
+                <div class="h-64 flex items-end justify-between space-x-2">
+                    {% for trend in weekly_trends %}
+                        <div class="flex-1 bg-green-{{ forloop.counter }}00 rounded-t" style="height: {{ trend.response_time|floatformat:0 }}%"></div>
+                    {% empty %}
+                        <div class="flex-1 bg-green-100 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-green-200 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-green-300 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-green-400 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t" style="height: 0%"></div>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-between mt-4 text-sm text-gray-600">
+                    {% for trend in weekly_trends %}
+                        <span>{{ trend.date|date:"D" }}</span>
+                    {% empty %}
+                        <span>{% trans "Mon" %}</span>
+                        <span>{% trans "Tue" %}</span>
+                        <span>{% trans "Wed" %}</span>
+                        <span>{% trans "Thu" %}</span>
+                        <span>{% trans "Fri" %}</span>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Team Performance Summary -->
-    <div class="card animate-slide-up">
+    <!-- Top Performing Agents -->
+    <div class="card mb-8">
         <div class="card-header">
-            <h3 class="text-lg font-semibold text-gray-900">
-                <i class="fas fa-chart-bar mr-2 text-primary-500"></i>
-                {% trans "Team Performance Summary" %}
-            </h3>
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Top Performing Agents Today" %}</h3>
         </div>
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-phone text-blue-600 text-2xl"></i>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Agent Name" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Orders" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Confirmed" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Rate" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Avg Time" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Rating" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for agent_perf in top_agents %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-sm font-medium text-blue-600">{{ agent_perf.agent.get_full_name|first|upper }}</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ agent_perf.agent.get_full_name }}</div>
+                                        <div class="text-sm text-gray-500">Agent #{{ agent_perf.agent.id|stringformat:"03d" }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ agent_perf.total_orders_handled }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ agent_perf.orders_confirmed }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    {% if agent_perf.total_orders_handled > 0 %}
+                                        {{ agent_perf.orders_confirmed|floatformat:1 }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ agent_perf.average_call_duration|floatformat:1 }} min</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="text-sm text-gray-900 mr-1">{{ agent_perf.customer_satisfaction_avg|floatformat:1 }}</span>
+                                    <div class="flex space-x-1">
+                                        {% for i in "12345" %}
+                                            <i class="fas fa-star {% if forloop.counter <= agent_perf.customer_satisfaction_avg %}text-yellow-400{% else %}text-gray-300{% endif %} text-xs"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                {% trans "No agent performance data available for today" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts and Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Alerts & Notifications -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Alerts & Notifications" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <i class="fas fa-exclamation-triangle text-red-600 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-red-900">{% trans "High Priority" %}</p>
+                            <p class="text-sm text-red-700">{{ high_priority_count }} orders pending &gt;2 hours</p>
+                        </div>
                     </div>
-                    <h4 class="text-lg font-semibold text-gray-900">{{ total_calls_handled|default:"0" }}</h4>
-                    <p class="text-sm text-gray-600">{% trans "Total Calls Handled" %}</p>
+                    {% if agent_overload %}
+                    <div class="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                        <i class="fas fa-user-clock text-orange-600 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-orange-900">{% trans "Agent Overload" %}</p>
+                            <p class="text-sm text-orange-700">{{ agent_overload.name }} ({{ agent_overload.order_count }} orders)</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if low_stock_alert %}
+                    <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <i class="fas fa-box text-yellow-600 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-yellow-900">{% trans "Low Stock Alert" %}</p>
+                            <p class="text-sm text-yellow-700">{{ low_stock_alert.product }} ({{ low_stock_alert.units }} units left)</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <i class="fas fa-info-circle text-blue-600 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-blue-900">{% trans "System Update" %}</p>
+                            <p class="text-sm text-blue-700">New CRM features available</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-check text-green-600 text-2xl"></i>
-                    </div>
-                    <h4 class="text-lg font-semibold text-gray-900">{{ orders_confirmed|default:"0" }}</h4>
-                    <p class="text-sm text-gray-600">{% trans "Orders Confirmed" %}</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-times text-red-600 text-2xl"></i>
-                    </div>
-                    <h4 class="text-lg font-semibold text-gray-900">{{ orders_cancelled|default:"0" }}</h4>
-                    <p class="text-sm text-gray-600">{% trans "Orders Cancelled" %}</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="{% url 'callcenter:manager_order_list' %}" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-list text-blue-600 text-xl mr-3"></i>
+                        <div>
+                            <p class="font-medium text-blue-900">{% trans "View All Orders" %}</p>
+                            <p class="text-sm text-blue-700">{% trans "Manage orders" %}</p>
+                        </div>
+                    </a>
+                    <button onclick="openAssignOrdersModal()" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors w-full text-left">
+                        <i class="fas fa-user-plus text-green-600 text-xl mr-3"></i>
+                        <div>
+                            <p class="font-medium text-green-900">{% trans "Assign Orders" %}</p>
+                            <p class="text-sm text-green-700">{% trans "Distribute workload" %}</p>
+                        </div>
+                    </button>
+                    <a href="{% url 'callcenter:manager_agent_reports' %}" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                        <i class="fas fa-chart-bar text-purple-600 text-xl mr-3"></i>
+                        <div>
+                            <p class="font-medium text-purple-900">{% trans "Reports" %}</p>
+                            <p class="text-sm text-purple-700">{% trans "Performance analytics" %}</p>
+                        </div>
+                    </a>
+                    <button onclick="openSettingsModal()" class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors w-full text-left">
+                        <i class="fas fa-cog text-yellow-600 text-xl mr-3"></i>
+                        <div>
+                            <p class="font-medium text-yellow-900">{% trans "Settings" %}</p>
+                            <p class="text-sm text-yellow-700">{% trans "System configuration" %}</p>
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Assign Orders Modal -->
+<div id="assignOrdersModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Assign Orders to Agents" %}</h3>
+                <button onclick="closeAssignOrdersModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-medium text-gray-700">{% trans "Unassigned Orders" %}</h4>
+                    <span class="text-sm text-gray-500">{{ high_priority_unassigned.count }} {% trans "orders" %}</span>
+                </div>
+                <div class="max-h-64 overflow-y-auto border rounded-lg">
+                    {% for order in high_priority_unassigned %}
+                    <div class="flex items-center justify-between p-3 border-b hover:bg-gray-50">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-900">#{{ order.id }}</span>
+                                <span class="text-sm text-gray-600">{{ order.customer }}</span>
+                                <span class="px-2 py-1 text-xs rounded-full {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ order.date|date:"M d, Y H:i" }} • {{ order.product.name_en }}
+                            </div>
+                        </div>
+                        <select class="ml-2 text-sm border rounded px-2 py-1" onchange="assignOrder({{ order.id }}, this.value)">
+                            <option value="">{% trans "Select Agent" %}</option>
+                            {% for agent in available_agents %}
+                            <option value="{{ agent.id }}">{{ agent.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center text-gray-500">
+                        {% trans "No unassigned orders" %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h4 class="font-medium text-gray-700 mb-2">{% trans "Available Agents" %}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {% for agent in available_agents %}
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <span class="text-sm font-medium text-green-600">{{ agent.get_full_name|first|upper }}</span>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ agent.get_full_name }}</div>
+                                <div class="text-xs text-gray-500">{% trans "Available" %}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">
+                                {% for perf in top_agents %}
+                                    {% if perf.agent == agent %}
+                                        {{ perf.total_orders_handled }} {% trans "orders" %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-2 p-3 text-center text-gray-500">
+                        {% trans "No available agents" %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeAssignOrdersModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    {% trans "Close" %}
+                </button>
+                <button onclick="bulkAssignOrders()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    {% trans "Bulk Assign" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Call Center Settings" %}</h3>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Agent Management -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-3">{% trans "Agent Management" %}</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">{% trans "Auto-assign new orders" %}</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">{% trans "Load balancing" %}</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">{% trans "Priority queue" %}</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Settings -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-3">{% trans "Performance Settings" %}</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Max orders per agent" %}</label>
+                            <input type="number" value="25" min="1" max="50" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Response time threshold (minutes)" %}</label>
+                            <input type="number" value="5" min="1" max="30" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Auto-logout after (minutes)" %}</label>
+                            <input type="number" value="30" min="5" max="120" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-3">{% trans "Notifications" %}</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">{% trans "High priority alerts" %}</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">{% trans "Performance reports" %}</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">{% trans "System updates" %}</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    {% trans "Cancel" %}
+                </button>
+                <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    {% trans "Save Settings" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-// Update current time and date
+// Update current date and time
 function updateDateTime() {
     const now = new Date();
-    const timeElement = document.getElementById('current-time');
-    const dateElement = document.getElementById('current-date');
+    const datetimeElement = document.getElementById('current-datetime');
     
-    if (timeElement) {
-        timeElement.textContent = now.toLocaleTimeString();
+    if (datetimeElement) {
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit',
+            second: '2-digit'
+        };
+        datetimeElement.textContent = now.toLocaleDateString('en-US', options);
     }
-    if (dateElement) {
-        dateElement.textContent = now.toLocaleDateString();
+}
+
+// Modal functions
+function openAssignOrdersModal() {
+    document.getElementById('assignOrdersModal').classList.remove('hidden');
+}
+
+function closeAssignOrdersModal() {
+    document.getElementById('assignOrdersModal').classList.add('hidden');
+}
+
+function openSettingsModal() {
+    document.getElementById('settingsModal').classList.remove('hidden');
+}
+
+function closeSettingsModal() {
+    document.getElementById('settingsModal').classList.add('hidden');
+}
+
+// Order assignment functions
+function assignOrder(orderId, agentId) {
+    if (!agentId) return;
+    
+    fetch(`/callcenter/manager/assign-order/${orderId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            agent_id: agentId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showNotification('Order assigned successfully!', 'success');
+            // Remove the order from the list
+            const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
+            if (orderElement) {
+                orderElement.remove();
+            }
+        } else {
+            showNotification('Failed to assign order: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error assigning order', 'error');
+    });
+}
+
+function bulkAssignOrders() {
+    const unassignedOrders = document.querySelectorAll('#assignOrdersModal select[onchange*="assignOrder"]');
+    const assignments = [];
+    
+    unassignedOrders.forEach(select => {
+        if (select.value) {
+            const orderId = select.getAttribute('onchange').match(/\d+/)[0];
+            assignments.push({
+                order_id: orderId,
+                agent_id: select.value
+            });
+        }
+    });
+    
+    if (assignments.length === 0) {
+        showNotification('No orders selected for assignment', 'warning');
+        return;
+    }
+    
+    fetch('/callcenter/manager/bulk-assign-orders/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            assignments: assignments
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`${data.assigned_count} orders assigned successfully!`, 'success');
+            closeAssignOrdersModal();
+            // Refresh the page to update data
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('Failed to assign orders: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error assigning orders', 'error');
+    });
+}
+
+// Settings functions
+function saveSettings() {
+    const settings = {
+        auto_assign: document.querySelector('#settingsModal input[type="checkbox"]').checked,
+        load_balancing: document.querySelectorAll('#settingsModal input[type="checkbox"]')[1].checked,
+        priority_queue: document.querySelectorAll('#settingsModal input[type="checkbox"]')[2].checked,
+        max_orders: document.querySelector('#settingsModal input[type="number"]').value,
+        response_threshold: document.querySelectorAll('#settingsModal input[type="number"]')[1].value,
+        auto_logout: document.querySelectorAll('#settingsModal input[type="number"]')[2].value,
+        high_priority_alerts: document.querySelectorAll('#settingsModal input[type="checkbox"]')[3].checked,
+        performance_reports: document.querySelectorAll('#settingsModal input[type="checkbox"]')[4].checked,
+        system_updates: document.querySelectorAll('#settingsModal input[type="checkbox"]')[5].checked
+    };
+    
+    fetch('/callcenter/manager/save-settings/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Settings saved successfully!', 'success');
+            closeSettingsModal();
+        } else {
+            showNotification('Failed to save settings: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error saving settings', 'error');
+    });
+}
+
+// Utility functions
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        type === 'warning' ? 'bg-yellow-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const assignModal = document.getElementById('assignOrdersModal');
+    const settingsModal = document.getElementById('settingsModal');
+    
+    if (event.target === assignModal) {
+        closeAssignOrdersModal();
+    }
+    if (event.target === settingsModal) {
+        closeSettingsModal();
     }
 }
 
@@ -296,17 +798,10 @@ function updateDateTime() {
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
-// Beta warning functions
-function openBugReportModal() {
-    // Implement bug report modal
-    alert('Bug report feature coming soon!');
-}
-
-function dismissBetaWarning() {
-    const banner = document.querySelector('.bg-gradient-to-r.from-yellow-400');
-    if (banner) {
-        banner.style.display = 'none';
-    }
-}
+// Auto-refresh dashboard data every 30 seconds
+setInterval(function() {
+    // You can add AJAX calls here to refresh dashboard data
+    console.log('Refreshing dashboard data...');
+}, 30000);
 </script>
 {% endblock %} 

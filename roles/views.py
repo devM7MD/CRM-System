@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.utils import timezone
 from .models import Role, Permission, RolePermission, UserRole, RoleAuditLog
 from users.models import User
+from django.urls import reverse
 
 def role_required(role_name):
     """Decorator to check if user has a specific role"""
@@ -38,8 +39,7 @@ def role_list(request):
     if search:
         roles = roles.filter(
             Q(name__icontains=search) |
-            Q(description__icontains=search) |
-            Q(role_type__icontains=search)
+            Q(description__icontains=search)
         )
     
     # Pagination
@@ -63,19 +63,18 @@ def role_create(request):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             try:
                 name = request.POST.get('name')
-                role_type = request.POST.get('role_type')
                 description = request.POST.get('description', '')
                 is_active = request.POST.get('is_active') == 'on'
                 is_default = request.POST.get('is_default') == 'on'
                 is_protected = request.POST.get('is_protected') == 'on'
                 
                 # Debug logging
-                print(f"Creating role: name={name}, type={role_type}, active={is_active}, default={is_default}, protected={is_protected}")
+                print(f"Creating role: name={name}, active={is_active}, default={is_default}, protected={is_protected}")
                 
-                if not name or not role_type:
+                if not name:
                     return JsonResponse({
                         'success': False,
-                        'error': 'Role name and type are required.'
+                        'error': 'Role name is required.'
                     })
                 
                 # Check if role name already exists
@@ -85,18 +84,9 @@ def role_create(request):
                         'error': 'A role with this name already exists.'
                     })
                 
-                # Validate role type
-                valid_role_types = [choice[0] for choice in Role.ROLE_TYPES]
-                if role_type not in valid_role_types:
-                    return JsonResponse({
-                        'success': False,
-                        'error': f'Invalid role type. Valid types are: {", ".join(valid_role_types)}'
-                    })
-                
                 # Create the role
                 role = Role.objects.create(
                     name=name,
-                    role_type=role_type,
                     description=description,
                     is_active=is_active,
                     is_default=is_default,
@@ -109,47 +99,39 @@ def role_create(request):
                     action='role_created',
                     user=request.user,
                     role=role,
-                    description=f'Role "{role.name}" was created by {request.user.get_full_name()}',
-                    ip_address=request.META.get('REMOTE_ADDR'),
-                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                    description=f"Created role '{role.name}'"
                 )
                 
                 return JsonResponse({
                     'success': True,
                     'message': f'Role "{role.name}" created successfully!',
-                    'role_id': role.id
+                    'redirect_url': reverse('roles:role_list')
                 })
                 
             except Exception as e:
-                import traceback
-                print(f"Error creating role: {str(e)}")
-                print(traceback.format_exc())
                 return JsonResponse({
                     'success': False,
                     'error': f'Error creating role: {str(e)}'
                 })
         
-        # Handle regular form submission (fallback)
-        name = request.POST.get('name')
-        role_type = request.POST.get('role_type')
-        description = request.POST.get('description', '')
-        is_active = request.POST.get('is_active') == 'on'
-        is_default = request.POST.get('is_default') == 'on'
-        is_protected = request.POST.get('is_protected') == 'on'
-        
-        if not name or not role_type:
-            messages.error(request, 'Role name and type are required.')
-            return redirect('roles:role_list')
-        
-        # Check if role name already exists
-        if Role.objects.filter(name=name).exists():
-            messages.error(request, 'A role with this name already exists.')
-            return redirect('roles:role_list')
-        
-        try:
+        # Handle regular form submission
+        else:
+            name = request.POST.get('name')
+            description = request.POST.get('description', '')
+            is_active = request.POST.get('is_active') == 'on'
+            is_default = request.POST.get('is_default') == 'on'
+            is_protected = request.POST.get('is_protected') == 'on'
+            
+            if not name:
+                messages.error(request, 'Role name is required.')
+                return redirect('roles:role_list')
+            
+            if Role.objects.filter(name=name).exists():
+                messages.error(request, 'A role with this name already exists.')
+                return redirect('roles:role_list')
+            
             role = Role.objects.create(
                 name=name,
-                role_type=role_type,
                 description=description,
                 is_active=is_active,
                 is_default=is_default,
@@ -162,23 +144,13 @@ def role_create(request):
                 action='role_created',
                 user=request.user,
                 role=role,
-                description=f'Role "{role.name}" was created by {request.user.get_full_name()}',
-                ip_address=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT', '')
+                description=f"Created role '{role.name}'"
             )
             
-            messages.success(request, f'Role "{role.name}" created successfully.')
-            return redirect('roles:role_detail', role_id=role.id)
-            
-        except Exception as e:
-            messages.error(request, f'Error creating role: {str(e)}')
+            messages.success(request, f'Role "{role.name}" created successfully!')
             return redirect('roles:role_list')
     
-    # GET request - show form page (for non-JS users)
-    context = {
-        'role_types': Role.ROLE_TYPES,
-    }
-    return render(request, 'roles/role_form.html', context)
+    return redirect('roles:role_list')
 
 @login_required
 @role_required('Super Admin')
@@ -396,3 +368,49 @@ def assign_user_role(request, user_id):
         'user_roles': user_roles,
     }
     return render(request, 'roles/assign_user_role.html', context)
+
+@login_required
+@role_required('Super Admin')
+def permission_list(request):
+    """List all permissions in the system"""
+    permissions = Permission.objects.all().order_by('module', 'permission_type', 'name')
+    
+    # Search functionality
+    search = request.GET.get('search', '')
+    module_filter = request.GET.get('module', '')
+    permission_type_filter = request.GET.get('permission_type', '')
+    
+    if search:
+        permissions = permissions.filter(
+            Q(name__icontains=search) |
+            Q(codename__icontains=search) |
+            Q(description__icontains=search) |
+            Q(module__icontains=search) |
+            Q(model_name__icontains=search)
+        )
+    
+    if module_filter:
+        permissions = permissions.filter(module=module_filter)
+    
+    if permission_type_filter:
+        permissions = permissions.filter(permission_type=permission_type_filter)
+    
+    # Get unique modules and permission types for filters
+    modules = Permission.objects.values_list('module', flat=True).distinct().order_by('module')
+    permission_types = Permission.PERMISSION_TYPES
+    
+    # Pagination
+    paginator = Paginator(permissions, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'permissions': page_obj,
+        'search': search,
+        'module_filter': module_filter,
+        'permission_type_filter': permission_type_filter,
+        'modules': modules,
+        'permission_types': permission_types,
+        'total_permissions': permissions.count(),
+    }
+    return render(request, 'roles/permission_list.html', context)

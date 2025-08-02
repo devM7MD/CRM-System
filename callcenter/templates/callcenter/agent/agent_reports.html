@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Agent Reports" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">{% trans "My Performance Reports" %}</h1>
+        <p class="text-gray-600">{% trans "Track your daily performance and weekly trends" %}</p>
+    </div>
+
+    <!-- Agent Info Card -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900">{{ agent.full_name }}</h2>
+                    <p class="text-gray-600">{% trans "Call Center Agent" %}</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-500">{% trans "Today" %}</p>
+                <p class="text-lg font-semibold text-gray-900">{{ today|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Performance Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Calls This Week -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">{% trans "Total Calls" %}</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ performance_data|length }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-phone text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmed Orders -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">{% trans "Confirmed Orders" %}</p>
+                    <p class="text-2xl font-bold text-green-600">
+                        {% for data in performance_data %}
+                            {% if forloop.first %}
+                                {{ data.orders_confirmed|default:0 }}
+                            {% endif %}
+                        {% empty %}
+                            0
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-circle text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Call Duration -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">{% trans "Avg Call Duration" %}</p>
+                    <p class="text-2xl font-bold text-purple-600">
+                        {% for data in performance_data %}
+                            {% if forloop.first %}
+                                {{ data.average_call_duration|default:0|floatformat:1 }} min
+                            {% endif %}
+                        {% empty %}
+                            0.0 min
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Satisfaction -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">{% trans "Satisfaction" %}</p>
+                    <p class="text-2xl font-bold text-yellow-600">
+                        {% for data in performance_data %}
+                            {% if forloop.first %}
+                                {{ data.customer_satisfaction|default:0|floatformat:1 }}%
+                            {% endif %}
+                        {% empty %}
+                            0.0%
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-star text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Trends Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Weekly Performance Trends" %}</h3>
+        <div class="h-64">
+            <canvas id="weeklyTrendsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Daily Performance Table -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Daily Performance Details" %}</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Date" %}
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Total Calls" %}
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Successful Calls" %}
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Confirmed Orders" %}
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Avg Duration" %}
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {% trans "Satisfaction" %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for data in performance_data %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ data.date|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ data.total_calls_made|default:0 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ data.successful_calls|default:0 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ data.orders_confirmed|default:0 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ data.average_call_duration|default:0|floatformat:1 }} min
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ data.customer_satisfaction|default:0|floatformat:1 }}%
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            {% trans "No performance data available for this week." %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for Weekly Trends -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('weeklyTrendsChart').getContext('2d');
+    
+    const weeklyData = {
+        labels: [
+            '{{ week_start|date:"M d" }}',
+            '{{ week_start|add:"1 day"|date:"M d" }}',
+            '{{ week_start|add:"2 days"|date:"M d" }}',
+            '{{ week_start|add:"3 days"|date:"M d" }}',
+            '{{ week_start|add:"4 days"|date:"M d" }}',
+            '{{ week_start|add:"5 days"|date:"M d" }}',
+            '{{ week_start|add:"6 days"|date:"M d" }}'
+        ],
+        datasets: [
+            {
+                label: '{% trans "Total Calls" %}',
+                data: {{ weekly_calls|safe }},
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4
+            },
+            {
+                label: '{% trans "Confirmed Orders" %}',
+                data: {{ weekly_confirmed|safe }},
+                borderColor: 'rgb(34, 197, 94)',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4
+            },
+            {
+                label: '{% trans "Avg Duration (min)" %}',
+                data: {{ weekly_duration|safe }},
+                borderColor: 'rgb(147, 51, 234)',
+                backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                tension: 0.4
+            }
+        ]
+    };
+
+    new Chart(ctx, {
+        type: 'line',
+        data: weeklyData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: '{% trans "Weekly Performance Trends" %}'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

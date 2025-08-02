@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name_en }} - Product Details{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-900">
+    <!-- Page Header -->
+    <div class="bg-yellow-400 dark:bg-yellow-600 shadow-lg">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Product Details</h1>
+                <div class="flex space-x-3">
+                    <a href="{% url 'sellers:product_edit' product.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-edit mr-2"></i>Edit Product
+                    </a>
+                    <a href="{% url 'sellers:products' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Products
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Product Image -->
+                    <div class="space-y-4">
+                        <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name_en }}" class="h-full w-full object-cover object-center">
+                            {% else %}
+                                <div class="flex items-center justify-center h-full">
+                                    <i class="fas fa-image text-gray-400 text-4xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Product Links -->
+                        {% if product.product_link %}
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Product Link</h4>
+                            <a href="{{ product.product_link }}" target="_blank" class="text-yellow-600 hover:text-yellow-700 text-sm break-all">
+                                <i class="fas fa-external-link-alt mr-1"></i>{{ product.product_link }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Product Information -->
+                    <div class="space-y-6">
+                        <!-- Basic Information -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h3>
+                            <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Product Name (English)</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ product.name_en }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Product Name (Arabic)</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ product.name_ar|default:"Not provided" }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">SKU/Product Code</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white font-mono">{{ product.code }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Seller</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ product.seller.get_full_name|default:product.seller.email }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Description</h3>
+                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                <p class="text-sm text-gray-900 dark:text-white">{{ product.description|default:"No description provided" }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Information -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Pricing Information</h3>
+                            <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Selling Price</dt>
+                                    <dd class="mt-1 text-lg font-semibold text-green-600">AED {{ product.selling_price|floatformat:2 }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Purchase Price</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                                        {% if product.purchase_price %}
+                                            AED {{ product.purchase_price|floatformat:2 }}
+                                        {% else %}
+                                            Not specified
+                                        {% endif %}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        <!-- Inventory Information -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Inventory Information</h3>
+                            <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Quantity</dt>
+                                    <dd class="mt-1 text-lg font-semibold text-blue-600">{{ product.total_quantity }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Available Quantity</dt>
+                                    <dd class="mt-1 text-lg font-semibold text-green-600">{{ product.available_quantity }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        <!-- Timestamps -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Timestamps</h3>
+                            <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created At</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ product.created_at|date:"M d, Y H:i" }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Updated</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ product.updated_at|date:"M d, Y H:i" }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-3">
+                            <a href="{% url 'sellers:product_edit' product.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                <i class="fas fa-edit mr-2"></i>Edit Product
+                            </a>
+                            <a href="{% url 'sellers:products' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                <i class="fas fa-list mr-2"></i>View All Products
+                            </a>
+                        </div>
+                        
+                        <!-- Delete Button (with confirmation) -->
+                        <button onclick="confirmDelete()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-trash mr-2"></i>Delete Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mt-4">Delete Product</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Are you sure you want to delete "{{ product.name_en }}"? This action cannot be undone.
+                </p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <button id="confirmDelete" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    Delete
+                </button>
+                <button onclick="closeDeleteModal()" class="mt-2 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    // Redirect to delete URL (you'll need to create this view)
+    window.location.href = "{% url 'sellers:product_delete' product.id %}";
+});
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteModal();
+    }
+});
+</script>
+{% endblock %} 

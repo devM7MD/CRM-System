@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Admin Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{% trans "Admin Dashboard" %}</h1>
+                <p class="text-gray-600 mt-1">{% trans "System administration and management overview" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'users:list' %}" class="btn-secondary">
+                    <i class="fas fa-users mr-2"></i>
+                    {% trans "Manage Users" %}
+                </a>
+                <a href="{% url 'roles:role_list' %}" class="btn-secondary">
+                    <i class="fas fa-user-tag mr-2"></i>
+                    {% trans "Manage Roles" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Users" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_users|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user-check text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Active Users" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ active_users|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user-tag text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Roles" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_roles|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Permissions" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_permissions|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <a href="{% url 'users:create' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-user-plus text-blue-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Create New User" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Add a new user to the system" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'roles:role_create' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-user-tag text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Create New Role" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Define a new role with permissions" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'dashboard:audit_log' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-history text-yellow-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "View Audit Log" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Review system activity logs" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'dashboard:system_status' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-server text-purple-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "System Status" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Check system health and performance" %}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Recent Activities" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    {% for activity in recent_activities|slice:":5" %}
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                <i class="fas fa-circle text-xs text-green-500"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">{{ activity.event }}</p>
+                            <p class="text-xs text-gray-500">{{ activity.timestamp|timesince }} ago</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">{% trans "No recent activities" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "System Overview" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-database text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Database" %}</h4>
+                    <p class="text-sm text-gray-500">{% trans "All systems operational" %}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-server text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Server" %}</h4>
+                    <p class="text-sm text-gray-500">{% trans "Running smoothly" %}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-yellow-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Security" %}</h4>
+                    <p class="text-sm text-gray-500">{% trans "All checks passed" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

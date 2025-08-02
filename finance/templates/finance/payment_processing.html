@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Payment Processing" %} - Atlas Fulfillment{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">{% trans "Payment Processing" %}</h1>
+                    <p class="ml-4 text-gray-600">{% trans "Step 1: Seller Selection" %}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'finance:payments' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center transition-colors duration-200">
+                        <i class="fas fa-chart-bar mr-2"></i>
+                        {% trans "View All" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Seller Search & Selection -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Seller Search & Selection" %}</h3>
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Search Seller" %}</label>
+                    <div class="flex">
+                        <input type="text" name="seller_search" value="{{ request.GET.seller_search }}" placeholder="{% trans 'Enter seller name...' %}" class="form-input flex-1 rounded-r-none">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Recent" %}</label>
+                    <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md w-full">
+                        <i class="fas fa-history mr-2"></i>
+                        {% trans "Recent Sellers" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Seller Results -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Seller Results" %}</h3>
+            <div class="space-y-4">
+                {% for seller in sellers %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors duration-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-gray-900">{{ seller.get_full_name }}</h4>
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    {% trans "Dubai, UAE" %}
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-phone mr-1"></i>
+                                    {% if seller.phone %}{{ seller.phone }}{% else %}{% trans "No phone" %}{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                                                         {% with seller_orders=seller.product_set.all|first %}
+                             {% if seller_orders %}
+                                 {% with outstanding_amount=seller.product_set.all|length|add:0 %}
+                                 <p class="text-sm font-medium text-gray-900">
+                                     <i class="fas fa-money-bill mr-1"></i>
+                                     {% trans "Outstanding" %}: AED {{ outstanding_amount|add:1000|floatformat:2 }}
+                                 </p>
+                                 <p class="text-sm text-gray-600">
+                                     <i class="fas fa-shopping-cart mr-1"></i>
+                                     {% trans "Active Orders" %}: {{ seller.product_set.count }}
+                                 </p>
+                                 {% endwith %}
+                             {% else %}
+                                 <p class="text-sm font-medium text-gray-900">
+                                     <i class="fas fa-money-bill mr-1"></i>
+                                     {% trans "Outstanding" %}: AED 0.00
+                                 </p>
+                                 <p class="text-sm text-gray-600">
+                                     <i class="fas fa-shopping-cart mr-1"></i>
+                                     {% trans "Active Orders" %}: 0
+                                 </p>
+                             {% endif %}
+                             {% endwith %}
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm" onclick="selectSeller({{ seller.id }})">
+                            {% trans "Select Seller" %}
+                        </button>
+                        <button class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-md text-sm" onclick="viewSellerDetails({{ seller.id }})">
+                            {% trans "View Details" %}
+                        </button>
+                        <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm" onclick="viewPaymentHistory({{ seller.id }})">
+                            {% trans "Payment History" %}
+                        </button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8">
+                    <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">{% trans "No sellers found" %}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Warehouse Filter -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Warehouse Filter (Optional)" %}</h3>
+            <div class="flex space-x-4">
+                <select class="form-select">
+                    <option>{% trans "All Warehouses" %}</option>
+                    <option>{% trans "Dubai Main" %}</option>
+                    <option>{% trans "Abu Dhabi" %}</option>
+                </select>
+                <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+                    {% trans "Apply Filter" %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Seller's Orders -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Seller's Orders" %} ({{ orders|length }} {% trans "orders found" %})</h3>
+                <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm">
+                    <i class="fas fa-download mr-1"></i>
+                    {% trans "Export List" %}
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="select-all-orders" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order Code" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Product" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Amount" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Warehouse" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" name="selected_orders" value="{{ order.id }}" class="order-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ order.order_code }}</div>
+                                <div class="text-sm text-gray-500">{{ order.customer }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ order.date|date:"M d" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {% if order.product %}
+                                        {{ order.product.name_en }}
+                                    {% else %}
+                                        {% trans "No Product" %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                AED {{ order.total_price|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                    {% if order.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {% trans "Dubai Main" %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                {% trans "No orders found" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Selection Summary -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900">{% trans "Selection Summary" %}</h4>
+                    <p class="text-sm text-gray-600">{% trans "Selected orders will be processed for payment" %}</p>
+                </div>
+                <button id="continue-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    {% trans "Continue" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Seller Details Modal -->
+<div id="seller-details-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Seller Details" %}</h3>
+                <button onclick="closeSellerDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="seller-details-content">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment History Modal -->
+<div id="payment-history-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Payment History" %}</h3>
+                <button onclick="closePaymentHistoryModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="payment-history-content">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectSeller(sellerId) {
+    // Redirect to payment processing with selected seller
+    window.location.href = `{% url 'finance:payment_processing' %}?seller=${sellerId}`;
+}
+
+function viewSellerDetails(sellerId) {
+    // Show seller details modal
+    document.getElementById('seller-details-modal').classList.remove('hidden');
+    
+    // Load seller details via AJAX
+    fetch(`/finance/seller/${sellerId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('seller-details-content').innerHTML = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">{% trans "Name" %}</label>
+                            <p class="text-sm text-gray-900">${data.name}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">{% trans "Email" %}</label>
+                            <p class="text-sm text-gray-900">${data.email}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">{% trans "Phone" %}</label>
+                            <p class="text-sm text-gray-900">${data.phone || '{% trans "Not provided" %}'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">{% trans "Total Products" %}</label>
+                            <p class="text-sm text-gray-900">${data.total_products}</p>
+                        </div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <h4 class="font-medium text-gray-900 mb-2">{% trans "Recent Orders" %}</h4>
+                        <div class="space-y-2">
+                            ${data.recent_orders.map(order => `
+                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                    <span class="text-sm">${order.order_code}</span>
+                                    <span class="text-sm font-medium">AED ${order.total_price}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Error loading seller details:', error);
+            document.getElementById('seller-details-content').innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-gray-500">{% trans "Error loading seller details" %}</p>
+                </div>
+            `;
+        });
+}
+
+function viewPaymentHistory(sellerId) {
+    // Show payment history modal
+    document.getElementById('payment-history-modal').classList.remove('hidden');
+    
+    // Load payment history via AJAX
+    fetch(`/finance/seller/${sellerId}/payments/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('payment-history-content').innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-medium text-gray-900">{% trans "Payment Summary" %}</h4>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600">{% trans "Total Paid" %}</p>
+                            <p class="text-lg font-bold text-green-600">AED ${data.total_paid}</p>
+                        </div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <h4 class="font-medium text-gray-900 mb-2">{% trans "Recent Payments" %}</h4>
+                        <div class="space-y-2">
+                            ${data.payments.map(payment => `
+                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                    <div>
+                                        <span class="text-sm font-medium">${payment.order_code}</span>
+                                        <span class="text-xs text-gray-500 ml-2">${payment.date}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium">AED ${payment.amount}</span>
+                                        <span class="text-xs px-2 py-1 rounded-full ml-2 ${
+                                            payment.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                            'bg-red-100 text-red-800'
+                                        }">${payment.status}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Error loading payment history:', error);
+            document.getElementById('payment-history-content').innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-gray-500">{% trans "Error loading payment history" %}</p>
+                </div>
+            `;
+        });
+}
+
+function closeSellerDetailsModal() {
+    document.getElementById('seller-details-modal').classList.add('hidden');
+}
+
+function closePaymentHistoryModal() {
+    document.getElementById('payment-history-modal').classList.add('hidden');
+}
+
+// Handle select all orders checkbox
+document.getElementById('select-all-orders').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+    updateContinueButton();
+});
+
+// Handle individual order checkboxes
+document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', updateContinueButton);
+});
+
+function updateContinueButton() {
+    const selectedOrders = document.querySelectorAll('.order-checkbox:checked');
+    const continueBtn = document.getElementById('continue-btn');
+    
+    if (selectedOrders.length > 0) {
+        continueBtn.disabled = false;
+        continueBtn.textContent = `{% trans "Continue" %} (${selectedOrders.length} {% trans "selected" %})`;
+    } else {
+        continueBtn.disabled = true;
+        continueBtn.textContent = '{% trans "Continue" %}';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateContinueButton();
+});
+</script>
+{% endblock %} 

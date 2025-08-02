@@ -9,4 +9,5 @@ urlpatterns = [
     path('<int:pk>/', views.OrderDetailView.as_view(), name='detail'),
     path('<int:pk>/update/', views.OrderUpdateView.as_view(), name='update'),
     path('import/', views.import_orders, name='import'),
+    path('import/template/', views.download_template, name='download_template'),
 ] 

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Roles Management - Atlas Fulfillment{% endblock %}
 
@@ -13,12 +14,14 @@
                     <h1 class="text-3xl font-bold text-white mb-2">Roles Management</h1>
                     <p class="text-yellow-100">Manage user roles and permissions</p>
                 </div>
-                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                    <button onclick="openCreateRoleModal()" class="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg transition-all duration-200 font-medium">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        + Create Role
+                <div class="flex space-x-3">
+                    <a href="{% url 'roles:permission_list' %}" class="btn-secondary inline-flex items-center">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        {% trans "Manage Permissions" %}
+                    </a>
+                    <button onclick="openCreateRoleModal()" class="btn-primary inline-flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        {% trans "Create Role" %}
                     </button>
                 </div>
             </div>
@@ -69,7 +72,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-lg font-semibold text-gray-900">{{ role.name }}</h3>
-                                <p class="text-sm text-gray-500">{{ role.get_role_type_display }}</p>
+                                <p class="text-sm text-gray-500">{{ role.get_permission_count }} permissions</p>
                             </div>
                         </div>
                     </div>
@@ -219,14 +222,6 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Role Name *</label>
                     <input type="text" name="name" id="role_name" required class="form-input w-full" placeholder="Enter role name">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Role Type *</label>
-                    <select name="role_type" id="role_type" required class="form-select w-full">
-                        <option value="">Select role type</option>
-                        <option value="super_admin">Super Admin</option>
-                        <option value="seller">Seller</option>
-                    </select>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>

@@ -34,8 +34,8 @@ class UserManager(BaseUserManager):
         
         user = self.create_user(email, password, **extra_fields)
         
-        # Automatically assign Super Admin role to superusers
-        self._assign_default_role(user, 'Super Admin')
+        # Automatically assign Admin role to superusers
+        self._assign_default_role(user, 'Admin')
         
         return user
     
@@ -164,6 +164,26 @@ class User(AbstractUser, PermissionsMixin):
     def can_create_roles(self):
         """Check if user can create roles (only super admin)"""
         return self.has_role('Super Admin') or self.is_superuser
+    
+    @property
+    def has_role_call_center_manager(self):
+        """Check if user has Call Center Manager role"""
+        return self.has_role('Call Center Manager')
+    
+    @property
+    def has_role_call_center_agent(self):
+        """Check if user has Call Center Agent role"""
+        return self.has_role('Call Center Agent')
+    
+    @property
+    def has_role_accountant(self):
+        """Check if user has Accountant role"""
+        return self.has_role('Accountant')
+    
+    @property
+    def has_role_admin(self):
+        """Check if user has Admin role"""
+        return self.has_role('Admin')
 
 class UserPermission(models.Model):
     """Model to store custom permissions for users."""

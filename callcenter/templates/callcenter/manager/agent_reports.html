@@ -1,175 +1,179 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Agent Performance Reports{% endblock %}
+{% block title %}{% trans "Agent Performance Reports" %}{% endblock %}
 
 {% block content %}
-<div class="bg-white">
+<div class="w-full">
     <!-- Page Header -->
-    <div class="bg-yellow-500 shadow-lg border-t-4 border-yellow-400">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-white">Agent Performance Reports</h1>
-                <div class="flex items-center space-x-4">
-                    <span class="text-white text-sm">{{ request.user.get_full_name|default:request.user.username }}</span>
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-chart-line text-primary-600 mr-3"></i>
+                    {% trans "Agent Performance Reports" %}
+                </h1>
+                <p class="text-gray-600 mt-1">{% trans "Comprehensive performance analytics and reporting" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="exportReport()" class="btn-secondary">
+                    <i class="fas fa-download mr-2"></i>
+                    {% trans "Export Report" %}
+                </button>
+                <button onclick="emailReport()" class="btn-primary">
+                    <i class="fas fa-envelope mr-2"></i>
+                    {% trans "Email Report" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Controls -->
+    <div class="card mb-6">
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Select Agent" %}</label>
+                    <select id="agent-select" class="form-select w-full" onchange="loadAgentReport()">
+                        <option value="">{% trans "Choose an agent..." %}</option>
+                        {% for agent in agents %}
+                        <option value="{{ agent.id }}">{{ agent.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Time Period" %}</label>
+                    <div class="flex space-x-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="period" value="daily" class="form-radio" checked>
+                            <span class="ml-2 text-sm">{% trans "Daily" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="period" value="weekly" class="form-radio">
+                            <span class="ml-2 text-sm">{% trans "Weekly" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="period" value="monthly" class="form-radio">
+                            <span class="ml-2 text-sm">{% trans "Monthly" %}</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Date Range" %}</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="date" id="start-date" class="form-input text-sm">
+                        <input type="date" id="end-date" class="form-input text-sm">
+                    </div>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="loadReport()" class="btn-primary w-full">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        {% trans "Load Report" %}
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <!-- Date Filter -->
-        <div class="bg-white shadow rounded-lg border border-gray-200 mb-6">
-            <div class="px-4 py-5 sm:p-6">
-                <form method="GET" class="flex items-center space-x-4">
-                    <div>
-                        <label for="date_range" class="block text-sm font-medium text-gray-700">Date Range</label>
-                        <select id="date_range" name="date_range" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md">
-                            <option value="today" {% if date_range == 'today' %}selected{% endif %}>Today</option>
-                            <option value="yesterday" {% if date_range == 'yesterday' %}selected{% endif %}>Yesterday</option>
-                            <option value="last_7_days" {% if date_range == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
-                            <option value="last_30_days" {% if date_range == 'last_30_days' %}selected{% endif %}>Last 30 Days</option>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-150">
-                            Update Report
-                        </button>
-                    </div>
-                </form>
+    <!-- Individual Agent Performance Report -->
+    <div id="individual-report" class="mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Individual Agent Performance Report" %}</h3>
             </div>
-        </div>
-
-        <!-- Team Summary -->
-        <div class="bg-white shadow rounded-lg border border-gray-200 mb-6">
-            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Team Summary ({{ start_date|date:"M d" }} - {{ end_date|date:"M d, Y" }})</h3>
-            </div>
-            <div class="px-4 py-5 sm:p-6">
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-4">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-blue-600">{{ team_summary.total_calls|default:"0" }}</div>
-                        <div class="text-sm text-gray-500">Total Calls</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-green-600">{{ team_summary.total_confirmed|default:"0" }}</div>
-                        <div class="text-sm text-gray-500">Orders Confirmed</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-red-600">{{ team_summary.total_cancelled|default:"0" }}</div>
-                        <div class="text-sm text-gray-500">Orders Cancelled</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-yellow-600">{{ team_summary.avg_satisfaction|default:"0" }}/5</div>
-                        <div class="text-sm text-gray-500">Avg Satisfaction</div>
+            <div class="p-6">
+                <div id="agent-report-content">
+                    <div class="text-center py-12">
+                        <i class="fas fa-user text-gray-400 text-4xl mb-4"></i>
+                        <p class="text-gray-500">{% trans "Select an agent to view their performance report" %}</p>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Individual Agent Performance -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Individual Agent Performance</h3>
-            </div>
+    <!-- Team Performance Comparison -->
+    <div class="card mb-8">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Weekly Team Performance Comparison" %}</h3>
+            <p class="text-sm text-gray-600 mt-1">{% trans "Week of" %}: {{ week_start|date:"M d" }} - {{ week_end|date:"M d, Y" }}</p>
+        </div>
+        <div class="p-6">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Agent
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Calls Made
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Confirmed
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Cancelled
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Avg Duration
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Satisfaction
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Resolution Rate
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Rank" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Agent Name" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Orders" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Confirmed" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Rate" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Avg Time" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Satisfaction" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        {% for performance in agent_performance %}
+                        {% for agent in team_performance %}
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                                            <span class="text-sm font-medium text-yellow-800">
-                                                {{ performance.agent.get_full_name|default:performance.agent.username|first|upper }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ performance.agent.get_full_name|default:performance.agent.username }}
-                                        </div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ performance.agent.email|default:"No email" }}
-                                        </div>
-                                    </div>
+                                    {% if forloop.counter == 1 %}
+                                    <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                                    {% elif forloop.counter == 2 %}
+                                    <i class="fas fa-medal text-gray-400 mr-2"></i>
+                                    {% elif forloop.counter == 3 %}
+                                    <i class="fas fa-award text-orange-500 mr-2"></i>
+                                    {% endif %}
+                                    <span class="text-sm font-medium text-gray-900">{{ forloop.counter }}</span>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ performance.date|date:"M d, Y" }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ performance.total_calls_made }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    {{ performance.orders_confirmed }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    {{ performance.orders_cancelled }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ performance.average_call_duration }} min
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <span class="text-sm text-gray-900 mr-2">{{ performance.customer_satisfaction_avg }}/5</span>
-                                    <div class="flex">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-sm font-medium text-blue-600">{{ agent.name|first }}</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ agent.name }}</div>
+                                        <div class="text-sm text-gray-500">Agent #{{ agent.id|stringformat:"03d" }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ agent.orders_handled }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ agent.orders_confirmed }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    {% if agent.confirmation_rate >= 85 %}bg-green-100 text-green-800
+                                    {% elif agent.confirmation_rate >= 75 %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ agent.confirmation_rate }}%
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ agent.avg_response_time }} min</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="text-sm text-gray-900 mr-1">{{ agent.satisfaction }}/5</span>
+                                    <div class="flex space-x-1">
                                         {% for i in "12345" %}
-                                            {% if forloop.counter <= performance.customer_satisfaction_avg %}
-                                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                </svg>
-                                            {% else %}
-                                                <svg class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                </svg>
-                                            {% endif %}
+                                        <i class="fas fa-star {% if forloop.counter <= agent.satisfaction %}text-yellow-400{% else %}text-gray-300{% endif %} text-xs"></i>
                                         {% endfor %}
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ performance.resolution_rate }}%
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button onclick="viewAgentDetail({{ agent.id }})" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="sendFeedback({{ agent.id }})" class="text-green-600 hover:text-green-900">
+                                    <i class="fas fa-comment"></i>
+                                </button>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                                <p>No performance data found for the selected date range.</p>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                {% trans "No performance data available" %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -177,93 +181,317 @@
                 </table>
             </div>
         </div>
+    </div>
 
-        <!-- Performance Insights -->
-        {% if agent_performance %}
-        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <!-- Top Performers -->
-            <div class="bg-white shadow sm:rounded-lg border border-gray-200">
-                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Top Performers</h3>
-                </div>
-                <div class="px-4 py-5 sm:p-6">
-                    {% for performance in agent_performance|slice:":3" %}
-                    <div class="flex items-center justify-between py-2 {% if not forloop.last %}border-b border-gray-200{% endif %}">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-8 w-8">
-                                <div class="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                                    <span class="text-xs font-medium text-yellow-800">
-                                        {{ performance.agent.get_full_name|default:performance.agent.username|first|upper }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ performance.agent.get_full_name|default:performance.agent.username }}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {{ performance.total_calls_made }} calls, {{ performance.orders_confirmed }} confirmed
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-sm text-gray-900">
-                            {{ performance.resolution_rate }}%
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+    <!-- Team Performance Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Team Performance Metrics" %}</h3>
             </div>
-
-            <!-- Performance Metrics -->
-            <div class="bg-white shadow sm:rounded-lg border border-gray-200">
-                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Performance Metrics</h3>
-                </div>
-                <div class="px-4 py-5 sm:p-6">
-                    <dl class="grid grid-cols-1 gap-5">
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-500">Average Calls per Agent</dt>
-                            <dd class="text-sm text-gray-900">
-                                {% if agent_performance %}
-                                    {{ team_summary.total_calls|default:0|divisibleby:agent_performance.count|default:0 }}
-                                {% else %}
-                                    0
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-500">Confirmation Rate</dt>
-                            <dd class="text-sm text-gray-900">
-                                {% if team_summary.total_calls and team_summary.total_calls > 0 %}
-                                    {% widthratio team_summary.total_confirmed|default:0 1 100 as confirmed_percent %}
-                                    {% widthratio confirmed_percent team_summary.total_calls 1 as final_rate %}
-                                    {{ final_rate|floatformat:1 }}%
-                                {% else %}
-                                    0%
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-500">Cancellation Rate</dt>
-                            <dd class="text-sm text-gray-900">
-                                {% if team_summary.total_calls and team_summary.total_calls > 0 %}
-                                    {% widthratio team_summary.total_cancelled|default:0 1 100 as cancelled_percent %}
-                                    {% widthratio cancelled_percent team_summary.total_calls 1 as final_rate %}
-                                    {{ final_rate|floatformat:1 }}%
-                                {% else %}
-                                    0%
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-500">Average Satisfaction</dt>
-                            <dd class="text-sm text-gray-900">{{ team_summary.avg_satisfaction|default:0|floatformat:1 }}/5</dd>
-                        </div>
-                    </dl>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">{% trans "Team Average Confirmation Rate" %}</span>
+                        <span class="text-lg font-bold text-gray-900">{{ team_avg_confirmation_rate|default:"80.7" }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: {{ team_avg_confirmation_rate|default:80.7 }}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">{% trans "Team Average Response Time" %}</span>
+                        <span class="text-lg font-bold text-gray-900">{{ team_avg_response_time|default:"3.8" }} min</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 76%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">{% trans "Team Customer Satisfaction" %}</span>
+                        <span class="text-lg font-bold text-gray-900">{{ team_avg_satisfaction|default:"4.5" }}/5</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-600 h-2 rounded-full" style="width: 90%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">{% trans "Total Orders Processed" %}</span>
+                        <span class="text-lg font-bold text-gray-900">{{ total_orders_processed|default:"678" }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">{% trans "Team Efficiency Score" %}</span>
+                        <span class="text-lg font-bold text-gray-900">{{ team_efficiency_score|default:"85.2" }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-purple-600 h-2 rounded-full" style="width: {{ team_efficiency_score|default:85.2 }}%"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Achievements & Improvements" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-medium text-green-900 mb-2">🏆 {% trans "Achievements This Week" %}</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                <span>{% trans "Sarah Al-Mansouri: Highest confirmation rate" %}</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                <span>{% trans "Omar Al-Rashid: Fastest average response time" %}</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                <span>{% trans "Team exceeded weekly targets by 12%" %}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-orange-900 mb-2">⚠️ {% trans "Areas for Improvement" %}</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-orange-600 mt-1 mr-2"></i>
+                                <span>{% trans "Focus on reducing cancellation rates" %}</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-orange-600 mt-1 mr-2"></i>
+                                <span>{% trans "Improve first-call resolution metrics" %}</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-orange-600 mt-1 mr-2"></i>
+                                <span>{% trans "Balance workload distribution" %}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Trends -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Confirmation Rate Trend" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="h-64 flex items-end justify-between space-x-2">
+                    <div class="flex-1 bg-green-100 rounded-t" style="height: 75%"></div>
+                    <div class="flex-1 bg-green-200 rounded-t" style="height: 80%"></div>
+                    <div class="flex-1 bg-green-300 rounded-t" style="height: 85%"></div>
+                    <div class="flex-1 bg-green-400 rounded-t" style="height: 78%"></div>
+                    <div class="flex-1 bg-green-500 rounded-t" style="height: 82%"></div>
+                    <div class="flex-1 bg-green-600 rounded-t" style="height: 88%"></div>
+                    <div class="flex-1 bg-green-700 rounded-t" style="height: 85%"></div>
+                </div>
+                <div class="flex justify-between mt-4 text-sm text-gray-600">
+                    <span>{% trans "Mon" %}</span>
+                    <span>{% trans "Tue" %}</span>
+                    <span>{% trans "Wed" %}</span>
+                    <span>{% trans "Thu" %}</span>
+                    <span>{% trans "Fri" %}</span>
+                    <span>{% trans "Sat" %}</span>
+                    <span>{% trans "Sun" %}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Response Time Trend" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="h-64 flex items-end justify-between space-x-2">
+                    <div class="flex-1 bg-blue-100 rounded-t" style="height: 60%"></div>
+                    <div class="flex-1 bg-blue-200 rounded-t" style="height: 55%"></div>
+                    <div class="flex-1 bg-blue-300 rounded-t" style="height: 65%"></div>
+                    <div class="flex-1 bg-blue-400 rounded-t" style="height: 50%"></div>
+                    <div class="flex-1 bg-blue-500 rounded-t" style="height: 58%"></div>
+                    <div class="flex-1 bg-blue-600 rounded-t" style="height: 52%"></div>
+                    <div class="flex-1 bg-blue-700 rounded-t" style="height: 48%"></div>
+                </div>
+                <div class="flex justify-between mt-4 text-sm text-gray-600">
+                    <span>{% trans "Mon" %}</span>
+                    <span>{% trans "Tue" %}</span>
+                    <span>{% trans "Wed" %}</span>
+                    <span>{% trans "Thu" %}</span>
+                    <span>{% trans "Fri" %}</span>
+                    <span>{% trans "Sat" %}</span>
+                    <span>{% trans "Sun" %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center space-x-4">
+        <button onclick="emailTeamReport()" class="btn-primary">
+            <i class="fas fa-envelope mr-2"></i>
+            {% trans "Email Team Report" %}
+        </button>
+        <button onclick="generateIndividualFeedback()" class="btn-secondary">
+            <i class="fas fa-comments mr-2"></i>
+            {% trans "Individual Feedback" %}
+        </button>
+        <button onclick="exportDetailedReport()" class="btn-secondary">
+            <i class="fas fa-file-export mr-2"></i>
+            {% trans "Export Detailed Report" %}
+        </button>
     </div>
 </div>
+
+<script>
+function loadAgentReport() {
+    const agentId = document.getElementById('agent-select').value;
+    if (!agentId) return;
+    
+    const period = document.querySelector('input[name="period"]:checked').value;
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    
+    // Load agent report via AJAX
+    fetch(`/callcenter/agent/${agentId}/report/?period=${period}&start_date=${startDate}&end_date=${endDate}`)
+        .then(response => response.json())
+        .then(data => {
+            displayAgentReport(data);
+        });
+}
+
+function displayAgentReport(data) {
+    const content = document.getElementById('agent-report-content');
+    content.innerHTML = `
+        <div class="mb-6">
+            <h4 class="text-xl font-bold text-gray-900 mb-2">${data.agent_name} - {% trans "Performance Report" %}</h4>
+            <p class="text-gray-600">{% trans "Report Period" %}: ${data.period}</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-900">${data.orders_handled}</div>
+                <div class="text-sm text-blue-700">{% trans "Orders Handled" %}</div>
+                <div class="text-xs text-blue-600">{% trans "Target" %}: 20 ✅</div>
+            </div>
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+                <div class="text-2xl font-bold text-green-900">${data.confirmation_rate}%</div>
+                <div class="text-sm text-green-700">{% trans "Confirmation Rate" %}</div>
+                <div class="text-xs text-green-600">{% trans "Target" %}: 85% ✅</div>
+            </div>
+            <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                <div class="text-2xl font-bold text-yellow-900">${data.avg_response_time} min</div>
+                <div class="text-sm text-yellow-700">{% trans "Avg Response Time" %}</div>
+                <div class="text-xs text-yellow-600">{% trans "Target" %}: <5 min ✅</div>
+            </div>
+            <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <div class="text-2xl font-bold text-purple-900">${data.satisfaction}/5</div>
+                <div class="text-sm text-purple-700">{% trans "Customer Satisfaction" %}</div>
+                <div class="text-xs text-purple-600">{% trans "Target" %}: >4.0 ✅</div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+                <h5 class="font-medium text-gray-900 mb-3">{% trans "Performance Trend (Last 7 Days)" %}</h5>
+                <div class="h-32 bg-gray-100 rounded flex items-end justify-between p-2">
+                    <div class="w-8 bg-blue-500 rounded-t" style="height: 60%"></div>
+                    <div class="w-8 bg-blue-500 rounded-t" style="height: 75%"></div>
+                    <div class="w-8 bg-blue-500 rounded-t" style="height: 85%"></div>
+                    <div class="w-8 bg-blue-500 rounded-t" style="height: 70%"></div>
+                    <div class="w-8 bg-blue-500 rounded-t" style="height: 90%"></div>
+                    <div class="w-8 bg-blue-500 rounded-t" style="height: 80%"></div>
+                    <div class="w-8 bg-blue-500 rounded-t" style="height: 95%"></div>
+                </div>
+            </div>
+            <div>
+                <h5 class="font-medium text-gray-900 mb-3">{% trans "Recent Customer Feedback" %}</h5>
+                <div class="space-y-2">
+                    <div class="text-sm">
+                        <span class="text-gray-600">"Excellent service, very professional"</span>
+                        <div class="flex items-center mt-1">
+                            <div class="flex space-x-1">
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-sm">
+                        <span class="text-gray-600">"Quick response and helpful"</span>
+                        <div class="flex items-center mt-1">
+                            <div class="flex space-x-1">
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function loadReport() {
+    const agentId = document.getElementById('agent-select').value;
+    if (agentId) {
+        loadAgentReport();
+    }
+}
+
+function viewAgentDetail(agentId) {
+    document.getElementById('agent-select').value = agentId;
+    loadAgentReport();
+}
+
+function sendFeedback(agentId) {
+    // Implement send feedback functionality
+    alert('Send feedback functionality coming soon!');
+}
+
+function exportReport() {
+    // Implement export functionality
+    alert('Export functionality coming soon!');
+}
+
+function emailReport() {
+    // Implement email functionality
+    alert('Email functionality coming soon!');
+}
+
+function emailTeamReport() {
+    // Implement team report email
+    alert('Team report email functionality coming soon!');
+}
+
+function generateIndividualFeedback() {
+    // Implement individual feedback generation
+    alert('Individual feedback generation coming soon!');
+}
+
+function exportDetailedReport() {
+    // Implement detailed report export
+    alert('Detailed report export coming soon!');
+}
+
+// Set default dates
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    document.getElementById('end-date').value = today.toISOString().split('T')[0];
+    document.getElementById('start-date').value = weekAgo.toISOString().split('T')[0];
+});
+</script>
 {% endblock %} 

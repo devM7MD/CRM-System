@@ -7,14 +7,36 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_code', 'customer', 'status', 'seller', 'total_price', 'date')
-    list_filter = ('status', 'seller', 'date')
-    search_fields = ('order_code', 'customer__first_name', 'customer__last_name', 'customer_phone')
-    readonly_fields = ()  # No created_at or updated_at fields on Order
+    list_display = ('order_code', 'customer', 'status', 'seller_email', 'total_price_aed', 'date')
+    list_filter = ('status', 'seller_email', 'date')
+    search_fields = ('order_code', 'customer', 'customer_phone', 'seller_email')
+    readonly_fields = ('order_code', 'created_at', 'updated_at')
     inlines = [OrderItemInline]
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('order_code', 'customer', 'customer_phone', 'date', 'status')
+        }),
+        ('Product Details', {
+            'fields': ('product', 'quantity', 'price_per_unit')
+        }),
+        ('Seller Information', {
+            'fields': ('seller_email', 'store_link')
+        }),
+        ('Shipping Information', {
+            'fields': ('shipping_address', 'city', 'state', 'zip_code', 'country')
+        }),
+        ('Notes', {
+            'fields': ('notes', 'internal_notes')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product', 'quantity', 'price')
+    list_display = ('order', 'product', 'quantity', 'price', 'total_price_aed')
     list_filter = ('order__status',)
     search_fields = ('order__order_code', 'product__name')

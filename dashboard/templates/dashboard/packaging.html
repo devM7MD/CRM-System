@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Packaging Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{% trans "Packaging Dashboard" %}</h1>
+                <p class="text-gray-600 mt-1">{% trans "Manage order packaging and preparation" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'packaging:dashboard' %}" class="btn-primary">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    {% trans "Go to Packaging Panel" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-box text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Pending Orders" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ pending_orders|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Packaged Today" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ packaged_today|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "In Progress" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ in_progress|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-truck text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Ready for Delivery" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ ready_for_delivery|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <a href="{% url 'packaging:order_list' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-list text-blue-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "View Orders" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "See all orders to be packaged" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'packaging:dashboard' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-tasks text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Start Packaging" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Begin packaging process" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-boxes text-yellow-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Manage Materials" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Check packaging materials" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chart-bar text-purple-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Packaging Reports" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "View packaging statistics" %}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Recent Orders" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    {% for order in recent_orders|slice:":5" %}
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                        <div>
+                            <p class="font-medium text-gray-900">Order #{{ order.id }}</p>
+                            <p class="text-sm text-gray-500">{{ order.customer }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if order.status == 'packaged' %}bg-green-100 text-green-800
+                                {% elif order.status == 'packaging' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ order.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">{% trans "No recent orders" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Packaging Status -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Packaging Status" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-hourglass-half text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Waiting" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ waiting_count|default:"0" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cog text-yellow-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Processing" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ processing_count|default:"0" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Completed" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ completed_count|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

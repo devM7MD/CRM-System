@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Seller Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{% trans "Seller Dashboard" %}</h1>
+                <p class="text-gray-600 mt-1">{% trans "Manage your products, orders, and sales" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'sellers:dashboard' %}" class="btn-primary">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    {% trans "Go to Seller Panel" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-box text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Products" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_products|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Orders" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_orders|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Sales" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_sales|default:"AED 0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "This Month" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ monthly_sales|default:"AED 0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <a href="{% url 'sellers:product_create' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-plus text-blue-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Add New Product" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Create a new product listing" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'sellers:orders' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-list text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "View Orders" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Manage your customer orders" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'sellers:inventory' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-boxes text-yellow-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Manage Inventory" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Update stock levels and availability" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'sellers:sales' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chart-bar text-purple-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Sales Reports" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "View your sales performance" %}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Recent Orders" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    {% for order in recent_orders|slice:":5" %}
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                        <div>
+                            <p class="font-medium text-gray-900">Order #{{ order.id }}</p>
+                            <p class="text-sm text-gray-500">{{ order.customer }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-900">{{ order.total_price }}</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if order.status == 'confirmed' %}bg-green-100 text-green-800
+                                {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ order.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">{% trans "No recent orders" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Overview -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Performance Overview" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-star text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Rating" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ rating|default:"4.5" }}/5</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Response Time" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ response_time|default:"2h" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-percentage text-yellow-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Completion Rate" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ completion_rate|default:"95" }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

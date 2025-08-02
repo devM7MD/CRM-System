@@ -653,10 +653,10 @@
         const salesPerformanceChart = new Chart(salesPerformanceCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                labels: {{ months|safe }},
                 datasets: [{
                     label: 'Sales (AED)',
-                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                    data: {{ sales_data|safe }},
                     backgroundColor: 'rgba(234, 179, 8, 0.2)',
                     borderColor: '#EAB308',
                     borderWidth: 2,
@@ -676,7 +676,7 @@
                         intersect: false,
                         callbacks: {
                             label: function(context) {
-                                return `Sales: AED ${context.raw}`;
+                                return `Sales: AED ${context.raw.toLocaleString()}`;
                             }
                         }
                     }
@@ -686,7 +686,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return 'AED ' + value;
+                                return 'AED ' + value.toLocaleString();
                             }
                         }
                     }
@@ -699,9 +699,9 @@
         const productPerformanceChart = new Chart(productPerformanceCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Others'],
+                labels: {{ product_names|safe }},
                 datasets: [{
-                    data: [30, 25, 15, 10, 20],
+                    data: {{ product_sales|safe }},
                     backgroundColor: [
                         '#EAB308', // Yellow/Gold
                         '#10B981', // Green
@@ -721,7 +721,7 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `${context.label}: ${context.raw}%`;
+                                return `${context.label}: ${context.raw} orders`;
                             }
                         }
                     }

@@ -22,16 +22,21 @@ class Command(BaseCommand):
         agent_group, created = Group.objects.get_or_create(name='Call Center Agents')
         manager_group, created = Group.objects.get_or_create(name='Call Center Managers')
         
-        # Create sample agents
-        agents = []
-        agent_data = [
-            {'email': 'sarah.agent@example.com', 'full_name': 'Sarah Al-Mansouri', 'phone_number': '+971501234567'},
-            {'email': 'ahmed.agent@example.com', 'full_name': 'Ahmed Khalil', 'phone_number': '+971502345678'},
-            {'email': 'fatima.agent@example.com', 'full_name': 'Fatima Hassan', 'phone_number': '+971503456789'},
-            {'email': 'omar.agent@example.com', 'full_name': 'Omar Rashid', 'phone_number': '+971504567890'},
+        # Sample agents data
+        agents_data = [
+            {'email': 'sarah.agent@atlasfulfillment.ae', 'full_name': 'Sarah Al-Mansouri', 'phone_number': '+971-50-123-4567'},
+            {'email': 'ahmed.agent@atlasfulfillment.ae', 'full_name': 'Ahmed Khalil', 'phone_number': '+971-50-234-5678'},
+            {'email': 'fatima.agent@atlasfulfillment.ae', 'full_name': 'Fatima Hassan', 'phone_number': '+971-50-345-6789'},
+            {'email': 'omar.agent@atlasfulfillment.ae', 'full_name': 'Omar Rashid', 'phone_number': '+971-50-456-7890'},
         ]
         
-        for data in agent_data:
+        # Sample managers data
+        managers_data = [
+            {'email': 'ahmad.manager@atlasfulfillment.ae', 'full_name': 'Ahmad Al-Khalil', 'phone_number': '+971-50-567-8901'},
+            {'email': 'nadia.manager@atlasfulfillment.ae', 'full_name': 'Nadia Mahmoud', 'phone_number': '+971-50-678-9012'},
+        ]
+        
+        for data in agents_data:
             user, created = User.objects.get_or_create(
                 email=data['email'],
                 defaults={
@@ -49,12 +54,7 @@ class Command(BaseCommand):
         
         # Create sample managers
         managers = []
-        manager_data = [
-            {'email': 'ahmad.manager@example.com', 'full_name': 'Ahmad Al-Khalil', 'phone_number': '+971505678901'},
-            {'email': 'nadia.manager@example.com', 'full_name': 'Nadia Mahmoud', 'phone_number': '+971506789012'},
-        ]
-        
-        for data in manager_data:
+        for data in managers_data:
             user, created = User.objects.get_or_create(
                 email=data['email'],
                 defaults={

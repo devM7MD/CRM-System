@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Stock Keeper Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{% trans "Stock Keeper Dashboard" %}</h1>
+                <p class="text-gray-600 mt-1">{% trans "Manage inventory and stock levels" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'inventory:dashboard' %}" class="btn-primary">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    {% trans "Go to Inventory Panel" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-boxes text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Products" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_products|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-warehouse text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Warehouses" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_warehouses|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Low Stock Items" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ low_stock_items|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Today's Movements" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ today_movements|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <a href="{% url 'inventory:add_product' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-plus text-blue-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Add Product" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Add a new product to inventory" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'inventory:products' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-list text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "View Products" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Manage all products in inventory" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'inventory:movements' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-exchange-alt text-yellow-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Stock Movements" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Track inventory movements" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'inventory:warehouses' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-warehouse text-purple-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Manage Warehouses" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Configure warehouse locations" %}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Low Stock Alerts" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    {% for product in low_stock_products|slice:":5" %}
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ product.name }}</p>
+                            <p class="text-sm text-gray-500">Stock: {{ product.available_quantity }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Low Stock
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">{% trans "No low stock alerts" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Overview -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Inventory Overview" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "In Stock" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ in_stock_count|default:"0" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Low Stock" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ low_stock_count|default:"0" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Out of Stock" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ out_of_stock_count|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

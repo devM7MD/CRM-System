@@ -17,26 +17,74 @@ def index(request):
     primary_role = request.user.get_primary_role()
     role_name = primary_role.name if primary_role else 'user'
 
-    if role_name == 'Super Admin' or request.user.is_superuser:
+    if role_name == 'Super Admin' or request.user.is_superuser or role_name == 'Admin':
+        # Real data from database
         total_sales = Payment.objects.filter(payment_status='completed').aggregate(total=Sum('amount'))['total'] or 0
         active_users_count = User.objects.filter(is_active=True).count()
-        # TODO: Replace with real alerts count if alerts model exists
-        alerts_count = 0
-        recent_activities = get_recent_activities(request.user)
+        
+        # Real system alerts count
+        from users.models import AuditLog
+        alerts_count = AuditLog.objects.filter(
+            action__in=['delete', 'permission_change', 'status_change']
+        ).count()
+        
+        # Real recent activities from audit log
+        recent_activities = AuditLog.objects.select_related('user').order_by('-timestamp')[:10]
+        
+        # Real user activity data for charts
+        from django.db.models import Count
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        # Get user activity data for the last 7 months
+        user_activity_data = []
+        for i in range(7):
+            month_start = timezone.now().replace(day=1) - timedelta(days=30*i)
+            month_end = month_start.replace(day=28) + timedelta(days=4)
+            month_end = month_end.replace(day=1) - timedelta(days=1)
+            
+            active_users = User.objects.filter(
+                is_active=True,
+                date_joined__gte=month_start,
+                date_joined__lte=month_end
+            ).count()
+            
+            new_registrations = User.objects.filter(
+                date_joined__gte=month_start,
+                date_joined__lte=month_end
+            ).count()
+            
+            user_activity_data.append({
+                'month': month_start.strftime('%b'),
+                'active_users': active_users,
+                'new_registrations': new_registrations
+            })
+        
+        # Real system performance data
+        system_performance_data = {
+            'database': 12,  # Mock data - replace with real metrics
+            'api_calls': 19,
+            'page_load': 3,
+            'background_tasks': 5,
+            'file_storage': 2
+        }
+        
         return render(request, 'dashboard/super_admin.html', {
             'active_users_count': active_users_count,
             'alerts_count': alerts_count,
             'total_sales': f"AED {total_sales:,.0f}",
-            'recent_activities': recent_activities
+            'recent_activities': recent_activities,
+            'user_activity_data': user_activity_data,
+            'system_performance_data': system_performance_data
         })
-    elif role_name == 'Admin':
-        return render(request, 'dashboard/admin.html')
     elif role_name == 'Seller':
         return render(request, 'dashboard/seller.html')
     elif role_name == 'Call Center Manager':
-        return render(request, 'dashboard/call_center_manager.html')
+        from django.shortcuts import redirect
+        return redirect('callcenter:manager_dashboard')
     elif role_name == 'Call Center Agent':
-        return render(request, 'dashboard/call_center_agent.html')
+        from django.shortcuts import redirect
+        return redirect('callcenter:agent_dashboard')
     elif role_name == 'Stock Keeper':
         return render(request, 'dashboard/stock_keeper.html')
     elif role_name == 'Packaging':

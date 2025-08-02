@@ -5,6 +5,7 @@ app_name = 'roles'
 
 urlpatterns = [
     path('', views.role_list, name='role_list'),
+    path('permissions/', views.permission_list, name='permission_list'),
     path('create/', views.role_create, name='role_create'),
     path('<int:role_id>/', views.role_detail, name='role_detail'),
     path('<int:role_id>/edit/', views.role_edit, name='role_edit'),

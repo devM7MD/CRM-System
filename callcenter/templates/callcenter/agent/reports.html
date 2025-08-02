@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Agent Performance Reports" %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg mb-6">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">{% trans "Performance Reports" %}</h1>
+                        <p class="text-blue-100">{% trans "Agent" %}: {{ user.get_full_name }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-blue-100">{% trans "Report Date" %}</div>
+                    <div class="text-xl font-bold">{{ today|date:"M d, Y" }}</div>
+                    <div class="text-sm text-blue-100">{% trans "Today's Performance" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Performance Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">{% trans "Total Calls" %}</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ total_calls_today }}</p>
+                        <p class="text-sm text-green-600 mt-1">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            {{ successful_calls }} {% trans "successful" %}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-phone text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">{% trans "Orders Confirmed" %}</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ confirmed_orders }}</p>
+                        <p class="text-sm text-green-600 mt-1">
+                            <i class="fas fa-check mr-1"></i>
+                            {% trans "Today" %}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">{% trans "Avg Call Duration" %}</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ avg_call_duration }} min</p>
+                        <p class="text-sm text-blue-600 mt-1">
+                            <i class="fas fa-clock mr-1"></i>
+                            {% trans "Average" %}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">{% trans "Customer Satisfaction" %}</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ avg_satisfaction }}/5</p>
+                        <p class="text-sm text-green-600 mt-1">
+                            <i class="fas fa-star mr-1"></i>
+                            {% trans "Average Rating" %}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Weekly Performance Trend -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Weekly Performance Trend" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="h-64 flex items-end justify-between space-x-2">
+                    {% for perf in weekly_performance %}
+                    <div class="flex-1 bg-blue-100 rounded-t" style="height: {{ perf.total_orders_handled|floatformat:0 }}%"></div>
+                    {% empty %}
+                    <div class="flex-1 bg-blue-100 rounded-t" style="height: 0%"></div>
+                    <div class="flex-1 bg-blue-200 rounded-t" style="height: 0%"></div>
+                    <div class="flex-1 bg-blue-300 rounded-t" style="height: 0%"></div>
+                    <div class="flex-1 bg-blue-400 rounded-t" style="height: 0%"></div>
+                    <div class="flex-1 bg-blue-500 rounded-t" style="height: 0%"></div>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-between mt-4 text-sm text-gray-600">
+                    {% for perf in weekly_performance %}
+                    <span>{{ perf.date|date:"D" }}</span>
+                    {% empty %}
+                    <span>{% trans "Mon" %}</span>
+                    <span>{% trans "Tue" %}</span>
+                    <span>{% trans "Wed" %}</span>
+                    <span>{% trans "Thu" %}</span>
+                    <span>{% trans "Fri" %}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Call Success Rate -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Call Success Rate" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-green-600 mb-2">
+                        {% if total_calls_today > 0 %}
+                            {{ successful_calls|floatformat:0 }}/{{ total_calls_today }}
+                        {% else %}
+                            0/0
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600">{% trans "Successful Calls Today" %}</div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>{% trans "Success Rate" %}</span>
+                        <span>
+                            {% if total_calls_today > 0 %}
+                                {{ successful_calls|floatformat:1 }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: 
+                            {% if total_calls_today > 0 %}
+                                {{ successful_calls|floatformat:1 }}%
+                            {% else %}
+                                0%
+                            {% endif %}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card mb-8">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Recent Call Activity" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Order" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Duration" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Satisfaction" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Time" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for call in recent_calls %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                #{{ call.order.id }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ call.duration|floatformat:0 }} sec
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    {% if call.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif call.status == 'no_answer' %}bg-yellow-100 text-yellow-800
+                                    {% elif call.status == 'busy' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ call.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if call.customer_satisfaction %}
+                                <div class="flex items-center">
+                                    <span class="text-sm text-gray-900 mr-1">{{ call.customer_satisfaction }}</span>
+                                    <div class="flex space-x-1">
+                                        {% for i in "12345" %}
+                                        <i class="fas fa-star {% if forloop.counter <= call.customer_satisfaction %}text-yellow-400{% else %}text-gray-300{% endif %} text-xs"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-sm text-gray-500">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ call.call_time|date:"H:i" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                {% trans "No call activity for today" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

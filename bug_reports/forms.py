@@ -21,6 +21,6 @@ class BugReportForm(forms.ModelForm):
             }),
             'page_url': forms.URLInput(attrs={
                 'class': 'form-input w-full',
-                'placeholder': 'https://example.com/page-where-bug-occurs'
+                'placeholder': 'https://atlasfulfillment.ae/page-where-bug-occurs'
             }),
         } 

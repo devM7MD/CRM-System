@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Accountant Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{% trans "Accountant Dashboard" %}</h1>
+                <p class="text-gray-600 mt-1">{% trans "Manage finances and accounting operations" %}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'finance:dashboard' %}" class="btn-primary">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    {% trans "Go to Finance Panel" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Total Revenue" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_revenue|default:"AED 0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-credit-card text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Today's Sales" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ today_sales|default:"AED 0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Pending Payments" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ pending_payments|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">{% trans "Monthly Growth" %}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ monthly_growth|default:"0" }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <a href="{% url 'finance:payments' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-list text-blue-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "View Payments" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Manage all payment transactions" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'finance:sales' %}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chart-bar text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Sales Reports" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Generate sales and revenue reports" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-invoice text-yellow-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Create Invoice" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "Generate new invoices" %}</p>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-calculator text-purple-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">{% trans "Financial Reports" %}</p>
+                            <p class="text-sm text-gray-500">{% trans "View comprehensive financial reports" %}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Recent Transactions" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    {% for payment in recent_payments|slice:":5" %}
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ payment.order.customer }}</p>
+                            <p class="text-sm text-gray-500">Order #{{ payment.order.id }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-900">{{ payment.amount }}</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if payment.payment_status == 'completed' %}bg-green-100 text-green-800
+                                {% elif payment.payment_status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ payment.payment_status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">{% trans "No recent transactions" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Overview -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">{% trans "Financial Overview" %}</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-arrow-up text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Income" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ income|default:"AED 0" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-arrow-down text-red-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Expenses" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ expenses|default:"AED 0" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-pie text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Profit" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ profit|default:"AED 0" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-percentage text-yellow-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">{% trans "Margin" %}</h4>
+                    <p class="text-2xl font-bold text-gray-900">{{ margin|default:"0" }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
