@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/update-status/', views.update_agent_status, name='update_agent_status'),
     path('api/orders/<int:order_id>/details/', views.get_order_details, name='get_order_details'),
     path('api/orders/<int:order_id>/assign/', views.assign_order_api, name='assign_order_api'),
+    path('api/orders/<int:order_id>/add-note/', views.add_note_api, name='add_note_api'),
     path('api/agents/<int:agent_id>/performance/', views.get_agent_performance, name='get_agent_performance'),
     path('api/orders/export/', views.export_orders_api, name='export_orders_api'),
     

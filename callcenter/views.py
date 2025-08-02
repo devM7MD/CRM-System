@@ -555,14 +555,17 @@ def manager_order_list(request):
         assignments__isnull=True
     ).order_by('-date')[:5]
     
-    # Get available agents
+    # Get available agents (users with Call Center Agent role)
     available_agents = User.objects.filter(
         user_roles__role__name='Call Center Agent',
-        agent_sessions__status='available'
+        user_roles__is_active=True
     ).distinct()
     
     # Get all agents for filter dropdown
-    all_agents = User.objects.filter(user_roles__role__name='Call Center Agent').distinct()
+    all_agents = User.objects.filter(
+        user_roles__role__name='Call Center Agent',
+        user_roles__is_active=True
+    ).distinct()
     
     # Pagination
     paginator = Paginator(orders, 25)  # Show 25 orders per page
@@ -846,21 +849,39 @@ def assign_order_api(request, order_id):
             order = Order.objects.get(id=order_id)
             agent = User.objects.get(id=data['agent_id'])
             
+            # Parse expected completion date/time
+            expected_completion = None
+            if data.get('expected_completion'):
+                try:
+                    expected_completion = timezone.datetime.strptime(
+                        data['expected_completion'], 
+                        '%Y-%m-%d %H:%M'
+                    )
+                    expected_completion = timezone.make_aware(expected_completion)
+                except ValueError:
+                    pass
+            
             # Create or update assignment
             assignment, created = OrderAssignment.objects.get_or_create(
                 order=order,
                 defaults={
+                    'manager': request.user,
                     'agent': agent,
                     'priority_level': data.get('priority_level', 'medium'),
                     'manager_notes': data.get('manager_notes', ''),
+                    'expected_completion': expected_completion,
+                    'assignment_reason': data.get('assignment_reason', ''),
                     'assignment_date': timezone.now()
                 }
             )
             
             if not created:
+                assignment.manager = request.user
                 assignment.agent = agent
                 assignment.priority_level = data.get('priority_level', 'medium')
                 assignment.manager_notes = data.get('manager_notes', '')
+                assignment.expected_completion = expected_completion
+                assignment.assignment_reason = data.get('assignment_reason', '')
                 assignment.save()
             
             return JsonResponse({
@@ -873,6 +894,16 @@ def assign_order_api(request, order_id):
             return JsonResponse({
                 'success': False,
                 'error': str(e)
+            })
+        except json.JSONDecodeError as e:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid JSON data'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Unexpected error: {str(e)}'
             })
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
@@ -976,16 +1007,54 @@ def get_order_details(request, order_id):
         order = Order.objects.get(id=order_id)
         data = {
             'id': order.id,
+            'order_code': order.order_code,
             'customer': order.customer,
             'product': order.product.name_en if order.product else 'N/A',
             'status': order.get_status_display(),
             'date': order.date.strftime('%Y-%m-%d %H:%M'),
-            'price': str(order.price_per_unit),
+            'price': str(order.total_price_aed),
+            'phone': order.customer_phone or 'N/A',
             'notes': order.notes or '',
         }
         return JsonResponse(data)
     except Order.DoesNotExist:
         return JsonResponse({'error': 'Order not found'}, status=404)
+
+@login_required
+def add_note_api(request, order_id):
+    """Add a note to an order via AJAX."""
+    if not has_callcenter_role(request.user):
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    try:
+        order = Order.objects.get(id=order_id)
+        data = json.loads(request.body)
+        
+        # Create the note
+        note = ManagerNote.objects.create(
+            order=order,
+            manager=request.user,
+            agent=request.user,  # For now, set to current user. You might want to get the assigned agent
+            note_text=data.get('note_text', ''),
+            note_type=data.get('note_type', 'instruction'),
+            is_urgent=data.get('is_urgent', False)
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Note added successfully',
+            'note_id': note.id
+        })
+        
+    except Order.DoesNotExist:
+        return JsonResponse({'error': 'Order not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
 def manager_settings(request):

@@ -100,6 +100,7 @@ class CustomerInteraction(models.Model):
 class OrderStatusHistory(models.Model):
     order = models.ForeignKey('orders.Order', on_delete=models.CASCADE, related_name='status_history')
     agent = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='status_changes')
+    changed_by = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='status_changes_made', null=True, blank=True)
     previous_status = models.CharField(max_length=50)
     new_status = models.CharField(max_length=50)
     status_change_reason = models.TextField(blank=True)

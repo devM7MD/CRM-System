@@ -47,7 +47,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Agent" %}</label>
                     <select id="agent-filter" class="form-select w-full">
                         <option value="">{% trans "All Agents" %}</option>
-                        {% for agent in agents %}
+                        {% for agent in all_agents %}
                         <option value="{{ agent.id }}">{{ agent.get_full_name }}</option>
                         {% endfor %}
                     </select>
@@ -98,31 +98,31 @@
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div class="card">
             <div class="p-4 text-center">
-                <div class="text-2xl font-bold text-gray-900">{{ total_orders|default:"156" }}</div>
+                <div class="text-2xl font-bold text-gray-900">{{ total_orders }}</div>
                 <div class="text-sm text-gray-600">{% trans "Total" %}</div>
             </div>
         </div>
         <div class="card">
             <div class="p-4 text-center">
-                <div class="text-2xl font-bold text-blue-600">{{ assigned_orders|default:"134" }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ assigned_orders }}</div>
                 <div class="text-sm text-gray-600">{% trans "Assigned" %}</div>
             </div>
         </div>
         <div class="card">
             <div class="p-4 text-center">
-                <div class="text-2xl font-bold text-red-600">{{ unassigned_orders|default:"22" }}</div>
+                <div class="text-2xl font-bold text-red-600">{{ unassigned_orders }}</div>
                 <div class="text-sm text-gray-600">{% trans "Unassigned" %}</div>
             </div>
         </div>
         <div class="card">
             <div class="p-4 text-center">
-                <div class="text-2xl font-bold text-green-600">{{ confirmed_orders|default:"89" }}</div>
+                <div class="text-2xl font-bold text-green-600">{{ confirmed_orders }}</div>
                 <div class="text-sm text-gray-600">{% trans "Confirmed" %}</div>
             </div>
         </div>
         <div class="card">
             <div class="p-4 text-center">
-                <div class="text-2xl font-bold text-orange-600">{{ pending_orders|default:"45" }}</div>
+                <div class="text-2xl font-bold text-orange-600">{{ pending_orders }}</div>
                 <div class="text-sm text-gray-600">{% trans "Pending" %}</div>
             </div>
         </div>
@@ -153,10 +153,10 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         {% for order in high_priority_unassigned %}
                         <tr class="bg-red-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ORD-{{ order.id|stringformat:"06d" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ order.order_code }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.customer }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.product.name_en|default:"N/A" }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ order.total_price|default:"0" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ order.total_price_aed }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                     {{ order.status|title }}
@@ -164,12 +164,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
-                                    <select class="form-select text-xs" onchange="assignOrder({{ order.id }}, this.value)">
-                                        <option value="">{% trans "Select Agent" %}</option>
-                                        {% for agent in available_agents %}
-                                        <option value="{{ agent.id }}">{{ agent.get_full_name }}</option>
-                                        {% endfor %}
-                                    </select>
+
                                     <button onclick="addNote({{ order.id }})" class="text-blue-600 hover:text-blue-900">
                                         <i class="fas fa-sticky-note"></i>
                                     </button>
@@ -213,7 +208,7 @@
                                 <input type="checkbox" class="order-checkbox" value="{{ order.id }}">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">ORD-{{ order.id|stringformat:"06d" }}</div>
+                                <div class="text-sm font-medium text-gray-900">{{ order.order_code }}</div>
                                 <div class="text-sm text-gray-500">{{ order.date|date:"M d, H:i" }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -224,7 +219,7 @@
                                 <div class="text-sm text-gray-900">{{ order.product.name_en|default:"N/A" }}</div>
                                 <div class="text-sm text-gray-500">{{ order.product.code|default:"N/A" }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ order.total_price|default:"0" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AED {{ order.total_price_aed }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                     {% if order.status == 'confirmed' %}bg-green-100 text-green-800
@@ -294,69 +289,210 @@
     </div>
 </div>
 
-<!-- Assign Order Modal -->
-<div id="assign-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+<!-- Enhanced Assign Order Modal -->
+<div id="assign-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-            <div class="flex items-center justify-between p-6 border-b">
-                <h3 class="text-lg font-semibold text-gray-900">{% trans "Assign Order to Agent" %}</h3>
-                <button onclick="closeAssignModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">{% trans "Assign Order to Agent" %}</h3>
+                    <p class="text-sm text-gray-600 mt-1">{% trans "Select an agent and set assignment details" %}</p>
+                </div>
+                <button onclick="closeAssignModal()" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
+            
+            <!-- Modal Content -->
             <div class="p-6">
-                <div id="order-details" class="mb-6">
+                <!-- Order Details Section -->
+                <div id="order-details" class="mb-6 bg-gray-50 rounded-lg p-4">
                     <!-- Order details will be loaded here -->
                 </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Select Agent" %}</label>
-                        <select id="agent-select" class="form-select w-full">
-                            <option value="">{% trans "Choose an agent..." %}</option>
-                            {% for agent in available_agents %}
-                            <option value="{{ agent.id }}" data-load="{{ agent.current_load }}" data-availability="{{ agent.availability }}" data-performance="{{ agent.performance_rate }}">
-                                {{ agent.get_full_name }} ({{ agent.current_load }} orders, {{ agent.availability }}, {{ agent.performance_rate }}% performance)
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Priority Level" %}</label>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="priority" value="low" class="form-radio">
-                                <span class="ml-2">{% trans "Low" %}</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="priority" value="medium" class="form-radio" checked>
-                                <span class="ml-2">{% trans "Medium" %}</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="priority" value="high" class="form-radio">
-                                <span class="ml-2">{% trans "High" %}</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="priority" value="urgent" class="form-radio">
-                                <span class="ml-2">{% trans "Urgent" %}</span>
-                            </label>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <!-- Agent Selection -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">{% trans "Select Agent" %}</label>
+                            <select id="agent-select" class="form-select w-full border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">{% trans "Choose an agent..." %}</option>
+                                {% for agent in available_agents %}
+                                <option value="{{ agent.id }}" data-load="{{ agent.current_load }}" data-availability="{{ agent.availability }}" data-performance="{{ agent.performance_rate }}">
+                                    {{ agent.get_full_name }} ({{ agent.current_load }} orders, {{ agent.availability }}, {{ agent.performance_rate }}% performance)
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div id="agent-info" class="mt-2 text-sm text-gray-600 hidden">
+                                <!-- Agent info will be displayed here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Priority Level -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">{% trans "Priority Level" %}</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="priority" value="low" class="form-radio text-blue-600">
+                                    <span class="ml-3">
+                                        <span class="block text-sm font-medium text-gray-900">{% trans "Low" %}</span>
+                                        <span class="block text-xs text-gray-500">{% trans "Standard processing" %}</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="priority" value="medium" class="form-radio text-blue-600" checked>
+                                    <span class="ml-3">
+                                        <span class="block text-sm font-medium text-gray-900">{% trans "Medium" %}</span>
+                                        <span class="block text-xs text-gray-500">{% trans "Normal priority" %}</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="priority" value="high" class="form-radio text-blue-600">
+                                    <span class="ml-3">
+                                        <span class="block text-sm font-medium text-gray-900">{% trans "High" %}</span>
+                                        <span class="block text-xs text-gray-500">{% trans "Urgent attention" %}</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="priority" value="urgent" class="form-radio text-blue-600">
+                                    <span class="ml-3">
+                                        <span class="block text-sm font-medium text-gray-900">{% trans "Urgent" %}</span>
+                                        <span class="block text-xs text-gray-500">{% trans "Immediate action" %}</span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Manager Notes" %}</label>
-                        <textarea id="manager-notes" rows="3" class="form-textarea w-full" placeholder="{% trans 'Add instructions or notes for the agent...' %}"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Expected Completion" %}</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="date" id="completion-date" class="form-input">
-                            <input type="time" id="completion-time" class="form-input">
+                    
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Manager Notes -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">{% trans "Manager Notes" %}</label>
+                            <textarea id="manager-notes" rows="4" class="form-textarea w-full border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500" 
+                                      placeholder="{% trans 'Add instructions or notes for the agent...' %}"></textarea>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-gray-500">{% trans "Character count:" %} <span id="notes-count">0</span></span>
+                                <span class="text-xs text-gray-500">{% trans "Max 500 characters" %}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Expected Completion -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">{% trans "Expected Completion" %}</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">{% trans "Date" %}</label>
+                                    <input type="date" id="completion-date" class="form-input w-full border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">{% trans "Time" %}</label>
+                                    <input type="time" id="completion-time" class="form-input w-full border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Assignment Reason -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">{% trans "Assignment Reason" %}</label>
+                            <select id="assignment-reason" class="form-select w-full border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">{% trans "Select a reason..." %}</option>
+                                <option value="expertise">{% trans "Agent Expertise" %}</option>
+                                <option value="availability">{% trans "Agent Availability" %}</option>
+                                <option value="performance">{% trans "Performance Based" %}</option>
+                                <option value="workload">{% trans "Workload Balance" %}</option>
+                                <option value="customer_request">{% trans "Customer Request" %}</option>
+                                <option value="escalation">{% trans "Escalation" %}</option>
+                                <option value="other">{% trans "Other" %}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center justify-end space-x-3 p-6 border-t">
-                <button onclick="closeAssignModal()" class="btn-secondary">{% trans "Cancel" %}</button>
-                <button onclick="confirmAssignOrder()" class="btn-primary">{% trans "Assign Order" %}</button>
+            
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    {% trans "Assignment will be logged and tracked" %}
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="closeAssignModal()" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        {% trans "Cancel" %}
+                    </button>
+                    <button onclick="confirmAssignOrder()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center">
+                        <i class="fas fa-check mr-2"></i>
+                        {% trans "Assign Order" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Note Modal -->
+<div id="note-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">{% trans "Add Note" %}</h3>
+                    <p class="text-sm text-gray-600 mt-1">{% trans "Add a note for this order" %}</p>
+                </div>
+                <button onclick="closeNoteModal()" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div id="note-order-details" class="mb-6 bg-gray-50 rounded-lg p-4">
+                    <!-- Order details for note will be loaded here -->
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Note Type -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">{% trans "Note Type" %}</label>
+                        <select id="note-type" class="form-select w-full border-2 border-gray-200 focus:border-green-500 focus:ring-green-500">
+                            <option value="instruction">{% trans "Instruction" %}</option>
+                            <option value="reminder">{% trans "Reminder" %}</option>
+                            <option value="priority">{% trans "Priority" %}</option>
+                            <option value="escalation">{% trans "Escalation" %}</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Note Text -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">{% trans "Note Text" %}</label>
+                        <textarea id="note-text" rows="4" class="form-textarea w-full border-2 border-gray-200 focus:border-green-500 focus:ring-green-500" 
+                                  placeholder="{% trans 'Enter your note here...' %}"></textarea>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-xs text-gray-500">{% trans "Character count:" %} <span id="note-text-count">0</span></span>
+                            <span class="text-xs text-gray-500">{% trans "Max 1000 characters" %}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Urgent Flag -->
+                    <div class="flex items-center">
+                        <input type="checkbox" id="note-urgent" class="form-checkbox text-green-600">
+                        <label for="note-urgent" class="ml-2 text-sm text-gray-700">{% trans "Mark as urgent" %}</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+                <button onclick="closeNoteModal()" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                    {% trans "Cancel" %}
+                </button>
+                <button onclick="confirmAddNote()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 flex items-center">
+                    <i class="fas fa-save mr-2"></i>
+                    {% trans "Save Note" %}
+                </button>
             </div>
         </div>
     </div>
@@ -364,6 +500,7 @@
 
 <script>
 let currentOrderId = null;
+let currentNoteOrderId = null;
 
 function applyFilters() {
     const status = document.getElementById('status-filter').value;
@@ -407,24 +544,43 @@ function assignOrder(orderId, agentId = null) {
         .then(response => response.json())
         .then(data => {
             document.getElementById('order-details').innerHTML = `
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h4 class="font-medium text-gray-900 mb-2">Order ORD-${String(orderId).padStart(6, '0')}</h4>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <span class="text-gray-600">Customer:</span>
-                            <span class="font-medium">${data.customer}</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">Order Information</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Order Code:</span>
+                                <span class="font-medium">${data.order_code}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Customer:</span>
+                                <span class="font-medium">${data.customer}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Product:</span>
+                                <span class="font-medium">${data.product}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Price:</span>
+                                <span class="font-medium">AED ${data.price}</span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-gray-600">Product:</span>
-                            <span class="font-medium">${data.product}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Price:</span>
-                            <span class="font-medium">AED ${data.price}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Status:</span>
-                            <span class="font-medium">${data.status}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">Current Status</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="font-medium">${data.status}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Date:</span>
+                                <span class="font-medium">${data.date}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Phone:</span>
+                                <span class="font-medium">${data.phone || 'N/A'}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -441,6 +597,13 @@ function assignOrder(orderId, agentId = null) {
 function closeAssignModal() {
     document.getElementById('assign-modal').classList.add('hidden');
     currentOrderId = null;
+    // Reset form
+    document.getElementById('agent-select').value = '';
+    document.getElementById('manager-notes').value = '';
+    document.getElementById('completion-date').value = '';
+    document.getElementById('completion-time').value = '';
+    document.getElementById('assignment-reason').value = '';
+    document.querySelector('input[name="priority"][value="medium"]').checked = true;
 }
 
 function confirmAssignOrder() {
@@ -449,9 +612,10 @@ function confirmAssignOrder() {
     const notes = document.getElementById('manager-notes').value;
     const completionDate = document.getElementById('completion-date').value;
     const completionTime = document.getElementById('completion-time').value;
+    const reason = document.getElementById('assignment-reason').value;
     
     if (!agentId) {
-        alert('Please select an agent');
+        showToast('Please select an agent', 'error');
         return;
     }
     
@@ -459,7 +623,8 @@ function confirmAssignOrder() {
         agent_id: agentId,
         priority_level: priority,
         manager_notes: notes,
-        expected_completion: completionDate + ' ' + completionTime
+        expected_completion: completionDate + ' ' + completionTime,
+        assignment_reason: reason
     };
     
     fetch(`/callcenter/api/orders/${currentOrderId}/assign/`, {
@@ -470,20 +635,101 @@ function confirmAssignOrder() {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             closeAssignModal();
-            location.reload();
+            showToast('Order assigned successfully!', 'success');
+            setTimeout(() => location.reload(), 1000);
         } else {
-            alert('Error assigning order: ' + data.error);
+            showToast('Error assigning order: ' + data.error, 'error');
         }
+    })
+    .catch(error => {
+        console.error('Assignment error:', error);
+        showToast('Error assigning order: ' + error.message, 'error');
     });
 }
 
 function addNote(orderId) {
-    // Implement add note functionality
-    alert('Add note functionality coming soon!');
+    currentNoteOrderId = orderId;
+    
+    // Load order details for note
+    fetch(`/callcenter/api/orders/${orderId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('note-order-details').innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="font-semibold text-gray-900">${data.order_code}</h4>
+                        <p class="text-sm text-gray-600">${data.customer} - ${data.product}</p>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        ${data.status}
+                    </span>
+                </div>
+            `;
+            
+            document.getElementById('note-modal').classList.remove('hidden');
+        });
+}
+
+function closeNoteModal() {
+    document.getElementById('note-modal').classList.add('hidden');
+    currentNoteOrderId = null;
+    // Reset form
+    document.getElementById('note-type').value = 'instruction';
+    document.getElementById('note-text').value = '';
+    document.getElementById('note-urgent').checked = false;
+}
+
+function confirmAddNote() {
+    const noteType = document.getElementById('note-type').value;
+    const noteText = document.getElementById('note-text').value;
+    const isUrgent = document.getElementById('note-urgent').checked;
+    
+    if (!noteText.trim()) {
+        showToast('Please enter note text', 'error');
+        return;
+    }
+    
+    const data = {
+        note_type: noteType,
+        note_text: noteText,
+        is_urgent: isUrgent
+    };
+    
+    fetch(`/callcenter/api/orders/${currentNoteOrderId}/add-note/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            closeNoteModal();
+            showToast('Note added successfully!', 'success');
+        } else {
+            showToast('Error adding note: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Note error:', error);
+        showToast('Error adding note: ' + error.message, 'error');
+    });
 }
 
 function viewOrder(orderId) {
@@ -493,17 +739,89 @@ function viewOrder(orderId) {
 function openBulkAssignModal() {
     const selectedOrders = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
     if (selectedOrders.length === 0) {
-        alert('Please select orders to assign');
+        showToast('Please select orders to assign', 'error');
         return;
     }
-    // Implement bulk assign modal
-    alert(`Bulk assign ${selectedOrders.length} orders - coming soon!`);
+    showToast(`Bulk assign ${selectedOrders.length} orders - coming soon!`, 'info');
 }
 
 function exportOrders() {
-    // Implement export functionality
-    alert('Export functionality coming soon!');
+    showToast('Export functionality coming soon!', 'info');
 }
+
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 translate-x-full`;
+    
+    switch(type) {
+        case 'success':
+            toast.className += ' bg-green-500';
+            break;
+        case 'error':
+            toast.className += ' bg-red-500';
+            break;
+        case 'warning':
+            toast.className += ' bg-yellow-500';
+            break;
+        default:
+            toast.className += ' bg-blue-500';
+    }
+    
+    toast.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-exclamation-triangle' : type === 'warning' ? 'fa-exclamation' : 'fa-info'} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+
+// Character count for textareas
+document.addEventListener('DOMContentLoaded', function() {
+    const managerNotes = document.getElementById('manager-notes');
+    const noteText = document.getElementById('note-text');
+    const notesCount = document.getElementById('notes-count');
+    const noteTextCount = document.getElementById('note-text-count');
+    
+    if (managerNotes) {
+        managerNotes.addEventListener('input', function() {
+            const count = this.value.length;
+            notesCount.textContent = count;
+            if (count > 450) {
+                notesCount.classList.add('text-red-500');
+            } else {
+                notesCount.classList.remove('text-red-500');
+            }
+        });
+    }
+    
+    if (noteText) {
+        noteText.addEventListener('input', function() {
+            const count = this.value.length;
+            noteTextCount.textContent = count;
+            if (count > 900) {
+                noteTextCount.classList.add('text-red-500');
+            } else {
+                noteTextCount.classList.remove('text-red-500');
+            }
+        });
+    }
+});
 
 function getCookie(name) {
     let cookieValue = null;
