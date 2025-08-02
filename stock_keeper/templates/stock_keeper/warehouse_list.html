@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Warehouses" %}{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <!-- Navigation -->
+    <div class="mb-6">
+        <a href="{% url 'stock_keeper:dashboard' %}" class="text-primary-600 hover:text-primary-700">
+            <i class="fas fa-arrow-left mr-2"></i>{% trans "Back to Dashboard" %}
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+            <i class="fas fa-warehouse text-primary-600 mr-3"></i>{% trans "Warehouses" %}
+        </h1>
+        <p class="text-gray-600 mt-1">{% trans "Manage warehouse operations and inventory" %}</p>
+    </div>
+
+    <!-- Warehouses Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for warehouse in warehouses %}
+        <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-gray-900">{{ warehouse.name }}</h3>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                    {% if warehouse.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {% if warehouse.is_active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}
+                </span>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
+                    <span>{{ warehouse.country }} - {{ warehouse.zone }}</span>
+                </div>
+                
+                {% if warehouse.contact_person %}
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-user mr-2 text-primary-600"></i>
+                    <span>{{ warehouse.contact_person }}</span>
+                </div>
+                {% endif %}
+                
+                {% if warehouse.contact_phone %}
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-phone mr-2 text-primary-600"></i>
+                    <span>{{ warehouse.contact_phone }}</span>
+                </div>
+                {% endif %}
+                
+                {% if warehouse.contact_email %}
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-envelope mr-2 text-primary-600"></i>
+                    <span>{{ warehouse.contact_email }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-primary-600">{{ warehouse.total_items }}</div>
+                    <div class="text-xs text-gray-500">{% trans "Total Items" %}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-yellow-600">{{ warehouse.low_stock_items }}</div>
+                    <div class="text-xs text-gray-500">{% trans "Low Stock" %}</div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-2">
+                <a href="{% url 'stock_keeper:warehouse_detail' warehouse.id %}" 
+                   class="flex-1 px-4 py-2 bg-primary-600 text-white text-center rounded hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-eye mr-2"></i>{% trans "View Details" %}
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <i class="fas fa-warehouse text-6xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500 text-lg">{% trans "No warehouses found" %}</p>
+            <p class="text-gray-400">{% trans "Contact your administrator to set up warehouses" %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

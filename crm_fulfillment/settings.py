@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'subscribers',
     'roles',
     'bug_reports',
+    'stock_keeper',
 ]
 
 

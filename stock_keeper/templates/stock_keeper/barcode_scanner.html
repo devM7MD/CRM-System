@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Barcode Scanner" %}{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-4xl mx-auto">
+    <!-- Navigation -->
+    <div class="mb-6">
+        <a href="{% url 'stock_keeper:dashboard' %}" class="text-primary-600 hover:text-primary-700">
+            <i class="fas fa-arrow-left mr-2"></i>{% trans "Back to Dashboard" %}
+        </a>
+    </div>
+
+    <!-- Scanner Interface -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-barcode mr-3"></i>{% trans "Barcode Scanner" %}
+            </h1>
+            <p class="text-gray-600">{% trans "Scan products to view inventory and perform operations" %}</p>
+        </div>
+
+        <!-- Camera Viewport -->
+        <div class="mb-6">
+            <div class="relative bg-gray-900 rounded-lg overflow-hidden" style="height: 300px;">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center text-white">
+                        <i class="fas fa-camera text-4xl mb-4"></i>
+                        <p class="text-lg">{% trans "Camera Access Required" %}</p>
+                        <p class="text-sm text-gray-300">{% trans "Please allow camera access to scan barcodes" %}</p>
+                    </div>
+                </div>
+                
+                <!-- Scanning Frame -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="border-2 border-white rounded-lg" style="width: 250px; height: 150px;">
+                        <div class="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-white"></div>
+                        <div class="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-white"></div>
+                        <div class="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-white"></div>
+                        <div class="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-white"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Entry -->
+        <div class="mb-6">
+            <div class="flex items-center space-x-3">
+                <div class="flex-1">
+                    <input type="text" id="manual-barcode" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="{% trans 'Enter barcode or product code manually' %}">
+                </div>
+                <button type="button" onclick="scanManualBarcode()" 
+                        class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>{% trans "Search" %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Last Scanned Result -->
+        <div id="scan-result" class="hidden mb-6">
+            <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-primary-500">
+                <h3 class="font-semibold text-gray-900 mb-2">{% trans "Last Scanned Item" %}</h3>
+                <div id="product-info" class="space-y-2">
+                    <!-- Product info will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button type="button" onclick="performAction('add_stock')" 
+                    class="flex flex-col items-center p-4 bg-green-100 rounded-lg hover:bg-green-200 transition-colors">
+                <i class="fas fa-plus text-green-600 text-2xl mb-2"></i>
+                <span class="text-sm font-medium text-green-800">{% trans "Add Stock" %}</span>
+            </button>
+            
+            <button type="button" onclick="performAction('remove_stock')" 
+                    class="flex flex-col items-center p-4 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">
+                <i class="fas fa-minus text-red-600 text-2xl mb-2"></i>
+                <span class="text-sm font-medium text-red-800">{% trans "Remove Stock" %}</span>
+            </button>
+            
+            <button type="button" onclick="performAction('move_location')" 
+                    class="flex flex-col items-center p-4 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors">
+                <i class="fas fa-exchange-alt text-blue-600 text-2xl mb-2"></i>
+                <span class="text-sm font-medium text-blue-800">{% trans "Move Location" %}</span>
+            </button>
+            
+            <button type="button" onclick="performAction('view_details')" 
+                    class="flex flex-col items-center p-4 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors">
+                <i class="fas fa-info-circle text-purple-600 text-2xl mb-2"></i>
+                <span class="text-sm font-medium text-purple-800">{% trans "View Details" %}</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Action Modal -->
+<div id="action-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 id="modal-title" class="text-lg font-semibold mb-4"></h3>
+            <div id="modal-content">
+                <!-- Modal content will be populated here -->
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeModal()" 
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                    {% trans "Cancel" %}
+                </button>
+                <button type="button" id="modal-confirm" 
+                        class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+                    {% trans "Confirm" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentProduct = null;
+let currentAction = null;
+
+// Initialize scanner
+document.addEventListener('DOMContentLoaded', function() {
+    initializeScanner();
+});
+
+function initializeScanner() {
+    // Check if camera is available
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Camera initialization would go here
+        console.log('Camera access available');
+    } else {
+        console.log('Camera not available');
+    }
+}
+
+function scanManualBarcode() {
+    const barcode = document.getElementById('manual-barcode').value.trim();
+    if (barcode) {
+        processBarcode(barcode);
+    }
+}
+
+function processBarcode(barcode) {
+    fetch('{% url "stock_keeper:scan_product" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            scan_data: barcode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayProductInfo(data.product);
+            currentProduct = data.product;
+        } else {
+            showError(data.message || 'Product not found');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Error processing barcode');
+    });
+}
+
+function displayProductInfo(product) {
+    const resultDiv = document.getElementById('scan-result');
+    const productInfo = document.getElementById('product-info');
+    
+    productInfo.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex-1">
+                <p class="font-medium text-gray-900">${product.name}</p>
+                <p class="text-sm text-gray-600">Code: ${product.code}</p>
+                <p class="text-sm text-gray-600">Quantity: ${product.quantity}</p>
+                <p class="text-sm text-gray-600">Location: ${product.location || 'Not assigned'}</p>
+            </div>
+        </div>
+    `;
+    
+    resultDiv.classList.remove('hidden');
+    document.getElementById('manual-barcode').value = '';
+}
+
+function performAction(action) {
+    if (!currentProduct) {
+        showError('Please scan a product first');
+        return;
+    }
+    
+    currentAction = action;
+    
+    switch(action) {
+        case 'add_stock':
+            showAddStockModal();
+            break;
+        case 'remove_stock':
+            showRemoveStockModal();
+            break;
+        case 'move_location':
+            showMoveLocationModal();
+            break;
+        case 'view_details':
+            showProductDetails();
+            break;
+    }
+}
+
+function showAddStockModal() {
+    const modal = document.getElementById('action-modal');
+    const title = document.getElementById('modal-title');
+    const content = document.getElementById('modal-content');
+    
+    title.textContent = 'Add Stock';
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                <p class="text-gray-900">${currentProduct.name}</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Current Stock</label>
+                <p class="text-gray-900">${currentProduct.quantity}</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity to Add</label>
+                <input type="number" id="add-quantity" min="1" value="1" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <input type="text" id="add-location" value="${currentProduct.location || ''}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500"
+                       placeholder="Storage location">
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('modal-confirm').onclick = confirmAddStock;
+    modal.classList.remove('hidden');
+}
+
+function showRemoveStockModal() {
+    const modal = document.getElementById('action-modal');
+    const title = document.getElementById('modal-title');
+    const content = document.getElementById('modal-content');
+    
+    title.textContent = 'Remove Stock';
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                <p class="text-gray-900">${currentProduct.name}</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Available Stock</label>
+                <p class="text-gray-900">${currentProduct.quantity}</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity to Remove</label>
+                <input type="number" id="remove-quantity" min="1" max="${currentProduct.quantity}" value="1" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                <select id="remove-reason" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500">
+                    <option value="sale">Sale</option>
+                    <option value="transfer">Transfer</option>
+                    <option value="damage">Damage</option>
+                    <option value="expiry">Expiry</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('modal-confirm').onclick = confirmRemoveStock;
+    modal.classList.remove('hidden');
+}
+
+function showMoveLocationModal() {
+    const modal = document.getElementById('action-modal');
+    const title = document.getElementById('modal-title');
+    const content = document.getElementById('modal-content');
+    
+    title.textContent = 'Move to New Location';
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                <p class="text-gray-900">${currentProduct.name}</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Current Location</label>
+                <p class="text-gray-900">${currentProduct.location || 'Not assigned'}</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">New Location</label>
+                <input type="text" id="new-location" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500"
+                       placeholder="Enter new location code">
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('modal-confirm').onclick = confirmMoveLocation;
+    modal.classList.remove('hidden');
+}
+
+function showProductDetails() {
+    // Redirect to product detail page or show in modal
+    window.location.href = `/inventory/products/${currentProduct.id}/`;
+}
+
+function confirmAddStock() {
+    const quantity = document.getElementById('add-quantity').value;
+    const location = document.getElementById('add-location').value;
+    
+    // Here you would make an API call to add stock
+    console.log('Adding stock:', { product: currentProduct.id, quantity, location });
+    closeModal();
+    showSuccess('Stock added successfully');
+}
+
+function confirmRemoveStock() {
+    const quantity = document.getElementById('remove-quantity').value;
+    const reason = document.getElementById('remove-reason').value;
+    
+    // Here you would make an API call to remove stock
+    console.log('Removing stock:', { product: currentProduct.id, quantity, reason });
+    closeModal();
+    showSuccess('Stock removed successfully');
+}
+
+function confirmMoveLocation() {
+    const newLocation = document.getElementById('new-location').value;
+    
+    // Here you would make an API call to move location
+    console.log('Moving location:', { product: currentProduct.id, newLocation });
+    closeModal();
+    showSuccess('Location updated successfully');
+}
+
+function closeModal() {
+    document.getElementById('action-modal').classList.add('hidden');
+}
+
+function showError(message) {
+    // Implement error notification
+    alert(message);
+}
+
+function showSuccess(message) {
+    // Implement success notification
+    alert(message);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

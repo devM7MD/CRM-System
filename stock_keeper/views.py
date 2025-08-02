@@ -252,8 +252,14 @@ def receive_stock(request):
         status='pending'
     ).select_related('product', 'to_warehouse')
     
+    # Get products and warehouses for form
+    products = Product.objects.filter(is_active=True).order_by('name_en')
+    warehouses = Warehouse.objects.filter(is_active=True).order_by('name')
+    
     context = {
         'pending_receiving': pending_receiving,
+        'products': products,
+        'warehouses': warehouses,
     }
     
     return render(request, 'stock_keeper/receive_stock.html', context)
@@ -314,8 +320,12 @@ def ship_orders(request):
         status='processing'
     ).select_related('product')
     
+    # Get warehouses for form
+    warehouses = Warehouse.objects.filter(is_active=True).order_by('name')
+    
     context = {
         'ready_orders': ready_orders,
+        'warehouses': warehouses,
     }
     
     return render(request, 'stock_keeper/ship_orders.html', context)
@@ -389,8 +399,14 @@ def transfer_stock(request):
         status='pending'
     ).select_related('product', 'from_warehouse', 'to_warehouse')
     
+    # Get products and warehouses for form
+    products = Product.objects.filter(is_active=True).order_by('name_en')
+    warehouses = Warehouse.objects.filter(is_active=True).order_by('name')
+    
     context = {
         'pending_transfers': pending_transfers,
+        'products': products,
+        'warehouses': warehouses,
     }
     
     return render(request, 'stock_keeper/transfer_stock.html', context)
@@ -533,3 +549,264 @@ def api_get_inventory(request, product_id):
         })
     
     return JsonResponse({'inventory': results})
+
+# Additional API endpoints for stock keeper operations
+@login_required
+@csrf_exempt
+def api_get_movement(request, movement_id):
+    """API endpoint to get movement details."""
+    movement = get_object_or_404(InventoryMovement, id=movement_id)
+    
+    return JsonResponse({
+        'id': movement.id,
+        'tracking_number': movement.tracking_number,
+        'movement_type': movement.movement_type,
+        'status': movement.status,
+        'quantity': movement.quantity,
+        'product': {
+            'id': movement.product.id,
+            'name': movement.product.name_en,
+            'code': movement.product.code,
+        },
+        'from_warehouse': {
+            'id': movement.from_warehouse.id,
+            'name': movement.from_warehouse.name,
+        } if movement.from_warehouse else None,
+        'to_warehouse': {
+            'id': movement.to_warehouse.id,
+            'name': movement.to_warehouse.name,
+        } if movement.to_warehouse else None,
+        'reference_number': movement.reference_number,
+        'reason': movement.reason,
+        'notes': movement.notes,
+    })
+
+@login_required
+@csrf_exempt
+def api_get_order(request, order_id):
+    """API endpoint to get order details."""
+    order = get_object_or_404(Order, id=order_id)
+    
+    return JsonResponse({
+        'id': order.id,
+        'order_code': order.order_code,
+        'customer_name': order.customer_name,
+        'product': {
+            'id': order.product.id,
+            'name': order.product.name_en,
+            'code': order.product.code,
+        },
+        'quantity': order.quantity,
+        'priority': order.priority,
+        'status': order.status,
+    })
+
+@login_required
+@csrf_exempt
+def api_get_transfer(request, transfer_id):
+    """API endpoint to get transfer details."""
+    transfer = get_object_or_404(InventoryMovement, id=transfer_id, movement_type='transfer')
+    
+    return JsonResponse({
+        'id': transfer.id,
+        'tracking_number': transfer.tracking_number,
+        'quantity': transfer.quantity,
+        'product': {
+            'id': transfer.product.id,
+            'name': transfer.product.name_en,
+            'code': transfer.product.code,
+        },
+        'from_warehouse': {
+            'id': transfer.from_warehouse.id,
+            'name': transfer.from_warehouse.name,
+        },
+        'to_warehouse': {
+            'id': transfer.to_warehouse.id,
+            'name': transfer.to_warehouse.name,
+        },
+        'reason': transfer.reason,
+        'notes': transfer.notes,
+    })
+
+@login_required
+@csrf_exempt
+def api_receive_stock(request):
+    """API endpoint to process stock receiving."""
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        movement_id = data.get('movement_id')
+        received_quantity = data.get('received_quantity')
+        condition = data.get('condition', 'good')
+        location = data.get('location', '')
+        notes = data.get('notes', '')
+        
+        try:
+            movement = InventoryMovement.objects.get(id=movement_id)
+            product = movement.product
+            warehouse = movement.to_warehouse
+            
+            # Update movement status
+            movement.status = 'completed'
+            movement.processed_by = request.user
+            movement.processed_at = timezone.now()
+            movement.condition = condition
+            movement.notes = notes
+            movement.save()
+            
+            # Update inventory
+            inventory, created = WarehouseInventory.objects.get_or_create(
+                product=product,
+                warehouse=warehouse,
+                defaults={'quantity': 0}
+            )
+            inventory.quantity += received_quantity
+            if location:
+                inventory.location_code = location
+            inventory.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully received {received_quantity} units of {product.name_en}'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@login_required
+@csrf_exempt
+def api_pick_order(request):
+    """API endpoint to process order picking."""
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        picked_quantity = data.get('picked_quantity')
+        pick_location = data.get('pick_location', '')
+        condition = data.get('condition', 'good')
+        notes = data.get('notes', '')
+        
+        try:
+            order = Order.objects.get(id=order_id)
+            product = order.product
+            
+            # Get warehouse (assuming first active warehouse for now)
+            warehouse = Warehouse.objects.filter(is_active=True).first()
+            
+            # Check if enough stock
+            inventory = WarehouseInventory.objects.filter(
+                product=product,
+                warehouse=warehouse
+            ).first()
+            
+            if not inventory or inventory.quantity < picked_quantity:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Insufficient stock for picking'
+                })
+            
+            # Create movement record
+            movement = InventoryMovement.objects.create(
+                movement_type='stock_out',
+                product=product,
+                quantity=picked_quantity,
+                from_warehouse=warehouse,
+                created_by=request.user,
+                processed_by=request.user,
+                status='completed',
+                reference_number=order.order_code,
+                reference_type='Order',
+                reason='Order fulfillment',
+                notes=notes
+            )
+            
+            # Update inventory
+            inventory.quantity -= picked_quantity
+            inventory.save()
+            
+            # Update order status
+            order.status = 'shipped'
+            order.save()
+            
+            # Generate shipping label
+            shipping_label = {
+                'order_code': order.order_code,
+                'customer_name': order.customer_name or 'N/A',
+                'address': order.shipping_address or 'N/A',
+                'tracking_number': movement.tracking_number,
+                'barcode': movement.tracking_number,
+            }
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully picked {picked_quantity} units for order {order.order_code}',
+                'shipping_label': shipping_label
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@login_required
+@csrf_exempt
+def api_complete_transfer(request):
+    """API endpoint to complete transfer."""
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        transfer_id = data.get('transfer_id')
+        transferred_quantity = data.get('transferred_quantity')
+        from_location = data.get('from_location', '')
+        to_location = data.get('to_location', '')
+        packaging_type = data.get('packaging_type', '')
+        notes = data.get('notes', '')
+        
+        try:
+            transfer = InventoryMovement.objects.get(id=transfer_id, movement_type='transfer')
+            
+            # Update transfer status
+            transfer.status = 'completed'
+            transfer.processed_by = request.user
+            transfer.processed_at = timezone.now()
+            transfer.notes = notes
+            transfer.save()
+            
+            # Update source inventory
+            from_inventory = WarehouseInventory.objects.filter(
+                product=transfer.product,
+                warehouse=transfer.from_warehouse
+            ).first()
+            
+            if from_inventory:
+                from_inventory.quantity -= transferred_quantity
+                from_inventory.save()
+            
+            # Update destination inventory
+            to_inventory, created = WarehouseInventory.objects.get_or_create(
+                product=transfer.product,
+                warehouse=transfer.to_warehouse,
+                defaults={'quantity': 0}
+            )
+            to_inventory.quantity += transferred_quantity
+            if to_location:
+                to_inventory.location_code = to_location
+            to_inventory.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully transferred {transferred_quantity} units from {transfer.from_warehouse.name} to {transfer.to_warehouse.name}'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})

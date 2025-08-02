@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Ship Orders" %}{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <!-- Navigation -->
+    <div class="mb-6">
+        <a href="{% url 'stock_keeper:dashboard' %}" class="text-primary-600 hover:text-primary-700">
+            <i class="fas fa-arrow-left mr-2"></i>{% trans "Back to Dashboard" %}
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+            <i class="fas fa-shipping-fast text-primary-600 mr-3"></i>{% trans "Ship Orders" %}
+        </h1>
+        <p class="text-gray-600 mt-1">{% trans "Fulfill customer orders and generate shipping labels" %}</p>
+    </div>
+
+    <!-- Ready to Ship Orders -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">{% trans "Ready to Ship Orders" %}</h2>
+        
+        {% if ready_orders %}
+            <div class="space-y-4">
+                {% for order in ready_orders %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-900">Order #{{ order.order_code }}</h3>
+                            <p class="text-sm text-gray-600">Customer: {{ order.customer_name|default:"N/A" }}</p>
+                            <p class="text-sm text-gray-600">Product: {{ order.product.name_en }}</p>
+                            <p class="text-sm text-gray-600">Quantity: {{ order.quantity }} units</p>
+                            <p class="text-sm text-gray-600">Priority: 
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                    {% if order.priority == 'high' %}bg-red-100 text-red-800
+                                    {% elif order.priority == 'medium' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ order.priority|title }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="startPicking('{{ order.id }}')" 
+                                    class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+                                {% trans "Start Picking" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-shipping-fast text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">{% trans "No orders ready for shipping" %}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Manual Shipping Form -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">{% trans "Manual Order Shipping" %}</h2>
+        
+        <form method="post" id="ship-form">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Order Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Order" %}</label>
+                    <select name="order_id" id="order-select" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <option value="">{% trans "Select an order" %}</option>
+                        {% for order in ready_orders %}
+                        <option value="{{ order.id }}">{{ order.order_code }} - {{ order.product.name_en }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Warehouse Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Warehouse" %}</label>
+                    <select name="warehouse_id" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Quantity -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Quantity to Ship" %}</label>
+                    <input type="number" name="quantity" min="1" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                           placeholder="Enter quantity">
+                </div>
+
+                <!-- Courier -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Courier" %}</label>
+                    <select name="courier" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <option value="dhl">DHL Express</option>
+                        <option value="fedex">FedEx</option>
+                        <option value="ups">UPS</option>
+                        <option value="aramex">Aramex</option>
+                        <option value="local">Local Delivery</option>
+                    </select>
+                </div>
+
+                <!-- Tracking Number -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Tracking Number" %}</label>
+                    <input type="text" name="tracking_number" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                           placeholder="Enter tracking number">
+                </div>
+
+                <!-- Shipping Method -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Shipping Method" %}</label>
+                    <select name="shipping_method" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <option value="standard">Standard</option>
+                        <option value="express">Express</option>
+                        <option value="overnight">Overnight</option>
+                        <option value="same_day">Same Day</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Shipping Notes" %}</label>
+                <textarea name="notes" rows="3" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                          placeholder="Additional shipping notes"></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-6 flex justify-end">
+                <button type="submit" 
+                        class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-shipping-fast mr-2"></i>{% trans "Ship Order" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Picking Modal -->
+<div id="picking-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full p-6">
+            <h3 id="modal-title" class="text-lg font-semibold mb-4">{% trans "Order Picking" %}</h3>
+            
+            <div id="picking-progress" class="space-y-4">
+                <!-- Progress will be populated here -->
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closePickingModal()" 
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                    {% trans "Cancel" %}
+                </button>
+                <button type="button" id="complete-picking" 
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    {% trans "Complete Picking" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Shipping Label Modal -->
+<div id="shipping-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full p-6">
+            <h3 class="text-lg font-semibold mb-4">{% trans "Shipping Label" %}</h3>
+            
+            <div id="shipping-label" class="border-2 border-gray-300 rounded-lg p-4 mb-4">
+                <!-- Shipping label will be populated here -->
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeShippingModal()" 
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                    {% trans "Close" %}
+                </button>
+                <button type="button" onclick="printShippingLabel()" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    <i class="fas fa-print mr-2"></i>{% trans "Print Label" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentOrder = null;
+let pickedItems = [];
+
+function startPicking(orderId) {
+    // Fetch order details and populate modal
+    fetch(`/stock-keeper/api/order/${orderId}/`)
+        .then(response => response.json())
+        .then(data => {
+            currentOrder = data;
+            showPickingModal(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading order details');
+        });
+}
+
+function showPickingModal(order) {
+    const modal = document.getElementById('picking-modal');
+    const title = document.getElementById('modal-title');
+    const progress = document.getElementById('picking-progress');
+    
+    title.textContent = `Picking Order: ${order.order_code}`;
+    
+    progress.innerHTML = `
+        <div class="space-y-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 mb-2">Order Details</h4>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-600">Order:</span>
+                        <span class="font-medium">${order.order_code}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Customer:</span>
+                        <span class="font-medium">${order.customer_name || 'N/A'}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Product:</span>
+                        <span class="font-medium">${order.product.name}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Quantity:</span>
+                        <span class="font-medium">${order.quantity}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <h4 class="font-medium text-gray-900">Picking Checklist</h4>
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-3">
+                        <input type="number" id="picked-quantity" min="1" max="${order.quantity}" 
+                               value="${order.quantity}" 
+                               class="w-24 px-2 py-1 border border-gray-300 rounded">
+                        <span class="text-sm text-gray-600">units picked</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <input type="text" id="pick-location" 
+                               class="px-2 py-1 border border-gray-300 rounded"
+                               placeholder="Pick location">
+                        <span class="text-sm text-gray-600">from location</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <select id="item-condition" class="px-2 py-1 border border-gray-300 rounded">
+                            <option value="good">Good</option>
+                            <option value="damaged">Damaged</option>
+                        </select>
+                        <span class="text-sm text-gray-600">condition</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p class="text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Verify the picked items match the order before completing.
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('complete-picking').onclick = completePicking;
+    modal.classList.remove('hidden');
+}
+
+function completePicking() {
+    const quantity = document.getElementById('picked-quantity').value;
+    const location = document.getElementById('pick-location').value;
+    const condition = document.getElementById('item-condition').value;
+    
+    if (!quantity || quantity <= 0) {
+        alert('Please enter a valid quantity');
+        return;
+    }
+    
+    if (!location) {
+        alert('Please enter the pick location');
+        return;
+    }
+    
+    // Submit picking data
+    fetch('/stock-keeper/api/pick/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            order_id: currentOrder.id,
+            picked_quantity: parseInt(quantity),
+            pick_location: location,
+            condition: condition,
+            notes: 'Order picked via stock keeper panel'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closePickingModal();
+            showShippingLabel(data.shipping_label);
+        } else {
+            alert(data.message || 'Error completing picking');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error processing picking');
+    });
+}
+
+function showShippingLabel(shippingLabel) {
+    const modal = document.getElementById('shipping-modal');
+    const labelDiv = document.getElementById('shipping-label');
+    
+    labelDiv.innerHTML = `
+        <div class="text-center">
+            <h4 class="font-bold text-lg mb-2">Shipping Label</h4>
+            <div class="border-2 border-dashed border-gray-400 p-4 mb-4">
+                <div class="text-sm space-y-1">
+                    <p><strong>From:</strong> Atlas Fulfillment</p>
+                    <p><strong>To:</strong> ${shippingLabel.customer_name}</p>
+                    <p><strong>Address:</strong> ${shippingLabel.address}</p>
+                    <p><strong>Order:</strong> ${shippingLabel.order_code}</p>
+                    <p><strong>Tracking:</strong> ${shippingLabel.tracking_number}</p>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="inline-block bg-black text-white p-2 text-xs">
+                    ${shippingLabel.barcode || 'BARCODE'}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+function closePickingModal() {
+    document.getElementById('picking-modal').classList.add('hidden');
+    currentOrder = null;
+}
+
+function closeShippingModal() {
+    document.getElementById('shipping-modal').classList.add('hidden');
+}
+
+function printShippingLabel() {
+    const labelContent = document.getElementById('shipping-label').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Shipping Label</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .label { border: 2px solid #000; padding: 20px; text-align: center; }
+                    .barcode { background: #000; color: #fff; padding: 10px; display: inline-block; }
+                </style>
+            </head>
+            <body>
+                <div class="label">
+                    ${labelContent}
+                </div>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

@@ -8,6 +8,7 @@ requests>=2.31.0
 
 # Image and file handling
 Pillow>=10.3.0
+qrcode>=7.4.2
 
 # Static files in production
 whitenoise>=6.6.0

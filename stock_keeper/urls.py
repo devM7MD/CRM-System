@@ -27,4 +27,10 @@ urlpatterns = [
     # API endpoints
     path('api/search-product/', views.api_search_product, name='api_search_product'),
     path('api/inventory/<int:product_id>/', views.api_get_inventory, name='api_get_inventory'),
+    path('api/movement/<int:movement_id>/', views.api_get_movement, name='api_get_movement'),
+    path('api/order/<int:order_id>/', views.api_get_order, name='api_get_order'),
+    path('api/transfer/<int:transfer_id>/', views.api_get_transfer, name='api_get_transfer'),
+    path('api/receive/', views.api_receive_stock, name='api_receive_stock'),
+    path('api/pick/', views.api_pick_order, name='api_pick_order'),
+    path('api/transfer/complete/', views.api_complete_transfer, name='api_complete_transfer'),
 ] 

@@ -1,13 +1,16 @@
 # stock_keeper/models.py
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+from django.conf import settings
+
+User = get_user_model()
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 import uuid
-import qrcode
-from io import BytesIO
-from django.core.files import File
-from PIL import Image
+# import qrcode  # Temporarily disabled
+# from io import BytesIO
+# from django.core.files import File
+# from PIL import Image
 
 def generate_tracking_number():
     """Generate unique tracking number for inventory items."""
@@ -114,7 +117,7 @@ class InventoryMovement(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
     # Product and quantity details
-    product = models.ForeignKey('sellers.Product', on_delete=models.CASCADE)
+    product = models.ForeignKey('sellers.Product', on_delete=models.CASCADE, related_name='stock_keeper_movements')
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     
     # Warehouse details
@@ -166,7 +169,7 @@ class InventoryMovement(models.Model):
 class TrackingNumber(models.Model):
     """Manage tracking numbers and QR codes for inventory items."""
     tracking_number = models.CharField(max_length=50, unique=True, default=generate_tracking_number)
-    product = models.ForeignKey('sellers.Product', on_delete=models.CASCADE)
+    product = models.ForeignKey('sellers.Product', on_delete=models.CASCADE, related_name='stock_keeper_tracking_numbers')
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     barcode = models.CharField(max_length=100, unique=True, default=generate_barcode)
@@ -187,16 +190,18 @@ class TrackingNumber(models.Model):
     
     def generate_qr_code(self):
         """Generate QR code for the tracking number."""
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
-        qr.add_data(self.tracking_number)
-        qr.make(fit=True)
-        
-        img = qr.make_image(fill_color="black", back_color="white")
-        buffer = BytesIO()
-        img.save(buffer, format='PNG')
-        
-        filename = f'qr_code_{self.tracking_number}.png'
-        self.qr_code.save(filename, File(buffer), save=False)
+        # Temporarily disabled QR code generation
+        # qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        # qr.add_data(self.tracking_number)
+        # qr.make(fit=True)
+        # 
+        # img = qr.make_image(fill_color="black", back_color="white")
+        # buffer = BytesIO()
+        # img.save(buffer, format='PNG')
+        # 
+        # filename = f'qr_code_{self.tracking_number}.png'
+        # self.qr_code.save(filename, File(buffer), save=False)
+        pass
 
 class StockKeeperSession(models.Model):
     """Track stock keeper work sessions."""
@@ -248,7 +253,7 @@ class StockAlert(models.Model):
     
     alert_type = models.CharField(max_length=20, choices=ALERT_TYPES)
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
-    product = models.ForeignKey('sellers.Product', on_delete=models.CASCADE)
+    product = models.ForeignKey('sellers.Product', on_delete=models.CASCADE, related_name='stock_keeper_alerts')
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     message = models.TextField()
     is_resolved = models.BooleanField(default=False)

@@ -8,7 +8,19 @@ User = get_user_model()
 class Role(models.Model):
     """Role model for managing user roles and permissions"""
     
+    ROLE_TYPES = (
+        ('admin', _('Administrator')),
+        ('manager', _('Manager')),
+        ('supervisor', _('Supervisor')),
+        ('specialist', _('Specialist')),
+        ('assistant', _('Assistant')),
+        ('operator', _('Operator')),
+        ('viewer', _('Viewer')),
+        ('custom', _('Custom')),
+    )
+    
     name = models.CharField(_('Role Name'), max_length=100, unique=True)
+    role_type = models.CharField(_('Role Type'), max_length=20, choices=ROLE_TYPES, default='custom')
     description = models.TextField(_('Description'), blank=True, null=True)
     is_active = models.BooleanField(_('Active'), default=True)
     is_default = models.BooleanField(_('Default Role'), default=False)

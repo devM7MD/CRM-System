@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Q
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 import json
 import csv
 from io import StringIO
@@ -52,6 +53,9 @@ def inventory_dashboard(request):
     # Convert chart data to JSON for use in template
     chart_json = json.dumps(chart_data)
     
+    # Get products with stock information
+    products_with_stock = Product.objects.all().order_by('-stock_quantity')[:10]
+    
     context = {
         'total_products': total_products,
         'available_inventory': available_inventory,
@@ -59,7 +63,8 @@ def inventory_dashboard(request):
         'warehouses': warehouses,
         'recent_movements': recent_movements,
         'warehouse_stats': warehouse_stats,
-        'chart_json': chart_json
+        'chart_json': chart_json,
+        'products_with_stock': products_with_stock
     }
     
     return render(request, 'inventory/dashboard.html', context)
@@ -109,7 +114,7 @@ def inventory_products(request):
         # Determine status
         if total_quantity <= 0:
             status = 'out_of_stock'
-        elif total_quantity <= min_quantity:
+        elif total_quantity <= 10:  # Consider 10 or fewer units as low stock
             status = 'low_stock'
         else:
             status = 'in_stock'
@@ -156,10 +161,33 @@ def inventory_products(request):
     
     return render(request, 'inventory/products.html', context)
 
+class WarehouseForm(forms.ModelForm):
+    """Form for warehouse creation and editing."""
+    class Meta:
+        model = Warehouse
+        fields = ['name', 'location', 'description', 'is_active']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+
 @login_required
 def warehouse_list(request):
     """List of warehouses with inventory statistics."""
     warehouses = Warehouse.objects.all()
+    
+    # Handle add warehouse request
+    if request.GET.get('add'):
+        return add_warehouse(request)
+    
+    # Handle edit warehouse request
+    if request.GET.get('edit'):
+        warehouse_id = request.GET.get('edit')
+        return edit_warehouse(request, warehouse_id)
+    
+    # Handle view warehouse request
+    if request.GET.get('view'):
+        warehouse_id = request.GET.get('view')
+        return view_warehouse(request, warehouse_id)
     
     warehouse_data = []
     chart_data = {
@@ -218,6 +246,77 @@ def warehouse_list(request):
     }
     
     return render(request, 'inventory/warehouses.html', context)
+
+@login_required
+def add_warehouse(request):
+    """Add a new warehouse."""
+    if request.method == 'POST':
+        form = WarehouseForm(request.POST)
+        if form.is_valid():
+            warehouse = form.save()
+            messages.success(request, f'Warehouse "{warehouse.name}" added successfully!')
+            return redirect('inventory:warehouses')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = WarehouseForm()
+    
+    context = {
+        'form': form,
+        'title': 'Add Warehouse',
+        'is_add': True
+    }
+    return render(request, 'inventory/warehouse_form.html', context)
+
+@login_required
+def edit_warehouse(request, warehouse_id):
+    """Edit an existing warehouse."""
+    warehouse = get_object_or_404(Warehouse, id=warehouse_id)
+    
+    if request.method == 'POST':
+        form = WarehouseForm(request.POST, instance=warehouse)
+        if form.is_valid():
+            warehouse = form.save()
+            messages.success(request, f'Warehouse "{warehouse.name}" updated successfully!')
+            return redirect('inventory:warehouses')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = WarehouseForm(instance=warehouse)
+    
+    context = {
+        'form': form,
+        'warehouse': warehouse,
+        'title': f'Edit Warehouse: {warehouse.name}',
+        'is_edit': True
+    }
+    return render(request, 'inventory/warehouse_form.html', context)
+
+@login_required
+def view_warehouse(request, warehouse_id):
+    """View warehouse details and inventory."""
+    warehouse = get_object_or_404(Warehouse, id=warehouse_id)
+    
+    # Get inventory records for this warehouse
+    inventory_records = InventoryRecord.objects.filter(warehouse=warehouse).select_related('product')
+    
+    # Calculate stats
+    total_products = inventory_records.values('product').distinct().count()
+    total_quantity = inventory_records.aggregate(total=Sum('quantity'))['total'] or 0
+    
+    # In a real system, capacity would be stored in the model
+    capacity = 25000 if 'Main' in warehouse.name else 15000 if 'Secondary' in warehouse.name else 10000
+    utilization = round((total_quantity / capacity) * 100, 1) if capacity > 0 else 0
+    
+    context = {
+        'warehouse': warehouse,
+        'inventory_records': inventory_records,
+        'total_products': total_products,
+        'total_quantity': total_quantity,
+        'capacity': capacity,
+        'utilization': utilization
+    }
+    return render(request, 'inventory/warehouse_detail.html', context)
 
 @login_required
 def inventory_movements(request):
@@ -284,61 +383,71 @@ def inventory_movements(request):
     
     return render(request, 'inventory/movements.html', context)
 
-@login_required
 def export_products_csv(inventory_data, request):
     """Export products data as CSV."""
-    # Create a file-like buffer to receive CSV data
-    buffer = StringIO()
-    writer = csv.writer(buffer)
-    
-    # Write header row
-    writer.writerow(['ID', 'Product Name', 'Code', 'Stock', 'Min Quantity', 'Max Quantity', 'Status', 'Warehouses'])
-    
-    # Write data rows
-    for item in inventory_data:
-        writer.writerow([
-            item['product'].id,
-            item['product'].name_en,
-            item['product'].code,
-            item['total_quantity'],
-            item['min_quantity'],
-            item['max_quantity'],
-            item['status'].replace('_', ' ').title(),
-            ', '.join([w.name for w in item['warehouses']])
-        ])
-    
-    # Create the HTTP response with CSV data
-    response = HttpResponse(buffer.getvalue(), content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="inventory_products.csv"'
-    
-    return response
+    try:
+        # Create a file-like buffer to receive CSV data
+        buffer = StringIO()
+        writer = csv.writer(buffer)
+        
+        # Write header row
+        writer.writerow(['ID', 'Product Name', 'Code', 'Stock', 'Min Quantity', 'Max Quantity', 'Status', 'Warehouses'])
+        
+        # Write data rows
+        for item in inventory_data:
+            writer.writerow([
+                item['product'].id,
+                item['product'].name_en,
+                item['product'].code,
+                item['total_quantity'],
+                item['min_quantity'],
+                item['max_quantity'],
+                item['status'].replace('_', ' ').title(),
+                ', '.join([w.name for w in item['warehouses']])
+            ])
+        
+        # Create the HTTP response with CSV data
+        response = HttpResponse(buffer.getvalue(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="inventory_products.csv"'
+        
+        return response
+    except Exception as e:
+        print(f"Error exporting products: {e}")
+        messages.error(request, f"Error exporting products: {str(e)}")
+        return redirect('inventory:products')
 
-@login_required
 def export_warehouses_csv(warehouse_data, request):
     """Export warehouses data as CSV."""
-    # Create a file-like buffer to receive CSV data
-    buffer = StringIO()
-    writer = csv.writer(buffer)
-    
-    # Write header row
-    writer.writerow(['Name', 'Location', 'Products Count', 'Current Stock', 'Capacity', 'Utilization (%)'])
-    
-    # Write data rows
-    for item in warehouse_data:
-        writer.writerow([
-            item['warehouse'].name,
-            item['warehouse'].location,
-            item['products_count'],
-            item['total_quantity'],
-            item['capacity'],
-            item['utilization']
-        ])
-    
-    # Create the HTTP response with CSV data
-    response = HttpResponse(buffer.getvalue(), content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="warehouses.csv"'
-    
-    return response
+    try:
+        # Create a file-like buffer to receive CSV data
+        buffer = StringIO()
+        writer = csv.writer(buffer)
+        
+        # Write header row
+        writer.writerow(['Name', 'Location', 'Products Count', 'Current Stock', 'Capacity', 'Utilization (%)', 'Status', 'Description'])
+        
+        # Write data rows
+        for item in warehouse_data:
+            writer.writerow([
+                item['warehouse'].name,
+                item['warehouse'].location,
+                item['products_count'],
+                item['total_quantity'],
+                item['capacity'],
+                item['utilization'],
+                'Active' if item['warehouse'].is_active else 'Inactive',
+                item['warehouse'].description
+            ])
+        
+        # Create the HTTP response with CSV data
+        response = HttpResponse(buffer.getvalue(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="warehouses.csv"'
+        
+        return response
+    except Exception as e:
+        print(f"Error exporting warehouses: {e}")
+        messages.error(request, f"Error exporting warehouses: {str(e)}")
+        return redirect('inventory:warehouses')
 
 @login_required
 def export_movements(request):
@@ -408,8 +517,15 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             'name_en', 'name_ar', 'code', 'selling_price', 'purchase_price',
-            'image', 'description', 'product_link', 'seller'
+            'stock_quantity', 'image', 'description', 'product_link', 'seller'
         ]
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'class': 'sr-only',
+                'accept': 'image/*',
+                'id': 'id_image'
+            })
+        }
     
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -447,6 +563,41 @@ class ProductForm(forms.ModelForm):
                 self.fields['seller'].queryset = User.objects.filter(is_active=True)
             except ImportError:
                 pass
+    
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            # Check if this is a new upload (has content_type) or existing image
+            if hasattr(image, 'content_type'):
+                # This is a new file upload
+                # Check file size (10MB limit)
+                if image.size > 10 * 1024 * 1024:
+                    raise forms.ValidationError("Image file size must be under 10MB.")
+                
+                # Check file type
+                allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+                if image.content_type not in allowed_types:
+                    raise forms.ValidationError("Please upload a valid image file (JPEG, PNG, or GIF).")
+                
+                # Validate image dimensions
+                try:
+                    from PIL import Image
+                    img = Image.open(image)
+                    width, height = img.size
+                    if width > 4000 or height > 4000:
+                        raise forms.ValidationError("Image dimensions must be under 4000x4000 pixels.")
+                except Exception as e:
+                    raise forms.ValidationError("Invalid image file. Please upload a valid image.")
+            else:
+                # This is an existing image (ImageFieldFile), just return it
+                pass
+        
+        return image
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        # Add any cross-field validation here if needed
+        return cleaned_data
 
 @login_required
 def add_product(request):
@@ -454,13 +605,56 @@ def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Product added successfully!')
-            return redirect('inventory:products')
+            try:
+                # Save the product first without the image to get the ID
+                product = form.save(commit=False)
+                
+                # Set the seller if not already set
+                if not product.seller:
+                    product.seller = request.user
+                
+                # Handle image upload - the model's upload_to function will handle the naming
+                if 'image' in request.FILES:
+                    product.image = request.FILES['image']
+                
+                # Save the product (this will trigger the upload_to function)
+                product.save()
+                
+                # Create inventory record for the stock quantity
+                if product.stock_quantity > 0:
+                    # Get the first warehouse or create a default one
+                    warehouse = Warehouse.objects.first()
+                    if not warehouse:
+                        warehouse = Warehouse.objects.create(
+                            name="Main Warehouse",
+                            location="Default Location"
+                        )
+                    
+                    # Create inventory record
+                    InventoryRecord.objects.create(
+                        product=product,
+                        warehouse=warehouse,
+                        quantity=product.stock_quantity
+                    )
+                
+                messages.success(request, f'Product "{product.name_en}" added successfully with {product.stock_quantity} units in stock!')
+                return redirect('inventory:products')
+                
+            except Exception as e:
+                messages.error(request, f'Error saving product: {str(e)}')
+                print(f"Error saving product: {e}")
         else:
+            # Debug information
+            print("Form errors:", form.errors)
+            print("Form data:", request.POST)
+            print("Files:", request.FILES)
+            print("Form fields:", form.fields.keys())
+            print("Form is bound:", form.is_bound)
+            print("Form is valid:", form.is_valid())
             messages.error(request, 'Please correct the errors below.')
     else:
         form = ProductForm(user=request.user)
+    
     context = {
         'form': form,
         'warehouses': Warehouse.objects.all(),
@@ -470,21 +664,152 @@ def add_product(request):
 @login_required
 def edit_product(request, product_id):
     """Edit an existing product in inventory."""
-    # This is a placeholder function to make the URLs work
-    # Get the product or return 404
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        # Process form data
-        # You would validate and update the product here
-        return redirect('inventory:products')
-    
-    # Get product inventory records
-    inventory_records = InventoryRecord.objects.filter(product=product)
+        form = ProductForm(request.POST, request.FILES, instance=product, user=request.user)
+        if form.is_valid():
+            try:
+                # Save the product first without the image to get the updated data
+                product = form.save(commit=False)
+                
+                # Set the seller if not already set
+                if not product.seller:
+                    product.seller = request.user
+                
+                # Handle image upload - the model's upload_to function will handle the naming
+                if 'image' in request.FILES:
+                    product.image = request.FILES['image']
+                
+                # Save the product (this will trigger the upload_to function)
+                product.save()
+                
+                # Update inventory record for the stock quantity
+                old_stock_quantity = form.initial.get('stock_quantity', 0) if form.initial else 0
+                new_stock_quantity = form.cleaned_data.get('stock_quantity', 0)
+                
+                if new_stock_quantity != old_stock_quantity:
+                    # Get the first warehouse or create a default one
+                    warehouse = Warehouse.objects.first()
+                    if not warehouse:
+                        warehouse = Warehouse.objects.create(
+                            name="Main Warehouse",
+                            location="Default Location"
+                        )
+                    
+                    # Update or create inventory record
+                    inventory_record, created = InventoryRecord.objects.get_or_create(
+                        product=product,
+                        warehouse=warehouse,
+                        defaults={'quantity': new_stock_quantity}
+                    )
+                    
+                    if not created:
+                        inventory_record.quantity = new_stock_quantity
+                        inventory_record.save()
+                
+                messages.success(request, f'Product "{product.name_en}" updated successfully!')
+                return redirect('inventory:products')
+                
+            except Exception as e:
+                messages.error(request, f'Error updating product: {str(e)}')
+                print(f"Error updating product: {e}")
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProductForm(instance=product, user=request.user)
     
     context = {
         'product': product,
-        'inventory_records': inventory_records,
+        'form': form,
         'warehouses': Warehouse.objects.all(),
     }
     return render(request, 'inventory/edit_product.html', context)
+
+@login_required
+def deduct_stock(request, product_id):
+    """Deduct stock when a product is purchased."""
+    if request.method == 'POST':
+        try:
+            product = get_object_or_404(Product, id=product_id)
+            quantity = int(request.POST.get('quantity', 1))
+            
+            if product.stock_quantity >= quantity:
+                product.stock_quantity -= quantity
+                product.save()
+                
+                # Create inventory movement record
+                InventoryMovement.objects.create(
+                    product=product,
+                    movement_type='order',
+                    quantity=quantity,
+                    created_by=request.user,
+                    reference=f"Purchase - {quantity} units"
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'new_stock': product.stock_quantity,
+                    'message': f'Stock deducted successfully. New stock: {product.stock_quantity}'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Insufficient stock. Available: {product.stock_quantity}, Requested: {quantity}'
+                }, status=400)
+                
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error deducting stock: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+
+@login_required
+@csrf_exempt
+def delete_product(request, product_id):
+    """Delete a product from inventory."""
+    if request.method == 'POST':
+        try:
+            product = get_object_or_404(Product, id=product_id)
+            product_name = product.name_en
+            
+            print(f"Attempting to delete product: {product_name} (ID: {product_id})")
+            
+            # Check if product is referenced by orders
+            from orders.models import OrderItem
+            order_items = OrderItem.objects.filter(product=product)
+            if order_items.exists():
+                order_item_count = order_items.count()
+                print(f"Product is referenced by {order_item_count} order items")
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Cannot delete product "{product_name}" because it is referenced by {order_item_count} order item(s). Please remove or update the order items first.'
+                }, status=400)
+            
+            # Check if product is referenced by orders (direct relationship)
+            if hasattr(product, 'orders') and product.orders.exists():
+                order_count = product.orders.count()
+                print(f"Product is referenced by {order_count} orders")
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Cannot delete product "{product_name}" because it is referenced by {order_count} order(s). Please remove or update the orders first.'
+                }, status=400)
+            
+            print(f"No references found, deleting product {product_name}")
+            # If no references, delete the product
+            product.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Product "{product_name}" deleted successfully.'
+            })
+        except Exception as e:
+            print(f"Error deleting product: {e}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Error deleting product: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)

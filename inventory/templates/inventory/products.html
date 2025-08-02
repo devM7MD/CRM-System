@@ -2,6 +2,9 @@
 
 {% block title %}Inventory Products{% endblock %}
 
+{% block extrahead %}
+{% endblock %}
+
 {% block content %}
 <div class="w-full">
     <!-- Page Header -->
@@ -171,7 +174,7 @@
                 </thead>
                 <tbody>
                     {% for item in inventory_data %}
-                    <tr class="hover:bg-gray-50 transition-all duration-200">
+                    <tr class="hover:bg-gray-50 transition-all duration-200" data-product-id="{{ item.product.id }}">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-8 w-8 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -180,13 +183,19 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="h-12 w-12 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
-                                {% if item.product.image %}
+                            <div class="h-12 w-12 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200" 
+                                 title="{% if item.product.image %}Product Image{% else %}No image uploaded{% endif %}">
+                                {% if item.product.image and item.product.image.url %}
                                 <img src="{{ item.product.image.url }}" alt="{{ item.product.name_en }}" 
-                                     class="h-full w-full object-cover hover:scale-110 transition-transform duration-200">
-                                {% else %}
-                                <div class="h-full w-full flex items-center justify-center text-gray-400">
+                                     class="h-full w-full object-cover hover:scale-110 transition-transform duration-200"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="h-full w-full flex items-center justify-center text-gray-400" style="display: none;">
                                     <i class="fas fa-image text-xl"></i>
+                                </div>
+                                {% else %}
+                                <div class="h-full w-full flex flex-col items-center justify-center text-gray-400">
+                                    <i class="fas fa-image text-lg"></i>
+                                    <span class="text-xs mt-1">No Image</span>
                                 </div>
                                 {% endif %}
                             </div>
@@ -248,8 +257,11 @@
                                     <i class="fas fa-edit mr-1"></i>
                                     Edit
                                 </a>
-                                <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
-                                    <i class="fas fa-ellipsis-v"></i>
+                                <button data-product-id="{{ item.product.id }}" 
+                                        data-product-name="{{ item.product.name_en|escapejs }}"
+                                        class="delete-product-btn text-red-600 hover:text-red-800 transition-colors duration-200">
+                                    <i class="fas fa-trash mr-1"></i>
+                                    Delete
                                 </button>
                             </div>
                         </td>
@@ -298,6 +310,55 @@
 </div>
 
 <script>
+// Toast notification function
+function showToast(message, type = 'info') {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast-notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+    
+    // Set background color based on type
+    if (type === 'success') {
+        toast.className += ' bg-green-500 text-white';
+    } else if (type === 'error') {
+        toast.className += ' bg-red-500 text-white';
+    } else {
+        toast.className += ' bg-blue-500 text-white';
+    }
+    
+    // Add icon based on type
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    else if (type === 'error') icon = 'exclamation-triangle';
+    
+    toast.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-${icon} mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Toggle filters functionality
     const toggleFilters = document.getElementById('toggle-filters');
@@ -338,6 +399,90 @@ document.addEventListener('DOMContentLoaded', function() {
         img.addEventListener('mouseleave', function() {
             this.style.transform = 'scale(1)';
         });
+    });
+    
+    // Delete product functionality using event delegation
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-product-btn')) {
+            const button = e.target.closest('.delete-product-btn');
+            const productId = button.getAttribute('data-product-id');
+            const productName = button.getAttribute('data-product-name');
+            
+            if (confirm('Are you sure you want to delete "' + productName + '"? This action cannot be undone.')) {
+                // Show loading state
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Deleting...';
+                button.disabled = true;
+                
+                fetch('{% url "inventory:delete_product" 0 %}'.replace('0', productId), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: ''
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row from the table
+                        const row = document.querySelector('tr[data-product-id="' + productId + '"]');
+                        if (row) {
+                            row.remove();
+                        }
+                        
+                        // Update the product count
+                        const countElement = document.querySelector('.bg-primary-100.text-primary-800');
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent);
+                            const newCount = Math.max(0, currentCount - 1);
+                            countElement.textContent = newCount;
+                        }
+                        
+                        // Show success message with toast notification
+                        showToast(data.message, 'success');
+                        
+                        // Check if there are no products left and show empty state
+                        const remainingRows = document.querySelectorAll('tbody tr[data-product-id]');
+                        if (remainingRows.length === 0) {
+                            const tbody = document.querySelector('tbody');
+                            if (tbody) {
+                                tbody.innerHTML = `
+                                    <tr>
+                                        <td colspan="8" class="px-6 py-12 text-center">
+                                            <div class="flex flex-col items-center">
+                                                <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
+                                                <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+                                                <p class="text-gray-500 mb-4">Get started by adding your first product to inventory</p>
+                                                <a href="{% url 'inventory:add_product' %}" class="btn-primary">
+                                                    <i class="fas fa-plus mr-2"></i>
+                                                    Add First Product
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                        }
+                    } else {
+                        // Show error message for products that cannot be deleted
+                        showToast('Cannot delete product: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred while deleting the product.', 'error');
+                })
+                .finally(() => {
+                    // Reset button state
+                    button.innerHTML = '<i class="fas fa-trash mr-1"></i>Delete';
+                    button.disabled = false;
+                });
+            }
+        }
     });
 });
 </script>

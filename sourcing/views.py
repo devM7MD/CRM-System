@@ -6,6 +6,8 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 from .models import Supplier, SourcingRequest
 from .forms import SourcingRequestForm
 from sellers.models import Product
@@ -277,3 +279,188 @@ def suppliers_list(request):
     }
     
     return render(request, 'sourcing/suppliers.html', context)
+
+
+@login_required
+@csrf_exempt
+def add_supplier(request):
+    """Add a new supplier."""
+    if request.method == 'POST':
+        try:
+            # Get data from request
+            if request.headers.get('Content-Type') == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST.dict()
+            
+            # Create new supplier
+            supplier = Supplier(
+                name=data.get('name', ''),
+                contact_person=data.get('contact_person', ''),
+                email=data.get('email', ''),
+                phone=data.get('phone', ''),
+                country=data.get('country', ''),
+                category=data.get('category', 'General'),
+                created_by=request.user
+            )
+            
+            # Save to database
+            supplier.save()
+            
+            # Return success response
+            return JsonResponse({
+                'success': True,
+                'message': 'Supplier added successfully!',
+                'supplier_id': supplier.id,
+                'supplier_name': supplier.name
+            })
+            
+        except Exception as e:
+            # Return error response
+            return JsonResponse({
+                'success': False,
+                'message': f'Error adding supplier: {str(e)}'
+            }, status=400)
+    
+    # Return error for non-POST requests
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=405)
+
+
+@login_required
+@csrf_exempt
+def view_supplier(request, supplier_id):
+    """View supplier details."""
+    try:
+        supplier = get_object_or_404(Supplier, id=supplier_id, is_active=True)
+        
+        # Return supplier data as JSON
+        return JsonResponse({
+            'success': True,
+            'supplier': {
+                'id': supplier.id,
+                'name': supplier.name,
+                'contact_person': supplier.contact_person or '',
+                'email': supplier.email or '',
+                'phone': supplier.phone or '',
+                'address': supplier.address or '',
+                'country': supplier.country,
+                'category': supplier.category,
+                'quality_score': float(supplier.quality_score),
+                'delivery_score': float(supplier.delivery_score),
+                'price_score': float(supplier.price_score),
+                'total_orders': supplier.total_orders,
+                'created_at': supplier.created_at.strftime('%Y-%m-%d %H:%M')
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error retrieving supplier: {str(e)}'
+        }, status=400)
+
+
+@login_required
+@csrf_exempt
+def edit_supplier(request, supplier_id):
+    """Edit supplier details."""
+    supplier = get_object_or_404(Supplier, id=supplier_id, is_active=True)
+    
+    if request.method == 'GET':
+        # Return supplier data for editing
+        return JsonResponse({
+            'success': True,
+            'supplier': {
+                'id': supplier.id,
+                'name': supplier.name,
+                'contact_person': supplier.contact_person or '',
+                'email': supplier.email or '',
+                'phone': supplier.phone or '',
+                'address': supplier.address or '',
+                'country': supplier.country,
+                'category': supplier.category
+            }
+        })
+    
+    elif request.method == 'POST':
+        try:
+            # Get data from request
+            if request.headers.get('Content-Type') == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST.dict()
+            
+            # Update supplier fields
+            supplier.name = data.get('name', supplier.name)
+            supplier.contact_person = data.get('contact_person', supplier.contact_person)
+            supplier.email = data.get('email', supplier.email)
+            supplier.phone = data.get('phone', supplier.phone)
+            supplier.address = data.get('address', supplier.address)
+            supplier.country = data.get('country', supplier.country)
+            supplier.category = data.get('category', supplier.category)
+            
+            # Save changes
+            supplier.save()
+            
+            # Return success response
+            return JsonResponse({
+                'success': True,
+                'message': 'Supplier updated successfully!',
+                'supplier_id': supplier.id,
+                'supplier_name': supplier.name
+            })
+            
+        except Exception as e:
+            # Return error response
+            return JsonResponse({
+                'success': False,
+                'message': f'Error updating supplier: {str(e)}'
+            }, status=400)
+    
+    # Return error for other request methods
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=405)
+
+
+@login_required
+@csrf_exempt
+def delete_supplier(request, supplier_id):
+    """Delete a supplier (mark as inactive)."""
+    if request.method == 'POST':
+        try:
+            supplier = get_object_or_404(Supplier, id=supplier_id)
+            
+            # Check if supplier has any associated sourcing requests
+            active_requests = supplier.sourcing_requests.exclude(
+                status__in=['completed', 'cancelled', 'rejected']
+            ).count()
+            
+            if active_requests > 0:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Cannot delete supplier: {supplier.name} has {active_requests} active sourcing requests.'
+                }, status=400)
+            
+            # Mark supplier as inactive instead of deleting
+            supplier.is_active = False
+            supplier.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Supplier "{supplier.name}" deleted successfully.'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error deleting supplier: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=405)

@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load i18n %}
-
-{% block title %}{% trans "Edit Product" %}{% endblock %}
+{% block title %}Edit Product{% endblock %}
 
 {% block content %}
-<div class="w-full">
+<div class="main-content ml-64">
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -21,13 +19,9 @@
                         <li>
                             <div class="flex items-center">
                                 <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                                <a href="{% url 'inventory:dashboard' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">Inventory</a>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="flex items-center">
-                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                                <a href="{% url 'inventory:products' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">Products</a>
+                                <a href="{% url 'inventory:dashboard' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                    Inventory
+                                </a>
                             </div>
                         </li>
                         <li>
@@ -38,371 +32,414 @@
                         </li>
                     </ol>
                 </nav>
-                <h1 class="text-3xl font-bold text-gray-900 mt-2">{% trans "Edit Product" %}</h1>
-                <p class="text-gray-600 mt-1">{% trans "Update product information and details" %}</p>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">Edit Product</h1>
+                <p class="text-gray-600 mt-1">Update the product information below</p>
             </div>
             <div class="flex space-x-3">
                 <a href="{% url 'inventory:products' %}" class="btn-secondary inline-flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i>
-                    {% trans "Back to Products" %}
+                    Back to Products
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Main Form -->
-    <form method="post" enctype="multipart/form-data" id="edit-product-form" class="space-y-8">
-        {% csrf_token %}
-        
-        <!-- Basic Information Card -->
-        <div class="card animate-slide-up">
-            <div class="card-header">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-info-circle text-primary-600"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Basic Information" %}</h3>
-                        <p class="text-sm text-gray-600">{% trans "Product name, code, and basic details" %}</p>
-                    </div>
+    <!-- Edit Product Form Card -->
+    <div class="card animate-fade-in">
+        <div class="card-header">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-edit text-primary-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-xl font-semibold text-gray-900">Edit Product Information</h2>
+                    <p class="text-gray-600">Update the product details below</p>
                 </div>
             </div>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-8" autocomplete="off">
+            {% csrf_token %}
             
-            <div class="p-6">
+            <!-- Basic Information Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    <i class="fas fa-info-circle mr-2 text-primary-500"></i>
+                    Basic Information
+                </h3>
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Product Name (EN) -->
-                    <div class="col-span-1">
+                    <div>
                         <label for="id_name_en" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-tag mr-2 text-primary-500"></i>
-                            {% trans "Product Name (EN)" %}
+                            <i class="fas fa-font mr-1 text-gray-400"></i>
+                            Product Name (English)
                         </label>
-                        <input type="text" name="name_en" id="id_name_en" 
-                               value="{{ product.name_en }}" 
-                               class="form-input w-full" 
-                               placeholder="Enter product name in English"
-                               required>
+                        <div class="relative">
+                            <input type="text" name="name_en" id="id_name_en" 
+                                   class="form-input w-full pl-10" 
+                                   placeholder="Enter product name in English"
+                                   value="{{ form.name_en.value|default:product.name_en }}">
+                            <i class="fas fa-font absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        {% if form.name_en.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.name_en.errors.0 }}</p>
+                        {% endif %}
                     </div>
-
-                    <!-- Product Name (AR) -->
-                    <div class="col-span-1">
+                    
+                    <div>
                         <label for="id_name_ar" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-tag mr-2 text-primary-500"></i>
-                            {% trans "Product Name (AR)" %}
+                            <i class="fas fa-font mr-1 text-gray-400"></i>
+                            Product Name (Arabic)
                         </label>
-                        <input type="text" name="name_ar" id="id_name_ar" 
-                               value="{{ product.name_ar }}" 
-                               class="form-input w-full" 
-                               placeholder="أدخل اسم المنتج بالعربية">
+                        <div class="relative">
+                            <input type="text" name="name_ar" id="id_name_ar" 
+                                   class="form-input w-full pl-10" 
+                                   placeholder="أدخل اسم المنتج بالعربية"
+                                   value="{{ form.name_ar.value|default:product.name_ar }}">
+                            <i class="fas fa-font absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        {% if form.name_ar.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.name_ar.errors.0 }}</p>
+                        {% endif %}
                     </div>
-
-                    <!-- Product Code -->
-                    <div class="col-span-1">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
                         <label for="id_code" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-barcode mr-2 text-primary-500"></i>
-                            {% trans "Product Code" %}
+                            <i class="fas fa-barcode mr-1 text-gray-400"></i>
+                            Product Code
                         </label>
                         <div class="relative">
                             <input type="text" name="code" id="id_code" 
-                                   value="{{ product.code }}" 
-                                   class="form-input w-full bg-gray-50" 
-                                   placeholder="PROD001"
-                                   required>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <i class="fas fa-lock text-gray-400"></i>
-                            </div>
+                                   class="form-input w-full pl-10" 
+                                   placeholder="Enter product code"
+                                   value="{{ form.code.value|default:product.code }}">
+                            <i class="fas fa-barcode absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500">{% trans "Unique product identifier" %}</p>
+                        {% if form.code.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.code.errors.0 }}</p>
+                        {% endif %}
                     </div>
-
-                    <!-- Description -->
-                    <div class="col-span-1 md:col-span-2">
-                        <label for="id_description" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-align-left mr-2 text-primary-500"></i>
-                            {% trans "Description" %}
+                    
+                    <div>
+                        <label for="id_seller" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-store mr-1 text-gray-400"></i>
+                            Seller
                         </label>
-                        <textarea name="description" id="id_description" rows="4" 
-                                  class="form-input w-full resize-none" 
-                                  placeholder="Enter product description...">{{ product.description }}</textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pricing Information Card -->
-        <div class="card animate-slide-up">
-            <div class="card-header">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-dollar-sign text-primary-600"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Pricing Information" %}</h3>
-                        <p class="text-sm text-gray-600">{% trans "Product pricing and cost details" %}</p>
+                        <select name="seller" id="id_seller" class="form-input w-full">
+                            <option value="">Select a seller</option>
+                            {% for choice in form.seller.field.choices %}
+                                {% if choice.0 %}
+                                    <option value="{{ choice.0 }}" {% if form.seller.value == choice.0 or product.seller.id == choice.0 %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% if form.seller.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.seller.errors.0 }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             
-            <div class="p-6">
+            <!-- Pricing Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    <i class="fas fa-dollar-sign mr-2 text-primary-500"></i>
+                    Pricing Information
+                </h3>
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Selling Price -->
-                    <div class="col-span-1">
+                    <div>
                         <label for="id_selling_price" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-tags mr-2 text-primary-500"></i>
-                            {% trans "Selling Price" %}
+                            <i class="fas fa-tag mr-1 text-gray-400"></i>
+                            Selling Price
                         </label>
                         <div class="relative">
                             <input type="number" name="selling_price" id="id_selling_price" 
-                                   value="{{ product.selling_price }}" 
-                                   step="0.01" 
-                                   min="0"
-                                   class="form-input w-full pl-8" 
-                                   placeholder="0.00"
-                                   required>
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                <span class="text-gray-500 text-sm">$</span>
-                            </div>
+                                   class="form-input w-full pl-10" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   value="{{ form.selling_price.value|default:product.selling_price }}">
+                            <i class="fas fa-dollar-sign absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
+                        {% if form.selling_price.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.selling_price.errors.0 }}</p>
+                        {% endif %}
                     </div>
-
-                    <!-- Purchase Price -->
-                    <div class="col-span-1">
+                    
+                    <div>
                         <label for="id_purchase_price" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-shopping-cart mr-2 text-primary-500"></i>
-                            {% trans "Purchase Price" %}
+                            <i class="fas fa-shopping-cart mr-1 text-gray-400"></i>
+                            Purchase Price
                         </label>
                         <div class="relative">
                             <input type="number" name="purchase_price" id="id_purchase_price" 
-                                   value="{{ product.purchase_price }}" 
-                                   step="0.01" 
-                                   min="0"
-                                   class="form-input w-full pl-8" 
-                                   placeholder="0.00">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                <span class="text-gray-500 text-sm">$</span>
-                            </div>
+                                   class="form-input w-full pl-10" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   value="{{ form.purchase_price.value|default:product.purchase_price }}">
+                            <i class="fas fa-dollar-sign absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
+                        {% if form.purchase_price.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.purchase_price.errors.0 }}</p>
+                        {% endif %}
                     </div>
                 </div>
-
-                <!-- Profit Margin Display -->
-                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-chart-line text-primary-500 mr-3"></i>
-                            <span class="text-sm font-medium text-gray-700">{% trans "Profit Margin:" %}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-2xl font-bold text-green-600" id="profit-margin">$0.00</span>
-                            <div class="text-sm text-gray-500" id="profit-percentage">0%</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product Media Card -->
-        <div class="card animate-slide-up">
-            <div class="card-header">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-image text-primary-600"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Product Media" %}</h3>
-                        <p class="text-sm text-gray-600">{% trans "Product image and media files" %}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-6">
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Product Image -->
-                    <div class="col-span-1">
-                        <label for="id_image" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-camera mr-2 text-primary-500"></i>
-                            {% trans "Product Image" %}
-                        </label>
-                        <div class="space-y-4">
-                            <!-- Current Image Preview -->
-                            {% if product.image %}
-                            <div class="relative">
-                                <img src="{{ product.image.url }}" alt="Current Product Image" 
-                                     class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200">
-                                <button type="button" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
-                                    <i class="fas fa-times text-xs"></i>
-                                </button>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- File Upload -->
-                            <div class="relative">
-                                <input type="file" name="image" id="id_image" 
-                                       class="hidden" 
-                                       accept="image/*">
-                                <label for="id_image" class="cursor-pointer">
-                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors">
-                                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
-                                        <p class="text-sm text-gray-600">{% trans "Click to upload or drag and drop" %}</p>
-                                        <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Link -->
-                    <div class="col-span-1">
-                        <label for="id_product_link" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-link mr-2 text-primary-500"></i>
-                            {% trans "Product Link" %}
-                        </label>
-                        <input type="url" name="product_link" id="id_product_link" 
-                               value="{{ product.product_link }}" 
-                               class="form-input w-full" 
-                               placeholder="https://example.com/product">
-                        <p class="mt-1 text-xs text-gray-500">{% trans "External product page or marketplace link" %}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Seller Information Card -->
-        <div class="card animate-slide-up">
-            <div class="card-header">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-user mr-2 text-primary-600"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Seller Information" %}</h3>
-                        <p class="text-sm text-gray-600">{% trans "Product seller and ownership details" %}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-6">
-                <div class="grid grid-cols-1 gap-6">
-                    <!-- Seller -->
-                    <div class="col-span-1">
-                        <label for="id_seller" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-store mr-2 text-primary-500"></i>
-                            {% trans "Seller" %}
+                    <div>
+                        <label for="id_stock_quantity" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-boxes mr-1 text-gray-400"></i>
+                            Stock Quantity
                         </label>
                         <div class="relative">
-                            <input type="text" name="seller" id="id_seller" 
-                                   value="{{ product.seller }}" 
-                                   class="form-input w-full bg-gray-50" 
-                                   readonly>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <i class="fas fa-lock text-gray-400"></i>
-                            </div>
+                            <input type="number" name="stock_quantity" id="id_stock_quantity" 
+                                   class="form-input w-full pl-10" 
+                                   placeholder="0" min="0" step="1"
+                                   value="{{ form.stock_quantity.value|default:product.stock_quantity }}">
+                            <i class="fas fa-boxes absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500">{% trans "Product seller (cannot be changed)" %}</p>
+                        {% if form.stock_quantity.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.stock_quantity.errors.0 }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-            <a href="{% url 'inventory:products' %}" class="btn-secondary">
-                <i class="fas fa-times mr-2"></i>
-                {% trans "Cancel" %}
-            </a>
-            <button type="submit" class="btn-primary" id="submit-btn">
-                <i class="fas fa-save mr-2"></i>
-                {% trans "Save Changes" %}
-            </button>
-        </div>
-    </form>
+            
+            <!-- Product Image Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    <i class="fas fa-image mr-2 text-primary-500"></i>
+                    Product Image
+                </h3>
+                
+                <div>
+                    <label for="id_image" class="block text-sm font-medium text-gray-700 mb-2">
+                        Upload Product Image
+                    </label>
+                    
+                    <!-- Current Image Display -->
+                    {% if product.image %}
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Current Image:</p>
+                        <div class="h-32 w-32 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
+                            <img src="{{ product.image.url }}" alt="{{ product.name_en }}" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-400 transition-colors duration-200">
+                        <div class="space-y-1 text-center">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="id_image" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                    <span>Upload a file</span>
+                                    {{ form.image }}
+                                </label>
+                                <p class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                    </div>
+                    {% if form.image.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.image.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Additional Information Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    <i class="fas fa-info-circle mr-2 text-primary-500"></i>
+                    Additional Information
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="id_description" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-align-left mr-1 text-gray-400"></i>
+                            Description
+                        </label>
+                        <textarea name="description" id="id_description" rows="4" 
+                                  class="form-input w-full" 
+                                  placeholder="Enter product description">{{ form.description.value|default:product.description }}</textarea>
+                        {% if form.description.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_product_link" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-link mr-1 text-gray-400"></i>
+                            Product Link
+                        </label>
+                        <div class="relative">
+                            <input type="url" name="product_link" id="id_product_link" 
+                                   class="form-input w-full pl-10" 
+                                   placeholder="https://example.com/product"
+                                   value="{{ form.product_link.value|default:product.product_link }}">
+                            <i class="fas fa-link absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        {% if form.product_link.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.product_link.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    All fields marked with * are required
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="history.back()" class="btn-secondary">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Update Product
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('edit-product-form');
-    const sellingPriceInput = document.getElementById('id_selling_price');
-    const purchasePriceInput = document.getElementById('id_purchase_price');
-    const profitMarginDisplay = document.getElementById('profit-margin');
-    const profitPercentageDisplay = document.getElementById('profit-percentage');
-    const submitBtn = document.getElementById('submit-btn');
-    const imageInput = document.getElementById('id_image');
-
-    // Calculate profit margin
-    function calculateProfit() {
-        const sellingPrice = parseFloat(sellingPriceInput.value) || 0;
-        const purchasePrice = parseFloat(purchasePriceInput.value) || 0;
-        const profit = sellingPrice - purchasePrice;
-        const percentage = purchasePrice > 0 ? (profit / purchasePrice) * 100 : 0;
-        
-        profitMarginDisplay.textContent = `$${profit.toFixed(2)}`;
-        profitPercentageDisplay.textContent = `${percentage.toFixed(1)}%`;
-        
-        // Update color based on profit
-        if (profit > 0) {
-            profitMarginDisplay.className = 'text-2xl font-bold text-green-600';
-        } else if (profit < 0) {
-            profitMarginDisplay.className = 'text-2xl font-bold text-red-600';
-        } else {
-            profitMarginDisplay.className = 'text-2xl font-bold text-gray-600';
-        }
-    }
-
-    // Update profit when prices change
-    sellingPriceInput.addEventListener('input', calculateProfit);
-    purchasePriceInput.addEventListener('input', calculateProfit);
-
     // File upload preview
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // You can add image preview functionality here
-                console.log('File selected:', file.name);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        // Show loading state
-        submitBtn.innerHTML = '<div class="loading mr-2"></div>Saving Changes...';
-        submitBtn.disabled = true;
+    const fileInput = document.getElementById('id_image');
+    const uploadArea = fileInput.closest('.mt-1');
+    
+    if (fileInput && uploadArea) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPEG, PNG, or GIF).');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File size must be under 10MB.');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadArea.innerHTML = `
+                        <div class="space-y-1 text-center">
+                            <img src="${e.target.result}" alt="Preview" class="mx-auto h-32 w-32 object-cover rounded-lg">
+                            <p class="text-sm text-gray-600">${file.name}</p>
+                            <button type="button" onclick="resetFileInput()" class="text-xs text-red-600 hover:text-red-800">
+                                Remove file
+                            </button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
         
-        // Validate required fields
-        const requiredFields = ['name_en', 'code', 'selling_price'];
-        let isValid = true;
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('border-primary-400', 'bg-primary-50');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-primary-400', 'bg-primary-50');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-primary-400', 'bg-primary-50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPEG, PNG, or GIF).');
+                    return;
+                }
+                
+                // Validate file size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File size must be under 10MB.');
+                    return;
+                }
+                
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+    
+    // Form validation and loading state
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        // Basic form validation
+        const requiredFields = ['name_en', 'code', 'selling_price', 'seller'];
+        let hasErrors = false;
         
         requiredFields.forEach(fieldName => {
-            const field = document.getElementById(`id_${fieldName}`);
+            const field = document.getElementById('id_' + fieldName);
             if (field && !field.value.trim()) {
                 field.classList.add('border-red-500');
-                isValid = false;
+                hasErrors = true;
             } else if (field) {
                 field.classList.remove('border-red-500');
             }
         });
         
-        if (!isValid) {
+        if (hasErrors) {
             e.preventDefault();
-            submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Changes';
-            submitBtn.disabled = false;
             alert('Please fill in all required fields.');
             return;
         }
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<div class="loading mr-2"></div>Updating Product...';
+            submitBtn.disabled = true;
+        }
     });
-
-    // Initialize profit calculation
-    calculateProfit();
 });
+
+function resetFileInput() {
+    const fileInput = document.getElementById('id_image');
+    if (fileInput) {
+        fileInput.value = '';
+        location.reload();
+    }
+}
 </script>
+{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+    <style>
+        .form-input.border-red-500 {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
 {% endblock %} 

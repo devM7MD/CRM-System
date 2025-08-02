@@ -117,7 +117,7 @@
                                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                                 <div class="flex items-center">
                                                     <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
-                                                        <div class="bg-yellow-500 h-2.5 rounded-full" style="width: {{ item.utilization }}%"></div>
+                                                        <div class="bg-yellow-500 h-2.5 rounded-full" {% if item.utilization %}style="width: {{ item.utilization }}%"{% endif %}></div>
                                                     </div>
                                                     <span class="ml-2">{{ item.utilization }}%</span>
                                                 </div>

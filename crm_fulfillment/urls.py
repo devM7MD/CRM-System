@@ -37,6 +37,7 @@ urlpatterns = [
     path('roles/', include('roles.urls')),
     path('settings/', include('settings.urls')),
     path('bug-reports/', include('bug_reports.urls')),
+    path('stock-keeper/', include('stock_keeper.urls')),
     # Landing pages
     path('', include('landing.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
