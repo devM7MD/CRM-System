@@ -521,108 +521,177 @@ def download_template(request):
     
     return response
 
+@login_required
 def import_orders(request):
+    """Import orders from CSV file with improved error handling and validation."""
     if request.method == 'POST':
         form = OrderImportForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                file = form.cleaned_data['file']
+                file = request.FILES.get('file')
+                if not file:
+                    messages.error(request, 'No file was uploaded.')
+                    return render(request, 'orders/import_orders.html', {'form': form})
                 
-                # Handle CSV file
-                if file.name.endswith('.csv'):
+                # Validate file type
+                if not file.name.lower().endswith('.csv'):
+                    messages.error(request, 'Please upload a CSV file (.csv extension).')
+                    return render(request, 'orders/import_orders.html', {'form': form})
+                
+                # Check file size (max 5MB) 
+                if file.size > 5 * 1024 * 1024:
+                    messages.error(request, 'File size must be less than 5MB.')
+                    return render(request, 'orders/import_orders.html', {'form': form})
+                
+                try:
+                    # Try UTF-8 first
                     decoded_file = file.read().decode('utf-8')
-                    csv_data = csv.reader(io.StringIO(decoded_file))
-                    
-                    # Skip header row
-                    next(csv_data)
-                    
-                    success_count = 0
-                    error_count = 0
-                    errors = []
-                    
-                    for row_num, row in enumerate(csv_data, start=2):  # Start from 2 because we skipped header
-                        try:
-                            if len(row) < 10:  # Ensure we have all required columns
-                                errors.append(f"Row {row_num}: Insufficient columns")
-                                error_count += 1
-                                continue
-                            
-                            # Parse row data
-                            order_code = row[0].strip() if row[0] else None
-                            customer_name = row[1].strip() if row[1] else 'Unknown Customer'
-                            mobile_number = row[2].strip() if row[2] else ''
-                            address = row[3].strip() if row[3] else ''
-                            product_id = row[4].strip() if row[4] else None
-                            quantity = int(row[5]) if row[5] and row[5].isdigit() else 1
-                            price = float(row[6]) if row[6] and row[6].replace('.', '').isdigit() else 0.0
-                            product_variant = row[7].strip() if row[7] else ''
-                            notes = row[8].strip() if row[8] else ''
-                            order_date_str = row[9].strip() if row[9] else ''
-                            
-                            # Parse order date
-                            try:
-                                if order_date_str:
-                                    order_date = datetime.strptime(order_date_str, '%Y-%m-%d')
-                                else:
-                                    order_date = timezone.now()
-                            except ValueError:
-                                order_date = timezone.now()
-                            
-                            # Find product by ID
-                            product = None
-                            if product_id:
-                                try:
-                                    product = Product.objects.get(code=product_id)
-                                except Product.DoesNotExist:
-                                    # Try to find by name if code doesn't exist
-                                    product = Product.objects.filter(name_en__icontains=product_id).first()
-                            
-                            # Create order
-                            order = Order.objects.create(
-                                order_code=order_code or _generate_order_code(),
-                                customer=customer_name,
-                                customer_phone=mobile_number,
-                                shipping_address=address,
-                                product=product,
-                                quantity=quantity,
-                                price_per_unit=price,
-                                notes=notes,
-                                date=order_date,
-                                status='pending'
-                            )
-                            
-                            success_count += 1
-                            
-                            # Create audit log
-                            AuditLog.objects.create(
-                                user=request.user,
-                                action='import',
-                                entity_type='Order',
-                                entity_id=str(order.id),
-                                description=f"Imported order {order.order_code} from CSV"
-                            )
-                            
-                        except Exception as e:
-                            errors.append(f"Row {row_num}: {str(e)}")
+                except UnicodeDecodeError:
+                    # Try with different encoding
+                    file.seek(0)  # Reset file pointer
+                    try:
+                        decoded_file = file.read().decode('latin-1')
+                    except UnicodeDecodeError:
+                        messages.error(request, 'Unable to read file. Please ensure it is a valid CSV file.')
+                        return render(request, 'orders/import_orders.html', {'form': form})
+                
+                csv_data = csv.reader(io.StringIO(decoded_file))
+                
+                # Validate header row
+                try:
+                    header = next(csv_data)
+                    if len(header) < 5:  # Minimum required columns
+                        messages.error(request, 'CSV file must have at least 5 columns: Order Code, Customer Name, Product ID, Quantity, Price.')
+                        return render(request, 'orders/import_orders.html', {'form': form})
+                except StopIteration:
+                    messages.error(request, 'CSV file is empty or invalid.')
+                    return render(request, 'orders/import_orders.html', {'form': form})
+                
+                success_count = 0
+                error_count = 0
+                errors = []
+                
+                for row_num, row in enumerate(csv_data, start=2):  # Start from 2 because we skipped header
+                    try:
+                        # Skip empty rows
+                        if not row or all(cell.strip() == '' for cell in row):
+                            continue
+                        
+                        # Ensure we have minimum required data
+                        if len(row) < 5:
+                            errors.append(f"Row {row_num}: Insufficient columns (need at least 5)")
                             error_count += 1
-                    
-                    # Show results
-                    if success_count > 0:
-                        messages.success(request, f'Successfully imported {success_count} orders.')
-                    if error_count > 0:
-                        messages.warning(request, f'Failed to import {error_count} orders. Check the errors below.')
-                        for error in errors[:5]:  # Show first 5 errors
-                            messages.error(request, error)
-                        if len(errors) > 5:
-                            messages.error(request, f'... and {len(errors) - 5} more errors.')
-                    
-                    return redirect('orders:list')
-                    
-                else:
-                    messages.error(request, 'Only CSV files are supported for now.')
-                    
+                            continue
+                        
+                        # Parse row data with better validation
+                        order_code = row[0].strip() if len(row) > 0 and row[0] else None
+                        customer_name = row[1].strip() if len(row) > 1 and row[1] else 'Unknown Customer'
+                        mobile_number = row[2].strip() if len(row) > 2 and row[2] else ''
+                        address = row[3].strip() if len(row) > 3 and row[3] else ''
+                        product_id = row[4].strip() if len(row) > 4 and row[4] else None
+                        # Parse quantity
+                        try:
+                            quantity = int(row[5]) if len(row) > 5 and row[5] and row[5].strip() else 1
+                        except ValueError:
+                            quantity = 1
+                        
+                        # Parse price
+                        try:
+                            price = float(row[6]) if len(row) > 6 and row[6] and row[6].strip() else 0.0
+                        except ValueError:
+                            price = 0.0
+                        product_variant = row[7].strip() if len(row) > 7 and row[7] else ''
+                        notes = row[8].strip() if len(row) > 8 and row[8] else ''
+                        order_date_str = row[9].strip() if len(row) > 9 and row[9] else ''
+                        
+                        # Validate required fields
+                        if not customer_name or customer_name == 'Unknown Customer':
+                            errors.append(f"Row {row_num}: Customer name is required")
+                            error_count += 1
+                            continue
+                        
+                        if quantity <= 0:
+                            errors.append(f"Row {row_num}: Quantity must be greater than 0")
+                            error_count += 1
+                            continue
+                        
+                        if price < 0:
+                            errors.append(f"Row {row_num}: Price cannot be negative")
+                            error_count += 1
+                            continue
+                        
+                        # Parse order date
+                        try:
+                            if order_date_str:
+                                order_date = datetime.strptime(order_date_str, '%Y-%m-%d')
+                            else:
+                                order_date = timezone.now()
+                        except ValueError:
+                            order_date = timezone.now()
+                        
+                        # Find product by ID or name
+                        product = None
+                        if product_id:
+                            try:
+                                product = Product.objects.get(code=product_id)
+                            except Product.DoesNotExist:
+                                # Try to find by name if code doesn't exist
+                                product = Product.objects.filter(name_en__icontains=product_id).first()
+                        
+                        # Check if order already exists
+                        if order_code and Order.objects.filter(order_code=order_code).exists():
+                            errors.append(f"Row {row_num}: Order code '{order_code}' already exists")
+                            error_count += 1
+                            continue
+                        
+                        # Create order
+                        order = Order.objects.create(
+                            order_code=order_code or _generate_order_code(),
+                            customer=customer_name,
+                            customer_phone=mobile_number,
+                            shipping_address=address,
+                            product=product,
+                            quantity=quantity,
+                            price_per_unit=price,
+                            notes=notes,
+                            date=order_date,
+                            status='pending',
+                            seller_email=request.user.email  # Set seller email to current user
+                        )
+                        
+                        success_count += 1
+                        
+                        # Create audit log
+                        AuditLog.objects.create(
+                            user=request.user,
+                            action='import',
+                            entity_type='Order',
+                            entity_id=str(order.id),
+                            description=f"Imported order {order.order_code} from CSV"
+                        )
+                        
+                    except Exception as e:
+                        errors.append(f"Row {row_num}: {str(e)}")
+                        error_count += 1
+                
+                # Show results
+                if success_count > 0:
+                    messages.success(request, f'Successfully imported {success_count} orders.')
+                if error_count > 0:
+                    messages.warning(request, f'Failed to import {error_count} orders. Check the errors below.')
+                    for error in errors[:10]:  # Show first 10 errors
+                        messages.error(request, error)
+                    if len(errors) > 10:
+                        messages.error(request, f'... and {len(errors) - 10} more errors.')
+                
+                return redirect('orders:list')
+                
             except Exception as e:
-                messages.error(request, f'Error importing orders: {str(e)}')
+                messages.error(request, f'Error processing file: {str(e)}')
+                print(f"Import error: {e}")
+        else:
+            messages.error(request, 'Please correct the errors below.')
+            print(f"Form errors: {form.errors}")
     else:
         form = OrderImportForm()
     

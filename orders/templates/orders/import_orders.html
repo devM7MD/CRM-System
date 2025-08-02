@@ -3,24 +3,75 @@
 {% load static %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">{% trans "Import Orders" %}</h1>
-        <a href="{% url 'orders:list' %}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
-            {% trans "Back to Orders" %}
-        </a>
+<div class="main-content ml-64">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <nav class="flex" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="{% url 'dashboard:index' %}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-home mr-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <a href="{% url 'orders:list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                    Orders
+                                </a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <span class="text-sm font-medium text-gray-500">Import Orders</span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">Import Orders</h1>
+                <p class="text-gray-600 mt-1">Upload a CSV file to import multiple orders at once</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'orders:list' %}" class="btn-secondary inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Orders
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- Import Form -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
+    <!-- Import Form Card -->
+    <div class="card animate-fade-in">
+        <div class="card-header">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-upload text-primary-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-xl font-semibold text-gray-900">Import Orders from CSV</h2>
+                    <p class="text-gray-600">Upload your CSV file with order data</p>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-8">
             {% csrf_token %}
             
-            <div class="space-y-4">
+            <!-- File Upload Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    <i class="fas fa-file-upload mr-2 text-primary-500"></i>
+                    File Upload
+                </h3>
+                
                 <div>
-                    <label for="{{ form.file.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                        {% trans "Import File" %}
+                    <label for="{{ form.file.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-file-csv mr-1 text-gray-400"></i>
+                        Select CSV File
                     </label>
                     <div class="mt-1">
                         {{ form.file }}
@@ -29,54 +80,198 @@
                         {% endif %}
                     </div>
                     <p class="mt-2 text-sm text-gray-500">
-                        {% trans "Supported formats: CSV, Excel (.xlsx, .xls)" %}
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Only CSV files are supported. Maximum file size: 5MB
                     </p>
                 </div>
+            </div>
 
-                <!-- Download Template Button -->
+            <!-- Instructions Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    <i class="fas fa-info-circle mr-2 text-primary-500"></i>
+                    Import Instructions
+                </h3>
+                
+                <!-- Download Template -->
                 <div class="bg-blue-50 p-4 rounded-md">
-                    <h3 class="text-sm font-medium text-blue-700 mb-2">{% trans "Download Template" %}</h3>
-                    <p class="text-sm text-blue-600 mb-3">{% trans "Download our CSV template to ensure your file format is correct." %}</p>
+                    <h4 class="text-sm font-medium text-blue-700 mb-2">
+                        <i class="fas fa-download mr-1"></i>
+                        Download Template
+                    </h4>
+                    <p class="text-sm text-blue-600 mb-3">
+                        Download our CSV template to ensure your file format is correct.
+                    </p>
                     <a href="{% url 'orders:download_template' %}" class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
                         <i class="fas fa-download mr-2"></i>
-                        {% trans "Download Template" %}
+                        Download Template
                     </a>
                 </div>
 
-                <!-- File Format Instructions -->
+                <!-- CSV Format Requirements -->
                 <div class="bg-gray-50 p-4 rounded-md">
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">{% trans "File Format Requirements" %}</h3>
-                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                        <li>{% trans "The file should contain the following columns:" %}</li>
-                        <li><strong>NA</strong> - {% trans "Order Code/Number (required)" %}</li>
-                        <li><strong>Name</strong> - {% trans "Customer Name (required)" %}</li>
-                        <li><strong>Mobile number</strong> - {% trans "Customer Phone (optional)" %}</li>
-                        <li><strong>Address</strong> - {% trans "Shipping Address (optional)" %}</li>
-                        <li><strong>Proudact ID</strong> - {% trans "Product ID/Code (required)" %}</li>
-                        <li><strong>Quantity</strong> - {% trans "Quantity (required)" %}</li>
-                        <li><strong>Price</strong> - {% trans "Price Per Unit in AED (required)" %}</li>
-                        <li><strong>Proudact variant</strong> - {% trans "Product variant/description (optional)" %}</li>
-                        <li><strong>Notes</strong> - {% trans "Order Notes (optional)" %}</li>
-                        <li><strong>Date of order</strong> - {% trans "Order Date in YYYY-MM-DD format (optional)" %}</li>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-table mr-1"></i>
+                        CSV Format Requirements
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Your CSV file must have the following columns (in order):
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">1</span>
+                                <span class="text-sm font-medium">Order Code</span>
+                                <span class="ml-2 text-xs text-gray-500">(optional)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">2</span>
+                                <span class="text-sm font-medium">Customer Name</span>
+                                <span class="ml-2 text-xs text-red-500">(required)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">3</span>
+                                <span class="text-sm font-medium">Mobile Number</span>
+                                <span class="ml-2 text-xs text-gray-500">(optional)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">4</span>
+                                <span class="text-sm font-medium">Shipping Address</span>
+                                <span class="ml-2 text-xs text-gray-500">(optional)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">5</span>
+                                <span class="text-sm font-medium">Product ID/Code</span>
+                                <span class="ml-2 text-xs text-gray-500">(optional)</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">6</span>
+                                <span class="text-sm font-medium">Quantity</span>
+                                <span class="ml-2 text-xs text-red-500">(required)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">7</span>
+                                <span class="text-sm font-medium">Price Per Unit (AED)</span>
+                                <span class="ml-2 text-xs text-red-500">(required)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">8</span>
+                                <span class="text-sm font-medium">Product Variant</span>
+                                <span class="ml-2 text-xs text-gray-500">(optional)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">9</span>
+                                <span class="text-sm font-medium">Notes</span>
+                                <span class="ml-2 text-xs text-gray-500">(optional)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">10</span>
+                                <span class="text-sm font-medium">Order Date (YYYY-MM-DD)</span>
+                                <span class="ml-2 text-xs text-gray-500">(optional)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Notes -->
+                <div class="bg-yellow-50 p-4 rounded-md">
+                    <h4 class="text-sm font-medium text-yellow-700 mb-2">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        Important Notes
+                    </h4>
+                    <ul class="list-disc list-inside text-sm text-yellow-700 space-y-1">
+                        <li>If Order Code is empty, a new code will be auto-generated</li>
+                        <li>If Product ID is not found, the order will be created without a product link</li>
+                        <li>Quantity must be greater than 0</li>
+                        <li>Price cannot be negative</li>
+                        <li>Customer name is required for all orders</li>
+                        <li>Orders with existing order codes will be skipped</li>
                     </ul>
-                    <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                        <p class="text-sm text-yellow-800">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            {% trans "Note: If Order Code (NA) is empty, a new code will be auto-generated. If Product ID is not found, the order will be created without a product link." %}
-                        </p>
+                </div>
+
+                <!-- Example CSV -->
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-file-alt mr-1"></i>
+                        Example CSV Format
+                    </h4>
+                    <div class="bg-white p-3 rounded border font-mono text-xs overflow-x-auto">
+                        <div class="text-gray-600 mb-2">Header row:</div>
+                        <div class="text-gray-800">ORDER_CODE,CUSTOMER_NAME,MOBILE,ADDRESS,PRODUCT_ID,QUANTITY,PRICE,VARIANT,NOTES,ORDER_DATE</div>
+                        <div class="text-gray-600 mt-2 mb-2">Data row:</div>
+                        <div class="text-gray-800">ORD-001,John Doe,+971501234567,Dubai UAE,PROD-001,2,99.99,Red,Urgent delivery,2024-01-15</div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-4">
-                <a href="{% url 'orders:list' %}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
-                    {% trans "Cancel" %}
-                </a>
-                <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
-                    {% trans "Import Orders" %}
-                </button>
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Make sure your CSV file follows the format above
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="history.back()" class="btn-secondary">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-upload mr-2"></i>
+                        Import Orders
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('csv_file');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    
+    if (fileInput && submitBtn) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.name.toLowerCase().endsWith('.csv')) {
+                    alert('Please select a CSV file.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Import Orders';
+            } else {
+                submitBtn.disabled = true;
+            }
+        });
+        
+        // Form submission
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            if (!fileInput.files[0]) {
+                e.preventDefault();
+                alert('Please select a CSV file to upload.');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading mr-2"></div>Importing...';
+        });
+    }
+});
+</script>
 {% endblock %} 

@@ -513,6 +513,13 @@ def export_movements(request):
     return response
 
 class ProductForm(forms.ModelForm):
+    warehouse = forms.ModelChoiceField(
+        queryset=Warehouse.objects.filter(is_active=True),
+        required=False,
+        empty_label="Select a warehouse (optional)",
+        help_text="Select the warehouse where this product will be stored"
+    )
+    
     class Meta:
         model = Product
         fields = [
@@ -561,6 +568,17 @@ class ProductForm(forms.ModelForm):
             try:
                 from users.models import User
                 self.fields['seller'].queryset = User.objects.filter(is_active=True)
+            except ImportError:
+                pass
+        
+        # Set initial warehouse value for editing
+        if self.instance and self.instance.pk:
+            # Get the warehouse from the first inventory record for this product
+            try:
+                from inventory.models import InventoryRecord
+                inventory_record = InventoryRecord.objects.filter(product=self.instance).first()
+                if inventory_record:
+                    self.fields['warehouse'].initial = inventory_record.warehouse.id
             except ImportError:
                 pass
     
@@ -613,22 +631,26 @@ def add_product(request):
                 if not product.seller:
                     product.seller = request.user
                 
-                # Handle image upload - the model's upload_to function will handle the naming
+                # Handle image upload - ensure it goes to media/products folder
                 if 'image' in request.FILES:
-                    product.image = request.FILES['image']
+                    uploaded_image = request.FILES['image']
+                    # The model's upload_to function will handle the naming and path
+                    product.image = uploaded_image
                 
                 # Save the product (this will trigger the upload_to function)
                 product.save()
                 
                 # Create inventory record for the stock quantity
                 if product.stock_quantity > 0:
-                    # Get the first warehouse or create a default one
-                    warehouse = Warehouse.objects.first()
+                    # Use selected warehouse or get the first warehouse or create a default one
+                    warehouse = form.cleaned_data.get('warehouse')
                     if not warehouse:
-                        warehouse = Warehouse.objects.create(
-                            name="Main Warehouse",
-                            location="Default Location"
-                        )
+                        warehouse = Warehouse.objects.first()
+                        if not warehouse:
+                            warehouse = Warehouse.objects.create(
+                                name="Main Warehouse",
+                                location="Default Location"
+                            )
                     
                     # Create inventory record
                     InventoryRecord.objects.create(
@@ -689,13 +711,15 @@ def edit_product(request, product_id):
                 new_stock_quantity = form.cleaned_data.get('stock_quantity', 0)
                 
                 if new_stock_quantity != old_stock_quantity:
-                    # Get the first warehouse or create a default one
-                    warehouse = Warehouse.objects.first()
+                    # Use selected warehouse or get the first warehouse or create a default one
+                    warehouse = form.cleaned_data.get('warehouse')
                     if not warehouse:
-                        warehouse = Warehouse.objects.create(
-                            name="Main Warehouse",
-                            location="Default Location"
-                        )
+                        warehouse = Warehouse.objects.first()
+                        if not warehouse:
+                            warehouse = Warehouse.objects.create(
+                                name="Main Warehouse",
+                                location="Default Location"
+                            )
                     
                     # Update or create inventory record
                     inventory_record, created = InventoryRecord.objects.get_or_create(

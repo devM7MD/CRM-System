@@ -212,18 +212,27 @@ class OrderStatusUpdateForm(forms.ModelForm):
 class OrderImportForm(forms.Form):
     file = forms.FileField(
         label=_('Import File'),
-        help_text=_('Upload a CSV or Excel file containing order data.')
+        help_text=_('Upload a CSV file containing order data.'),
+        widget=forms.FileInput(attrs={
+            'class': 'block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none',
+            'accept': '.csv',
+            'id': 'csv_file'
+        })
     )
 
     def clean_file(self):
         file = self.cleaned_data.get('file')
         if file:
-            if not file.name.endswith(('.csv', '.xlsx', '.xls')):
-                raise forms.ValidationError(_('File must be CSV or Excel format.'))
-        return file
-
-    def save(self):
-        file = self.cleaned_data['file']
-        # TODO: Implement file parsing and order creation logic
-        # This will depend on your specific file format and requirements
-        pass 
+            # Check file extension
+            if not file.name.lower().endswith('.csv'):
+                raise forms.ValidationError(_('Please upload a CSV file (.csv extension).'))
+            
+            # Check file size (max 5MB)
+            if file.size > 5 * 1024 * 1024:
+                raise forms.ValidationError(_('File size must be less than 5MB.'))
+            
+            # Check if file is empty
+            if file.size == 0:
+                raise forms.ValidationError(_('File is empty.'))
+        
+        return file 

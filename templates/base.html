@@ -806,6 +806,14 @@
                         </a>
                     </li>
                     
+                    <!-- Sourcing Request Menu Item -->
+                    <li>
+                        <a href="{% url 'sourcing:comprehensive_create' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'comprehensive_create' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-plus-circle w-6"></i>
+                            <span class="ml-3">{% trans "Sourcing Request" %}</span>
+                        </a>
+                    </li>
+                    
                     {% if user.has_role_call_center_manager or user.has_role_call_center_agent or user.has_role_admin or user.is_superuser %}
                     <li>
                         <a href="{% url 'callcenter:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'callcenter' in request.path %}active{% endif %}">
@@ -823,12 +831,15 @@
                     </li>
                     {% endif %}
                     
+                    <!-- Only show Packaging for non-seller users -->
+                    {% if not user.has_role_seller %}
                     <li>
                         <a href="{% url 'packaging:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'packaging' in request.path %}active{% endif %}">
                             <i class="fas fa-box w-6"></i>
                             <span class="ml-3">{% trans "Packaging" %}</span>
                         </a>
                     </li>
+                    {% endif %}
                     
                     <li>
                         <a href="{% url 'delivery:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'delivery' in request.path %}active{% endif %}">
@@ -844,19 +855,25 @@
                         </a>
                     </li>
                     
+                    <!-- Only show Sellers for non-seller users -->
+                    {% if not user.has_role_seller %}
                     <li>
                         <a href="{% url 'sellers:dashboard' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'sellers' in request.path %}active{% endif %}">
                             <i class="fas fa-users w-6"></i>
                             <span class="ml-3">{% trans "Sellers" %}</span>
                         </a>
                     </li>
+                    {% endif %}
                     
+                    <!-- Only show Subscribers for non-seller users -->
+                    {% if not user.has_role_seller %}
                     <li>
                         <a href="{% url 'subscribers:list' %}" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 {% if 'subscribers' in request.path %}active{% endif %}">
                             <i class="fas fa-user-friends w-6"></i>
                             <span class="ml-3">{% trans "Subscribers" %}</span>
                         </a>
                     </li>
+                    {% endif %}
                     
                     {% if user.can_create_roles %}
                     <li class="pt-4 mt-4 border-t border-gray-600">

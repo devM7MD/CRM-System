@@ -9,8 +9,105 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Supplier, SourcingRequest
-from .forms import SourcingRequestForm
+from .forms import SourcingRequestForm, ComprehensiveSourcingForm
 from sellers.models import Product
+
+
+@login_required
+def comprehensive_sourcing_create(request):
+    """Create a new comprehensive sourcing request."""
+    if request.method == 'POST':
+        form = ComprehensiveSourcingForm(request.POST)
+        if form.is_valid():
+            try:
+                # Create a new SourcingRequest from form data
+                sourcing_request = SourcingRequest()
+                
+                # Required fields
+                sourcing_request.product_name = form.cleaned_data['product_name']
+                sourcing_request.carton_quantity = form.cleaned_data['carton_quantity']
+                sourcing_request.source_country = form.cleaned_data['source_country']
+                sourcing_request.destination_country = form.cleaned_data['destination_country']
+                
+                # Map funding source to finance_source
+                funding_source = form.cleaned_data['funding_source']
+                if funding_source == 'seller_funds':
+                    sourcing_request.finance_source = 'seller'
+                elif funding_source == 'crm_funding':
+                    sourcing_request.finance_source = 'company'
+                
+                # Optional fields
+                if form.cleaned_data.get('supplier_name'):
+                    sourcing_request.supplier_contact = form.cleaned_data['supplier_name']
+                
+                if form.cleaned_data.get('supplier_phone'):
+                    sourcing_request.supplier_phone = form.cleaned_data['supplier_phone']
+                
+                if form.cleaned_data.get('target_unit_price'):
+                    sourcing_request.cost_per_unit = form.cleaned_data['target_unit_price']
+                    sourcing_request.currency = form.cleaned_data.get('currency', 'AED')
+                
+                # Combine product description and special instructions into notes
+                notes_parts = []
+                if form.cleaned_data.get('product_description'):
+                    notes_parts.append(f"Product Description: {form.cleaned_data['product_description']}")
+                
+                if form.cleaned_data.get('quality_requirements'):
+                    quality_reqs = ', '.join(form.cleaned_data['quality_requirements'])
+                    notes_parts.append(f"Quality Requirements: {quality_reqs}")
+                
+                if form.cleaned_data.get('special_instructions'):
+                    notes_parts.append(f"Special Instructions: {form.cleaned_data['special_instructions']}")
+                
+                if notes_parts:
+                    sourcing_request.notes = '\n\n'.join(notes_parts)
+                
+                # Set default values
+                sourcing_request.seller = request.user
+                sourcing_request.status = 'submitted'
+                sourcing_request.submitted_at = timezone.now()
+                sourcing_request.priority = 'medium'
+                sourcing_request.unit_quantity = 1  # Default to 1 unit per carton
+                
+                # Save to database
+                sourcing_request.save()
+                
+                # Check if it's an AJAX request
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Sourcing request created successfully!',
+                        'request_id': sourcing_request.id,
+                        'request_number': sourcing_request.request_number
+                    })
+                
+                messages.success(request, f'Sourcing request {sourcing_request.request_number} created successfully!')
+                return redirect('sourcing:request_detail', request_id=sourcing_request.id)
+                
+            except Exception as e:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Error creating sourcing request: {str(e)}'
+                    }, status=400)
+                
+                messages.error(request, f'Error creating sourcing request: {str(e)}')
+        else:
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Form validation failed',
+                    'errors': form.errors
+                }, status=400)
+    else:
+        form = ComprehensiveSourcingForm()
+    
+    context = {
+        'form': form,
+    }
+    
+    return render(request, 'sourcing/comprehensive_request_create.html', context)
 
 
 @login_required

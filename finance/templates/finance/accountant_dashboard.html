@@ -99,6 +99,48 @@
                     <h3 class="text-lg font-semibold">{% trans "Quick Actions" %}</h3>
                 </div>
                 <div class="p-6 space-y-4">
+                    <!-- Payment Management -->
+                    <div class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-200">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-credit-card text-xl"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-sm font-medium">{% trans "Payment Management" %}</h4>
+                            <p class="text-sm opacity-90">{% trans "Manage payments and transactions" %}</p>
+                        </div>
+                        <a href="{% url 'finance:payment_management' %}" class="text-white hover:text-gray-200">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Add Payment -->
+                    <div class="flex items-center p-4 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg hover:from-green-600 hover:to-teal-600 transition-all duration-200">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-plus-circle text-xl"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-sm font-medium">{% trans "Add Payment" %}</h4>
+                            <p class="text-sm opacity-90">{% trans "Create new payment record" %}</p>
+                        </div>
+                        <a href="{% url 'finance:add_payment' %}" class="text-white hover:text-gray-200">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Truvo Payments -->
+                    <div class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-200">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shield-alt text-xl"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-sm font-medium">{% trans "Truvo Payments" %}</h4>
+                            <p class="text-sm opacity-90">{% trans "Create Truvo payment" %}</p>
+                        </div>
+                        <a href="{% url 'finance:truvo_payment_create' %}" class="text-white hover:text-gray-200">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
                     <!-- View Payments -->
                     <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                         <div class="flex-shrink-0">

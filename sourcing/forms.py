@@ -2,6 +2,186 @@ from django import forms
 from .models import SourcingRequest
 
 
+class ComprehensiveSourcingForm(forms.Form):
+    """Comprehensive sourcing form with all required and optional fields."""
+    
+    # Required Form Fields
+    product_name = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'placeholder': 'Enter product name (e.g., iPhone 15 Pro Max)',
+            'required': 'required'
+        }),
+        help_text='Provide clear, specific product name including model numbers if applicable'
+    )
+    
+    carton_quantity = forms.IntegerField(
+        min_value=1,
+        max_value=10000,
+        widget=forms.NumberInput(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'placeholder': 'Enter quantity in cartons',
+            'required': 'required'
+        }),
+        help_text='Specify quantity in cartons/boxes. Standard carton sizes vary by product.'
+    )
+    
+    source_country = forms.ChoiceField(
+        choices=[
+            ('', 'Select source country'),
+            ('China', 'China'),
+            ('India', 'India'),
+            ('Thailand', 'Thailand'),
+            ('Vietnam', 'Vietnam'),
+            ('Malaysia', 'Malaysia'),
+            ('South Korea', 'South Korea'),
+            ('Japan', 'Japan'),
+            ('Other', 'Other'),
+        ],
+        widget=forms.Select(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'required': 'required'
+        }),
+        help_text='Select the country where you want the product to be sourced from'
+    )
+    
+    destination_country = forms.ChoiceField(
+        choices=[
+            ('', 'Select destination country'),
+            ('UAE', 'UAE'),
+            ('Saudi Arabia', 'Saudi Arabia'),
+            ('Kuwait', 'Kuwait'),
+            ('Qatar', 'Qatar'),
+            ('Bahrain', 'Bahrain'),
+            ('Oman', 'Oman'),
+            ('Egypt', 'Egypt'),
+            ('Jordan', 'Jordan'),
+            ('Other', 'Other'),
+        ],
+        widget=forms.Select(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'required': 'required'
+        }),
+        help_text='Select the country where the product should be delivered'
+    )
+    
+    funding_source = forms.ChoiceField(
+        choices=[
+            ('', 'Select funding source'),
+            ('seller_funds', "Seller's Funds - I will finance this sourcing request"),
+            ('crm_funding', 'CRM Funding Request - Request CRM to finance this sourcing'),
+        ],
+        widget=forms.RadioSelect(attrs={
+            'class': 'focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300'
+        }),
+        help_text='Choose how this sourcing request will be financed'
+    )
+    
+    # Optional Form Fields
+    supplier_name = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'placeholder': 'Enter preferred supplier name (optional)'
+        }),
+        help_text='If you have a preferred supplier, provide their company name'
+    )
+    
+    supplier_phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'placeholder': '+971501234567'
+        }),
+        help_text='Include country code for international numbers'
+    )
+    
+    product_description = forms.CharField(
+        max_length=1000,
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'rows': '4',
+            'placeholder': 'Enter detailed product specifications and requirements...'
+        }),
+        help_text='Detailed product specifications and requirements'
+    )
+    
+    target_unit_price = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'step': '0.01',
+            'placeholder': 'Enter target unit price'
+        }),
+        help_text='Help administrators understand pricing expectations'
+    )
+    
+    currency = forms.ChoiceField(
+        choices=[
+            ('USD', 'USD'),
+            ('AED', 'AED'),
+            ('SAR', 'SAR'),
+        ],
+        required=False,
+        initial='AED',
+        widget=forms.Select(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md'
+        })
+    )
+    
+    quality_requirements = forms.MultipleChoiceField(
+        choices=[
+            ('brand_new', 'Brand New Only'),
+            ('original_packaging', 'Original Packaging Required'),
+            ('warranty', 'Warranty Required'),
+            ('certified', 'Certified Products Only'),
+        ],
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded'
+        }),
+        help_text='Specify quality standards and requirements'
+    )
+    
+    special_instructions = forms.CharField(
+        max_length=500,
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border-gray-300 rounded-md',
+            'rows': '3',
+            'placeholder': 'Enter additional requirements or special handling instructions...'
+        }),
+        help_text='Additional requirements or special handling instructions'
+    )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Validate that at least one funding source is selected
+        funding_source = cleaned_data.get('funding_source')
+        if not funding_source:
+            raise forms.ValidationError('Please select a funding source.')
+        
+        # Validate carton quantity
+        carton_quantity = cleaned_data.get('carton_quantity')
+        if carton_quantity and carton_quantity < 1:
+            raise forms.ValidationError('Carton quantity must be at least 1.')
+        
+        # Validate target unit price if provided
+        target_unit_price = cleaned_data.get('target_unit_price')
+        if target_unit_price and target_unit_price <= 0:
+            raise forms.ValidationError('Target unit price must be greater than 0.')
+        
+        return cleaned_data
+
+
 class SourcingRequestForm(forms.ModelForm):
     """Form for creating and editing sourcing requests."""
     

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Add Payment" %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-900">
+    <!-- Header -->
+    <div class="bg-yellow-600 text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-center">{% trans "Add Payment" %}</h1>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-gray-800 rounded-lg p-6">
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Amount -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            {% trans "Amount" %} <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="amount" step="0.01" required
+                               class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                               placeholder="0.00">
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            {% trans "Payment Method" %} <span class="text-red-500">*</span>
+                        </label>
+                        <select name="payment_method" required
+                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                            <option value="">{% trans "Select Payment Method" %}</option>
+                            {% for value, label in payment_methods %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Customer Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            {% trans "Customer Name" %} <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="customer_name" required
+                               class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                               placeholder="{% trans 'Enter customer name' %}">
+                    </div>
+
+                    <!-- Customer Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            {% trans "Customer Email" %}
+                        </label>
+                        <input type="email" name="customer_email"
+                               class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                               placeholder="{% trans 'Enter customer email' %}">
+                    </div>
+
+                    <!-- Customer Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            {% trans "Customer Phone" %}
+                        </label>
+                        <input type="tel" name="customer_phone"
+                               class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                               placeholder="{% trans 'Enter customer phone' %}">
+                    </div>
+
+                    <!-- Order (Optional) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            {% trans "Order (Optional)" %}
+                        </label>
+                        <select name="order_id"
+                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                            <option value="">{% trans "Select Order (Optional)" %}</option>
+                            {% for order in orders %}
+                                <option value="{{ order.id }}">{{ order.order_code }} - {{ order.customer }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                        {% trans "Notes" %}
+                    </label>
+                    <textarea name="notes" rows="4"
+                              class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                              placeholder="{% trans 'Enter payment notes (optional)' %}"></textarea>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4 pt-6">
+                    <a href="{% url 'finance:payment_management' %}" 
+                       class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
+                        {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" 
+                            class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
+                        {% trans "Create Payment" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('form');
+    const requiredFields = form.querySelectorAll('[required]');
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('border-red-500');
+            } else {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('{% trans "Please fill in all required fields." %}');
+        }
+    });
+    
+    // Real-time validation
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

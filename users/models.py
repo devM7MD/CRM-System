@@ -184,6 +184,16 @@ class User(AbstractUser, PermissionsMixin):
     def has_role_admin(self):
         """Check if user has Admin role"""
         return self.has_role('Admin')
+    
+    @property
+    def has_role_seller(self):
+        """Check if user has Seller role"""
+        return self.has_role('Seller')
+    
+    @property
+    def has_role_super_admin(self):
+        """Check if user has Super Admin role"""
+        return self.has_role('Super Admin')
 
 class UserPermission(models.Model):
     """Model to store custom permissions for users."""

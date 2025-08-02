@@ -27,4 +27,16 @@ urlpatterns = [
     # API endpoints
     path('api/materials/', views.api_get_materials, name='api_get_materials'),
     path('api/materials/<int:material_id>/update-stock/', views.api_update_material_stock, name='api_update_material_stock'),
+    
+    # Material management
+    path('materials/add/', views.add_material, name='add_material'),
+    path('materials/<int:material_id>/', views.get_material, name='get_material'),
+    path('materials/<int:material_id>/edit/', views.edit_material, name='edit_material'),
+    path('materials/<int:material_id>/add-stock/', views.add_material_stock, name='add_material_stock'),
+    
+    # Export endpoints
+    path('export/report/', views.packaging_report, name='export_report'),
+    path('export/materials/', views.export_materials, name='export_materials'),
+    path('export/packager-performance/', views.export_packager_performance, name='export_packager_performance'),
+    path('export/quality-checks/', views.export_quality_checks, name='export_quality_checks'),
 ] 

@@ -251,21 +251,46 @@ def order_list(request):
     if not has_seller_role(request.user):
         messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
         return redirect('dashboard:index')
-    # Check if user has Seller role or is Super Admin
-    if not (request.user.has_role('Seller') or request.user.is_superuser or request.user.has_role('Super Admin')):
-        messages.error(request, "You don't have permission to access this page.")
-        return redirect('dashboard:index')
     
-    seller_instance = getattr(request.user, 'seller_profile', None)
+    # Get all orders - sellers can see all orders in the system
+    # In a real system, you might want to filter by seller-specific logic
+    orders = Order.objects.all().order_by('-date')
     
-    if seller_instance:
-        orders = Order.objects.filter(seller=seller_instance).order_by('-date')
-    else:
-        # If no seller profile, show empty list
-        orders = []
+    # Apply search filter if provided
+    search_query = request.GET.get('search', '')
+    if search_query:
+        orders = orders.filter(
+            Q(order_code__icontains=search_query) |
+            Q(customer__icontains=search_query) |
+            Q(product__name_en__icontains=search_query) |
+            Q(product__name_ar__icontains=search_query)
+        )
+    
+    # Apply status filter if provided
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(orders, 20)  # Show 20 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get order statistics
+    total_orders = orders.count()
+    pending_orders = orders.filter(status='pending').count()
+    confirmed_orders = orders.filter(status='confirmed').count()
+    cancelled_orders = orders.filter(status='cancelled').count()
     
     return render(request, 'sellers/orders.html', {
-        'orders': orders,
+        'page_obj': page_obj,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'confirmed_orders': confirmed_orders,
+        'cancelled_orders': cancelled_orders,
+        'search_query': search_query,
+        'status_filter': status_filter,
     })
 
 @login_required

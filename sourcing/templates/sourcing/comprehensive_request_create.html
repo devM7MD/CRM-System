@@ -1,0 +1,736 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Sourcing Request" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        border: 1px solid #f3f4f6;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .form-header h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-header p {
+        font-size: 1.125rem;
+        opacity: 0.9;
+    }
+    
+    .progress-bar {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        height: 8px;
+        margin-top: 1rem;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        background: white;
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+        border-radius: 8px;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+    }
+    
+    .form-section:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transform: translateY(-2px);
+    }
+    
+    .form-section h3 {
+        color: #1f2937;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-icon {
+        width: 2rem;
+        height: 2rem;
+        background: #f59e0b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #ef4444;
+        font-weight: 600;
+    }
+    
+    .help-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border-left: 4px solid #f59e0b;
+    }
+    
+    .character-counter {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-align: right;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: #f9fafb;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    
+    .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .radio-item:hover {
+        border-color: #f59e0b;
+        background: #fef3c7;
+    }
+    
+    .radio-item input:checked + label {
+        color: #f59e0b;
+        font-weight: 600;
+    }
+    
+    .radio-item input:checked ~ .radio-item {
+        border-color: #f59e0b;
+        background: #fef3c7;
+    }
+    
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .checkbox-item:hover {
+        border-color: #f59e0b;
+        background: #fef3c7;
+    }
+    
+    .checkbox-item input:checked + label {
+        color: #f59e0b;
+        font-weight: 600;
+    }
+    
+    .price-currency-group {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+    }
+    
+    .price-currency-group .form-group {
+        flex: 1;
+    }
+    
+    .price-currency-group .currency-select {
+        flex: 0 0 120px;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+    
+    .form-input.error {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+    
+    .form-input.success {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.125rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.125rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+    
+    .form-field {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-field label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+        outline: none;
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+    
+    .form-field input.error,
+    .form-field select.error,
+    .form-field textarea.error {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+    
+    .form-field input.success,
+    .form-field select.success,
+    .form-field textarea.success {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .price-currency-group {
+            flex-direction: column;
+        }
+        
+        .price-currency-group .currency-select {
+            flex: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Form Header -->
+        <div class="form-card">
+            <div class="form-header">
+                <h1>{% trans "Create Sourcing Request" %}</h1>
+                <p>{% trans "Fill out all required fields and any optional fields to create your sourcing request." %}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <form method="post" id="comprehensiveSourcingForm" class="p-8">
+                {% csrf_token %}
+                
+                <!-- Required Fields Section -->
+                <div class="form-section">
+                    <h3>
+                        <div class="section-icon">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <span class="required-field">{% trans "Required Information" %}</span>
+                    </h3>
+                    
+                    <div class="form-grid">
+                        <!-- Product Name -->
+                        <div class="form-field">
+                            <label for="{{ form.product_name.id_for_label }}" class="required-field">
+                                {% trans "Product Name" %}
+                            </label>
+                            {{ form.product_name }}
+                            {% if form.product_name.help_text %}
+                                <div class="help-text">{{ form.product_name.help_text }}</div>
+                            {% endif %}
+                            {% if form.product_name.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.product_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Carton Quantity -->
+                        <div class="form-field">
+                            <label for="{{ form.carton_quantity.id_for_label }}" class="required-field">
+                                {% trans "Carton Quantity" %}
+                            </label>
+                            {{ form.carton_quantity }}
+                            {% if form.carton_quantity.help_text %}
+                                <div class="help-text">{{ form.carton_quantity.help_text }}</div>
+                            {% endif %}
+                            {% if form.carton_quantity.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.carton_quantity.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <!-- Source Country -->
+                        <div class="form-field">
+                            <label for="{{ form.source_country.id_for_label }}" class="required-field">
+                                {% trans "Source Country" %}
+                            </label>
+                            {{ form.source_country }}
+                            {% if form.source_country.help_text %}
+                                <div class="help-text">{{ form.source_country.help_text }}</div>
+                            {% endif %}
+                            {% if form.source_country.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.source_country.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Destination Country -->
+                        <div class="form-field">
+                            <label for="{{ form.destination_country.id_for_label }}" class="required-field">
+                                {% trans "Destination Country" %}
+                            </label>
+                            {{ form.destination_country }}
+                            {% if form.destination_country.help_text %}
+                                <div class="help-text">{{ form.destination_country.help_text }}</div>
+                            {% endif %}
+                            {% if form.destination_country.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.destination_country.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Funding Source -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 required-field mb-3">
+                            {% trans "Funding Source" %}
+                        </label>
+                        <div class="radio-group">
+                            {% for choice in form.funding_source %}
+                                <div class="radio-item">
+                                    {{ choice.tag }}
+                                    <label for="{{ choice.id_for_label }}" class="text-sm text-gray-700 cursor-pointer">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.funding_source.help_text %}
+                            <div class="help-text">{{ form.funding_source.help_text }}</div>
+                        {% endif %}
+                        {% if form.funding_source.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.funding_source.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Optional Fields Section -->
+                <div class="form-section">
+                    <h3>
+                        <div class="section-icon">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                        </div>
+                        {% trans "Optional Information" %}
+                    </h3>
+                    
+                    <div class="form-row">
+                        <!-- Supplier Name -->
+                        <div class="form-field">
+                            <label for="{{ form.supplier_name.id_for_label }}">
+                                {% trans "Supplier Name (Optional)" %}
+                            </label>
+                            {{ form.supplier_name }}
+                            {% if form.supplier_name.help_text %}
+                                <div class="help-text">{{ form.supplier_name.help_text }}</div>
+                            {% endif %}
+                            {% if form.supplier_name.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.supplier_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Supplier Phone -->
+                        <div class="form-field">
+                            <label for="{{ form.supplier_phone.id_for_label }}">
+                                {% trans "Supplier Phone (Optional)" %}
+                            </label>
+                            {{ form.supplier_phone }}
+                            {% if form.supplier_phone.help_text %}
+                                <div class="help-text">{{ form.supplier_phone.help_text }}</div>
+                            {% endif %}
+                            {% if form.supplier_phone.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.supplier_phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Product Description -->
+                    <div class="form-field">
+                        <label for="{{ form.product_description.id_for_label }}">
+                            {% trans "Product Description" %}
+                        </label>
+                        {{ form.product_description }}
+                        <div class="character-counter">
+                            <span id="descriptionCounter">0</span> / 1000 characters
+                        </div>
+                        {% if form.product_description.help_text %}
+                            <div class="help-text">{{ form.product_description.help_text }}</div>
+                        {% endif %}
+                        {% if form.product_description.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.product_description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Target Unit Price -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            {% trans "Target Unit Price (Optional)" %}
+                        </label>
+                        <div class="price-currency-group">
+                            <div class="form-field">
+                                {{ form.target_unit_price }}
+                                <label for="{{ form.target_unit_price.id_for_label }}">{% trans "Price" %}</label>
+                            </div>
+                            <div class="form-field currency-select">
+                                {{ form.currency }}
+                                <label for="{{ form.currency.id_for_label }}">{% trans "Currency" %}</label>
+                            </div>
+                        </div>
+                        {% if form.target_unit_price.help_text %}
+                            <div class="help-text">{{ form.target_unit_price.help_text }}</div>
+                        {% endif %}
+                        {% if form.target_unit_price.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.target_unit_price.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Quality Requirements -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            {% trans "Quality Requirements" %}
+                        </label>
+                        <div class="checkbox-group">
+                            {% for choice in form.quality_requirements %}
+                                <div class="checkbox-item">
+                                    {{ choice.tag }}
+                                    <label for="{{ choice.id_for_label }}" class="text-sm text-gray-700 cursor-pointer">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.quality_requirements.help_text %}
+                            <div class="help-text">{{ form.quality_requirements.help_text }}</div>
+                        {% endif %}
+                        {% if form.quality_requirements.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.quality_requirements.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Special Instructions -->
+                    <div class="form-field">
+                        <label for="{{ form.special_instructions.id_for_label }}">
+                            {% trans "Special Instructions/Notes" %}
+                        </label>
+                        {{ form.special_instructions }}
+                        <div class="character-counter">
+                            <span id="instructionsCounter">0</span> / 500 characters
+                        </div>
+                        {% if form.special_instructions.help_text %}
+                            <div class="help-text">{{ form.special_instructions.help_text }}</div>
+                        {% endif %}
+                        {% if form.special_instructions.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.special_instructions.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4 mt-8">
+                    <a href="{% url 'sourcing:requests' %}" class="btn-secondary">
+                        {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" class="btn-primary">
+                        {% trans "Create Sourcing Request" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Progress bar functionality
+    const form = document.getElementById('comprehensiveSourcingForm');
+    const progressFill = document.getElementById('progressFill');
+    const requiredFields = form.querySelectorAll('[required]');
+    
+    function updateProgress() {
+        let filledFields = 0;
+        requiredFields.forEach(field => {
+            if (field.value.trim() !== '') {
+                filledFields++;
+            }
+        });
+        const progress = (filledFields / requiredFields.length) * 100;
+        progressFill.style.width = progress + '%';
+    }
+    
+    // Update progress on input
+    requiredFields.forEach(field => {
+        field.addEventListener('input', updateProgress);
+        field.addEventListener('change', updateProgress);
+    });
+    
+    // Initial progress update
+    updateProgress();
+    
+    // Character counter for product description
+    const descriptionField = document.getElementById('{{ form.product_description.id_for_label }}');
+    const descriptionCounter = document.getElementById('descriptionCounter');
+    
+    if (descriptionField && descriptionCounter) {
+        descriptionField.addEventListener('input', function() {
+            const length = this.value.length;
+            descriptionCounter.textContent = length;
+            
+            if (length > 900) {
+                descriptionCounter.style.color = '#ef4444';
+            } else if (length > 800) {
+                descriptionCounter.style.color = '#f59e0b';
+            } else {
+                descriptionCounter.style.color = '#6b7280';
+            }
+        });
+    }
+    
+    // Character counter for special instructions
+    const instructionsField = document.getElementById('{{ form.special_instructions.id_for_label }}');
+    const instructionsCounter = document.getElementById('instructionsCounter');
+    
+    if (instructionsField && instructionsCounter) {
+        instructionsField.addEventListener('input', function() {
+            const length = this.value.length;
+            instructionsCounter.textContent = length;
+            
+            if (length > 450) {
+                instructionsCounter.style.color = '#ef4444';
+            } else if (length > 400) {
+                instructionsCounter.style.color = '#f59e0b';
+            } else {
+                instructionsCounter.style.color = '#6b7280';
+            }
+        });
+    }
+    
+    // Enhanced form validation
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    
+    formInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.hasAttribute('required') && this.value.trim() === '') {
+                this.classList.add('error');
+                this.classList.remove('success');
+            } else if (this.value.trim() !== '') {
+                this.classList.add('success');
+                this.classList.remove('error');
+            } else {
+                this.classList.remove('error', 'success');
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('error') && this.value.trim() !== '') {
+                this.classList.remove('error');
+                this.classList.add('success');
+            }
+        });
+    });
+    
+    // Form submission with enhanced validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const errors = [];
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('error');
+                errors.push(field.name + ' is required');
+            } else {
+                field.classList.remove('error');
+                field.classList.add('success');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields:\n' + errors.join('\n'));
+        }
+    });
+    
+    // Real-time validation for carton quantity
+    const cartonQuantityField = document.getElementById('{{ form.carton_quantity.id_for_label }}');
+    if (cartonQuantityField) {
+        cartonQuantityField.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            if (value < 1) {
+                this.setCustomValidity('Carton quantity must be at least 1');
+                this.classList.add('error');
+            } else if (value > 10000) {
+                this.setCustomValidity('Carton quantity cannot exceed 10,000');
+                this.classList.add('error');
+            } else {
+                this.setCustomValidity('');
+                this.classList.remove('error');
+                this.classList.add('success');
+            }
+        });
+    }
+    
+    // Real-time validation for target unit price
+    const targetPriceField = document.getElementById('{{ form.target_unit_price.id_for_label }}');
+    if (targetPriceField) {
+        targetPriceField.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (value < 0) {
+                this.setCustomValidity('Target unit price must be positive');
+                this.classList.add('error');
+            } else {
+                this.setCustomValidity('');
+                this.classList.remove('error');
+                if (value > 0) this.classList.add('success');
+            }
+        });
+    }
+    
+    // Smooth scrolling to sections
+    const sections = document.querySelectorAll('.form-section');
+    sections.forEach(section => {
+        section.addEventListener('click', function() {
+            this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from datetime import datetime, timedelta
 import json
-from .models import Payment, SellerFee
+from .models import Payment, SellerFee, TruvoPayment
 from orders.models import Order
 from sellers.models import Product, Seller
 from users.models import User
@@ -918,3 +918,316 @@ def payment_list(request):
 def sales_report(request):
     """Sales report with analytics."""
     return financial_reports(request)
+
+@login_required
+def payment_management(request):
+    """Payment Management Dashboard - accessible by both admin and sellers."""
+    # Get filter parameters
+    status_filter = request.GET.get('status', '')
+    payment_method_filter = request.GET.get('payment_method', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    search_query = request.GET.get('search', '')
+    
+    # Base queryset - sellers see only their payments, admins see all
+    if request.user.has_role('Seller'):
+        payments = Payment.objects.filter(seller=request.user).select_related('order').order_by('-payment_date')
+        truvo_payments = TruvoPayment.objects.filter(seller=request.user).order_by('-created_at')
+    else:
+        payments = Payment.objects.select_related('order').order_by('-payment_date')
+        truvo_payments = TruvoPayment.objects.all().order_by('-created_at')
+    
+    # Apply filters
+    if status_filter:
+        payments = payments.filter(payment_status=status_filter)
+        truvo_payments = truvo_payments.filter(payment_status=status_filter)
+    
+    if payment_method_filter:
+        payments = payments.filter(payment_method=payment_method_filter)
+        if payment_method_filter == 'truvo':
+            payments = truvo_payments
+            truvo_payments = TruvoPayment.objects.none()
+    
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__gte=date_from_obj)
+            truvo_payments = truvo_payments.filter(created_at__date__gte=date_from_obj)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__lte=date_to_obj)
+            truvo_payments = truvo_payments.filter(created_at__date__lte=date_to_obj)
+        except ValueError:
+            pass
+    
+    if search_query:
+        payments = payments.filter(
+            Q(order__order_code__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(transaction_id__icontains=search_query) |
+            Q(notes__icontains=search_query)
+        )
+        truvo_payments = truvo_payments.filter(
+            Q(payment_id__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(truvo_transaction_id__icontains=search_query)
+        )
+    
+    # Combine payments for display
+    all_payments = list(payments) + list(truvo_payments)
+    all_payments.sort(key=lambda x: x.payment_date if hasattr(x, 'payment_date') else x.created_at, reverse=True)
+    
+    # Pagination
+    paginator = Paginator(all_payments, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get filter options
+    status_choices = Payment.PAYMENT_STATUS
+    payment_method_choices = Payment.PAYMENT_METHODS
+    
+    # Statistics
+    total_payments = len(all_payments)
+    total_amount = sum(p.amount for p in all_payments)
+    completed_payments = len([p for p in all_payments if p.payment_status == 'completed'])
+    pending_payments = len([p for p in all_payments if p.payment_status == 'pending'])
+    
+    context = {
+        'page_obj': page_obj,
+        'status_choices': status_choices,
+        'payment_method_choices': payment_method_choices,
+        'current_status': status_filter,
+        'current_payment_method': payment_method_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+        'search_query': search_query,
+        'total_payments': total_payments,
+        'total_amount': total_amount,
+        'completed_payments': completed_payments,
+        'pending_payments': pending_payments,
+        'is_seller': request.user.has_role('Seller'),
+    }
+    
+    return render(request, 'finance/payment_management.html', context)
+
+@login_required
+def add_payment(request):
+    """Add new payment - accessible by both admin and sellers."""
+    if request.method == 'POST':
+        try:
+            # Get form data
+            amount = request.POST.get('amount')
+            payment_method = request.POST.get('payment_method')
+            customer_name = request.POST.get('customer_name')
+            customer_email = request.POST.get('customer_email')
+            customer_phone = request.POST.get('customer_phone')
+            order_id = request.POST.get('order_id')
+            notes = request.POST.get('notes', '')
+            
+            # Validate required fields
+            if not all([amount, payment_method, customer_name]):
+                messages.error(request, 'Please fill in all required fields.')
+                return redirect('finance:payment_management')
+            
+            # Create payment
+            payment_data = {
+                'amount': amount,
+                'payment_method': payment_method,
+                'customer_name': customer_name,
+                'customer_email': customer_email,
+                'customer_phone': customer_phone,
+                'notes': notes,
+                'seller': request.user if request.user.has_role('Seller') else None,
+            }
+            
+            if order_id:
+                try:
+                    order = Order.objects.get(id=order_id)
+                    payment_data['order'] = order
+                except Order.DoesNotExist:
+                    pass
+            
+            # Create regular payment or Truvo payment
+            if payment_method == 'truvo':
+                payment = TruvoPayment.objects.create(**payment_data)
+                messages.success(request, f'Truvo payment {payment.payment_id} created successfully!')
+            else:
+                payment = Payment.objects.create(**payment_data)
+                messages.success(request, f'Payment created successfully!')
+            
+            return redirect('finance:payment_management')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating payment: {str(e)}')
+            return redirect('finance:payment_management')
+    
+    # Get available orders for selection
+    if request.user.has_role('Seller'):
+        orders = Order.objects.filter(seller=request.user)[:10]
+    else:
+        orders = Order.objects.all()[:10]
+    
+    context = {
+        'orders': orders,
+        'payment_methods': Payment.PAYMENT_METHODS,
+        'is_seller': request.user.has_role('Seller'),
+    }
+    
+    return render(request, 'finance/add_payment.html', context)
+
+@login_required
+def truvo_payment_create(request):
+    """Create a new Truvo payment."""
+    if request.method == 'POST':
+        try:
+            # Get form data
+            amount = request.POST.get('amount')
+            customer_name = request.POST.get('customer_name')
+            customer_email = request.POST.get('customer_email')
+            customer_phone = request.POST.get('customer_phone')
+            order_id = request.POST.get('order_id')
+            
+            # Validate required fields
+            if not all([amount, customer_name, customer_email, customer_phone]):
+                messages.error(request, 'Please fill in all required fields.')
+                return redirect('finance:payment_management')
+            
+            # Create Truvo payment
+            payment_data = {
+                'amount': amount,
+                'customer_name': customer_name,
+                'customer_email': customer_email,
+                'customer_phone': customer_phone,
+                'seller': request.user if request.user.has_role('Seller') else None,
+            }
+            
+            if order_id:
+                try:
+                    order = Order.objects.get(id=order_id)
+                    payment_data['order'] = order
+                except Order.DoesNotExist:
+                    pass
+            
+            # In a real implementation, you would integrate with Truvo API here
+            # For now, we'll create a mock payment
+            payment = TruvoPayment.objects.create(**payment_data)
+            
+            # Simulate payment URL generation
+            payment.payment_url = f"https://truvo.pay/{payment.payment_id}"
+            payment.save()
+            
+            messages.success(request, f'Truvo payment {payment.payment_id} created successfully!')
+            return redirect('finance:payment_management')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating Truvo payment: {str(e)}')
+            return redirect('finance:payment_management')
+    
+    # Get available orders for selection
+    if request.user.has_role('Seller'):
+        orders = Order.objects.filter(seller=request.user)[:10]
+    else:
+        orders = Order.objects.all()[:10]
+    
+    context = {
+        'orders': orders,
+        'is_seller': request.user.has_role('Seller'),
+    }
+    
+    return render(request, 'finance/truvo_payment_create.html', context)
+
+@login_required
+def export_payments(request):
+    """Export payments to CSV."""
+    import csv
+    from io import StringIO
+    
+    # Get filter parameters (same as payment_management)
+    status_filter = request.GET.get('status', '')
+    payment_method_filter = request.GET.get('payment_method', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    search_query = request.GET.get('search', '')
+    
+    # Base queryset
+    if request.user.has_role('Seller'):
+        payments = Payment.objects.filter(seller=request.user).select_related('order').order_by('-payment_date')
+        truvo_payments = TruvoPayment.objects.filter(seller=request.user).order_by('-created_at')
+    else:
+        payments = Payment.objects.select_related('order').order_by('-payment_date')
+        truvo_payments = TruvoPayment.objects.all().order_by('-created_at')
+    
+    # Apply filters (same logic as payment_management)
+    if status_filter:
+        payments = payments.filter(payment_status=status_filter)
+        truvo_payments = truvo_payments.filter(payment_status=status_filter)
+    
+    if payment_method_filter:
+        payments = payments.filter(payment_method=payment_method_filter)
+        if payment_method_filter == 'truvo':
+            payments = truvo_payments
+            truvo_payments = TruvoPayment.objects.none()
+    
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__gte=date_from_obj)
+            truvo_payments = truvo_payments.filter(created_at__date__gte=date_from_obj)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            payments = payments.filter(payment_date__date__lte=date_to_obj)
+            truvo_payments = truvo_payments.filter(created_at__date__lte=date_to_obj)
+        except ValueError:
+            pass
+    
+    if search_query:
+        payments = payments.filter(
+            Q(order__order_code__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(transaction_id__icontains=search_query) |
+            Q(notes__icontains=search_query)
+        )
+        truvo_payments = truvo_payments.filter(
+            Q(payment_id__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(truvo_transaction_id__icontains=search_query)
+        )
+    
+    # Combine payments
+    all_payments = list(payments) + list(truvo_payments)
+    all_payments.sort(key=lambda x: x.payment_date if hasattr(x, 'payment_date') else x.created_at, reverse=True)
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="payments_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow([
+        'Payment ID', 'Order ID', 'Customer', 'Amount', 'Currency', 'Method', 
+        'Status', 'Date', 'Seller', 'Transaction ID', 'Notes'
+    ])
+    
+    for payment in all_payments:
+        writer.writerow([
+            getattr(payment, 'payment_id', payment.id),
+            payment.order.order_code if payment.order else 'N/A',
+            payment.customer_name,
+            payment.amount,
+            getattr(payment, 'currency', 'AED'),
+            payment.payment_method,
+            payment.payment_status,
+            payment.payment_date.strftime('%Y-%m-%d %H:%M:%S') if hasattr(payment, 'payment_date') else payment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            payment.seller.get_full_name() if payment.seller else 'N/A',
+            getattr(payment, 'transaction_id', getattr(payment, 'truvo_transaction_id', '')),
+            payment.notes
+        ])
+    
+    return response

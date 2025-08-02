@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Payment Management" %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-900">
+    <!-- Header -->
+    <div class="bg-yellow-600 text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-center">{% trans "Payment Management" %}</h1>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search & Filter Section -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold text-white mb-4">{% trans "Search & Filter" %}</h2>
+            
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Payment Status -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">{% trans "Payment Status" %}</label>
+                    <select name="status" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                        <option value="">{% trans "All Statuses" %}</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if value == current_status %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Date From -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">{% trans "Date From" %}</label>
+                    <div class="relative">
+                        <input type="date" name="date_from" value="{{ date_from }}" 
+                               class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date To -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">{% trans "Date To" %}</label>
+                    <div class="relative">
+                        <input type="date" name="date_to" value="{{ date_to }}" 
+                               class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">{% trans "Search" %}</label>
+                    <input type="text" name="search" value="{{ search_query }}" 
+                           placeholder="{% trans 'Order ID, Customer...' %}"
+                           class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">{% trans "Payment Method" %}</label>
+                    <select name="payment_method" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                        <option value="">{% trans "All Methods" %}</option>
+                        {% for value, label in payment_method_choices %}
+                            <option value="{{ value }}" {% if value == current_payment_method %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+            <!-- Filter Button -->
+            <div class="mt-4 flex justify-end">
+                <button type="submit" form="filter-form" 
+                        class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition-colors duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    {% trans "Filter" %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Payments List Section -->
+        <div class="bg-gray-800 rounded-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-white">{% trans "Payments" %}</h2>
+                <a href="{% url 'finance:add_payment' %}" 
+                   class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition-colors duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    {% trans "Add Payment" %}
+                </a>
+            </div>
+            
+            <p class="text-gray-400 mb-6">{% trans "A list of all payments in your account including their status, amount, and payment method." %}</p>
+            
+            <div class="flex justify-between items-center mb-4">
+                <div class="text-gray-400 text-sm">
+                    {% trans "Showing" %} {{ page_obj.start_index }} {% trans "to" %} {{ page_obj.end_index }} {% trans "of" %} {{ page_obj.paginator.count }} {% trans "results" %}
+                </div>
+                <a href="{% url 'finance:export_payments' %}?{{ request.GET.urlencode }}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition-colors duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    {% trans "Export" %}
+                </a>
+            </div>
+
+            <!-- Payments Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-yellow-600">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "PAYMENT ID" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "ORDER ID" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "CUSTOMER" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "AMOUNT" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "METHOD" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "STATUS" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "DATE" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">{% trans "ACTIONS" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-gray-800 divide-y divide-gray-700">
+                        {% for payment in page_obj %}
+                        <tr class="hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                {% if payment.payment_id %}
+                                    {{ payment.payment_id }}
+                                {% else %}
+                                    {{ payment.id }}
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {% if payment.order %}
+                                    {{ payment.order.order_code }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ payment.customer_name|default:"N/A" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ payment.amount }} {{ payment.currency|default:"AED" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ payment.get_payment_method_display }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                    {% if payment.payment_status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif payment.payment_status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif payment.payment_status == 'failed' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ payment.get_payment_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {% if payment.payment_date %}
+                                    {{ payment.payment_date|date:"M d, Y H:i" }}
+                                {% else %}
+                                    {{ payment.created_at|date:"M d, Y H:i" }}
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-yellow-400 hover:text-yellow-300 mr-3">{% trans "View" %}</a>
+                                <a href="#" class="text-yellow-400 hover:text-yellow-300">{% trans "Edit" %}</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-400">
+                                {% trans "No payments found." %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="mt-6 flex justify-between items-center">
+                <div class="text-gray-400 text-sm">
+                    {% trans "Showing" %} {{ page_obj.start_index }} {% trans "to" %} {{ page_obj.end_index }} {% trans "of" %} {{ page_obj.paginator.count }} {% trans "results" %}
+                </div>
+                <div class="flex space-x-1">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" 
+                           class="px-3 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600">{% trans "Previous" %}</a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="px-3 py-2 bg-yellow-600 text-white rounded-md">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}&{{ request.GET.urlencode }}" 
+                               class="px-3 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" 
+                           class="px-3 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600">{% trans "Next" %}</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Hidden form for filter submission -->
+<form id="filter-form" method="GET" class="hidden">
+    <input type="hidden" name="status" value="{{ current_status }}">
+    <input type="hidden" name="payment_method" value="{{ current_payment_method }}">
+    <input type="hidden" name="date_from" value="{{ date_from }}">
+    <input type="hidden" name="date_to" value="{{ date_to }}">
+    <input type="hidden" name="search" value="{{ search_query }}">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when filters change
+    const filterForm = document.getElementById('filter-form');
+    const filterInputs = filterForm.querySelectorAll('input, select');
+    
+    filterInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Update hidden form values
+            const name = this.name;
+            const value = this.value;
+            const hiddenInput = filterForm.querySelector(`input[name="${name}"]`);
+            if (hiddenInput) {
+                hiddenInput.value = value;
+            }
+            filterForm.submit();
+        });
+    });
+    
+    // Handle search input with debounce
+    const searchInput = document.querySelector('input[name="search"]');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const hiddenSearch = filterForm.querySelector('input[name="search"]');
+            hiddenSearch.value = this.value;
+            filterForm.submit();
+        }, 500);
+    });
+});
+</script>
+{% endblock %} 

@@ -1067,3 +1067,49 @@ def order_list(request):
             return redirect('callcenter:agent_order_list')
     
     return redirect('dashboard:index')
+
+@login_required
+def order_detail(request, order_id):
+    """Order detail view for call center staff."""
+    if not has_callcenter_role(request.user):
+        messages.error(request, "ليس لديك صلاحية للدخول لهذه الصفحة.")
+        return redirect('dashboard:index')
+    
+    try:
+        # Get the order
+        order = Order.objects.get(id=order_id)
+        
+        # Check if agent is assigned to this order (if user is an agent)
+        if request.user.has_role('Call Center Agent') and not order.assignments.filter(agent=request.user).exists():
+            messages.error(request, "You are not assigned to this order.")
+            return redirect('callcenter:agent_order_list')
+        
+        # Get call logs for this order
+        call_logs = CallLog.objects.filter(order=order).order_by('-call_time')
+        
+        # Get status history
+        status_history = OrderStatusHistory.objects.filter(order=order).order_by('-change_timestamp')
+        
+        # Get manager notes if applicable
+        if request.user.has_role('Call Center Agent'):
+            manager_notes = ManagerNote.objects.filter(order=order, agent=request.user).order_by('-created_at')
+        else:
+            manager_notes = ManagerNote.objects.filter(order=order).order_by('-created_at')
+        
+        context = {
+            'order': order,
+            'call_logs': call_logs,
+            'manager_notes': manager_notes,
+            'status_history': status_history,
+        }
+        
+        return render(request, 'callcenter/order_detail.html', context)
+        
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        if request.user.has_role('Call Center Manager'):
+            return redirect('callcenter:manager_order_list')
+        elif request.user.has_role('Call Center Agent'):
+            return redirect('callcenter:agent_order_list')
+        else:
+            return redirect('dashboard:index')

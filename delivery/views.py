@@ -157,6 +157,27 @@ def dashboard(request):
     # Get active couriers count
     active_couriers_count = Courier.objects.filter(status='active').count()
     
+    # Get real order data for delivery dashboard
+    # Get all orders that are ready for delivery (confirmed, processing, or pending)
+    orders_for_delivery = Order.objects.filter(
+        status__in=['confirmed', 'processing', 'pending']
+    ).select_related('product').order_by('-date')[:10]
+    
+    # Get order statistics
+    total_orders = Order.objects.count()
+    pending_orders = Order.objects.filter(status='pending').count()
+    confirmed_orders = Order.objects.filter(status='confirmed').count()
+    processing_orders = Order.objects.filter(status='processing').count()
+    delivered_orders = Order.objects.filter(status='delivered').count()
+    
+    # Get orders assigned to delivery
+    orders_in_delivery = Order.objects.filter(
+        status__in=['confirmed', 'processing']
+    ).count()
+    
+    # Get recent orders for display
+    recent_orders = Order.objects.select_related('product').order_by('-date')[:5]
+    
     # Get courier's earnings (if courier)
     courier_earnings = 0
     if courier:
@@ -187,6 +208,15 @@ def dashboard(request):
         'recent_deliveries': recent_deliveries,
         'delivery_companies_count': delivery_companies_count,
         'active_couriers_count': active_couriers_count,
+        # Order data
+        'orders_for_delivery': orders_for_delivery,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'confirmed_orders': confirmed_orders,
+        'processing_orders': processing_orders,
+        'delivered_orders': delivered_orders,
+        'orders_in_delivery': orders_in_delivery,
+        'recent_orders': recent_orders,
     }
     
     return render(request, 'delivery/dashboard.html', context)

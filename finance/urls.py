@@ -8,6 +8,12 @@ urlpatterns = [
     path('', views.accountant_dashboard, name='accountant_dashboard'),
     path('dashboard/', views.accountant_dashboard, name='dashboard'),
     
+    # Payment Management (New)
+    path('payments/', views.payment_management, name='payment_management'),
+    path('payments/add/', views.add_payment, name='add_payment'),
+    path('payments/truvo/', views.truvo_payment_create, name='truvo_payment_create'),
+    path('payments/export/', views.export_payments, name='export_payments'),
+    
     # Order Financial Management
     path('orders/', views.order_financial_management, name='order_management'),
     

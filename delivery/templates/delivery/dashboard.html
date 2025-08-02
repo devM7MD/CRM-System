@@ -190,11 +190,94 @@
                     </div>
                 </div>
                 <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">{% trans "Average Rating" %}</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2">0/5.0</p>
-                <p class="text-sm text-red-600 mt-1">
-                    <i class="fas fa-exclamation-triangle mr-1"></i>
-                    {% trans "Needs Improvement" %}
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ avg_rating|default:"0" }}/5.0</p>
+                <p class="text-sm {% if avg_rating >= 4.0 %}text-green-600{% elif avg_rating >= 3.0 %}text-yellow-600{% else %}text-red-600{% endif %} mt-1">
+                    <i class="fas {% if avg_rating >= 4.0 %}fa-arrow-up{% elif avg_rating >= 3.0 %}fa-minus{% else %}fa-exclamation-triangle{% endif %} mr-1"></i>
+                    {% if avg_rating >= 4.0 %}{% trans "Excellent" %}{% elif avg_rating >= 3.0 %}{% trans "Good" %}{% else %}{% trans "Needs Improvement" %}{% endif %}
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Management Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Order Statistics -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-shopping-cart mr-2 text-blue-500"></i>
+                    {% trans "Order Statistics" %}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">{{ total_orders|default:"0" }}</div>
+                        <div class="text-sm text-gray-600">{% trans "Total Orders" %}</div>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <div class="text-2xl font-bold text-yellow-600">{{ pending_orders|default:"0" }}</div>
+                        <div class="text-sm text-gray-600">{% trans "Pending" %}</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">{{ confirmed_orders|default:"0" }}</div>
+                        <div class="text-sm text-gray-600">{% trans "Confirmed" %}</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600">{{ processing_orders|default:"0" }}</div>
+                        <div class="text-sm text-gray-600">{% trans "Processing" %}</div>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-indigo-50 rounded-lg">
+                    <div class="text-center">
+                        <div class="text-lg font-semibold text-indigo-600">{{ orders_in_delivery|default:"0" }}</div>
+                        <div class="text-sm text-gray-600">{% trans "Orders Ready for Delivery" %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-clock mr-2 text-green-500"></i>
+                    {% trans "Recent Orders" %}
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if recent_orders %}
+                <div class="space-y-3">
+                    {% for order in recent_orders %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-900">#{{ order.order_code }}</span>
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.status == 'confirmed' %}bg-green-100 text-green-800
+                                    {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                                    {% elif order.status == 'delivered' %}bg-purple-100 text-purple-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600">{{ order.customer }}</div>
+                            <div class="text-xs text-gray-500">{{ order.date|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">AED {{ order.price_per_unit }}</div>
+                            <div class="text-xs text-gray-500">{{ order.quantity }} items</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-inbox text-4xl mb-4"></i>
+                    <p>{% trans "No recent orders found" %}</p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -218,7 +301,7 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
         <a href="{% url 'delivery:order_list' %}" class="card hover:shadow-lg transition-all duration-300 animate-slide-up">
             <div class="p-6 text-center">
                 <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -226,6 +309,16 @@
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">{% trans "View All Orders" %}</h3>
                 <p class="text-gray-600">{% trans "Manage and track all delivery assignments" %}</p>
+            </div>
+        </a>
+
+        <a href="{% url 'orders:order_list' %}" class="card hover:shadow-lg transition-all duration-300 animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shopping-cart text-yellow-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{% trans "All Orders" %}</h3>
+                <p class="text-gray-600">{% trans "View all system orders" %}</p>
             </div>
         </a>
 

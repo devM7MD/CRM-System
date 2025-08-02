@@ -7,6 +7,7 @@ urlpatterns = [
     # Legacy URLs for backward compatibility
     path('', views.dashboard, name='dashboard'),
     path('orders/', views.order_list, name='orders'),
+    path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     
     # Agent Panel URLs
     path('agent/', views.agent_dashboard, name='agent_dashboard'),

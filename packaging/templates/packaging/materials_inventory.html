@@ -20,7 +20,7 @@
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <div class="p-4 flex justify-between items-center border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800">{% trans "Materials Inventory" %}</h3>
-                    <button class="text-sm px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600 inline-flex items-center">
+                    <button type="button" onclick="openAddMaterialModal()" class="text-sm px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600 inline-flex items-center">
                         <i class="fas fa-plus mr-1"></i> {% trans "Add Material" %}
                     </button>
                 </div>
@@ -101,10 +101,17 @@
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-sm">
                                             <div class="flex space-x-2">
-                                                <button class="text-blue-600 hover:text-blue-900" title="{% trans 'Edit' %}">
+                                                <button class="text-blue-600 hover:text-blue-900 edit-material-btn" 
+                                                        data-id="{{ material.id }}" 
+                                                        title="{% trans 'Edit' %}">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="text-green-600 hover:text-green-900" title="{% trans 'Add Stock' %}">
+                                                <button class="text-green-600 hover:text-green-900 add-stock-btn" 
+                                                        data-id="{{ material.id }}" 
+                                                        data-name="{{ material.name }}" 
+                                                        data-stock="{{ material.current_stock }}" 
+                                                        data-unit="{{ material.unit }}"
+                                                        title="{% trans 'Add Stock' %}">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                             </div>
@@ -183,17 +190,17 @@
                 </div>
                 
                 <div class="p-4 space-y-3">
-                    <button class="w-full flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                    <button type="button" onclick="openAddMaterialModal()" class="w-full flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
                         <i class="fas fa-plus mr-2"></i> {% trans "Add New Material" %}
                     </button>
                     
-                    <button class="w-full flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    <a href="{% url 'packaging:export_materials' %}" class="w-full flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
                         <i class="fas fa-download mr-2"></i> {% trans "Export Inventory" %}
-                    </button>
+                    </a>
                     
-                    <button class="w-full flex items-center justify-center px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors">
+                    <a href="?stock_status=low" class="w-full flex items-center justify-center px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors">
                         <i class="fas fa-exclamation-triangle mr-2"></i> {% trans "Low Stock Alert" %}
-                    </button>
+                    </a>
                 </div>
             </div>
             
@@ -207,22 +214,42 @@
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">{% trans "Boxes" %}</span>
-                            <span class="font-medium text-gray-900">{{ materials|length }}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.box|default:0 }}</span>
                         </div>
                         
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">{% trans "Envelopes" %}</span>
-                            <span class="font-medium text-gray-900">{{ materials|length }}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.envelope|default:0 }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{% trans "Polybags" %}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.polybag|default:0 }}</span>
                         </div>
                         
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">{% trans "Tape" %}</span>
-                            <span class="font-medium text-gray-900">{{ materials|length }}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.tape|default:0 }}</span>
                         </div>
                         
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-600">{% trans "Protective Materials" %}</span>
-                            <span class="font-medium text-gray-900">{{ materials|length }}</span>
+                            <span class="text-gray-600">{% trans "Bubble Wrap" %}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.bubble_wrap|default:0 }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{% trans "Filler Material" %}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.filler|default:0 }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{% trans "Labels" %}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.label|default:0 }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{% trans "Other" %}</span>
+                            <span class="font-medium text-gray-900">{{ material_type_counts.other|default:0 }}</span>
                         </div>
                     </div>
                 </div>
@@ -230,4 +257,383 @@
         </div>
     </div>
 </div>
+
+<!-- Add Material Modal -->
+<div id="addMaterialModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Add New Material" %}</h3>
+            <button type="button" onclick="closeAddMaterialModal()" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="addMaterialForm" method="post" action="{% url 'packaging:add_material' %}">
+            {% csrf_token %}
+            <div class="p-4 space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">{% trans "Material Name" %} *</label>
+                    <input type="text" name="name" id="name" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                
+                <div>
+                    <label for="material_type" class="block text-sm font-medium text-gray-700">{% trans "Material Type" %} *</label>
+                    <select name="material_type" id="material_type" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        <option value="box">{% trans "Box" %}</option>
+                        <option value="envelope">{% trans "Envelope" %}</option>
+                        <option value="polybag">{% trans "Polybag" %}</option>
+                        <option value="tape">{% trans "Tape" %}</option>
+                        <option value="bubble_wrap">{% trans "Bubble Wrap" %}</option>
+                        <option value="filler">{% trans "Filler Material" %}</option>
+                        <option value="label">{% trans "Label" %}</option>
+                        <option value="other">{% trans "Other" %}</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">{% trans "Description" %}</label>
+                    <textarea name="description" id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="current_stock" class="block text-sm font-medium text-gray-700">{% trans "Current Stock" %} *</label>
+                        <input type="number" name="current_stock" id="current_stock" min="0" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="min_stock_level" class="block text-sm font-medium text-gray-700">{% trans "Minimum Stock Level" %} *</label>
+                        <input type="number" name="min_stock_level" id="min_stock_level" min="0" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="unit" class="block text-sm font-medium text-gray-700">{% trans "Unit" %} *</label>
+                        <input type="text" name="unit" id="unit" value="pieces" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="cost_per_unit" class="block text-sm font-medium text-gray-700">{% trans "Cost Per Unit" %} *</label>
+                        <input type="number" name="cost_per_unit" id="cost_per_unit" step="0.01" min="0" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="supplier" class="block text-sm font-medium text-gray-700">{% trans "Supplier" %}</label>
+                    <input type="text" name="supplier" id="supplier" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" onclick="closeAddMaterialModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    {% trans "Cancel" %}
+                </button>
+                <button type="submit" class="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i> {% trans "Add Material" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Material Modal -->
+<div id="editMaterialModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Edit Material" %}</h3>
+            <button type="button" onclick="closeEditMaterialModal()" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="editMaterialForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="edit_material_id" name="material_id">
+            <div class="p-4 space-y-4">
+                <div>
+                    <label for="edit_name" class="block text-sm font-medium text-gray-700">{% trans "Material Name" %} *</label>
+                    <input type="text" name="name" id="edit_name" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                
+                <div>
+                    <label for="edit_material_type" class="block text-sm font-medium text-gray-700">{% trans "Material Type" %} *</label>
+                    <select name="material_type" id="edit_material_type" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        <option value="box">{% trans "Box" %}</option>
+                        <option value="envelope">{% trans "Envelope" %}</option>
+                        <option value="polybag">{% trans "Polybag" %}</option>
+                        <option value="tape">{% trans "Tape" %}</option>
+                        <option value="bubble_wrap">{% trans "Bubble Wrap" %}</option>
+                        <option value="filler">{% trans "Filler Material" %}</option>
+                        <option value="label">{% trans "Label" %}</option>
+                        <option value="other">{% trans "Other" %}</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="edit_description" class="block text-sm font-medium text-gray-700">{% trans "Description" %}</label>
+                    <textarea name="description" id="edit_description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit_current_stock" class="block text-sm font-medium text-gray-700">{% trans "Current Stock" %} *</label>
+                        <input type="number" name="current_stock" id="edit_current_stock" min="0" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="edit_min_stock_level" class="block text-sm font-medium text-gray-700">{% trans "Minimum Stock Level" %} *</label>
+                        <input type="number" name="min_stock_level" id="edit_min_stock_level" min="0" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="edit_unit" class="block text-sm font-medium text-gray-700">{% trans "Unit" %} *</label>
+                        <input type="text" name="unit" id="edit_unit" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="edit_cost_per_unit" class="block text-sm font-medium text-gray-700">{% trans "Cost Per Unit" %} *</label>
+                        <input type="number" name="cost_per_unit" id="edit_cost_per_unit" step="0.01" min="0" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="edit_supplier" class="block text-sm font-medium text-gray-700">{% trans "Supplier" %}</label>
+                    <input type="text" name="supplier" id="edit_supplier" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" onclick="closeEditMaterialModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    {% trans "Cancel" %}
+                </button>
+                <button type="submit" class="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors">
+                    <i class="fas fa-save mr-2"></i> {% trans "Save Changes" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Stock Modal -->
+<div id="addStockModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">{% trans "Add Stock" %}</h3>
+            <button type="button" onclick="closeAddStockModal()" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="addStockForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="add_stock_material_id" name="material_id">
+            <div class="p-4 space-y-4">
+                <div class="text-center mb-4">
+                    <h4 id="material_name_display" class="text-lg font-medium text-gray-900"></h4>
+                    <p id="current_stock_display" class="text-sm text-gray-500"></p>
+                </div>
+                
+                <div>
+                    <label for="quantity_to_add" class="block text-sm font-medium text-gray-700">{% trans "Quantity to Add" %} *</label>
+                    <input type="number" name="quantity" id="quantity_to_add" min="1" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                
+                <div>
+                    <label for="stock_notes" class="block text-sm font-medium text-gray-700">{% trans "Notes" %}</label>
+                    <textarea name="notes" id="stock_notes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"></textarea>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" onclick="closeAddStockModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    {% trans "Cancel" %}
+                </button>
+                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i> {% trans "Add Stock" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg z-50 hidden">
+    <span id="toastMessage"></span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add Material Modal
+    function openAddMaterialModal() {
+        document.getElementById('addMaterialModal').classList.remove('hidden');
+    }
+    
+    function closeAddMaterialModal() {
+        document.getElementById('addMaterialModal').classList.add('hidden');
+    }
+    
+    // Edit Material Modal
+    function openEditMaterialModal(materialId) {
+        // Fetch material data
+        fetch(`/packaging/materials/${materialId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('edit_material_id').value = data.id;
+                document.getElementById('edit_name').value = data.name;
+                document.getElementById('edit_material_type').value = data.material_type;
+                document.getElementById('edit_description').value = data.description;
+                document.getElementById('edit_current_stock').value = data.current_stock;
+                document.getElementById('edit_min_stock_level').value = data.min_stock_level;
+                document.getElementById('edit_unit').value = data.unit;
+                document.getElementById('edit_cost_per_unit').value = data.cost_per_unit;
+                document.getElementById('edit_supplier').value = data.supplier;
+                
+                // Set form action
+                document.getElementById('editMaterialForm').action = `/packaging/materials/${materialId}/edit/`;
+                
+                document.getElementById('editMaterialModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error fetching material data:', error);
+                showToast('Error loading material data');
+            });
+    }
+    
+    function closeEditMaterialModal() {
+        document.getElementById('editMaterialModal').classList.add('hidden');
+    }
+    
+    // Add Stock Modal
+    function openAddStockModal(materialId, name, currentStock, unit) {
+        document.getElementById('add_stock_material_id').value = materialId;
+        document.getElementById('material_name_display').textContent = name;
+        document.getElementById('current_stock_display').textContent = `Current Stock: ${currentStock} ${unit}`;
+        
+        // Set form action
+        document.getElementById('addStockForm').action = `/packaging/materials/${materialId}/add-stock/`;
+        
+        document.getElementById('addStockModal').classList.remove('hidden');
+    }
+    
+    function closeAddStockModal() {
+        document.getElementById('addStockModal').classList.add('hidden');
+    }
+    
+    // Toast notification
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toastMessage').textContent = message;
+        
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 3000);
+    }
+    
+    // Form submissions
+    document.getElementById('addMaterialForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Material added successfully');
+                closeAddMaterialModal();
+                window.location.reload();
+            } else {
+                showToast(data.error || 'Error adding material');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding material:', error);
+            showToast('Error adding material');
+        });
+    });
+    
+    document.getElementById('editMaterialForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Material updated successfully');
+                closeEditMaterialModal();
+                window.location.reload();
+            } else {
+                showToast(data.error || 'Error updating material');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating material:', error);
+            showToast('Error updating material');
+        });
+    });
+    
+    document.getElementById('addStockForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Stock added successfully');
+                closeAddStockModal();
+                window.location.reload();
+            } else {
+                showToast(data.error || 'Error adding stock');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding stock:', error);
+            showToast('Error adding stock');
+        });
+    });
+    
+    // Add event listeners for edit and add stock buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        // Use event delegation for dynamically added elements
+        document.addEventListener('click', function(e) {
+            // Edit button
+            if (e.target && e.target.classList.contains('edit-material-btn')) {
+                const materialId = e.target.dataset.id;
+                openEditMaterialModal(materialId);
+            }
+            
+            // Add stock button
+            if (e.target && e.target.classList.contains('add-stock-btn')) {
+                const materialId = e.target.dataset.id;
+                const materialName = e.target.dataset.name;
+                const currentStock = e.target.dataset.stock;
+                const unit = e.target.dataset.unit;
+                openAddStockModal(materialId, materialName, currentStock, unit);
+            }
+        });
+    });
+</script>
 {% endblock %} 

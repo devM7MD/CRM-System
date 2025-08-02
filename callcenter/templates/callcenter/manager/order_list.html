@@ -403,7 +403,7 @@ function assignOrder(orderId, agentId = null) {
     currentOrderId = orderId;
     
     // Load order details
-    fetch(`/callcenter/order/${orderId}/details/`)
+    fetch(`/callcenter/api/orders/${orderId}/details/`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('order-details').innerHTML = `
@@ -462,7 +462,7 @@ function confirmAssignOrder() {
         expected_completion: completionDate + ' ' + completionTime
     };
     
-    fetch(`/callcenter/order/${currentOrderId}/assign/`, {
+    fetch(`/callcenter/api/orders/${currentOrderId}/assign/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
